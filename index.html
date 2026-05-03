@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>My Safe Place</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#FF3D8B"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Safe Place"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg-primary:#FFFFFF;--bg-cream:#FFF8EC;--bg-soft:#F5F2EB;
+  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#E8E4DB;
+  --pop-pink:#FF3D8B;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#8B5CF6;--pop-cyan:#3DC8FF;
+  --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
+  --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,61,139,0.25);
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  /* legacy compat */
+  --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--nav:#fff;--nav-border:var(--hairline);--accent:var(--pop-pink);--radius:var(--radius-md);
+}
+
+body.dark{
+  --bg-primary:#0E0E0E;--bg-cream:#1A1710;--bg-soft:#151510;--ink-900:#F0EBE0;--ink-600:#B0A890;--ink-400:#706858;--hairline:#2A2620;
+  --bg:var(--bg-primary);--card:#1c1c1e;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#1c1c1e;--nav:#1A1710;--nav-border:var(--hairline);--accent:var(--pop-pink);
+}
+
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:80px}
+textarea,input,select{font-family:var(--font-body);background:var(--input);color:var(--ink-900);border-color:var(--hairline)}
+
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
+body.dark ::-webkit-scrollbar-thumb{background:#555}
+
+.leaflet-popup-content-wrapper{border-radius:var(--radius-md);box-shadow:var(--shadow-md)}
+.leaflet-popup-content{margin:10px 14px;font-family:var(--font-body)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.fade-in{animation:fadeIn .3s ease-out both}
+.slide-up{animation:slideUp .35s var(--ease) both}
+.press{transition:transform .12s ease;cursor:pointer}
+.press:active{transform:scale(.96)}
+
+/* Bottom nav - Partiful style */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
+body.dark .bottom-nav{background:rgba(26,23,16,0.92)}
+.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 12px;font-size:10px;font-weight:600;font-family:var(--font-body);color:var(--ink-400);transition:color .2s}
+.bottom-nav button.active{color:var(--ink-900)}
+.bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:all .2s var(--ease)}
+.bottom-nav button.active .nav-icon{filter:none;opacity:1;transform:scale(1.08) rotate(-4deg)}
+.bottom-nav button:not(.active) .nav-icon{filter:grayscale(0.8);opacity:0.55}
+
+/* Section titles - Partiful */
+.section-title{font-family:var(--font-display);font-weight:900;font-size:28px;letter-spacing:-0.015em;color:var(--ink-900);line-height:1.05}
+.section-sub{font-family:var(--font-body);font-size:13px;color:var(--ink-400);margin-top:4px}
+.mono-label{font-family:var(--font-mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-400)}
+
+/* Category grid - Partiful */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.cat-card{display:flex;flex-direction:column;align-items:flex-start;padding:14px 10px;border-radius:var(--radius-md);cursor:pointer;transition:all .2s var(--ease);text-align:left;border:none;background:transparent}
+.cat-card:active{transform:scale(.97)}
+.cat-card .cat-emoji{font-size:28px;margin-bottom:6px}
+.cat-card .cat-name{font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--ink-900)}
+.cat-card .cat-count{font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-600);margin-top:2px}
+
+/* Spot cards */
+.spot-card-v2{background:var(--card);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .2s var(--ease),box-shadow .2s var(--ease);cursor:pointer;border:1px solid var(--hairline)}
+.spot-card-v2:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.spot-card-v2:active{transform:scale(.98)}
+.spot-card-v2 .card-photo{width:100%;height:160px;object-fit:cover;background:var(--bg-soft)}
+.spot-card-v2 .card-body{padding:14px 16px}
+.spot-card-v2 .card-name{font-family:var(--font-body);font-weight:600;font-size:16px;color:var(--ink-900);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.spot-card-v2 .card-meta{font-family:var(--font-body);font-size:12.5px;color:var(--ink-400);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;font-family:var(--font-body);white-space:nowrap}
+
+/* Modal overlay - Partiful */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
+.modal-sheet{background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
+body.dark .modal-sheet{background:var(--bg-cream)}
+.modal-sheet .sheet-handle{width:46px;height:5px;border-radius:var(--radius-pill);background:var(--hairline);margin:0 auto 16px}
+.modal-center{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-center .modal-box{background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
+body.dark .modal-center .modal-box{background:var(--bg-cream)}
+
+/* Pill buttons - Partiful */
+.pill-btn{padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
+body.dark .pill-btn{background:var(--bg-soft)}
+.pill-btn.active{border-color:var(--ink-900);background:var(--ink-900);color:#fff}
+.pill-btn:active{transform:scale(.95)}
+
+/* Inputs - Partiful */
+.input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:#fff;font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
+body.dark .input-v2{background:var(--bg-soft)}
+.input-v2:focus{border-color:var(--pop-pink)}
+
+/* Buttons - Partiful */
+.btn-primary{width:100%;padding:16px;border-radius:var(--radius-pill);border:none;background:var(--ink-900);color:#fff;font-weight:600;cursor:pointer;font-size:16px;font-family:var(--font-body);transition:all .15s var(--ease);box-shadow:var(--shadow-pop)}
+.btn-primary:active{opacity:.85;transform:scale(.98)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{width:100%;padding:14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;color:var(--ink-900);font-weight:600;cursor:pointer;font-size:15px;font-family:var(--font-body)}
+body.dark .btn-secondary{background:var(--bg-soft)}
+
+.stat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--bg-cream);border:1px solid var(--hairline);font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900)}
+
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+.h-scroll::-webkit-scrollbar{display:none}
+.h-scroll>*{scroll-snap-align:start;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useRef,useCallback} = React;
+
+/* =============================================
+   PARTIFUL DESIGN HELPERS
+   ============================================= */
+const stableTilt = (id, max=2.2) => {
+  const x = Math.sin(id * 12.9898) * 43758.5453;
+  return ((x - Math.floor(x)) * 2 - 1) * max;
+};
+const formatRelDate = (iso) => {
+  const d = new Date(iso);
+  const days = Math.ceil((d - Date.now()) / (1000*60*60*24));
+  if (days <= 0) return "aujourd'hui";
+  if (days === 1) return 'demain';
+  return `J-${days}`;
+};
+const monthLabel = (iso) => {
+  const d = new Date(iso);
+  const m = ['janv','fevr','mars','avr','mai','juin','juil','aout','sept','oct','nov','dec'][d.getMonth()];
+  return `${d.getDate()} ${m}`;
+};
+
+/* =============================================
+   DATA & CONSTANTS
+   ============================================= */
+
+const INITIAL_SPOTS = [
+  {id:1,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Le Perchoir Marais",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80",photos:["https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80","https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80","https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80"],desc:"LE rooftop parisien par excellence. 250m2 au-dessus du BHV avec vue imprenable sur les toits. Cocktails top, ambiance decontractee.",vibe:"🔥 Incontournable",adresse:"33 rue de la Verrerie, 75004",lat:48.8557,lng:2.3516,metro:"M11 Hotel de Ville",price:"15-25€",hours:"Mar-Sam 18h-2h",tags:{who:["date","potes","collegues"],when:["apero","soiree"],vibe:["chic","festif"],zone:"centre"}},
+  {id:2,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Toit de la Bellevilloise",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80",photos:["https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80","https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],desc:"Rooftop rouvert printemps 2026. 170m2, vins bio, planches charcuterie, ambiance festive.",vibe:"🆕 Nouveau 2026",adresse:"21 rue Boyer, 75020",lat:48.8668,lng:2.3867,metro:"M3 Gambetta",price:"8-15€",hours:"Avr-Oct, 18h-2h",tags:{who:["potes","date"],when:["apero","soiree"],vibe:["decontracte","festif"],zone:"est"}},
+  {id:3,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Aqua Kyoto",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",photos:["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80","https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],desc:"Nouveau rooftop japonais sur les Champs-Elysees avec vue Tour Eiffel, Arc de Triomphe et Grand Palais.",vibe:"🆕 Nouveau 2026",adresse:"26 av. des Champs-Elysees, 75008",lat:48.8726,lng:2.3057,metro:"M1 Champs-Elysees Clemenceau",price:"25-50€",hours:"18h-2h",tags:{who:["date","collegues"],when:["apero","soiree"],vibe:["chic","depaysant"],zone:"ouest"}},
+  {id:4,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Coeur Sacre Montmartre",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",photos:["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],desc:"Nouveau lieu hybride : boutique createurs + boulangerie + coffee shop + rooftop bar-lounge.",vibe:"🆕 Nouveau 2026",adresse:"Butte Montmartre, 75018",lat:48.8867,lng:2.3431,metro:"M12 Abbesses",price:"10-20€",hours:"10h-23h",tags:{who:["date","potes","famille"],when:["journee","apero"],vibe:["chic","depaysant"],zone:"nord"}},
+  {id:5,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Khayma Rooftop",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=900&q=80",photos:["https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=900&q=80"],desc:"Toit-terrasse 150m2 au-dessus du Generator Hostel. Cocktails a moins de 10€, vue sur Montmartre.",vibe:"💸 Abordable",adresse:"9-11 place du Colonel Fabien, 75010",lat:48.8748,lng:2.3695,metro:"M2 Colonel Fabien",price:"5-10€",hours:"18h-1h",tags:{who:["potes","solo"],when:["apero","soiree"],vibe:["decontracte","festif"],zone:"nord"}},
+  {id:6,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Moonshiner",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80",photos:["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80","https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],desc:"Entrer par la pizzeria Da Vito, traverser la chambre froide fictive... repaire de gangsters des annees 20. Jazz, cocktails shakes.",vibe:"🍸 Bar",adresse:"5 rue Sedaine, 75011",lat:48.8565,lng:2.3733,metro:"M5/M9 Breguet-Sabin",price:"12-18€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree","after"],vibe:["intime","depaysant"],zone:"est"}},
+  {id:7,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Le Lavomatic",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",photos:["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],desc:"Facade de laverie. Trouver le bon bouton, ouvrir la fausse machine a laver... bar a cocktails colore avec balancoire.",vibe:"🍸 Bar",adresse:"10 rue Rene Boulanger, 75010",lat:48.8671,lng:2.3601,metro:"M3/5/8/9/11 Republique",price:"10-15€",hours:"18h-2h",tags:{who:["potes","date"],when:["soiree"],vibe:["festif","depaysant"],zone:"est"}},
+  {id:8,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Candelaria",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",photos:["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],desc:"Comptoir a tacos mexicains en facade, porte derobee au fond. DJ sets et cocktails dingues.",vibe:"🍸 Bar",adresse:"52 rue de Saintonge, 75003",lat:48.8617,lng:2.3614,metro:"M8 Filles du Calvaire",price:"12-18€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree","after"],vibe:["intime","depaysant"],zone:"centre"}},
+  {id:9,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Bistrot des Cineastes",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80",photos:["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80"],desc:"Bar cache au 1er etage d'un vrai cinema d'art et essai. Decor hommage a Melies, 250 ans d'histoire nocturne.",vibe:"🎬 Insolite",adresse:"7 av. de Clichy, 75017",lat:48.8842,lng:2.3264,metro:"M2/13 Place de Clichy",price:"8-14€",hours:"19h-2h",tags:{who:["date","potes","solo"],when:["soiree"],vibe:["intime","depaysant"],zone:"ouest"}},
+  {id:10,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Le Monastic",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80",photos:["https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80"],desc:"Speakeasy dans une chapelle neo-gothique classee Monument Historique. 400+ references de rhum.",vibe:"⛪ Insolite",adresse:"3 cr. de la Reine Margot, Issy-les-Moulineaux",lat:48.8198,lng:2.2717,metro:"T2 Issy-Val de Seine",price:"14-22€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree","after"],vibe:["chic","intime","depaysant"],zone:"banlieue"}},
+  {id:11,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Divine House",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",photos:["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],desc:"Porte miroitee dans le restaurant Public House. Decor tartan signe Laura Gonzalez. Associe au bar Paradiso (4e mondial).",vibe:"🌍 Top mondial",adresse:"Public House, Paris 8e",lat:48.8752,lng:2.3068,metro:"M1/13 Concorde",price:"20-35€",hours:"19h-2h",tags:{who:["date","collegues"],when:["soiree"],vibe:["chic","intime"],zone:"ouest"}},
+  {id:12,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Peniche-guinguette Seine",cats:["sortie"],photo:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",photos:["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],desc:"Jusqu'au 30 sept 2026 : peniche apero entre Hotel de Ville et Saint-Paul. Bieres artisanales, ambiance festive.",vibe:"☀️ Ephemere 2026",adresse:"Quais de Seine, 75004",lat:48.8553,lng:2.3531,metro:"M1/7 Pont Neuf",price:"5-10€",hours:"Avr-Sep, jour-23h",tags:{who:["potes","famille","date"],when:["apero","journee"],vibe:["decontracte","festif"],zone:"centre"}},
+  {id:13,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Philharmonie Belvedere",cats:["sortie"],photo:"https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",photos:["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],desc:"Rooftop gratuit sur le toit de la Philharmonie. Vue 360 sur La Villette. Ouvert avril-octobre.",vibe:"🆓 Gratuit",adresse:"221 av. Jean Jaures, 75019",lat:48.8894,lng:2.3942,metro:"M5 Porte de Pantin",price:"Gratuit",hours:"Avr-Oct",tags:{who:["potes","solo","date","famille"],when:["journee","apero"],vibe:["decontracte","depaysant"],zone:"est"}},
+  {id:14,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Au Top — Marais secret",cats:["sortie"],photo:"https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",photos:["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],desc:"Cour pavee + ascenseur cache = restaurant panoramique confidentiel sur les toits du Marais. Connu des inities seulement.",vibe:"🤫 Confidentiel",adresse:"93 rue Vieille du Temple, 75003",lat:48.8607,lng:2.3590,metro:"M1/11 Hotel de Ville",price:"20-40€",hours:"19h-23h",tags:{who:["date","collegues"],when:["soiree"],vibe:["chic","intime","depaysant"],zone:"centre"}},
+];
+
+const Q_WHO=[{k:"date",l:"💑 Date"},{k:"potes",l:"👥 Potes"},{k:"solo",l:"🧑 Solo"},{k:"collegues",l:"👔 Collegues"},{k:"famille",l:"👨‍👩‍👧 Famille"}];
+const Q_WHEN=[{k:"apero",l:"🌅 Apero (17-20h)"},{k:"soiree",l:"🌃 Soiree (20h-1h)"},{k:"after",l:"🌌 After (1h+)"},{k:"journee",l:"🌞 Journee"}];
+const Q_VIBE=[{k:"chic",l:"✨ Chic"},{k:"decontracte",l:"😎 Decontracte"},{k:"festif",l:"🔥 Festif"},{k:"intime",l:"🤫 Intime"},{k:"depaysant",l:"🌍 Depaysant"}];
+const Q_BUDGET=[{k:"gratuit",l:"🆓 Gratuit"},{k:"10",l:"💸 -10€"},{k:"20",l:"💰 ~20€"},{k:"30",l:"💎 ~30€+"},{k:"50",l:"👑 50€+"}];
+const Q_ZONE=[{k:"",l:"🎯 Peu importe"},{k:"centre",l:"Centre"},{k:"est",l:"Est"},{k:"nord",l:"Nord"},{k:"ouest",l:"Ouest"},{k:"sud",l:"Sud"},{k:"banlieue",l:"Banlieue"}];
+const Q_CUISINE=[{k:"francais",l:"🥖 Francais"},{k:"italien",l:"🍝 Italien"},{k:"asiat",l:"🍜 Asiatique"},{k:"gastro",l:"👨‍🍳 Gastro"},{k:"bistrot",l:"🍷 Bistrot"},{k:"brunch",l:"🥐 Brunch"},{k:"healthy",l:"🥗 Healthy"},{k:"burger",l:"🍔 Burger"},{k:"pizza",l:"🍕 Pizza"},{k:"fastfood",l:"🌯 Fast-food"}];
+const DEPTS=[{k:"75",l:"75 Paris",paris:true},{k:"77",l:"77 Seine-et-Marne"},{k:"78",l:"78 Yvelines"},{k:"91",l:"91 Essonne"},{k:"92",l:"92 Hauts-de-Seine"},{k:"93",l:"93 Seine-Saint-Denis"},{k:"94",l:"94 Val-de-Marne"},{k:"95",l:"95 Val-d'Oise"}];
+const PARIS_ARR=Array.from({length:20},(_,i)=>`75-${i+1}`);
+
+/* Partiful CATS palette */
+const CATS=[
+  {key:"all",label:"Tout",emoji:"🌟",color:"#6C63FF"},
+  {key:"resto",label:"Restos",emoji:"🍽️",color:"#FF3D8B"},
+  {key:"cafe",label:"Cafes",emoji:"☕",color:"#FF6B2C"},
+  {key:"rooftop",label:"Rooftops",emoji:"🏙️",color:"#8B5CF6"},
+  {key:"speakeasy",label:"Bars",emoji:"🍸",color:"#E91E63"},
+  {key:"club",label:"Clubs",emoji:"🪩",color:"#3DC8FF"},
+  {key:"sortie",label:"Sorties",emoji:"✨",color:"#C6FF3D"},
+];
+const CC={resto:"#FF3D8B",cafe:"#FF6B2C",rooftop:"#8B5CF6",speakeasy:"#E91E63",club:"#3DC8FF",sortie:"#C6FF3D"};
+const CB={resto:"#FFE4EE",cafe:"#FFE7D6",rooftop:"#EDE5FF",speakeasy:"#FFE0EC",club:"#D6F2FF",sortie:"#EAFFC6"};
+const CAT_TYPE={resto:"resto",cafe:"resto",rooftop:"sortie",speakeasy:"sortie",club:"sortie",sortie:"sortie"};
+const REACTIONS=[{emoji:"🔥",label:"Incroyable"},{emoji:"👍",label:"Bien"},{emoji:"😐",label:"Bof"}];
+
+const SK="monparis_spots_v3";const CK="monparis_challenge_v3";const TK="monparis_theme";const TRK="monparis_trash_v1";
+const ZK="myplace_zones_v1";const CTK="myplace_contacts_v1";const EVK="myplace_events_v1";const GK="myplace_gapi_key";
+const CT_COLORS=["#FF3D8B","#8B5CF6","#FFD23F","#3DC8FF","#FF6B2C","#C6FF3D","#E91E63","#6C63FF"];
+const TRASH_DAYS=7;
+
+const DC={italien:"italian",italienne:"italian",pizza:"pizza",japonais:"japanese",japonaise:"japanese",sushi:"japanese|sushi",ramen:"japanese|ramen",chinois:"chinese",chinoise:"chinese",asiat:"asian",asiatique:"asian",mexicain:"mexican",mexicaine:"mexican",indien:"indian",indienne:"indian",thai:"thai","thaï":"thai",libanais:"lebanese",libanaise:"lebanese","coréen":"korean","coréenne":"korean",vietnamien:"vietnamese",pho:"vietnamese",burger:"burger",gastro:"fine_dining",gastronomique:"fine_dining","français":"french","française":"french",traditionnel:"french",latino:"latin_american",latina:"latin_american",bresilien:"brazilian",bresilienne:"brazilian",bresil:"brazilian",cubain:"cuban",cubaine:"cuban",africain:"african",africaine:"african",turc:"turkish",turque:"turkish",grec:"greek",grecque:"greek",vegan:"vegan","végétarien":"vegetarian",vegetarien:"vegetarian",halal:"halal",kebab:"kebab",tapas:"spanish",espagnol:"spanish",espagnole:"spanish",marocain:"moroccan",marocaine:"moroccan",peruvien:"peruvian",colombien:"colombian",argentin:"argentinian",antillais:"caribbean",creole:"creole"};
+const DA={restaurant:"restaurant",resto:"restaurant",restau:"restaurant",brasserie:"restaurant",bistrot:"restaurant",bistro:"restaurant",pizzeria:"restaurant",trattoria:"restaurant",bar:"bar",pub:"pub","café":"cafe",cafe:"cafe",coffee:"cafe",club:"nightclub","boîte":"nightclub",boite:"nightclub","discothèque":"nightclub","soirée":"nightclub",soiree:"nightclub",boulangerie:"bakery","pâtisserie":"bakery",kebab:"fast_food",brunch:"cafe",rooftop:"bar",cocktail:"bar",cocktails:"bar","karaoké":"nightclub",karaoke:"nightclub",lounge:"bar"};
+const STOP_W=new Set(["de","du","d","a","le","la","les","l","et","en","sur","dans","pour","un","une","des","au","aux","ce","je","ou","mon","ma","mes","aller","trouver","cherche","demain","matin","midi","soir","bon","bonne","meilleur","top","avec"]);
+const DEPT_BB={"75":[48.815,2.225,48.905,2.425],"77":[48.12,2.39,49.12,3.56],"78":[48.44,1.44,49.09,2.23],"91":[48.28,1.91,48.78,2.59],"92":[48.73,2.14,48.95,2.34],"93":[48.84,2.30,49.01,2.60],"94":[48.68,2.30,48.86,2.62],"95":[48.90,1.60,49.24,2.60]};
+const AMENITY_LABELS={restaurant:"🍽️ Resto",cafe:"☕ Cafe",bar:"🍸 Bar",pub:"🍺 Pub",nightclub:"🎵 Club",fast_food:"🌯 Fast-food",bakery:"🥖 Boulangerie",ice_cream:"🍦 Glacier"};
+
+/* =============================================
+   HELPER FUNCTIONS
+   ============================================= */
+function detectDept(s){
+  const addr=s.adresse||"";const m=addr.match(/\b(\d{5})\b/);
+  if(m){const cp=m[1];if(cp.startsWith("75")){const num=parseInt(cp.slice(2),10);if(num>=1&&num<=20)return`75-${num}`;return"75-1";}const pref=cp.slice(0,2);if(["77","78","91","92","93","94","95"].includes(pref))return pref;}
+  if(/Issy|Boulogne|Neuilly|Levallois|Clichy-la|Meudon|Saint-Cloud/i.test(addr))return"92";
+  if(/Saint-Denis|Montreuil|Pantin|Bobigny/i.test(addr))return"93";
+  if(/Versailles|Saint-Germain|Yvelines|Poissy|Mantes/i.test(addr))return"78";
+  if(/Cergy|Pontoise|Argenteuil/i.test(addr))return"95";
+  if(/Paris/i.test(addr)||/,\s*750/i.test(addr))return"75-1";
+  return null;
+}
+function matchesZones(spot,zoneList){if(!zoneList||zoneList.length===0)return true;const dept=detectDept(spot);if(!dept)return true;if(zoneList.includes(dept))return true;if(dept.startsWith("75-")&&zoneList.includes("75"))return true;return false;}
+function hasCat(s,c){return Array.isArray(s.cats)?s.cats.includes(c):s.cat===c;}
+function getCats(s){return Array.isArray(s.cats)?s.cats:(s.cat?[s.cat]:["sortie"]);}
+function primaryCat(s){return getCats(s)[0]||"sortie";}
+function pickChallenge(spots){const todo=[...spots.filter(s=>!s.done&&s.status!=="rejected")].sort(()=>Math.random()-0.5);return todo.slice(0,Math.min(3,todo.length)).map(s=>s.id);}
+function getMonthLabel(){return new Date().toLocaleDateString("fr-FR",{month:"long",year:"numeric"});}
+function scoreSpot(s,a){if(!s.tags)return 0;let score=0;if(a.who&&s.tags.who?.includes(a.who))score+=3;if(a.when&&s.tags.when?.includes(a.when))score+=3;if(a.vibe&&s.tags.vibe?.includes(a.vibe))score+=3;if(a.cuisine&&s.tags.cuisine?.includes(a.cuisine))score+=4;if(a.work&&s.tags.work)score+=4;if(a.zone){if(s.tags.zone===a.zone)score+=2;else score-=1;}if(a.budget&&s.price&&s.price.toLowerCase().includes(a.budget.toLowerCase()))score+=2;return score;}
+function parseDiscover(q){const words=q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").split(/[\s,.']+/).filter(Boolean);let amenity=null,cuisine=null,bbox=[48.10,1.40,49.25,3.55],nameTerms=[];for(const w of words){if(DA[w]&&!amenity)amenity=DA[w];else if(DC[w]&&!cuisine)cuisine=DC[w];else if(w==="paris")bbox=DEPT_BB["75"];else if(/^\d{5}$/.test(w)){const d=w.slice(0,2);if(DEPT_BB[d])bbox=DEPT_BB[d];}else if(DEPT_BB[w])bbox=DEPT_BB[w];else if(!STOP_W.has(w)&&w.length>2)nameTerms.push(w);}if(!amenity&&cuisine)amenity="restaurant";if(!amenity&&nameTerms.length===0)amenity="restaurant";return{amenity,cuisine,bbox,nameTerms};}
+function buildOPQuery({amenity,cuisine,bbox,nameTerms}){const bb=`${bbox[0]},${bbox[1]},${bbox[2]},${bbox[3]}`;let parts=[];if(amenity==="nightclub"){parts.push(`node["amenity"~"nightclub|bar"](${bb})`);parts.push(`way["amenity"~"nightclub|bar"](${bb})`);if(cuisine){parts.push(`node["amenity"="restaurant"]["cuisine"~"${cuisine}",i](${bb})`);parts.push(`way["amenity"="restaurant"]["cuisine"~"${cuisine}",i](${bb})`);}}else{let f=amenity?`["amenity"="${amenity}"]`:`["amenity"~"restaurant|cafe|bar|pub|nightclub|fast_food"]`;if(cuisine)f+=`["cuisine"~"${cuisine}",i]`;if(nameTerms.length>0)f+=`["name"~"${nameTerms.join("|")}",i]`;parts.push(`node${f}(${bb})`);parts.push(`way${f}(${bb})`);}return`[out:json][timeout:12];(${parts.join(";")};);out center 80;`;}
+function scoreOPResult(el){const t=el.tags||{};let s=0;if(t.name)s+=3;if(t.cuisine)s+=1;if(t.opening_hours)s+=2;if(t.website||t["contact:website"])s+=1;if(t.phone||t["contact:phone"])s+=1;if(t["addr:street"])s+=1;return s;}
+
+async function googlePlacePhotos(name,address,apiKey,count=4){
+  if(!apiKey)return[];
+  try{
+    const q=(name+" "+(address||"Paris")).trim();
+    const r=await fetch("https://places.googleapis.com/v1/places:searchText",{method:"POST",headers:{"Content-Type":"application/json","X-Goog-Api-Key":apiKey,"X-Goog-FieldMask":"places.photos,places.displayName"},body:JSON.stringify({textQuery:q,languageCode:"fr",maxResultCount:1})});
+    if(!r.ok)return[];
+    const d=await r.json();
+    const place=d.places?.[0];if(!place?.photos?.length)return[];
+    return place.photos.slice(0,count).map(p=>`https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`);
+  }catch{return[];}
+}
+function getPhotos(s){if(Array.isArray(s.photos)&&s.photos.length)return s.photos;if(s.photo)return[s.photo];return[];}
+function firstPhoto(s){const p=getPhotos(s);return p[0]||"";}
+
+/* =============================================
+   SHARED MODAL COMPONENTS
+   ============================================= */
+
+function CatPill({cat,size}){
+  const c=CATS.find(x=>x.key===cat);
+  if(!c)return null;
+  const fs=size==="lg"?13:11;
+  return(
+    <span style={{display:'inline-flex',alignItems:'center',gap:5,background:CB[cat],color:'var(--ink-900)',padding:size==='lg'?'6px 14px':'4px 10px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:fs,border:`1px solid ${CC[cat]}33`,whiteSpace:'nowrap'}}>
+      <span style={{fontSize:fs+1}}>{c.emoji}</span> {c.label}
+    </span>
+  );
+}
+
+function ReactionModal({spot,onSave,onSkip}){
+  const [sel,setSel]=useState(null);const [note,setNote]=useState("");
+  return(
+    <div className="modal-center" onClick={onSkip}>
+      <div className="modal-box slide-up" onClick={e=>e.stopPropagation()}>
+        <div style={{textAlign:"center"}}>
+          <div style={{fontSize:44,marginBottom:8}}>🎉</div>
+          <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:24,letterSpacing:'-0.015em'}}>C'etait comment ?</div>
+          <div style={{fontSize:14,color:"var(--ink-400)",marginTop:4,fontFamily:'var(--font-body)'}}>{spot.name}</div>
+        </div>
+        <div style={{display:"flex",gap:12,justifyContent:"center",margin:"24px 0"}}>
+          {REACTIONS.map(r=>(
+            <button key={r.emoji} onClick={()=>setSel(r.emoji)} className="press" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,padding:"14px 18px",borderRadius:'var(--radius-md)',border:`2px solid ${sel===r.emoji?"var(--pop-pink)":"var(--hairline)"}`,background:sel===r.emoji?"rgba(255,61,139,0.08)":"#fff"}}>
+              <span style={{fontSize:32}}>{r.emoji}</span>
+              <span style={{fontSize:12,fontWeight:700,fontFamily:'var(--font-body)',color:sel===r.emoji?"var(--pop-pink)":"var(--ink-400)"}}>{r.label}</span>
+            </button>
+          ))}
+        </div>
+        <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Un souvenir a noter ? (optionnel)" className="input-v2" style={{resize:"vertical",minHeight:60,marginBottom:16,fontSize:14}}/>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={()=>onSave(sel,note)} disabled={!sel} className="btn-primary" style={{flex:1}}>Valider</button>
+          <button onClick={onSkip} className="btn-secondary" style={{flex:0,padding:"14px 20px"}}>Passer</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ZonesModal({zones,onSave,onClose,isOnboarding}){
+  const [resto,setResto]=useState(zones.resto||[]);const [sortie,setSortie]=useState(zones.sortie||[]);
+  const [showArrResto,setShowArrResto]=useState(resto.some(z=>z.startsWith("75-")));
+  const [showArrSortie,setShowArrSortie]=useState(sortie.some(z=>z.startsWith("75-")));
+  const toggle=(list,setList,k)=>{if(list.includes(k))setList(list.filter(x=>x!==k));else setList([...list,k]);};
+  const hasAny75=(list)=>list.some(z=>z==="75"||z.startsWith("75-"));
+  const toggleParisAll=(list,setList,showArr,setShowArr)=>{if(hasAny75(list)){setList(list.filter(z=>z!=="75"&&!z.startsWith("75-")));setShowArr(false);}else{setList([...list.filter(z=>z!=="75"&&!z.startsWith("75-")),"75"]);}};
+  const Section=({title,emoji,list,setList,showArr,setShowArr,hint})=>(
+    <div style={{marginBottom:20}}>
+      <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:15,marginBottom:4}}>{emoji} {title}</div>
+      {hint&&<div style={{fontSize:12,color:"var(--ink-400)",marginBottom:10,fontFamily:'var(--font-body)'}}>{hint}</div>}
+      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+        <label style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",background:hasAny75(list)?"rgba(255,61,139,0.08)":"var(--bg-soft)",borderRadius:10,cursor:"pointer",border:`1.5px solid ${hasAny75(list)?"var(--pop-pink)":"transparent"}`}}>
+          <input type="checkbox" checked={list.includes("75")} onChange={()=>toggleParisAll(list,setList,showArr,setShowArr)}/>
+          <span style={{fontWeight:700,fontSize:14,flex:1}}>75 Paris</span>
+          <button type="button" onClick={e=>{e.preventDefault();setShowArr(!showArr);}} style={{background:"#fff",border:"1px solid var(--hairline)",borderRadius:8,padding:"4px 10px",fontSize:11,cursor:"pointer",color:"var(--ink-400)",fontWeight:600,fontFamily:'var(--font-body)'}}>{showArr?"▲":"▼ Arr."}</button>
+        </label>
+        {showArr&&(
+          <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,padding:8,background:"var(--bg-soft)",borderRadius:10,marginLeft:12}}>
+            {PARIS_ARR.map(arr=>{const n=arr.split("-")[1];const checked=list.includes(arr);
+              return <button type="button" key={arr} onClick={()=>{if(list.includes("75"))setList(list.filter(z=>z!=="75"));toggle(list,setList,arr);}} style={{padding:"7px 2px",borderRadius:8,border:`1.5px solid ${checked?"var(--pop-pink)":"var(--hairline)"}`,background:checked?"var(--pop-pink)":"#fff",color:checked?"#fff":"var(--ink-900)",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:'var(--font-body)'}}>{n}</button>;
+            })}
+          </div>
+        )}
+        {DEPTS.filter(d=>!d.paris).map(d=>(
+          <label key={d.k} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",background:list.includes(d.k)?"rgba(255,61,139,0.08)":"var(--bg-soft)",borderRadius:10,cursor:"pointer",border:`1.5px solid ${list.includes(d.k)?"var(--pop-pink)":"transparent"}`}}>
+            <input type="checkbox" checked={list.includes(d.k)} onChange={()=>toggle(list,setList,d.k)}/>
+            <span style={{fontWeight:600,fontSize:14,fontFamily:'var(--font-body)'}}>{d.l}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+  return(
+    <div className="modal-overlay" onClick={isOnboarding?undefined:onClose}>
+      <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()}>
+        <div className="sheet-handle"/>
+        <div style={{marginBottom:20}}>
+          <div className="mono-label" style={{marginBottom:6}}>🌍 Zones</div>
+          <div className="section-title">{isOnboarding?"Bienvenue !":"Tes zones"}</div>
+          <div className="section-sub">{isOnboarding?"Dis-moi ou tu cherches des spots.":"Modifiable a tout moment."}</div>
+        </div>
+        <Section title="Restos & Cafes" emoji="🍽️" list={resto} setList={setResto} showArr={showArrResto} setShowArr={setShowArrResto} hint="Ex : 78 + 95 si tu tournes beaucoup sur ces secteurs"/>
+        <Section title="Sorties, Bars, Rooftops" emoji="🌃" list={sortie} setList={setSortie} showArr={showArrSortie} setShowArr={setShowArrSortie} hint="Ex : 75 Paris entier si tu sors mainly dans la capitale"/>
+        <button onClick={()=>onSave({resto,sortie})} disabled={resto.length===0&&sortie.length===0} className="btn-primary">{isOnboarding?"C'est parti 🚀":"Sauver mes zones"}</button>
+      </div>
+    </div>
+  );
+}
+
+function ContactsModal({contacts,onAdd,onUpdate,onDelete,onClose}){
+  const [name,setName]=useState("");const [emoji,setEmoji]=useState("🙂");const [color,setColor]=useState(CT_COLORS[0]);const [editId,setEditId]=useState(null);
+  const reset=()=>{setName("");setEmoji("🙂");setColor(CT_COLORS[0]);setEditId(null);};
+  const submit=()=>{if(!name.trim())return;if(editId!=null)onUpdate(editId,{name:name.trim(),emoji:emoji||"🙂",color});else onAdd({name:name.trim(),emoji:emoji||"🙂",color});reset();};
+  const startEdit=(c)=>{setEditId(c.id);setName(c.name);setEmoji(c.emoji);setColor(c.color);};
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()}>
+        <div className="sheet-handle"/>
+        <div style={{marginBottom:16}}>
+          <div className="mono-label" style={{marginBottom:6}}>🫂 Contacts</div>
+          <div className="section-title">Mes contacts</div>
+          <div className="section-sub">Pour taguer des spots avec les bonnes personnes</div>
+        </div>
+        <div style={{background:"var(--bg-soft)",borderRadius:'var(--radius-md)',padding:16,marginBottom:16}}>
+          <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:8}}>{editId!=null?"Modifier":"+ Nouveau contact"}</div>
+          <div style={{display:"flex",gap:8,marginBottom:10}}>
+            <input value={emoji} onChange={e=>setEmoji(e.target.value.slice(0,2))} placeholder="😀" style={{width:52,padding:10,borderRadius:10,border:"1.5px solid var(--hairline)",fontSize:20,textAlign:"center",background:'#fff'}}/>
+            <input value={name} onChange={e=>setName(e.target.value)} placeholder="Prenom / surnom" onKeyDown={e=>{if(e.key==="Enter")submit();}} className="input-v2" style={{flex:1}}/>
+          </div>
+          <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+            {CT_COLORS.map(c=><button key={c} onClick={()=>setColor(c)} style={{width:30,height:30,borderRadius:"50%",border:color===c?"3px solid var(--ink-900)":"2px solid transparent",background:c,cursor:"pointer",padding:0}}/>)}
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={submit} disabled={!name.trim()} className="btn-primary" style={{flex:1}}>{editId!=null?"Sauver":"Ajouter"}</button>
+            {editId!=null&&<button onClick={reset} className="btn-secondary" style={{flex:0,padding:"14px 20px"}}>Annuler</button>}
+          </div>
+        </div>
+        {contacts.length===0?<div style={{textAlign:"center",color:"var(--ink-400)",padding:24,fontSize:14,fontFamily:'var(--font-body)'}}>Pas encore de contact</div>:(
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {contacts.map(c=>(
+              <div key={c.id} className="fade-in" style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",background:"#fff",border:"1px solid var(--hairline)",borderRadius:12}}>
+                <div style={{width:38,height:38,borderRadius:"50%",background:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{c.emoji}</div>
+                <div style={{flex:1,fontFamily:'var(--font-body)',fontWeight:600,fontSize:15}}>{c.name}</div>
+                <button onClick={()=>startEdit(c)} className="press" style={{background:"var(--bg-cream)",border:"1px solid var(--hairline)",borderRadius:10,padding:"6px 12px",fontSize:13}}>✏️</button>
+                <button onClick={()=>{if(confirm(`Supprimer ${c.name} ?`))onDelete(c.id);}} className="press" style={{background:"#fee2e2",border:"none",borderRadius:10,padding:"6px 12px",fontSize:13,color:"#991b1b"}}>🗑</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ContactPicker({spot,contacts,onToggle,onClose,onOpenContacts}){
+  const current=spot.contacts||[];
+  return(
+    <div className="modal-center" onClick={onClose}>
+      <div className="modal-box slide-up" onClick={e=>e.stopPropagation()}>
+        <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:22,marginBottom:4}}>Avec qui y aller ?</div>
+        <div style={{fontSize:13,color:"var(--ink-400)",marginBottom:16,fontFamily:'var(--font-body)'}}>{spot.name}</div>
+        {contacts.length===0?(
+          <div style={{textAlign:"center",padding:20}}>
+            <div style={{fontSize:14,color:"var(--ink-400)",marginBottom:12,fontFamily:'var(--font-body)'}}>Aucun contact</div>
+            <button onClick={onOpenContacts} className="btn-primary">+ Creer mon 1er contact</button>
+          </div>
+        ):(
+          <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
+            {contacts.map(c=>{const on=current.includes(c.id);
+              return <button key={c.id} className="press" onClick={()=>onToggle(c.id)} style={{display:"flex",alignItems:"center",gap:6,padding:"8px 14px 8px 8px",borderRadius:999,border:on?`2px solid ${c.color}`:"1px solid var(--hairline)",background:on?`${c.color}18`:"#fff",fontSize:14,fontWeight:600,fontFamily:'var(--font-body)'}}>
+                <span style={{width:26,height:26,borderRadius:"50%",background:c.color,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13}}>{c.emoji}</span>
+                {c.name}{on&&<span style={{color:c.color,fontWeight:900}}>✓</span>}
+              </button>;
+            })}
+          </div>
+        )}
+        <button onClick={onOpenContacts} style={{marginTop:16,width:"100%",padding:10,borderRadius:'var(--radius-md)',border:"1.5px dashed var(--hairline)",background:"transparent",color:"var(--ink-400)",cursor:"pointer",fontSize:13,fontWeight:600,fontFamily:'var(--font-body)'}}>⚙️ Gerer mes contacts</button>
+      </div>
+    </div>
+  );
+}
+
+function SuggestModal({spots,onClose,onPick,onStatus,onDone}){
+  const [a,setA]=useState({who:"",when:"",vibe:"",budget:"",zone:"",cuisine:"",work:false});
+  const [shown,setShown]=useState(false);
+  const set=(k,v)=>setA(x=>({...x,[k]:x[k]===v?"":v}));
+  const results=useMemo(()=>{if(!shown)return[];return spots.filter(s=>!s.done&&s.status!=="rejected").map(s=>({s,score:scoreSpot(s,a)})).filter(r=>r.score>0).sort((a,b)=>b.score-a.score).slice(0,5);},[shown,a,spots]);
+  const Pill=({list,k})=><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{list.map(o=><button key={o.k} onClick={()=>set(k,o.k)} className={`pill-btn${a[k]===o.k?" active":""}`}>{o.l}</button>)}</div>;
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()} style={{maxHeight:"95vh",background:'var(--bg-cream)'}}>
+        <div style={{position:'sticky',top:0,padding:'0 0 12px',background:'var(--bg-cream)',zIndex:5,borderBottom:'1px solid var(--hairline)'}}>
+          <div className="sheet-handle"/>
+          <div className="mono-label" style={{marginBottom:4}}>🎯 Suggerer {shown?'Top picks':'Tes criteres'}</div>
+          <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:32,lineHeight:1,letterSpacing:'-0.02em'}}>
+            {shown?<>Tes 5 best<br/>matchs ✨</>:<>Trouve ton<br/>spot 🎯</>}
+          </div>
+        </div>
+        {!shown&&(
+        <div style={{display:"flex",flexDirection:"column",gap:16,paddingTop:8}}>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>🫂 Avec qui ?</div><Pill list={Q_WHO} k="who"/></div>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>🕐 Quel moment ?</div><Pill list={Q_WHEN} k="when"/></div>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>✨ Ambiance ?</div><Pill list={Q_VIBE} k="vibe"/></div>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>💸 Budget ?</div><Pill list={Q_BUDGET} k="budget"/></div>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>🗺️ Zone ?</div><Pill list={Q_ZONE} k="zone"/></div>
+          <div><div style={{fontFamily:'var(--font-body)',fontSize:14,fontWeight:600,marginBottom:8}}>🍴 Cuisine ?</div><Pill list={Q_CUISINE} k="cuisine"/></div>
+          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:'14px 16px'}}>
+            <div>
+              <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14}}>💻 Workfriendly</div>
+              <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>Wifi, calme, prises</div>
+            </div>
+            <button onClick={()=>setA(x=>({...x,work:!x.work}))} style={{width:48,height:28,borderRadius:999,background:a.work?'var(--pop-pink)':'var(--bg-soft)',border:'1px solid var(--hairline)',position:'relative',cursor:'pointer'}}>
+              <div style={{position:'absolute',top:2,left:a.work?22:2,width:22,height:22,borderRadius:999,background:'#fff',boxShadow:'var(--shadow-sm)',transition:'left 200ms var(--ease)'}}/>
+            </button>
+          </div>
+        </div>
+        )}
+        {!shown&&(
+        <div style={{display:"flex",gap:8,marginTop:20}}>
+          <button onClick={()=>setShown(true)} className="btn-primary" style={{flex:1}}>Voir les matchs ↗</button>
+          <button onClick={()=>{setA({who:"",when:"",vibe:"",budget:"",zone:"",cuisine:"",work:false});setShown(false);}} className="btn-secondary" style={{flex:0,padding:"14px 20px"}}>Reset</button>
+        </div>
+        )}
+        {shown&&(
+          <div style={{marginTop:12}}>
+            {results.length===0&&<div style={{padding:'30px 0',textAlign:'center',fontFamily:'var(--font-body)',color:'var(--ink-400)'}}>Pas de match. Elargis tes criteres.</div>}
+            {results.map(({s,score},i)=>{
+              const medal=['🥇','🥈','🥉','✨','✨'][i];
+              const live=spots.find(x=>x.id===s.id)||s;
+              return(
+                <button key={s.id} className="fade-in" onClick={()=>{onPick(s);onClose();}} style={{width:'100%',display:'flex',gap:12,alignItems:'center',background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:12,marginTop:10,cursor:'pointer',textAlign:'left'}}>
+                  <div style={{fontSize:24}}>{medal}</div>
+                  <div style={{width:60,height:60,borderRadius:10,background:CB[primaryCat(s)],overflow:'hidden',flexShrink:0}}>
+                    {firstPhoto(s)&&<img src={firstPhoto(s)} style={{width:'100%',height:'100%',objectFit:'cover'}}/>}
+                  </div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <CatPill cat={primaryCat(s)}/>
+                    <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:18,letterSpacing:'-0.01em',marginTop:4,lineHeight:1.05}}>{s.name}</div>
+                    <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>{s.metro} · {s.price} · {score} pts</div>
+                  </div>
+                </button>
+              );
+            })}
+            <button onClick={()=>setShown(false)} style={{width:'100%',marginTop:18,background:'transparent',color:'var(--ink-900)',border:'1px solid var(--hairline)',padding:'14px 24px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:14}}>← Modifier les criteres</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AddressAutocomplete({value,onChange,onPick,placeholder}){
+  const [sugg,setSugg]=useState([]);const [focused,setFocused]=useState(false);const abortRef=useRef(null);const tRef=useRef(null);
+  const fetchSugg=(q)=>{if(abortRef.current)abortRef.current.abort();if(!q||q.trim().length<3){setSugg([]);return;}const ctrl=new AbortController();abortRef.current=ctrl;fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=5&lang=fr&bbox=2.20,48.70,2.50,48.95`,{signal:ctrl.signal}).then(r=>r.json()).then(d=>setSugg(d.features||[])).catch(e=>{if(e.name!=="AbortError")console.warn(e);});};
+  const handleChange=(v)=>{onChange(v);if(tRef.current)clearTimeout(tRef.current);tRef.current=setTimeout(()=>fetchSugg(v),300);};
+  const format=(f)=>{const p=f.properties;const parts=[];if(p.housenumber)parts.push(p.housenumber);if(p.street)parts.push(p.street);else if(p.name)parts.push(p.name);const line1=parts.join(" ");const line2=[p.postcode,p.city].filter(Boolean).join(" ");return{adresse:[line1,line2].filter(Boolean).join(", "),lat:f.geometry.coordinates[1],lng:f.geometry.coordinates[0],label:line1||p.name||"—",sub:line2};};
+  return(
+    <div style={{position:"relative",marginBottom:8}}>
+      <input value={value} onChange={e=>handleChange(e.target.value)} onFocus={()=>setFocused(true)} onBlur={()=>setTimeout(()=>setFocused(false),200)} placeholder={placeholder} className="input-v2"/>
+      {focused&&sugg.length>0&&(
+        <div style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:"#fff",border:"1px solid var(--hairline)",borderRadius:'var(--radius-md)',boxShadow:"var(--shadow-lg)",zIndex:20,maxHeight:260,overflowY:"auto"}}>
+          {sugg.map((f,i)=>{const o=format(f);return(
+            <div key={i} onMouseDown={()=>{onPick(o);setSugg([]);}} style={{padding:"10px 14px",cursor:"pointer",borderBottom:i<sugg.length-1?"1px solid var(--hairline)":"none"}}>
+              <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14}}>📍 {o.label}</div>
+              {o.sub&&<div style={{fontSize:12,color:"var(--ink-400)",marginTop:2}}>{o.sub}</div>}
+            </div>
+          );})}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =============================================
+   PHOTO CAROUSEL - Partiful style
+   ============================================= */
+function PhotoCarousel({photos,catColor}){
+  const [idx,setIdx]=useState(0);
+  const touchRef=useRef({x:0,y:0,swiping:false});
+  if(!photos||photos.length===0)return null;
+  const go=(dir)=>{const next=idx+dir;if(next>=0&&next<photos.length)setIdx(next);};
+  const onTouchStart=(e)=>{touchRef.current={x:e.touches[0].clientX,y:e.touches[0].clientY,swiping:true};};
+  const onTouchEnd=(e)=>{if(!touchRef.current.swiping)return;const dx=e.changedTouches[0].clientX-touchRef.current.x;const dy=e.changedTouches[0].clientY-touchRef.current.y;touchRef.current.swiping=false;if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){dx<0?go(1):go(-1);}};
+  const handleTap=(e)=>{const rect=e.currentTarget.getBoundingClientRect();const x=e.clientX-rect.left;if(x<rect.width*0.3)go(-1);else if(x>rect.width*0.7)go(1);};
+  return(
+    <div style={{position:"relative",overflow:"hidden",aspectRatio:'4/3',background:catColor||'var(--bg-soft)'}}
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onClick={handleTap}>
+      <div style={{display:"flex",transition:"transform .35s var(--ease)",transform:`translateX(-${idx*100}%)`}}>
+        {photos.map((url,i)=>(
+          <div key={i} style={{minWidth:"100%",height:"100%",aspectRatio:'4/3',backgroundImage:`url(${url})`,backgroundSize:"cover",backgroundPosition:"center"}}/>
+        ))}
+      </div>
+      {photos.length>1&&(
+        <>
+          <div style={{position:"absolute",bottom:14,left:'50%',transform:'translateX(-50%)',display:"flex",gap:6}}>
+            {photos.map((_,i)=>(
+              <div key={i} style={{width:idx===i?22:6,height:6,borderRadius:999,background:'#fff',opacity:idx===i?1:0.5,transition:"all .3s var(--ease)",cursor:"pointer"}} onClick={(e)=>{e.stopPropagation();setIdx(i);}}/>
+            ))}
+          </div>
+          <div style={{position:"absolute",top:14,left:14,background:"rgba(0,0,0,0.6)",backdropFilter:"blur(8px)",borderRadius:6,padding:"4px 8px",fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.1em',fontWeight:700,color:"#fff"}}>{idx+1}/{photos.length}</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* =============================================
+   SPOT DETAIL - Partiful bottom sheet
+   ============================================= */
+function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit,onContactPicker,onNote}){
+  const [noteMode,setNoteMode]=useState(false);const [noteText,setNoteText]=useState(spot.note||"");
+  const gmaps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name+" "+(spot.adresse||"")).trim())}`;
+  const spotContacts=(spot.contacts||[]).map(id=>contacts.find(c=>c.id===id)).filter(Boolean);
+  const meta=[spot.metro?`🚇 ${spot.metro}`:"",spot.price?`💸 ${spot.price}`:"",spot.hours?`🕐 ${spot.hours}`:""].filter(Boolean);
+  const photos=getPhotos(spot);
+  const cat=CATS.find(c=>c.key===primaryCat(spot));
+  return(
+    <div style={{position:'fixed',inset:0,zIndex:100,background:'rgba(10,10,10,0.5)',backdropFilter:'blur(4px)',display:'flex',alignItems:'flex-end',justifyContent:'center'}} onClick={onClose}>
+      <div className="slide-up" onClick={e=>e.stopPropagation()} style={{width:'100%',maxWidth:600,maxHeight:'94vh',overflowY:'auto',background:'var(--bg-primary)',borderRadius:'24px 24px 0 0'}}>
+        {/* Photo carousel */}
+        {photos.length>0?<PhotoCarousel photos={photos} catColor={CB[primaryCat(spot)]}/>:(
+          <div style={{aspectRatio:'4/3',background:CB[primaryCat(spot)],display:'flex',alignItems:'center',justifyContent:'center',fontSize:60,position:'relative'}}>
+            {cat?.emoji}
+          </div>
+        )}
+        {/* Handle + close */}
+        <div style={{position:'absolute',top:8,left:'50%',transform:'translateX(-50%)',width:46,height:5,borderRadius:999,background:'rgba(255,255,255,0.7)',zIndex:2}}/>
+        <button onClick={onClose} style={{position:'absolute',top:14,right:14,width:36,height:36,borderRadius:999,background:'rgba(255,255,255,0.95)',border:'none',cursor:'pointer',fontSize:18,fontWeight:600,zIndex:2}}>x</button>
+
+        <div style={{padding:'22px 22px 24px'}}>
+          {/* Cat badges */}
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+            {getCats(spot).map(c=><CatPill key={c} cat={c} size="lg"/>)}
+            {spot.vibe&&<span style={{background:'var(--ink-900)',color:'#fff',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:500,fontSize:12.5}}>{spot.vibe}</span>}
+            {spot.status==="wishlist"&&<span style={{background:'var(--pop-yellow)',color:'var(--ink-900)',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:12.5}}>★ Envie</span>}
+          </div>
+
+          {/* Title */}
+          <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:36,lineHeight:0.98,letterSpacing:'-0.02em',margin:0}}>
+            {spot.name} {spot.fav&&<span style={{color:'var(--pop-pink)'}}>♥</span>}
+          </h1>
+          {spot.adresse&&<div style={{fontFamily:'var(--font-body)',fontSize:14,color:'var(--ink-400)',marginTop:8}}>📍 {spot.adresse}</div>}
+
+          {/* Meta pills */}
+          {meta.length>0&&<div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:14}}>{meta.map((m,i)=>(
+            <div key={i} style={{background:'var(--bg-cream)',border:'1px solid var(--hairline)',padding:'8px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontSize:13,fontWeight:500,display:'flex',gap:6,alignItems:'center'}}>{m}</div>
+          ))}</div>}
+
+          {/* Desc */}
+          {spot.desc&&<p style={{fontFamily:'var(--font-body)',fontSize:15.5,lineHeight:1.55,color:'var(--ink-600)',margin:'18px 0 0'}}>{spot.desc}</p>}
+          {spot.website&&<a href={spot.website.startsWith("http")?spot.website:"https://"+spot.website} target="_blank" rel="noopener noreferrer" style={{display:"inline-block",marginTop:12,fontSize:14,color:"var(--pop-pink)",textDecoration:"none",fontWeight:600,fontFamily:'var(--font-body)'}}>🌐 {spot.website.replace(/^https?:\/\//,"").slice(0,40)}</a>}
+
+          {/* Tags */}
+          {(spot.tags?.work||(spot.tags?.cuisine&&spot.tags.cuisine.length>0))&&(
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:14}}>
+              {spot.tags?.work&&<span className="chip" style={{background:"rgba(139,92,246,0.12)",color:"var(--pop-violet)"}}>💻 Workfriendly</span>}
+              {spot.tags?.cuisine?.map(c=>{const q=Q_CUISINE.find(x=>x.k===c);return q&&<span key={c} className="chip" style={{background:"#fff7e6",color:"#b45309"}}>{q.l}</span>;})}
+            </div>
+          )}
+
+          {/* Contacts */}
+          {spotContacts.length>0&&(
+            <div style={{marginTop:18}}>
+              <div className="mono-label" style={{marginBottom:8}}>Avec</div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {spotContacts.map(c=>(
+                  <div key={c.id} style={{display:'flex',alignItems:'center',gap:6,background:'#fff',border:'1px solid var(--hairline)',borderRadius:999,padding:'4px 12px 4px 4px'}}>
+                    <div style={{width:26,height:26,borderRadius:999,background:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>{c.emoji}</div>
+                    <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:12.5}}>{c.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Reaction */}
+          {spot.done&&spot.reaction&&(
+            <div style={{marginTop:18,padding:'14px 16px',background:'var(--bg-cream)',borderRadius:'var(--radius-md)',display:'flex',alignItems:'center',gap:12}}>
+              <div style={{fontSize:34}}>{spot.reaction}</div>
+              <div>
+                <div className="mono-label">Ta reaction</div>
+                <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14,marginTop:2}}>{REACTIONS.find(r=>r.emoji===spot.reaction)?.label}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Note */}
+          {noteMode?(
+            <div style={{marginTop:14}}>
+              <textarea value={noteText} onChange={e=>setNoteText(e.target.value)} placeholder="Ta note perso..." autoFocus className="input-v2" style={{resize:"vertical",minHeight:60,fontSize:14,marginBottom:8}}/>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>{onNote(spot.id,noteText);setNoteMode(false);}} className="btn-primary" style={{flex:1,padding:10,fontSize:13}}>Sauver</button>
+                <button onClick={()=>setNoteMode(false)} className="btn-secondary" style={{flex:0,padding:"10px 16px",fontSize:13}}>Annuler</button>
+              </div>
+            </div>
+          ):(
+            <div onClick={()=>setNoteMode(true)} style={{cursor:"pointer",marginTop:14}}>
+              {spot.note?(
+                <div style={{padding:'14px 16px',background:'var(--pop-yellow)',borderRadius:'var(--radius-md)',transform:'rotate(-0.6deg)'}}>
+                  <div className="mono-label" style={{color:'var(--ink-600)'}}>📝 Ta note</div>
+                  <div style={{fontFamily:'var(--font-display)',fontStyle:'italic',fontSize:15,marginTop:6,color:'var(--ink-900)'}}>&ldquo;{spot.note}&rdquo;</div>
+                </div>
+              ):(
+                <div style={{padding:'12px 16px',border:'1.5px dashed var(--hairline)',borderRadius:'var(--radius-md)',fontFamily:'var(--font-body)',fontSize:13,color:'var(--ink-400)',cursor:'pointer'}}>+ Ajouter une note perso</div>
+              )}
+            </div>
+          )}
+
+          {/* Action buttons grid */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginTop:24}}>
+            {[
+              {i:spot.done?"✓":"○",t:spot.done?"Fait":"A faire",a:"done",active:spot.done,color:'var(--pop-lime)'},
+              {i:"♥",t:"Favori",a:"fav",active:spot.fav,color:'var(--pop-pink)'},
+              {i:"★",t:"Envie",a:"wishlist",active:spot.status==="wishlist",color:'var(--pop-yellow)'},
+              {i:"🫂",t:"Potes",a:"contacts",active:false,color:'var(--pop-cyan)'},
+            ].map(b=>(
+              <button key={b.a} onClick={()=>{
+                if(b.a==="done")onDone(spot.id);
+                if(b.a==="fav")onFav(spot.id);
+                if(b.a==="wishlist")onStatus(spot.id,"wishlist");
+                if(b.a==="contacts")onContactPicker(spot.id);
+              }} className="press" style={{background:b.active?b.color:'#fff',color:'var(--ink-900)',border:'1px solid '+(b.active?b.color:'var(--hairline)'),borderRadius:'var(--radius-md)',padding:'12px 6px',cursor:'pointer',display:'flex',flexDirection:'column',gap:4,alignItems:'center',fontFamily:'var(--font-body)',fontWeight:600,fontSize:11.5}}>
+                <span style={{fontSize:18}}>{b.i}</span>
+                <span>{b.t}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Bottom links */}
+          <div style={{display:"flex",gap:8,marginTop:14}}>
+            <button onClick={()=>onEdit(spot)} style={{flex:1,background:'transparent',border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13}}>✏️ Modifier</button>
+            <a href={gmaps} target="_blank" rel="noopener noreferrer" style={{flex:1,background:'transparent',border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,textDecoration:'none',color:'var(--ink-900)',textAlign:'center'}}>↗ Maps</a>
+            <button onClick={()=>{if(confirm(`Supprimer "${spot.name}" ?`))onRemove(spot.id);onClose();}} style={{background:'transparent',border:'1px solid var(--hairline)',padding:'12px 14px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,color:'#E91E63'}}>🗑️</button>
+          </div>
+          <button onClick={()=>onStatus(spot.id,"rejected")} style={{marginTop:8,width:'100%',background:spot.status==="rejected"?"#fee2e2":"transparent",border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,color:spot.status==="rejected"?"#991b1b":"var(--ink-400)"}}>🚫 {spot.status==="rejected"?"Annuler refus":"Refuser"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =============================================
+   POSTER CARD (favorites) - Partiful style
+   ============================================= */
+function PosterSpotCard({spot,onOpen}){
+  const cat=CATS.find(c=>c.key===primaryCat(spot));
+  const tilt=stableTilt(spot.id,2);
+  return(
+    <button onClick={()=>onOpen(spot)} style={{width:'100%',textAlign:'left',cursor:'pointer',background:'transparent',border:'none',padding:0,transform:`rotate(${tilt}deg)`,transition:'transform 250ms var(--ease)'}}
+      onMouseEnter={e=>{e.currentTarget.style.transform=`rotate(${tilt-0.5}deg) translateY(-4px)`;}}
+      onMouseLeave={e=>{e.currentTarget.style.transform=`rotate(${tilt}deg)`;}}
+    >
+      <div style={{position:'relative',aspectRatio:'3/4',borderRadius:'var(--radius-lg)',overflow:'hidden',background:CC[primaryCat(spot)],boxShadow:'var(--shadow-md)'}}>
+        {firstPhoto(spot)&&<img src={firstPhoto(spot)} alt={spot.name} style={{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover',filter:spot.done?'grayscale(0.4) brightness(0.85)':'none'}}/>}
+        <div style={{position:'absolute',inset:0,background:'linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.55) 100%)'}}/>
+        <div style={{position:'absolute',top:12,left:12,right:12,display:'flex',gap:6,justifyContent:'space-between'}}>
+          <div style={{background:'#fff',color:'var(--ink-900)',padding:'6px 11px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:11,display:'flex',alignItems:'center',gap:4}}>
+            <span style={{fontSize:13}}>{cat?.emoji}</span> {cat?.label}
+          </div>
+          {spot.fav&&<div style={{background:'var(--pop-pink)',color:'#fff',width:30,height:30,borderRadius:999,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14}}>♥</div>}
+        </div>
+        <div style={{position:'absolute',left:14,right:14,bottom:14,color:'#fff'}}>
+          {spot.vibe&&<div style={{display:'inline-block',fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.15em',textTransform:'uppercase',background:'rgba(255,255,255,0.18)',backdropFilter:'blur(6px)',padding:'4px 8px',borderRadius:6,marginBottom:8}}>{spot.vibe}</div>}
+          <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:22,lineHeight:0.98,letterSpacing:'-0.015em'}}>{spot.name}</div>
+          <div style={{fontFamily:'var(--font-body)',fontSize:11,opacity:0.85,marginTop:6,display:'flex',gap:8,alignItems:'center'}}>
+            <span>📍 {spot.metro||''}</span><span>·</span><span>{spot.price||''}</span>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+/* =============================================
+   CLEAN CARD (regular spots) - Partiful style
+   ============================================= */
+function CleanSpotCard({s,onOpen}){
+  const cat=CATS.find(c=>c.key===primaryCat(s));
+  return(
+    <button onClick={()=>onOpen(s)} style={{width:'100%',display:'flex',gap:14,padding:12,background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',boxShadow:'var(--shadow-sm)',cursor:'pointer',textAlign:'left',alignItems:'center',transition:'transform 200ms var(--ease), box-shadow 200ms var(--ease)'}}
+      onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-2px)';e.currentTarget.style.boxShadow='var(--shadow-md)';}}
+      onMouseLeave={e=>{e.currentTarget.style.transform='';e.currentTarget.style.boxShadow='var(--shadow-sm)';}}
+    >
+      <div style={{width:88,height:88,flexShrink:0,borderRadius:12,overflow:'hidden',background:CB[primaryCat(s)],position:'relative'}}>
+        {firstPhoto(s)?<img src={firstPhoto(s)} alt={s.name} style={{width:'100%',height:'100%',objectFit:'cover',filter:s.done?'grayscale(0.35)':'none'}}/>:(
+          <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:30}}>{cat?.emoji}</div>
+        )}
+        {s.done&&<div style={{position:'absolute',top:6,right:6,background:'var(--pop-lime)',color:'var(--ink-900)',width:22,height:22,borderRadius:999,fontSize:12,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:700}}>✓</div>}
+      </div>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+          <CatPill cat={primaryCat(s)}/>
+          {s.fav&&<span style={{color:'var(--pop-pink)',fontSize:14}}>♥</span>}
+          {s.status==='wishlist'&&<span style={{fontSize:11,color:'var(--ink-400)'}}>· envie</span>}
+        </div>
+        <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:16,color:'var(--ink-900)',lineHeight:1.2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name}</div>
+        <div style={{fontFamily:'var(--font-body)',fontSize:12.5,color:'var(--ink-400)',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>📍 {s.metro||s.adresse||''} · {s.price||''}</div>
+      </div>
+      {s.reaction&&<div style={{fontSize:22,marginRight:4}}>{s.reaction}</div>}
+    </button>
+  );
+}
+
+/* =============================================
+   MAIN APP
+   ============================================= */
+function App(){
+  const [tab,setTab]=useState("home");
+
+  // State
+  const [spots,setSpots]=useState(()=>{try{const raw=localStorage.getItem(SK);if(!raw)return INITIAL_SPOTS;const saved=JSON.parse(raw);return saved.map(s=>{const init=INITIAL_SPOTS.find(i=>i.id===s.id);const cats=Array.isArray(s.cats)?s.cats:(s.cat?[s.cat]:["sortie"]);const photo=s.photo||"";if(!init)return{...s,cats,photo,cat:undefined};return{...s,cats,photo:photo||init.photo,photos:s.photos||init.photos,cat:undefined,metro:s.metro||init.metro,price:s.price||init.price,hours:s.hours||init.hours,tags:{...init.tags,cuisine:s.tags?.cuisine||[],work:s.tags?.work||false}};});}catch{return INITIAL_SPOTS;}});
+  const [challenge,setChallenge]=useState(()=>{try{const c=localStorage.getItem(CK);return c?JSON.parse(c):{ids:pickChallenge(INITIAL_SPOTS),month:getMonthLabel()};}catch{return{ids:pickChallenge(INITIAL_SPOTS),month:getMonthLabel()};}});
+  const [dark,setDark]=useState(()=>{try{const t=localStorage.getItem(TK);if(t)return t==="dark";return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}catch{return false;}});
+  const [trash,setTrash]=useState(()=>{try{const raw=localStorage.getItem(TRK);if(!raw)return[];const cutoff=Date.now()-TRASH_DAYS*864e5;return JSON.parse(raw).filter(t=>t.deletedAt&&t.deletedAt>cutoff);}catch{return[];}});
+  const [zones,setZones]=useState(()=>{try{const raw=localStorage.getItem(ZK);if(raw)return JSON.parse(raw);}catch{}return null;});
+  const [contacts,setContacts]=useState(()=>{try{const raw=localStorage.getItem(CTK);return raw?JSON.parse(raw):[];}catch{return[];}});
+  const [events,setEvents]=useState(()=>{try{const raw=localStorage.getItem(EVK);if(raw){const parsed=JSON.parse(raw);return parsed.filter(ev=>new Date(ev.date)>=new Date(new Date().toDateString()));}return[];}catch{return[];}});
+  const [gApiKey,setGApiKey]=useState(()=>{try{return localStorage.getItem(GK)||"";}catch{return"";}});
+  const [photoLoading,setPhotoLoading]=useState(false);const [photoProgress,setPhotoProgress]=useState("");
+
+  // UI state
+  const [cat,setCat]=useState("all");
+  const [filter,setFilter]=useState("all");
+  const [search,setSearch]=useState("");
+  const [sort,setSort]=useState("recent");
+  const [selectedSpot,setSelectedSpot]=useState(null);
+  const [showForm,setShowForm]=useState(false);
+  const [editingId,setEditingId]=useState(null);
+  const [showSuggest,setShowSuggest]=useState(false);
+  const [showZones,setShowZones]=useState(false);
+  const [showContacts,setShowContacts]=useState(false);
+  const [contactPickerFor,setContactPickerFor]=useState(null);
+  const [reactionSpot,setReactionSpot]=useState(null);
+  const [showEventForm,setShowEventForm]=useState(false);
+  const [editingEvId,setEditingEvId]=useState(null);
+
+  // Form state
+  const [nName,setNName]=useState("");const [nDesc,setNDesc]=useState("");const [nCats,setNCats]=useState(["sortie"]);const [nPhoto,setNPhoto]=useState("");const [nPhotos,setNPhotos]=useState([]);const [nAddr,setNAddr]=useState("");const [nLat,setNLat]=useState("");const [nLng,setNLng]=useState("");
+  const [nMetro,setNMetro]=useState("");const [nPrice,setNPrice]=useState("");const [nHours,setNHours]=useState("");const [nCuisine,setNCuisine]=useState([]);const [nWork,setNWork]=useState(false);const [nWebsite,setNWebsite]=useState("");const [enriching,setEnriching]=useState(false);
+  const [evName,setEvName]=useState("");const [evDate,setEvDate]=useState("");const [evLieu,setEvLieu]=useState("");const [evDesc,setEvDesc]=useState("");const [evPhoto,setEvPhoto]=useState("");const [evLink,setEvLink]=useState("");const [evSpotId,setEvSpotId]=useState("");
+
+  // Discover state
+  const [searchMode,setSearchMode]=useState("local");
+  const [discoverQ,setDiscoverQ]=useState("");const [discoverResults,setDiscoverResults]=useState([]);const [discoverLoading,setDiscoverLoading]=useState(false);const [discoverAdded,setDiscoverAdded]=useState(new Set());
+
+  // Map
+  const mapContainerRef=useRef(null);const mapRef=useRef(null);
+
+  // Persistence
+  useEffect(()=>{try{localStorage.setItem(SK,JSON.stringify(spots));}catch{}},[spots]);
+  useEffect(()=>{try{localStorage.setItem(CK,JSON.stringify(challenge));}catch{}},[challenge]);
+  useEffect(()=>{try{localStorage.setItem(TRK,JSON.stringify(trash));}catch{}},[trash]);
+  useEffect(()=>{if(zones)try{localStorage.setItem(ZK,JSON.stringify(zones));}catch{}},[zones]);
+  useEffect(()=>{try{localStorage.setItem(CTK,JSON.stringify(contacts));}catch{}},[contacts]);
+  useEffect(()=>{try{localStorage.setItem(GK,gApiKey);}catch{}},[gApiKey]);
+  useEffect(()=>{const cleaned=events.filter(ev=>new Date(ev.date)>=new Date(new Date().toDateString()));if(cleaned.length!==events.length)setEvents(cleaned);try{localStorage.setItem(EVK,JSON.stringify(cleaned));}catch{}},[events]);
+  useEffect(()=>{document.body.classList.toggle("dark",dark);try{localStorage.setItem(TK,dark?"dark":"light");}catch{}},[dark]);
+  useEffect(()=>{const m=getMonthLabel();if(challenge.month!==m)setChallenge({ids:pickChallenge(spots),month:m});},[]);
+
+  // Actions
+  const markDone=id=>{const spot=spots.find(s=>s.id===id);if(!spot)return;if(!spot.done){setSpots(s=>s.map(x=>x.id===id?{...x,done:true}:x));setReactionSpot(spot);}else setSpots(s=>s.map(x=>x.id===id?{...x,done:false,reaction:null}:x));};
+  const saveReaction=(id,emoji,note)=>{setSpots(s=>s.map(x=>x.id===id?{...x,reaction:emoji,note:note||x.note}:x));setReactionSpot(null);};
+  const toggleFav=id=>setSpots(s=>s.map(x=>x.id===id?{...x,fav:!x.fav}:x));
+  const setStatus=(id,val)=>setSpots(s=>s.map(x=>x.id===id?{...x,status:x.status===val?null:val}:x));
+  const removeSpot=id=>{const spot=spots.find(s=>s.id===id);if(!spot)return;setTrash(t=>[...t.filter(x=>x.id!==id),{...spot,deletedAt:Date.now()}]);setSpots(s=>s.filter(x=>x.id!==id));};
+  const restoreSpot=id=>{const item=trash.find(t=>t.id===id);if(!item)return;const{deletedAt,...rest}=item;const newId=spots.some(s=>s.id===rest.id)?Date.now():rest.id;setSpots(s=>[...s,{...rest,id:newId}]);setTrash(t=>t.filter(x=>x.id!==id));};
+  const saveNote=(id,text)=>setSpots(s=>s.map(x=>x.id===id?{...x,note:text}:x));
+  const addContact=c=>setContacts(list=>[...list,{id:Date.now(),...c}]);
+  const updateContact=(id,patch)=>setContacts(list=>list.map(c=>c.id===id?{...c,...patch}:c));
+  const deleteContact=id=>{setContacts(list=>list.filter(c=>c.id!==id));setSpots(s=>s.map(x=>x.contacts?.includes(id)?{...x,contacts:x.contacts.filter(cid=>cid!==id)}:x));};
+  const toggleContactOnSpot=(spotId,cid)=>setSpots(s=>s.map(x=>{if(x.id!==spotId)return x;const list=x.contacts||[];return{...x,contacts:list.includes(cid)?list.filter(i=>i!==cid):[...list,cid]};}));
+  const refreshChallenge=()=>setChallenge({ids:pickChallenge(spots),month:getMonthLabel()});
+  const pickRandom=()=>{const todo=spots.filter(s=>s.status!=="rejected"&&!s.done);if(todo.length){const s=todo[Math.floor(Math.random()*todo.length)];setSelectedSpot(s);}};
+
+  // Form
+  const resetForm=()=>{setNName("");setNDesc("");setNAddr("");setNLat("");setNLng("");setNMetro("");setNPrice("");setNHours("");setNCats(["resto"]);setNPhoto("");setNPhotos([]);setNWebsite("");setNCuisine([]);setNWork(false);setEnriching(false);setEditingId(null);setShowForm(false);};
+  const startEdit=(spot)=>{setEditingId(spot.id);setNName(spot.name||"");setNDesc(spot.desc||"");setNCats(getCats(spot));setNPhoto(firstPhoto(spot));setNPhotos(getPhotos(spot));setNWebsite(spot.website||"");setNAddr(spot.adresse||"");setNLat(spot.lat?String(spot.lat):"");setNLng(spot.lng?String(spot.lng):"");setNMetro(spot.metro||"");setNPrice(spot.price||"");setNHours(spot.hours||"");setNCuisine(Array.isArray(spot.tags?.cuisine)?spot.tags.cuisine:[]);setNWork(!!spot.tags?.work);setShowForm(true);setSelectedSpot(null);setTab("spots");};
+  const saveSpot=()=>{if(!nName.trim())return;const lat=parseFloat(String(nLat).replace(",","."))||48.8566;const lng=parseFloat(String(nLng).replace(",","."))||2.3522;const photos=nPhotos.length?nPhotos:(nPhoto?[nPhoto]:[]);const data={name:nName.trim(),cats:nCats.length?nCats:["sortie"],photo:photos[0]||"",photos,website:nWebsite.trim(),desc:nDesc.trim(),adresse:nAddr.trim(),lat,lng,metro:nMetro.trim(),price:nPrice.trim(),hours:nHours.trim()};if(editingId!=null){setSpots(s=>s.map(x=>x.id===editingId?{...x,...data,tags:{...(x.tags||{}),cuisine:nCuisine,work:nWork}}:x));}else{setSpots(s=>[...s,{id:Date.now(),done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),vibe:"📌 Ajoute",tags:{cuisine:nCuisine,work:nWork},...data}]);}resetForm();};
+
+  // Enrich
+  const runEnrich=async()=>{
+    if(!nName.trim()&&!nWebsite.trim())return;setEnriching(true);const found={};
+    try{
+      if(nName){const q=nName+(nAddr?" "+nAddr:"")+" Paris";try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`,{headers:{"User-Agent":"MySafePlace/1.0"}});const d=await r.json();if(d.length>0){const x=d[0];const extra=x.extratags||{};found.lat=x.lat;found.lng=x.lon;if(extra.opening_hours)found.hours=extra.opening_hours;if(extra.website||extra["contact:website"])found.website=extra.website||extra["contact:website"];found.addr=x.display_name.split(",").slice(0,3).join(",").trim();}}catch{}}
+      const useLat=nLat||found.lat;const useLng=nLng||found.lng;
+      if(useLat&&useLng){try{const opQ=`[out:json][timeout:10];(node(around:100,${useLat},${useLng})["name"];way(around:100,${useLat},${useLng})["name"];);out tags 15;`;const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(opQ)});const d=await r.json();const els=(d.elements||[]).filter(e=>e.tags?.name);const nameNorm=(nName||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");let best=els.find(e=>(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")===nameNorm);if(!best)best=els.find(e=>{const n=(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");return n.includes(nameNorm)||nameNorm.includes(n);});if(!best)best=els.find(e=>e.tags.opening_hours)||els[0];if(best){const t=best.tags||{};if(t.opening_hours&&!found.hours)found.hours=t.opening_hours;if(t.cuisine)found.cuisine=t.cuisine;if(t.website||t["contact:website"])found.website=found.website||(t.website||t["contact:website"]);if(t.internet_access==="wlan"||t.internet_access==="yes")found.wifi=true;const ap=[t["addr:housenumber"],t["addr:street"]].filter(Boolean);const af=[ap.join(" "),[t["addr:postcode"],t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", ");if(af&&!found.addr)found.addr=af;}}catch{}}
+      const useWeb=nWebsite||found.website;
+      if(useWeb){try{let url=useWeb.trim();if(!url.startsWith("http"))url="https://"+url;const r=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});if(r.ok){const html=await r.text();const doc=new DOMParser().parseFromString(html,"text/html");const getMeta=n=>{const el=doc.querySelector(`meta[property="${n}"],meta[name="${n}"]`);return el?el.getAttribute("content"):"";};if(!found.photo)found.photo=getMeta("og:image")||getMeta("twitter:image");if(!found.desc)found.desc=(getMeta("og:description")||getMeta("description")||"").slice(0,300);}}catch{}}
+    }catch{}
+    if(gApiKey){try{const gPhotos=await googlePlacePhotos(nName,nAddr||found.addr,gApiKey,4);if(gPhotos.length){if(!found.photo)found.photo=gPhotos[0];found.photos=gPhotos;}}catch{}}
+    if(found.lat)setNLat(p=>p||String(found.lat));if(found.lng)setNLng(p=>p||String(found.lng));if(found.hours)setNHours(p=>p||found.hours);if(found.addr)setNAddr(p=>p||found.addr);if(found.photo)setNPhoto(p=>p||found.photo);if(found.photos)setNPhotos(p=>p.length?p:found.photos);if(found.desc)setNDesc(p=>p||found.desc);if(found.website)setNWebsite(p=>p||found.website);if(found.wifi)setNWork(true);
+    if(found.cuisine){const mapped=found.cuisine.split(/[;,]/).map(c=>c.trim().toLowerCase()).filter(Boolean).map(c=>{for(const[k,v]of Object.entries(DC)){if(v.includes(c)||c.includes(k))return k;}return null;}).filter(Boolean);if(mapped.length)setNCuisine(p=>p.length?p:mapped);}
+    setEnriching(false);
+  };
+
+  // Events
+  const resetEventForm=()=>{setEvName("");setEvDate("");setEvLieu("");setEvDesc("");setEvPhoto("");setEvLink("");setEvSpotId("");setEditingEvId(null);setShowEventForm(false);};
+  const saveEvent=()=>{if(!evName.trim()||!evDate)return;const data={name:evName.trim(),date:evDate,lieu:evLieu.trim(),desc:evDesc.trim(),photo:evPhoto.trim(),link:evLink.trim(),spotId:evSpotId?parseInt(evSpotId):null};if(editingEvId!=null){setEvents(evs=>evs.map(e=>e.id===editingEvId?{...e,...data}:e));}else{setEvents(evs=>[...evs,{id:Date.now(),...data}]);}resetEventForm();};
+  const startEditEvent=ev=>{setEditingEvId(ev.id);setEvName(ev.name);setEvDate(ev.date);setEvLieu(ev.lieu||"");setEvDesc(ev.desc||"");setEvPhoto(ev.photo||"");setEvLink(ev.link||"");setEvSpotId(ev.spotId?String(ev.spotId):"");setShowEventForm(true);};
+  const sortedEvents=useMemo(()=>[...events].sort((a,b)=>new Date(a.date)-new Date(b.date)),[events]);
+
+  // Discover
+  const discoverSearch=(q)=>{const query=q||discoverQ;if(!query.trim()||discoverLoading)return;setDiscoverLoading(true);setDiscoverResults([]);const parsed=parseDiscover(query);const doFetch=p=>fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(buildOPQuery(p))}).then(r=>r.json()).then(d=>(d.elements||[]).filter(e=>e.tags?.name));doFetch(parsed).then(els=>{if(els.length>0)return els;if(parsed.nameTerms.length>0)return doFetch({...parsed,nameTerms:[]});return els;}).then(els=>{if(els.length>0)return els;if(parsed.cuisine)return doFetch({...parsed,nameTerms:[],cuisine:null});return els;}).then(els=>{els.forEach(e=>e._score=scoreOPResult(e));els.sort((a,b)=>b._score-a._score);setDiscoverResults(els.slice(0,25));setDiscoverLoading(false);}).catch(()=>{setDiscoverLoading(false);setDiscoverResults([]);});};
+  const addFromDiscover=el=>{const t=el.tags||{};const lat=el.lat||(el.center&&el.center.lat)||48.86;const lng=el.lon||(el.center&&el.center.lon)||2.35;const addr=[t["addr:housenumber"],t["addr:street"]].filter(Boolean).join(" ");const loc=[t["addr:postcode"],t["addr:city"]].filter(Boolean).join(" ");const am=t.amenity||"";const guessCat=["restaurant","fast_food"].includes(am)?"resto":am==="cafe"?"cafe":["bar","pub"].includes(am)?"speakeasy":am==="nightclub"?"club":"resto";const cuisineRaw=(t.cuisine||"").split(/[;,]/).map(c=>c.trim().toLowerCase()).filter(Boolean);const mapped=cuisineRaw.map(c=>{for(const[k,v]of Object.entries(DC)){if(v.includes(c)||c.includes(k))return k;}return null;}).filter(Boolean);setSpots(s=>[...s,{id:Date.now()+Math.floor(Math.random()*1000),done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:t.name,cats:[guessCat],photo:"",desc:t.description||"",vibe:"🌐 Decouvert",adresse:[addr,loc].filter(Boolean).join(", "),lat,lng,metro:"",price:"",hours:t.opening_hours||"",tags:{cuisine:mapped,work:false}}]);setDiscoverAdded(s=>new Set([...s,t.name]));};
+
+  // Google batch photo fetch
+  const fetchAllPhotos=async()=>{
+    if(!gApiKey){alert("Ajoute ta cle Google API dans Profil d'abord");return;}
+    const missing=spots.filter(s=>getPhotos(s).length<4);
+    if(missing.length===0){alert("Tous les spots ont deja 4 photos !");return;}
+    if(!confirm(`Recuperer les photos pour ${missing.length} spot${missing.length>1?"s":""}  (4 photos/spot) ?\n\nUtilise ton quota Google Places API.`))return;
+    setPhotoLoading(true);let done=0;let found=0;
+    for(const s of missing){
+      setPhotoProgress(`${done+1}/${missing.length} — ${s.name}`);
+      try{const urls=await googlePlacePhotos(s.name,s.adresse,gApiKey,4);if(urls.length){setSpots(prev=>prev.map(x=>x.id===s.id?{...x,photo:urls[0],photos:urls}:x));found++;}}catch{}
+      done++;if(done<missing.length)await new Promise(r=>setTimeout(r,300));
+    }
+    setPhotoLoading(false);setPhotoProgress("");
+    alert(`Termine ! ${found}/${missing.length} spots enrichis.`);
+  };
+
+  // Export/Import
+  const exportJSON=()=>{const blob=new Blob([JSON.stringify({spots,challenge,exportedAt:new Date().toISOString()},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`my-safe-place-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);};
+  const importJSON=file=>{const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(!Array.isArray(d.spots))throw new Error("Format invalide");const mode=confirm(`${d.spots.length} spots.\n\nOK = remplacer\nAnnuler = fusionner`);if(mode){setSpots(d.spots);if(d.challenge)setChallenge(d.challenge);}else{const ids=new Set(spots.map(s=>s.id));const newOnes=d.spots.filter(s=>!ids.has(s.id));setSpots([...spots,...newOnes]);alert(`${newOnes.length} nouveaux spots ajoutes`);}}catch(err){alert("Erreur : "+err.message);}};r.readAsText(file);};
+
+  // Map init
+  useEffect(()=>{
+    if(tab!=="map"||!mapContainerRef.current)return;
+    if(mapRef.current){mapRef.current.invalidateSize();return;}
+    const map=L.map(mapContainerRef.current).setView([48.8606,2.3376],12);
+    const url=dark?"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png":"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+    L.tileLayer(url,{maxZoom:19,attribution:'OSM, CARTO'}).addTo(map);
+    mapRef.current=map;
+    setTimeout(()=>map.invalidateSize(),150);
+    return()=>{};
+  },[tab]);
+
+  // Update map markers
+  useEffect(()=>{
+    if(tab!=="map"||!mapRef.current)return;
+    const map=mapRef.current;
+    map.eachLayer(l=>{if(l instanceof L.CircleMarker)map.removeLayer(l);});
+    const bounds=[];
+    spots.forEach(s=>{
+      const col=s.done?"#9aa0b4":(CC[primaryCat(s)]||"#888");
+      const m=L.circleMarker([s.lat,s.lng],{radius:s.done?6:8,fillColor:col,color:"#fff",weight:2,opacity:1,fillOpacity:s.done?0.5:0.9}).addTo(map);
+      m.on("click",()=>setSelectedSpot(s));
+      bounds.push([s.lat,s.lng]);
+    });
+    if(bounds.length>1)map.fitBounds(bounds,{padding:[40,40]});
+  },[tab,spots,dark]);
+
+  // Filtered spots
+  const visible=useMemo(()=>{
+    return spots.filter(s=>{
+      const catOk=cat==="all"||hasCat(s,cat);
+      let fOk=true;
+      if(filter==="all")fOk=s.status!=="rejected";
+      else if(filter==="todo")fOk=!s.done&&s.status!=="rejected";
+      else if(filter==="done")fOk=s.done;
+      else if(filter==="fav")fOk=s.fav;
+      else if(filter==="wishlist")fOk=s.status==="wishlist";
+      else if(filter==="rejected")fOk=s.status==="rejected";
+      else if(filter==="work")fOk=s.tags?.work===true;
+      const q=search.trim().toLowerCase();
+      const sOk=!q||s.name.toLowerCase().includes(q)||(s.desc||"").toLowerCase().includes(q)||(s.adresse||"").toLowerCase().includes(q);
+      let zOk=true;
+      if(zones){const type=CAT_TYPE[primaryCat(s)]||"sortie";const zList=type==="resto"?zones.resto:zones.sortie;zOk=matchesZones(s,zList);}
+      return catOk&&fOk&&sOk&&zOk;
+    });
+  },[spots,cat,filter,search,zones]);
+
+  const sortedVisible=useMemo(()=>{
+    const arr=[...visible];
+    const extractPrice=p=>{if(!p)return 999;const m=p.match(/(\d+)/);return m?parseInt(m[1]):999;};
+    if(sort==="recent")arr.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
+    else if(sort==="fav")arr.sort((a,b)=>((b.fav?1:0)-(a.fav?1:0))||((b.addedAt||0)-(a.addedAt||0)));
+    else if(sort==="alpha")arr.sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+    else if(sort==="price-asc")arr.sort((a,b)=>extractPrice(a.price)-extractPrice(b.price));
+    else if(sort==="price-desc")arr.sort((a,b)=>extractPrice(b.price)-extractPrice(a.price));
+    return arr;
+  },[visible,sort]);
+
+  const doneCount=spots.filter(x=>x.done).length;
+  const todoCount=spots.filter(x=>!x.done).length;
+  const favCount=spots.filter(x=>x.fav).length;
+  const pct=spots.length?Math.round((doneCount/spots.length)*100):0;
+  const challengeSpots=spots.filter(s=>challenge.ids.includes(s.id));
+  const challengeDone=challengeSpots.filter(s=>s.done).length;
+
+  /* =============================================
+     TAB: HOME - Partiful style
+     ============================================= */
+  const HomeTab=()=>{
+    const favs=spots.filter(s=>s.fav&&!s.done);
+    const dayLabel=new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+    return(
+    <div style={{paddingBottom:100,background:'var(--bg-primary)'}}>
+      {/* Hero */}
+      <div style={{padding:'28px 20px 24px',background:'var(--bg-cream)'}}>
+        <div className="mono-label">☼ Salut · {dayLabel}</div>
+        <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.02em',margin:'8px 0 0'}}>Ou on va<br/>ce soir ? 🍸</h1>
+        <div style={{display:'flex',gap:10,marginTop:22}}>
+          <button onClick={()=>setShowSuggest(true)} className="press" style={{flex:1,background:'var(--ink-900)',color:'#fff',border:'none',borderRadius:999,padding:'14px 18px',fontFamily:'var(--font-body)',fontWeight:600,fontSize:15,cursor:'pointer',boxShadow:'var(--shadow-pop)'}}>🎯 Suggerer</button>
+          <button onClick={pickRandom} className="press" style={{background:'var(--pop-yellow)',color:'var(--ink-900)',border:'1.5px solid var(--ink-900)',borderRadius:999,padding:'14px 18px',fontFamily:'var(--font-body)',fontWeight:600,fontSize:15,cursor:'pointer'}}>🎲 Surprise</button>
+        </div>
+      </div>
+
+      {/* Stats strip */}
+      <div style={{padding:'24px 20px 4px'}}>
+        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-lg)',padding:18,boxShadow:'var(--shadow-sm)'}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>
+            {[{v:spots.length,l:'spots'},{v:todoCount,l:'a faire'},{v:doneCount,l:'faits'},{v:favCount,l:'favoris'}].map((s,i)=>(
+              <div key={i} style={{textAlign:'center'}}>
+                <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:30,lineHeight:1,letterSpacing:'-0.02em'}}>{s.v}</div>
+                <div style={{fontFamily:'var(--font-mono)',fontSize:9.5,letterSpacing:'0.15em',textTransform:'uppercase',color:'var(--ink-400)',marginTop:6}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:16}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginBottom:6}}>
+              <span>Progression</span>
+              <span style={{fontWeight:600,color:'var(--ink-900)'}}>{pct}%</span>
+            </div>
+            <div style={{height:8,background:'var(--bg-soft)',borderRadius:999,overflow:'hidden'}}>
+              <div style={{width:`${pct}%`,height:'100%',background:'var(--pop-pink)',borderRadius:999,transition:'width .4s'}}/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Categories grid */}
+      <div style={{padding:'28px 20px 0'}}>
+        <h2 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:28,letterSpacing:'-0.015em',margin:'0 0 14px'}}>Choisis ton mood 🎨</h2>
+        <div className="cat-grid">
+          {CATS.filter(c=>c.key!=="all").map((c,i)=>{
+            const count=spots.filter(s=>hasCat(s,c.key)).length;
+            const tilt=stableTilt(i+50,1.5);
+            return(
+              <button key={c.key} className="cat-card" onClick={()=>{setCat(c.key);setTab("spots");}} style={{background:CB[c.key],border:`1.5px solid ${CC[c.key]}`,transform:`rotate(${tilt}deg)`}}
+                onMouseEnter={e=>{e.currentTarget.style.transform=`rotate(${tilt-0.5}deg) translateY(-3px)`;}}
+                onMouseLeave={e=>{e.currentTarget.style.transform=`rotate(${tilt}deg)`;}}
+              >
+                <div className="cat-emoji">{c.emoji}</div>
+                <div className="cat-name">{c.label}</div>
+                <div className="cat-count">{count}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Challenge */}
+      <div style={{padding:'28px 20px 0'}}>
+        <div style={{background:'var(--ink-900)',color:'#fff',borderRadius:'var(--radius-lg)',padding:20,position:'relative',overflow:'hidden'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:14}}>
+            <div>
+              <div style={{fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.15em',textTransform:'uppercase',opacity:0.6}}>Defi du mois</div>
+              <h3 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:26,letterSpacing:'-0.015em',margin:'4px 0 0'}}>{challenge.month} 🎯</h3>
+            </div>
+            <button onClick={refreshChallenge} className="press" style={{background:'transparent',border:'1px solid rgba(255,255,255,0.3)',color:'#fff',borderRadius:999,width:34,height:34,fontSize:14,cursor:'pointer'}}>↻</button>
+          </div>
+          <div style={{fontFamily:'var(--font-body)',fontSize:13,opacity:0.8,marginBottom:14}}>{challengeDone} sur {challengeSpots.length} spots croches</div>
+          <div style={{height:6,background:'rgba(255,255,255,0.15)',borderRadius:999,overflow:'hidden',marginBottom:16}}>
+            <div style={{width:`${challengeSpots.length?(challengeDone/challengeSpots.length)*100:0}%`,height:'100%',background:'var(--pop-lime)',transition:'width .4s'}}/>
+          </div>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {challengeSpots.map((s,i)=>{
+              const catObj=CATS.find(c=>c.key===primaryCat(s));
+              return(
+                <button key={s.id} onClick={()=>setSelectedSpot(s)} className="press" style={{display:'flex',alignItems:'center',gap:12,background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:12,padding:10,cursor:'pointer',textAlign:'left'}}>
+                  <div style={{width:36,height:36,borderRadius:8,background:CC[primaryCat(s)],color:'var(--ink-900)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'var(--font-display)',fontWeight:900,fontSize:18}}>{i+1}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name}</div>
+                    <div style={{fontFamily:'var(--font-body)',fontSize:11.5,opacity:0.6,color:'#fff'}}>{catObj?.label} · {s.metro}</div>
+                  </div>
+                  {s.done&&<div style={{color:'var(--pop-lime)',fontSize:18}}>✓</div>}
+                </button>
+              );
+            })}
+          </div>
+          {challengeDone===challengeSpots.length&&challengeSpots.length>0&&<div style={{marginTop:12,background:'var(--pop-lime)',borderRadius:10,padding:10,textAlign:'center',fontWeight:800,color:'var(--ink-900)',fontSize:13}}>🏆 Defi complete !</div>}
+        </div>
+      </div>
+
+      {/* Events */}
+      {sortedEvents.length>0&&(
+        <div style={{padding:'28px 0 0'}}>
+          <div style={{padding:'0 20px',marginBottom:14,display:'flex',justifyContent:'space-between',alignItems:'baseline'}}>
+            <h2 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:28,letterSpacing:'-0.015em',margin:0}}>Ca arrive 📫</h2>
+            <button onClick={()=>setTab("events")} className="press" style={{fontFamily:'var(--font-body)',fontSize:13,color:'var(--ink-400)',background:'none',border:'none',cursor:'pointer'}}>{sortedEvents.length} events →</button>
+          </div>
+          <div className="h-scroll" style={{padding:'0 20px 8px'}}>
+            {sortedEvents.slice(0,5).map(ev=>{
+              const tilt=stableTilt(ev.id||Date.now(),1.5);
+              return(
+                <div key={ev.id} style={{width:200,flexShrink:0,borderRadius:'var(--radius-lg)',overflow:'hidden',background:'#fff',border:'1px solid var(--hairline)',boxShadow:'var(--shadow-sm)',transform:`rotate(${tilt}deg)`}}>
+                  <div style={{position:'relative',aspectRatio:'4/3'}}>
+                    {ev.photo&&<img src={ev.photo} alt={ev.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>}
+                    <div style={{position:'absolute',top:8,left:8,background:'var(--pop-pink)',color:'#fff',fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.15em',padding:'4px 8px',borderRadius:6,fontWeight:600}}>{formatRelDate(ev.date)}</div>
+                  </div>
+                  <div style={{padding:12}}>
+                    <div className="mono-label">{monthLabel(ev.date)}</div>
+                    <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:14,marginTop:4,lineHeight:1.2}}>{ev.name}</div>
+                    {ev.lieu&&<div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:4}}>📍 {ev.lieu}</div>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Favorites carousel */}
+      {favs.length>0&&(
+        <div style={{padding:'28px 0 16px'}}>
+          <div style={{padding:'0 20px',marginBottom:14}}>
+            <h2 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:28,letterSpacing:'-0.015em',margin:0}}>Coups de coeur ♥</h2>
+          </div>
+          <div className="h-scroll" style={{padding:'0 20px 16px'}}>
+            {favs.map(s=>(
+              <div key={s.id} style={{width:170,flexShrink:0}}>
+                <PosterSpotCard spot={s} onOpen={setSelectedSpot}/>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );};
+
+  /* =============================================
+     TAB: SPOTS - Partiful style
+     ============================================= */
+  const SpotsTab=()=>(
+    <div style={{paddingBottom:100}}>
+      {/* Hero */}
+      <div style={{padding:'28px 20px 14px',background:'var(--bg-cream)'}}>
+        <div className="mono-label" style={{marginBottom:6}}>★ Mes spots · {spots.length}</div>
+        <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.025em',margin:0}}>Mes spots<br/>a Paris ✨</h1>
+      </div>
+
+      {/* Search */}
+      <div style={{padding:'16px 20px 0',background:'var(--bg-cream)'}}>
+        <div style={{display:'flex',alignItems:'center',gap:8,background:'#fff',border:'1.5px solid var(--ink-900)',borderRadius:999,padding:'10px 16px'}}>
+          <span style={{fontSize:16}}>🔍</span>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Chercher un spot, une vibe..." style={{flex:1,border:'none',outline:'none',background:'transparent',fontFamily:'var(--font-body)',fontSize:15,color:'var(--ink-900)'}}/>
+          {search&&<button onClick={()=>setSearch("")} style={{background:'transparent',border:'none',cursor:'pointer',fontSize:16,color:'var(--ink-400)'}}>x</button>}
+          <select value={sort} onChange={e=>setSort(e.target.value)} style={{border:'none',background:'transparent',fontFamily:'var(--font-body)',fontSize:13,fontWeight:500,color:'var(--ink-600)',cursor:'pointer'}}>
+            <option value="recent">Recents</option>
+            <option value="fav">Favoris</option>
+            <option value="alpha">A-Z</option>
+            <option value="price-asc">Prix ↑</option>
+            <option value="price-desc">Prix ↓</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Tabs + Add button */}
+      <div style={{padding:'14px 20px 0',background:'var(--bg-cream)',display:'flex',gap:8,alignItems:'center'}}>
+        <button onClick={()=>{setSearchMode("local");setDiscoverResults([]);}} style={{padding:'8px 14px',borderRadius:999,background:searchMode==="local"?'var(--ink-900)':'#fff',color:searchMode==="local"?'#fff':'var(--ink-900)',border:searchMode==="local"?'none':'1px solid var(--hairline)',fontFamily:'var(--font-body)',fontWeight:600,fontSize:13,cursor:'pointer'}}>📚 Mes spots</button>
+        <button onClick={()=>setSearchMode("discover")} style={{padding:'8px 14px',borderRadius:999,background:searchMode==="discover"?'var(--ink-900)':'#fff',color:searchMode==="discover"?'#fff':'var(--ink-900)',border:searchMode==="discover"?'none':'1px solid var(--hairline)',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,cursor:'pointer'}}>🌐 Decouvrir</button>
+        <div style={{flex:1}}/>
+        <button onClick={()=>{resetForm();setShowForm(true);}} className="press" style={{padding:'8px 16px',borderRadius:999,border:'none',background:'var(--pop-pink)',color:'#fff',fontWeight:700,fontSize:13,fontFamily:'var(--font-body)',cursor:'pointer'}}>+ Ajouter</button>
+      </div>
+
+      {/* Cat chips */}
+      <div style={{background:'var(--bg-cream)',padding:'14px 0 4px',position:'sticky',top:0,zIndex:5}}>
+        <div style={{display:'flex',gap:8,overflowX:'auto',padding:'0 20px',scrollbarWidth:'none'}}>
+          {CATS.map(c=>{
+            const active=cat===c.key;
+            return(
+              <button key={c.key} onClick={()=>setCat(c.key)} style={{padding:'8px 14px',borderRadius:999,whiteSpace:'nowrap',fontFamily:'var(--font-body)',fontWeight:600,fontSize:13,border:'1px solid '+(active?'var(--ink-900)':'var(--hairline)'),background:active?'var(--ink-900)':'#fff',color:active?'#fff':'var(--ink-900)',cursor:'pointer',flexShrink:0}}>{c.emoji} {c.label}</button>
+            );
+          })}
+        </div>
+        <div style={{display:'flex',gap:6,overflowX:'auto',padding:'10px 20px 14px',scrollbarWidth:'none'}}>
+          {[["all","Tous"],["todo","A faire"],["wishlist","Envies"],["done","Faits"],["fav","Favoris"],["work","Workfriendly"],["rejected","Refuses"]].map(([k,l])=>{
+            const active=filter===k;
+            return(
+              <button key={k} onClick={()=>setFilter(k)} style={{padding:'6px 12px',borderRadius:999,whiteSpace:'nowrap',fontFamily:'var(--font-body)',fontWeight:500,fontSize:12,border:'1px solid '+(active?'var(--pop-pink)':'var(--hairline)'),background:active?'var(--pop-pink)':'transparent',color:active?'#fff':'var(--ink-600)',cursor:'pointer',flexShrink:0}}>{l}</button>
+            );
+          })}
+        </div>
+      </div>
+
+      {searchMode==="local"?(
+        <div style={{padding:'20px 20px 0'}}>
+          <div className="mono-label" style={{marginBottom:14}}>{sortedVisible.length} spot{sortedVisible.length>1?'s':''}</div>
+
+          {/* Favorites poster grid */}
+          {sortedVisible.filter(s=>s.fav).length>0&&filter==='all'&&(
+            <>
+              <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:24,letterSpacing:'-0.015em',marginBottom:14}}>Tes coups de coeur ♥</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:18,marginBottom:32}}>
+                {sortedVisible.filter(s=>s.fav).slice(0,4).map(s=>(
+                  <PosterSpotCard key={s.id} spot={s} onOpen={setSelectedSpot}/>
+                ))}
+              </div>
+              <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:24,letterSpacing:'-0.015em',marginBottom:14}}>Tout le carnet</div>
+            </>
+          )}
+
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {sortedVisible.filter(s=>!s.fav||filter!=='all').map(s=><CleanSpotCard key={s.id} s={s} onOpen={setSelectedSpot}/>)}
+            {sortedVisible.length===0&&<div style={{padding:'40px 20px',textAlign:'center',fontFamily:'var(--font-body)',color:'var(--ink-400)'}}>Pas de spot qui matche.</div>}
+          </div>
+        </div>
+      ):(
+        <div style={{padding:'20px 20px 0'}}>
+          <div style={{display:"flex",gap:8,marginBottom:10}}>
+            <input value={discoverQ} onChange={e=>setDiscoverQ(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")discoverSearch();}} placeholder="Ex : resto italien paris, brunch 75011..." className="input-v2" style={{flex:1}}/>
+            <button onClick={()=>discoverSearch()} disabled={discoverLoading} className="press" style={{padding:"12px 18px",borderRadius:'var(--radius-md)',border:"none",background:"var(--ink-900)",color:"#fff",fontWeight:700,fontSize:14}}>{discoverLoading?"⏳":"🔍"}</button>
+          </div>
+          <div className="h-scroll" style={{marginBottom:12}}>
+            {[["🍽️ Resto italien","resto italien paris"],["🍜 Japonais","japonais paris"],["☕ Brunch","brunch paris"],["🍸 Cocktails","bar cocktails paris"],["🎵 Club","club paris"],["🍔 Burger","resto burger paris"],["🍕 Pizza","pizzeria paris"],["🥗 Vegan","resto vegan paris"]].map(([label,q])=>(
+              <button key={q} onClick={()=>{setDiscoverQ(q);discoverSearch(q);}} className="pill-btn" style={{whiteSpace:"nowrap"}}>{label}</button>
+            ))}
+          </div>
+          {discoverLoading&&<div style={{textAlign:"center",padding:24,color:"var(--ink-400)",fontFamily:'var(--font-body)'}}>⏳ Recherche OpenStreetMap...</div>}
+          {discoverResults.length>0&&(
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <div className="mono-label">{discoverResults.length} resultats</div>
+              {discoverResults.map((el,i)=>{
+                const t=el.tags||{};const addr=[t["addr:housenumber"],t["addr:street"]].filter(Boolean).join(" ");const loc=[t["addr:postcode"],t["addr:city"]].filter(Boolean).join(" ");
+                const already=discoverAdded.has(t.name)||spots.some(s=>s.name===t.name);
+                return(
+                  <div key={el.id||i} className="fade-in" style={{background:"#fff",borderRadius:'var(--radius-md)',padding:"12px 14px",border:"1px solid var(--hairline)",borderLeft:`4px solid ${already?"var(--ink-400)":"var(--pop-pink)"}`}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+                      <div style={{flex:1,minWidth:0}}>
+                        <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:14}}>{t.name}</div>
+                        <div style={{fontSize:12,color:"var(--ink-400)",marginTop:2}}>{[addr,loc].filter(Boolean).join(", ")||"Adresse non precisee"}</div>
+                        <div style={{display:"flex",gap:4,flexWrap:"wrap",marginTop:4}}>
+                          {t.cuisine&&<span className="chip" style={{background:"#fff7e6",color:"#b45309"}}>🍴 {t.cuisine.replace(/;/g,", ")}</span>}
+                          {t.opening_hours&&<span className="chip" style={{background:"var(--bg-soft)",color:"var(--ink-400)"}}>🕐</span>}
+                          <span className="chip" style={{background:"var(--bg-soft)",color:"var(--ink-400)"}}>{AMENITY_LABELS[t.amenity]||"📍"}</span>
+                        </div>
+                      </div>
+                      {already?<span style={{fontSize:16}}>✅</span>:<button onClick={()=>addFromDiscover(el)} className="press" style={{width:36,height:36,borderRadius:10,border:"none",background:"var(--pop-pink)",color:"#fff",fontSize:18}}>+</button>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Add form sheet */}
+      {showForm&&(
+        <div className="modal-overlay" onClick={resetForm}>
+          <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()} style={{maxHeight:"95vh"}}>
+            <div className="sheet-handle"/>
+            <div className="mono-label" style={{marginBottom:4}}>{editingId!=null?"✏️ Modifier":"+ Nouveau"}</div>
+            <div className="section-title" style={{marginBottom:16}}>{editingId!=null?"Modifier le spot":"Nouveau spot"}</div>
+            <input value={nName} onChange={e=>setNName(e.target.value)} placeholder="Nom du lieu *" className="input-v2" style={{marginBottom:8}}/>
+            <div style={{display:"flex",gap:8,marginBottom:8}}>
+              <input value={nWebsite} onChange={e=>setNWebsite(e.target.value)} placeholder="🌐 Site web" className="input-v2" style={{flex:1}}/>
+              <button onClick={runEnrich} disabled={enriching||(!nName.trim()&&!nWebsite.trim())} className="press" style={{padding:"12px 16px",borderRadius:'var(--radius-md)',border:"none",background:"var(--ink-900)",color:"#fff",fontWeight:700,fontSize:12,whiteSpace:"nowrap"}}>{enriching?"⏳":"🔍 Auto"}</button>
+            </div>
+            <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
+              <input value={nPhoto} onChange={e=>setNPhoto(e.target.value)} placeholder="📷 URL photo" className="input-v2" style={{flex:1}}/>
+              {nPhoto&&<img src={nPhoto} alt="" style={{width:42,height:42,borderRadius:10,objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>}
+            </div>
+            <AddressAutocomplete value={nAddr} onChange={setNAddr} onPick={o=>{setNAddr(o.adresse);setNLat(String(o.lat));setNLng(String(o.lng));}} placeholder="📍 Adresse"/>
+            <textarea value={nDesc} onChange={e=>setNDesc(e.target.value)} placeholder="Description" className="input-v2" style={{resize:"vertical",minHeight:60,marginBottom:8,fontSize:14}}/>
+            <div style={{display:"flex",gap:8,marginBottom:8}}>
+              <input value={nMetro} onChange={e=>setNMetro(e.target.value)} placeholder="🚇 Metro" className="input-v2" style={{flex:2}}/>
+              <input value={nPrice} onChange={e=>setNPrice(e.target.value)} placeholder="💶 Prix" className="input-v2" style={{flex:1}}/>
+            </div>
+            <input value={nHours} onChange={e=>setNHours(e.target.value)} placeholder="🕐 Horaires" className="input-v2" style={{marginBottom:8}}/>
+            <div style={{display:"flex",gap:8,marginBottom:8}}>
+              <input value={nLat} onChange={e=>setNLat(e.target.value)} placeholder="Lat" className="input-v2" style={{flex:1}}/>
+              <input value={nLng} onChange={e=>setNLng(e.target.value)} placeholder="Lng" className="input-v2" style={{flex:1}}/>
+            </div>
+            <div style={{marginBottom:12}}>
+              <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Categories</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {CATS.filter(c=>c.key!=="all").map(c=>{const on=nCats.includes(c.key);return<button key={c.key} onClick={()=>setNCats(n=>on?n.filter(x=>x!==c.key):[...n,c.key])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:CC[c.key],background:CC[c.key],color:'#fff'}:{}}>{c.emoji} {c.label}</button>;})}
+              </div>
+            </div>
+            {(nCats.includes("resto")||nCats.includes("cafe"))&&(
+              <div style={{marginBottom:12}}>
+                <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Cuisine</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                  {Q_CUISINE.map(c=>{const on=nCuisine.includes(c.k);return<button key={c.k} onClick={()=>setNCuisine(n=>on?n.filter(x=>x!==c.k):[...n,c.k])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:'var(--pop-orange)',background:'var(--pop-orange)',color:'#fff'}:{}}>{c.l}</button>;})}
+                </div>
+              </div>
+            )}
+            <button onClick={()=>setNWork(w=>!w)} className={`pill-btn${nWork?" active":""}`} style={{marginBottom:16}}>💻 Workfriendly {nWork?"✓":""}</button>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={saveSpot} disabled={!nName.trim()} className="btn-primary" style={{flex:1}}>{editingId!=null?"Sauver":"Ajouter"}</button>
+              <button onClick={resetForm} className="btn-secondary" style={{flex:1}}>Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  /* =============================================
+     TAB: EVENTS - Partiful style
+     ============================================= */
+  const EventsTab=()=>(
+    <div style={{paddingBottom:100}}>
+      <div style={{padding:'28px 20px 14px',background:'var(--bg-cream)'}}>
+        <div className="mono-label" style={{marginBottom:6}}>📫 Tes events · {sortedEvents.length} a venir</div>
+        <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.025em',margin:0}}>Ca vient,<br/>prepare-toi 🎉</h1>
+      </div>
+      <div style={{padding:'16px 20px',display:'flex',justifyContent:'flex-end'}}>
+        <button onClick={()=>{resetEventForm();setShowEventForm(true);}} className="press" style={{padding:"8px 16px",borderRadius:999,border:"none",background:"var(--pop-violet)",color:"#fff",fontWeight:700,fontSize:13,fontFamily:'var(--font-body)'}}>+ Ajouter</button>
+      </div>
+
+      {sortedEvents.length===0&&!showEventForm&&(
+        <div style={{textAlign:"center",color:"var(--ink-400)",padding:48}}>
+          <div style={{fontSize:44,marginBottom:12}}>🎫</div>
+          <div style={{fontFamily:'var(--font-body)',fontSize:15}}>Aucun event a venir</div>
+        </div>
+      )}
+
+      <div style={{padding:'0 20px',display:"flex",flexDirection:"column",gap:18}}>
+        {sortedEvents.map((ev,i)=>{
+          const linkedSpot=ev.spotId?spots.find(s=>s.id===ev.spotId):null;
+          const daysUntil=Math.ceil((new Date(ev.date)-new Date(new Date().toDateString()))/(864e5));
+          const dateLabel=new Date(ev.date).toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"long"});
+          const accent=['#FF3D8B','#FFD23F','#C6FF3D','#8B5CF6'][i%4];
+          const tilt=stableTilt(ev.id||i,1.2);
+          return(
+            <div key={ev.id} className="fade-in" style={{background:"#fff",borderRadius:'var(--radius-lg)',overflow:"hidden",border:"1px solid var(--hairline)",boxShadow:'var(--shadow-sm)',transform:`rotate(${tilt}deg)`}}>
+              {ev.photo&&<div style={{position:'relative',aspectRatio:'16/9'}}>
+                <img src={ev.photo} alt={ev.name} style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                <div style={{position:'absolute',top:14,left:14,background:accent,color:'var(--ink-900)',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-mono)',fontSize:11,fontWeight:700,letterSpacing:'0.12em'}}>{formatRelDate(ev.date).toUpperCase()}</div>
+              </div>}
+              <div style={{padding:18}}>
+                <h3 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:22,lineHeight:1.05,letterSpacing:'-0.01em',margin:0}}>{ev.name}</h3>
+                <div style={{fontFamily:'var(--font-body)',fontSize:13,color:'var(--pop-violet)',fontWeight:700,marginTop:4}}>📅 {dateLabel}</div>
+                {ev.lieu&&<div style={{fontFamily:'var(--font-body)',fontSize:13,color:"var(--ink-400)",marginTop:3}}>📍 {ev.lieu}</div>}
+                {linkedSpot&&<div style={{fontSize:12,color:CC[primaryCat(linkedSpot)],fontWeight:700,marginTop:3}}>🔗 {linkedSpot.name}</div>}
+                {ev.desc&&<p style={{fontFamily:'var(--font-body)',fontSize:14,color:"var(--ink-600)",marginTop:8,lineHeight:1.5}}>{ev.desc}</p>}
+                <div style={{display:"flex",gap:8,marginTop:14,flexWrap:'wrap'}}>
+                  {ev.link&&<a href={ev.link} target="_blank" rel="noopener noreferrer" style={{background:'var(--ink-900)',color:'#fff',border:'none',cursor:'pointer',padding:'8px 14px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:13,textDecoration:'none'}}>🔗 Voir</a>}
+                  {(linkedSpot||ev.lieu)&&<a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(linkedSpot?(linkedSpot.name+" "+(linkedSpot.adresse||"")):ev.lieu)}`} target="_blank" rel="noopener noreferrer" style={{background:'#fff',color:'var(--ink-900)',border:'1px solid var(--hairline)',cursor:'pointer',padding:'8px 14px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:13,textDecoration:'none'}}>🗺️ Maps</a>}
+                  <button onClick={()=>startEditEvent(ev)} className="press" style={{padding:"8px 14px",borderRadius:999,border:"1px solid var(--hairline)",background:"#fff",fontSize:13}}>✏️</button>
+                  <button onClick={()=>{if(confirm(`Supprimer "${ev.name}" ?`))setEvents(evs=>evs.filter(e=>e.id!==ev.id));}} className="press" style={{padding:"8px 14px",borderRadius:999,border:"none",background:"#fee2e2",color:"#991b1b",fontSize:13}}>🗑</button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {showEventForm&&(
+        <div className="modal-overlay" onClick={resetEventForm}>
+          <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()}>
+            <div className="sheet-handle"/>
+            <div className="section-title" style={{marginBottom:16}}>{editingEvId?"Modifier":"Nouvel event"}</div>
+            <input value={evName} onChange={e=>setEvName(e.target.value)} placeholder="Nom *" className="input-v2" style={{marginBottom:8}}/>
+            <input type="date" value={evDate} onChange={e=>setEvDate(e.target.value)} className="input-v2" style={{marginBottom:8}}/>
+            <input value={evLieu} onChange={e=>setEvLieu(e.target.value)} placeholder="📍 Lieu" className="input-v2" style={{marginBottom:8}}/>
+            <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
+              <input value={evPhoto} onChange={e=>setEvPhoto(e.target.value)} placeholder="📷 URL affiche" className="input-v2" style={{flex:1}}/>
+              {evPhoto&&<img src={evPhoto} alt="" style={{width:42,height:42,borderRadius:10,objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>}
+            </div>
+            <textarea value={evDesc} onChange={e=>setEvDesc(e.target.value)} placeholder="Description" className="input-v2" style={{resize:"vertical",minHeight:50,marginBottom:8,fontSize:14}}/>
+            <input value={evLink} onChange={e=>setEvLink(e.target.value)} placeholder="🔗 Lien" className="input-v2" style={{marginBottom:8}}/>
+            <select value={evSpotId} onChange={e=>setEvSpotId(e.target.value)} className="input-v2" style={{marginBottom:16}}>
+              <option value="">— Lier a un spot —</option>
+              {spots.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+            <div style={{display:"flex",gap:8}}>
+              <button onClick={saveEvent} disabled={!evName.trim()||!evDate} className="btn-primary" style={{flex:1}}>{editingEvId?"Sauver":"Ajouter"}</button>
+              <button onClick={resetEventForm} className="btn-secondary" style={{flex:1}}>Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  /* =============================================
+     TAB: MAP (real Leaflet)
+     ============================================= */
+  const MapTab=()=>(
+    <div style={{position:"fixed",top:0,left:0,right:0,bottom:60,zIndex:1}}>
+      <div ref={mapContainerRef} style={{width:"100%",height:"100%"}}/>
+      <div style={{position:"absolute",top:12,left:12,right:12,zIndex:1000,display:"flex",justifyContent:"space-between",alignItems:"flex-start",pointerEvents:"none"}}>
+        <div style={{background:"rgba(255,255,255,0.92)",backdropFilter:'blur(12px)',borderRadius:'var(--radius-md)',padding:"10px 14px",boxShadow:"var(--shadow-md)",pointerEvents:"auto"}}>
+          <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:18,letterSpacing:'-0.01em'}}>🗺️ Paris · {spots.length} spots</div>
+          <div className="mono-label">Tap pour ouvrir</div>
+        </div>
+        <div style={{background:"rgba(255,255,255,0.92)",backdropFilter:'blur(12px)',borderRadius:'var(--radius-md)',padding:"8px 12px",boxShadow:"var(--shadow-md)",display:"flex",flexDirection:'column',gap:6,pointerEvents:"auto"}}>
+          {Object.entries(CC).map(([k,c])=><div key={k} style={{display:"flex",alignItems:"center",gap:8}}><div style={{width:14,height:14,borderRadius:999,background:c,border:'2px solid #fff'}}/><div style={{fontFamily:'var(--font-body)',fontSize:11.5,fontWeight:500}}>{k}</div></div>)}
+        </div>
+      </div>
+    </div>
+  );
+
+  /* =============================================
+     TAB: PROFILE - Partiful style
+     ============================================= */
+  const ProfileTab=()=>{
+    const counts=Object.fromEntries(CATS.filter(c=>c.key!=='all').map(c=>[c.key,spots.filter(s=>hasCat(s,c.key)).length]));
+    return(
+    <div style={{paddingBottom:100}}>
+      <div style={{padding:'28px 20px 24px',background:'var(--bg-cream)'}}>
+        <div className="mono-label" style={{marginBottom:6}}>☻ Profil · v3</div>
+        <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.025em',margin:0}}>C'est ton<br/>safe place 🏠</h1>
+      </div>
+
+      {/* Theme toggle */}
+      <div style={{padding:'24px 20px 0'}}>
+        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:18,boxShadow:'var(--shadow-sm)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div>
+            <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:15}}>Mode sombre</div>
+            <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>{dark?'🌙 La nuit te va bien':'☀️ Tout en lumiere'}</div>
+          </div>
+          <button onClick={()=>setDark(d=>!d)} style={{width:54,height:30,borderRadius:999,background:dark?'var(--ink-900)':'var(--bg-soft)',border:'1px solid var(--hairline)',position:'relative',cursor:'pointer'}}>
+            <div style={{position:'absolute',top:2,left:dark?26:2,width:24,height:24,borderRadius:999,background:'#fff',boxShadow:'var(--shadow-sm)',transition:'left 200ms var(--ease)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>{dark?'🌙':'☀️'}</div>
+          </button>
+        </div>
+      </div>
+
+      {/* Stats card */}
+      <div style={{padding:'14px 20px 0'}}>
+        <div style={{background:'var(--ink-900)',color:'#fff',borderRadius:'var(--radius-lg)',padding:20}}>
+          <div style={{fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.15em',textTransform:'uppercase',opacity:0.6}}>Tes stats</div>
+          <div style={{display:'flex',alignItems:'baseline',gap:16,marginTop:8}}>
+            <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:56,letterSpacing:'-0.025em',lineHeight:1}}>{spots.length}</div>
+            <div style={{fontFamily:'var(--font-body)',fontSize:14,opacity:0.7}}>spots · {doneCount} faits · {favCount} ♥</div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginTop:16}}>
+            {CATS.filter(c=>c.key!=='all').map(c=>(
+              <div key={c.key} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.12)',borderRadius:10,padding:'10px 8px'}}>
+                <div style={{fontSize:18}}>{c.emoji}</div>
+                <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:22,marginTop:4,color:CC[c.key]}}>{counts[c.key]||0}</div>
+                <div style={{fontFamily:'var(--font-body)',fontSize:10.5,opacity:0.6}}>{c.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Settings rows */}
+      <div style={{padding:'24px 20px 0'}}>
+        <div className="mono-label" style={{marginBottom:10}}>Reglages</div>
+        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',overflow:'hidden'}}>
+          {[
+            {i:'🗺️',t:'Zones',s:zones?`Resto ${zones.resto?.length||0} · Sortie ${zones.sortie?.length||0}`:'Non configure',action:()=>setShowZones(true)},
+            {i:'🫂',t:'Contacts',s:`${contacts.length} potes ajoutes`,action:()=>setShowContacts(true)},
+            {i:'📷',t:'Google Places API',s:gApiKey?'Cle configuree':'Ajouter une cle',action:null},
+            {i:'🗑️',t:'Corbeille',s:`${trash.length} spots · recup. 7 jours`,action:null},
+            {i:'⬇️',t:'Exporter en JSON',s:'Backup tes spots',action:exportJSON},
+          ].map((r,i,arr)=>(
+            <button key={r.t} onClick={r.action||undefined} style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'14px 16px',cursor:r.action?'pointer':'default',border:'none',background:'#fff',textAlign:'left',borderBottom:i<arr.length-1?'1px solid var(--hairline)':'none'}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'var(--bg-cream)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>{r.i}</div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14.5}}>{r.t}</div>
+                <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>{r.s}</div>
+              </div>
+              <div style={{color:'var(--ink-400)',fontSize:18}}>›</div>
+            </button>
+          ))}
+          <label style={{width:'100%',display:'flex',alignItems:'center',gap:12,padding:'14px 16px',cursor:'pointer',border:'none',background:'#fff',textAlign:'left'}}>
+            <div style={{width:36,height:36,borderRadius:10,background:'var(--bg-cream)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>⬆️</div>
+            <div style={{flex:1}}>
+              <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:14.5}}>Importer un JSON</div>
+              <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>Fusionner ou remplacer</div>
+            </div>
+            <div style={{color:'var(--ink-400)',fontSize:18}}>›</div>
+            <input type="file" accept=".json" onChange={e=>{if(e.target.files[0]){importJSON(e.target.files[0]);e.target.value="";}}} style={{display:"none"}}/>
+          </label>
+        </div>
+      </div>
+
+      {/* Google Places API key */}
+      <div style={{padding:'14px 20px 0'}}>
+        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:16}}>
+          <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:15,marginBottom:4}}>📷 Google Places — Photos</div>
+          <div style={{fontSize:12,color:'var(--ink-400)',marginBottom:10,fontFamily:'var(--font-body)'}}>Remplis automatiquement les photos via Google</div>
+          <input value={gApiKey} onChange={e=>setGApiKey(e.target.value)} placeholder="Colle ta cle API Google ici" className="input-v2" style={{marginBottom:10,fontSize:13}} type="password"/>
+          <button onClick={fetchAllPhotos} disabled={photoLoading||!gApiKey} className="btn-primary" style={{fontSize:13}}>{photoLoading?"⏳ En cours...":"📷 Recuperer toutes les photos"}</button>
+          {photoProgress&&<div style={{fontSize:12,color:'var(--pop-pink)',marginTop:8,textAlign:'center',fontWeight:600,fontFamily:'var(--font-body)'}}>{photoProgress}</div>}
+          <div style={{fontSize:11,color:'var(--ink-400)',marginTop:8,fontFamily:'var(--font-body)'}}>{spots.filter(s=>getPhotos(s).length===0).length} spot{spots.filter(s=>getPhotos(s).length===0).length>1?"s":""} sans photo</div>
+        </div>
+      </div>
+
+      {/* Trash */}
+      {trash.length>0&&(
+        <div style={{padding:'14px 20px 0'}}>
+          <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:16}}>
+            <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:15,marginBottom:12}}>🗑️ Corbeille</div>
+            <div style={{display:'flex',flexDirection:'column',gap:6}}>
+              {trash.slice(0,5).map(t=>{
+                const days=Math.max(0,Math.ceil((t.deletedAt+TRASH_DAYS*864e5-Date.now())/864e5));
+                return(
+                  <div key={t.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 10px',background:'var(--bg-soft)',borderRadius:10}}>
+                    <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:600}}>{t.name}<span style={{fontSize:11,color:'var(--ink-400)',marginLeft:6}}>⏳ {days}j</span></div>
+                    <div style={{display:'flex',gap:6}}>
+                      <button onClick={()=>restoreSpot(t.id)} className="press" style={{padding:'4px 10px',borderRadius:8,border:'none',background:'#d1fae5',color:'#065f46',fontWeight:700,fontSize:12}}>↩️</button>
+                      <button onClick={()=>{if(confirm(`Supprimer definitivement "${t.name}" ?`))setTrash(tr=>tr.filter(x=>x.id!==t.id));}} className="press" style={{padding:'4px 10px',borderRadius:8,border:'none',background:'#fee2e2',color:'#991b1b',fontWeight:700,fontSize:12}}>🗑</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contacts bubbles */}
+      <div style={{padding:'24px 20px 0'}}>
+        <div className="mono-label" style={{marginBottom:10}}>Tes potes</div>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          {contacts.map(c=>(
+            <div key={c.id} style={{display:'flex',alignItems:'center',gap:8,background:'#fff',border:'1px solid var(--hairline)',borderRadius:999,padding:'6px 14px 6px 6px',boxShadow:'var(--shadow-sm)'}}>
+              <div style={{width:30,height:30,borderRadius:999,background:c.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:15}}>{c.emoji}</div>
+              <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:13.5}}>{c.name}</div>
+            </div>
+          ))}
+          <button onClick={()=>setShowContacts(true)} style={{display:'flex',alignItems:'center',gap:8,background:'transparent',border:'1.5px dashed var(--hairline)',borderRadius:999,padding:'6px 14px 6px 6px',cursor:'pointer'}}>
+            <div style={{width:30,height:30,borderRadius:999,background:'var(--bg-soft)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,color:'var(--ink-400)'}}>+</div>
+            <div style={{fontFamily:'var(--font-body)',fontWeight:500,fontSize:13.5,color:'var(--ink-400)'}}>Ajouter</div>
+          </button>
+        </div>
+      </div>
+
+      <div style={{textAlign:'center',fontSize:12,color:'var(--ink-400)',marginTop:24,paddingBottom:16,fontFamily:'var(--font-body)'}}>💾 Sauvegarde auto dans le navigateur</div>
+    </div>
+  );};
+
+  /* =============================================
+     RENDER
+     ============================================= */
+  return(
+    <div style={{maxWidth:600,margin:"0 auto",minHeight:"100vh"}}>
+      {(showZones||!zones)&&<ZonesModal zones={zones||{resto:[],sortie:[]}} isOnboarding={!zones} onClose={()=>setShowZones(false)} onSave={z=>{setZones(z);setShowZones(false);}}/>}
+      {showSuggest&&<SuggestModal spots={spots} onClose={()=>setShowSuggest(false)} onPick={s=>setSelectedSpot(s)} onStatus={setStatus} onDone={markDone}/>}
+      {showContacts&&<ContactsModal contacts={contacts} onAdd={addContact} onUpdate={updateContact} onDelete={deleteContact} onClose={()=>setShowContacts(false)}/>}
+      {contactPickerFor&&<ContactPicker spot={spots.find(s=>s.id===contactPickerFor)||{}} contacts={contacts} onToggle={cid=>toggleContactOnSpot(contactPickerFor,cid)} onClose={()=>setContactPickerFor(null)} onOpenContacts={()=>{setContactPickerFor(null);setShowContacts(true);}}/>}
+      {reactionSpot&&<ReactionModal spot={reactionSpot} onSave={(e,n)=>saveReaction(reactionSpot.id,e,n)} onSkip={()=>setReactionSpot(null)}/>}
+      {selectedSpot&&<SpotDetail spot={spots.find(s=>s.id===selectedSpot.id)||selectedSpot} contacts={contacts} onClose={()=>setSelectedSpot(null)} onDone={markDone} onFav={toggleFav} onStatus={setStatus} onRemove={removeSpot} onEdit={startEdit} onContactPicker={id=>{setSelectedSpot(null);setContactPickerFor(id);}} onNote={saveNote}/>}
+
+      <div style={{paddingBottom:20}}>
+        {tab==="home"&&<HomeTab/>}
+        {tab==="spots"&&<SpotsTab/>}
+        {tab==="events"&&<EventsTab/>}
+        {tab==="map"&&<MapTab/>}
+        {tab==="profile"&&<ProfileTab/>}
+      </div>
+
+      <nav className="bottom-nav">
+        {[
+          {key:"home",icon:"🏠",label:"Accueil"},
+          {key:"spots",icon:"📍",label:"Spots"},
+          {key:"events",icon:"🎫",label:"Events"},
+          {key:"map",icon:"🗺️",label:"Carte"},
+          {key:"profile",icon:"⚙️",label:"Profil"},
+        ].map(t=>(
+          <button key={t.key} className={tab===t.key?"active":""} onClick={()=>setTab(t.key)}>
+            <span className="nav-icon">{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
