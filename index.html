@@ -1778,11 +1778,11 @@ function App(){
       )}
 
       <div style={{paddingBottom:20}}>
-        {tab==="home"&&<HomeTab/>}
-        {tab==="spots"&&<SpotsTab/>}
-        {tab==="events"&&<EventsTab/>}
-        {tab==="map"&&<MapTab/>}
-        {tab==="profile"&&<ProfileTab/>}
+        {tab==="home"&&HomeTab()}
+        {tab==="spots"&&SpotsTab()}
+        {tab==="events"&&EventsTab()}
+        {tab==="map"&&MapTab()}
+        {tab==="profile"&&ProfileTab()}
       </div>
 
       <nav className="bottom-nav">
