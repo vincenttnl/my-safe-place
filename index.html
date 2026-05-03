@@ -29,13 +29,9 @@
   --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,61,139,0.25);
   --ease:cubic-bezier(0.4,0,0.2,1);
   /* legacy compat */
-  --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--nav:#fff;--nav-border:var(--hairline);--accent:var(--pop-pink);--radius:var(--radius-md);
+  --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--radius:var(--radius-md);
 }
 
-body.dark{
-  --bg-primary:#0E0E0E;--bg-cream:#1A1710;--bg-soft:#151510;--ink-900:#F0EBE0;--ink-600:#B0A890;--ink-400:#706858;--hairline:#2A2620;
-  --bg:var(--bg-primary);--card:#1c1c1e;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#1c1c1e;--nav:#1A1710;--nav-border:var(--hairline);--accent:var(--pop-pink);
-}
 
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:80px}
@@ -44,7 +40,6 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:4px}
-body.dark ::-webkit-scrollbar-thumb{background:#555}
 
 .leaflet-popup-content-wrapper{border-radius:var(--radius-md);box-shadow:var(--shadow-md)}
 .leaflet-popup-content{margin:10px 14px;font-family:var(--font-body)}
@@ -60,7 +55,6 @@ body.dark ::-webkit-scrollbar-thumb{background:#555}
 
 /* Bottom nav - Partiful style */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
-body.dark .bottom-nav{background:rgba(26,23,16,0.92)}
 .bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 12px;font-size:10px;font-weight:600;font-family:var(--font-body);color:var(--ink-400);transition:color .2s}
 .bottom-nav button.active{color:var(--ink-900)}
 .bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:all .2s var(--ease)}
@@ -94,21 +88,17 @@ body.dark .bottom-nav{background:rgba(26,23,16,0.92)}
 /* Modal overlay - Partiful */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
 .modal-sheet{background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
-body.dark .modal-sheet{background:var(--bg-cream)}
 .modal-sheet .sheet-handle{width:46px;height:5px;border-radius:var(--radius-pill);background:var(--hairline);margin:0 auto 16px}
 .modal-center{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-center .modal-box{background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
-body.dark .modal-center .modal-box{background:var(--bg-cream)}
 
 /* Pill buttons - Partiful */
 .pill-btn{padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
-body.dark .pill-btn{background:var(--bg-soft)}
 .pill-btn.active{border-color:var(--ink-900);background:var(--ink-900);color:#fff}
 .pill-btn:active{transform:scale(.95)}
 
 /* Inputs - Partiful */
 .input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:#fff;font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
-body.dark .input-v2{background:var(--bg-soft)}
 .input-v2:focus{border-color:var(--pop-pink)}
 
 /* Buttons - Partiful */
@@ -116,7 +106,6 @@ body.dark .input-v2{background:var(--bg-soft)}
 .btn-primary:active{opacity:.85;transform:scale(.98)}
 .btn-primary:disabled{opacity:.4;cursor:not-allowed}
 .btn-secondary{width:100%;padding:14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;color:var(--ink-900);font-weight:600;cursor:pointer;font-size:15px;font-family:var(--font-body)}
-body.dark .btn-secondary{background:var(--bg-soft)}
 
 .stat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--bg-cream);border:1px solid var(--hairline);font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900)}
 
@@ -175,6 +164,28 @@ const INITIAL_SPOTS = [
   {id:12,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Péniche-guinguette Seine",cats:["sortie"],photo:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",photos:["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],desc:"Jusqu'au 30 sept 2026 : péniche apéro entre Hôtel de Ville et Saint-Paul. Bières artisanales, ambiance festive.",vibe:"☀️ Éphémère 2026",adresse:"Quais de Seine, 75004",lat:48.8553,lng:2.3531,metro:"M1/7 Pont Neuf",price:"5-10€",hours:"Avr-Sep, jour-23h",tags:{who:["potes","famille","date"],when:["apero","journee"],vibe:["decontracte","festif"],zone:"centre"}},
   {id:13,done:false,fav:true,status:"wishlist",note:"",reaction:null,addedAt:Date.now(),name:"Philharmonie Belvédère",cats:["sortie"],photo:"https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",photos:["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],desc:"Rooftop gratuit sur le toit de la Philharmonie. Vue 360 sur La Villette. Ouvert avril-octobre.",vibe:"🆓 Gratuit",adresse:"221 av. Jean Jaurès, 75019",lat:48.8894,lng:2.3942,metro:"M5 Porte de Pantin",price:"Gratuit",hours:"Avr-Oct",tags:{who:["potes","solo","date","famille"],when:["journee","apero"],vibe:["decontracte","depaysant"],zone:"est"}},
   {id:14,done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),name:"Au Top — Marais secret",cats:["sortie"],photo:"https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",photos:["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],desc:"Cour pavée + ascenseur cache = restaurant panoramique confidentiel sur les toits du Marais. Connu des initiés seulement.",vibe:"🤫 Confidentiel",adresse:"93 rue Vieille du Temple, 75003",lat:48.8607,lng:2.3590,metro:"M1/11 Hôtel de Ville",price:"20-40€",hours:"19h-23h",tags:{who:["date","collegues"],when:["soiree"],vibe:["chic","intime","depaysant"],zone:"centre"}},
+  {id:15,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"La Clairière",cats:["resto","sortie"],photo:"https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",photos:["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],desc:"Restaurant/bar dans une ancienne église, esprit nature et bien-être. Cuisine consciente et ambiance zen.",vibe:"🌿 Éco-spirituel",adresse:"14 rue Jean-Baptiste Berlier, 75013 Paris",lat:48.8285,lng:2.3595,metro:"M14 Bibliothèque",price:"20-35€",hours:"12h-2h",tags:{who:["date","potes"],when:["journee","apero","soiree"],vibe:["depaysant","intime"],zone:"est",cuisine:["healthy"],work:false}},
+  {id:16,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Wanderlust",cats:["club","sortie"],photo:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",photos:["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],desc:"Lieu de vie au bord de la Seine : yoga, resto, dancefloor. L'endroit hybride par excellence.",vibe:"🌊 Sur la Seine",adresse:"32 quai d'Austerlitz, 75013 Paris",lat:48.8420,lng:2.3680,metro:"M6 Quai de la Gare",price:"10-20€",hours:"12h-6h",tags:{who:["potes","date"],when:["journee","soiree","after"],vibe:["festif","decontracte"],zone:"est",cuisine:[],work:false}},
+  {id:17,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Comptoir Général",cats:["speakeasy","sortie"],photo:"https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=900&q=80",photos:["https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=900&q=80"],desc:"Musée-bar-cantine afro dans un ancien entrepôt. Déco dingue, cocktails exotiques, expos.",vibe:"🌍 Musée-bar",adresse:"80 quai de Jemmapes, 75010 Paris",lat:48.8717,lng:2.3651,metro:"M5 Jacques Bonsergent",price:"8-15€",hours:"11h-2h",tags:{who:["potes","date","solo"],when:["journee","apero","soiree"],vibe:["depaysant","decontracte"],zone:"est",cuisine:[],work:true}},
+  {id:18,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Perchoir Ménilmontant",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80",photos:["https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80"],desc:"Le rooftop OG, vue sur tout Paris. L'original qui a lancé la mode des rooftops parisiens.",vibe:"🔥 L'original",adresse:"14 rue Crespin du Gast, 75011 Paris",lat:48.8651,lng:2.3830,metro:"M2 Ménilmontant",price:"12-20€",hours:"18h-2h",tags:{who:["date","potes","collegues"],when:["apero","soiree"],vibe:["chic","festif"],zone:"est",cuisine:[],work:false}},
+  {id:19,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Hoxton",cats:["speakeasy","resto"],photo:"https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",photos:["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],desc:"Hôtel trendy avec lobby-bar, terrasse, restaurant. Le spot work & chill parfait.",vibe:"💻 Work & chill",adresse:"30-32 rue du Sentier, 75002 Paris",lat:48.8685,lng:2.3476,metro:"M3 Sentier",price:"15-25€",hours:"7h-1h",tags:{who:["collegues","solo","date"],when:["journee","apero"],vibe:["chic","decontracte"],zone:"centre",cuisine:["brunch"],work:true}},
+  {id:20,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Grand Bréguet",cats:["resto","speakeasy"],photo:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",photos:["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],desc:"Restaurant-bar dans un ancien garage, terrasse cachée. Cuisine bistrot et cocktails soignés.",vibe:"🍷 Bistrot chic",adresse:"7 rue Bréguet, 75011 Paris",lat:48.8560,lng:2.3715,metro:"M5 Bréguet-Sabin",price:"18-30€",hours:"12h-2h",tags:{who:["date","collegues","potes"],when:["journee","apero","soiree"],vibe:["chic","decontracte"],zone:"est",cuisine:["francais","bistrot"],work:false}},
+  {id:21,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Virage",cats:["club","sortie"],photo:"https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",photos:["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],desc:"Open air électro à Saint-Ouen, ancien espace industriel. Le son et la nuit.",vibe:"🎧 Open air",adresse:"4 impasse Léon, 93400 Saint-Ouen",lat:48.9088,lng:2.3345,metro:"M4 Porte de Clignancourt",price:"15-25€",hours:"23h-7h",tags:{who:["potes"],when:["soiree","after"],vibe:["festif"],zone:"banlieue",cuisine:[],work:false}},
+  {id:22,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Syndicat",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80",photos:["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80"],desc:"Cocktails 100% spiritueux français, élu meilleur bar de France. Ambiance speakeasy brut.",vibe:"🏆 Best bar FR",adresse:"51 rue du Faubourg Saint-Denis, 75010 Paris",lat:48.8721,lng:2.3545,metro:"M4 Château d'Eau",price:"14-18€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree"],vibe:["chic","intime"],zone:"centre",cuisine:[],work:false}},
+  {id:23,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Little Red Door",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",photos:["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],desc:"Cocktail bar conceptuel, carte thématique qui change. Créativité en verre.",vibe:"🎨 Cocktails d'auteur",adresse:"60 rue Charlot, 75003 Paris",lat:48.8639,lng:2.3623,metro:"M8 Filles du Calvaire",price:"16-20€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree"],vibe:["chic","intime"],zone:"centre",cuisine:[],work:false}},
+  {id:24,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Combat",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80",photos:["https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],desc:"Bar rock/indie, concerts live, terrasse fumeur mythique. Le QG des nuits de Belleville.",vibe:"🎸 Rock & indie",adresse:"63 rue de Belleville, 75019 Paris",lat:48.8750,lng:2.3810,metro:"M11 Jourdain",price:"5-10€",hours:"17h-2h",tags:{who:["potes","solo"],when:["apero","soiree"],vibe:["decontracte","festif"],zone:"est",cuisine:[],work:false}},
+  {id:25,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Gravity Bar",cats:["speakeasy","rooftop"],photo:"https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",photos:["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],desc:"Bar panoramique au sommet de la tour de la Cité de la Mode. Vue imprenable sur la Seine.",vibe:"🌃 Vue Seine",adresse:"34 quai d'Austerlitz, 75013 Paris",lat:48.8415,lng:2.3690,metro:"M6 Quai de la Gare",price:"12-18€",hours:"18h-1h30",tags:{who:["date","potes"],when:["apero","soiree"],vibe:["chic","festif"],zone:"est",cuisine:[],work:false}},
+  {id:26,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Bisou",cats:["speakeasy"],photo:"https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80",photos:["https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80"],desc:"Bar à cocktails sans carte, le barman improvise selon tes goûts. Chaque verre est unique.",vibe:"🎲 Pas de carte",adresse:"15 boulevard du Temple, 75003 Paris",lat:48.8641,lng:2.3648,metro:"M8 Filles du Calvaire",price:"13-17€",hours:"18h-2h",tags:{who:["date","potes"],when:["soiree"],vibe:["intime","depaysant"],zone:"centre",cuisine:[],work:false}},
+  {id:27,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Créatures",cats:["rooftop","resto"],photo:"https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80",photos:["https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80"],desc:"Rooftop des Galeries Lafayette Champs-Élysées, cuisine végétale. Le green rooftop chic.",vibe:"🌱 Green rooftop",adresse:"52 avenue des Champs-Élysées, 75008 Paris",lat:48.8712,lng:2.3065,metro:"M1 Franklin D. Roosevelt",price:"20-40€",hours:"12h-minuit",tags:{who:["date","collegues"],when:["journee","apero"],vibe:["chic","depaysant"],zone:"ouest",cuisine:["healthy"],work:false}},
+  {id:28,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Mama Shelter Paris East",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80",photos:["https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80"],desc:"Rooftop d'hôtel, cocktails, vue 360°, ping-pong. Fun garanti.",vibe:"🎯 Fun & games",adresse:"109 rue de Bagnolet, 75020 Paris",lat:48.8580,lng:2.4015,metro:"M3 Alexandre Dumas",price:"10-18€",hours:"17h-minuit",tags:{who:["potes","collegues"],when:["apero","soiree"],vibe:["decontracte","festif"],zone:"est",cuisine:[],work:false}},
+  {id:29,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Le Tout-Paris",cats:["rooftop","resto"],photo:"https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",photos:["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],desc:"Rooftop du Cheval Blanc (LVMH), vue Pont Neuf et Seine. Le plus luxe de Paris.",vibe:"👑 Le plus luxe",adresse:"Cheval Blanc Paris, 25 quai du Louvre, 75001 Paris",lat:48.8580,lng:2.3440,metro:"M7 Pont Neuf",price:"30-60€",hours:"12h-minuit",tags:{who:["date"],when:["apero","soiree"],vibe:["chic","intime"],zone:"centre",cuisine:["gastro"],work:false}},
+  {id:30,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Terrass'' Hotel",cats:["rooftop"],photo:"https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",photos:["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],desc:"Terrasse panoramique Montmartre, vue Tour Eiffel. Le rooftop le plus romantique.",vibe:"🗼 Vue Tour Eiffel",adresse:"12-14 rue Joseph de Maistre, 75018 Paris",lat:48.8903,lng:2.3315,metro:"M13 Place de Clichy",price:"15-25€",hours:"11h-1h",tags:{who:["date","collegues"],when:["journee","apero"],vibe:["chic","intime"],zone:"nord",cuisine:[],work:false}},
+  {id:31,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Laho",cats:["rooftop","resto"],photo:"https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80",photos:["https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80"],desc:"Rooftop de la Gare de Lyon, food court + bar, ambiance décontractée. Vue sur les trains.",vibe:"🚂 Sur la gare",adresse:"Gare de Lyon, place Louis Armand, 75012 Paris",lat:48.8443,lng:2.3747,metro:"M1 Gare de Lyon",price:"10-20€",hours:"12h-minuit",tags:{who:["potes","collegues","solo"],when:["journee","apero"],vibe:["decontracte"],zone:"est",cuisine:[],work:true}},
+  {id:32,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Concrete",cats:["club"],photo:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",photos:["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],desc:"Club iconique sur une péniche, techno/house, après minuit. Le temple de la nuit parisienne.",vibe:"⚡ Techno temple",adresse:"69 port de la Rapée, 75012 Paris",lat:48.8435,lng:2.3660,metro:"M6 Quai de la Gare",price:"15-20€",hours:"23h-12h",tags:{who:["potes"],when:["soiree","after"],vibe:["festif"],zone:"est",cuisine:[],work:false}},
+  {id:33,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Rex Club",cats:["club"],photo:"https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",photos:["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],desc:"Institution techno parisienne depuis 1988. La légende qui ne vieillit pas.",vibe:"👑 Légende techno",adresse:"5 boulevard Poissonnière, 75002 Paris",lat:48.8706,lng:2.3477,metro:"M8 Bonne Nouvelle",price:"10-20€",hours:"23h30-6h",tags:{who:["potes"],when:["soiree","after"],vibe:["festif"],zone:"centre",cuisine:[],work:false}},
+  {id:34,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Badaboum",cats:["club","speakeasy"],photo:"https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80",photos:["https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],desc:"Club + bar + concerts, electro éclectique, Bastille. La programmation qui surprend toujours.",vibe:"🎵 Éclectique",adresse:"2bis rue des Taillandiers, 75011 Paris",lat:48.8540,lng:2.3745,metro:"M1 Bastille",price:"10-15€",hours:"20h-5h",tags:{who:["potes","date"],when:["soiree","after"],vibe:["festif","decontracte"],zone:"est",cuisine:[],work:false}},
+  {id:35,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"La Station - Gare des Mines",cats:["club","sortie"],photo:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",photos:["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],desc:"Friche culturelle, open air, art + techno. L'underground parisien à son meilleur.",vibe:"🏭 Friche arty",adresse:"29 avenue de la Porte d'Aubervilliers, 75018 Paris",lat:48.8971,lng:2.3685,metro:"M12 Porte de la Chapelle",price:"10-15€",hours:"22h-6h",tags:{who:["potes"],when:["soiree","after"],vibe:["festif","depaysant"],zone:"nord",cuisine:[],work:false}},
+  {id:36,done:false,fav:false,note:"",reaction:null,status:null,addedAt:Date.now(),contacts:[],name:"Nuba",cats:["club","rooftop"],photo:"https://images.unsplash.com/photo-1551218808-94e220e084d2?w=900&q=80",photos:["https://images.unsplash.com/photo-1551218808-94e220e084d2?w=900&q=80"],desc:"Rooftop-club sur le toit de la Cité de la Mode, electro + soleil. Le dancefloor avec vue.",vibe:"☀️ Rooftop dancefloor",adresse:"34 quai d'Austerlitz, 75013 Paris",lat:48.8418,lng:2.3688,metro:"M6 Quai de la Gare",price:"10-20€",hours:"19h-6h",tags:{who:["potes"],when:["apero","soiree","after"],vibe:["festif","decontracte"],zone:"est",cuisine:[],work:false}},
 ];
 
 const Q_WHO=[{k:"date",l:"💑 Date"},{k:"potes",l:"👥 Potes"},{k:"solo",l:"🧑 Solo"},{k:"collegues",l:"👔 Collègues"},{k:"famille",l:"👨‍👩‍👧 Famille"}];
@@ -201,7 +212,7 @@ const CB={resto:"#FFE4EE",cafe:"#FFE7D6",rooftop:"#EDE5FF",speakeasy:"#FFE0EC",c
 const CAT_TYPE={resto:"resto",cafe:"resto",rooftop:"sortie",speakeasy:"sortie",club:"sortie",sortie:"sortie"};
 const REACTIONS=[{emoji:"🔥",label:"Incroyable"},{emoji:"👍",label:"Bien"},{emoji:"😐",label:"Bof"}];
 
-const SK="monparis_spots_v3";const CK="monparis_challenge_v3";const TK="monparis_theme";const TRK="monparis_trash_v1";
+const SK="monparis_spots_v3";const CK="monparis_challenge_v3";const TRK="monparis_trash_v1";
 const ZK="myplace_zones_v1";const CTK="myplace_contacts_v1";const EVK="myplace_events_v1";const GK="myplace_gapi_key";
 const OBK="myplace_onboarding_done_v1";
 const CT_COLORS=["#FF3D8B","#8B5CF6","#FFD23F","#3DC8FF","#FF6B2C","#C6FF3D","#E91E63","#6C63FF"];
@@ -952,7 +963,6 @@ function App(){
   // State
   const [spots,setSpots]=useState(()=>{try{const raw=localStorage.getItem(SK);if(!raw)return INITIAL_SPOTS;const saved=JSON.parse(raw);return saved.map(s=>{const init=INITIAL_SPOTS.find(i=>i.id===s.id);const cats=Array.isArray(s.cats)?s.cats:(s.cat?[s.cat]:["sortie"]);const photo=s.photo||"";if(!init)return{...s,cats,photo,cat:undefined};return{...s,cats,photo:photo||init.photo,photos:s.photos||init.photos,cat:undefined,metro:s.metro||init.metro,price:s.price||init.price,hours:s.hours||init.hours,tags:{...init.tags,cuisine:s.tags?.cuisine||[],work:s.tags?.work||false}};});}catch{return INITIAL_SPOTS;}});
   const [challenge,setChallenge]=useState(()=>{try{const c=localStorage.getItem(CK);return c?JSON.parse(c):{ids:pickChallenge(INITIAL_SPOTS),month:getMonthLabel()};}catch{return{ids:pickChallenge(INITIAL_SPOTS),month:getMonthLabel()};}});
-  const [dark,setDark]=useState(()=>{try{const t=localStorage.getItem(TK);if(t)return t==="dark";return window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;}catch{return false;}});
   const [trash,setTrash]=useState(()=>{try{const raw=localStorage.getItem(TRK);if(!raw)return[];const cutoff=Date.now()-TRASH_DAYS*864e5;return JSON.parse(raw).filter(t=>t.deletedAt&&t.deletedAt>cutoff);}catch{return[];}});
   const [zones,setZones]=useState(()=>{try{const raw=localStorage.getItem(ZK);if(raw)return JSON.parse(raw);}catch{}return null;});
   const [contacts,setContacts]=useState(()=>{try{const raw=localStorage.getItem(CTK);return raw?JSON.parse(raw):[];}catch{return[];}});
@@ -1010,7 +1020,6 @@ function App(){
   useEffect(()=>{try{localStorage.setItem(CTK,JSON.stringify(contacts));}catch{}},[contacts]);
   useEffect(()=>{try{localStorage.setItem(GK,gApiKey);}catch{}},[gApiKey]);
   useEffect(()=>{const cleaned=events.filter(ev=>new Date(ev.date)>=new Date(new Date().toDateString()));if(cleaned.length!==events.length)setEvents(cleaned);try{localStorage.setItem(EVK,JSON.stringify(cleaned));}catch{}},[events]);
-  useEffect(()=>{document.body.classList.toggle("dark",dark);try{localStorage.setItem(TK,dark?"dark":"light");}catch{}},[dark]);
   useEffect(()=>{const m=getMonthLabel();if(challenge.month!==m)setChallenge({ids:pickChallenge(spots),month:m});},[]);
 
   // Actions
@@ -1084,7 +1093,7 @@ function App(){
     if(tab!=="map"||!mapContainerRef.current)return;
     if(mapRef.current){mapRef.current.invalidateSize();return;}
     const map=L.map(mapContainerRef.current).setView([48.8606,2.3376],12);
-    const url=dark?"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png":"https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+    const url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     L.tileLayer(url,{maxZoom:19,attribution:'OSM, CARTO'}).addTo(map);
     mapRef.current=map;
     setTimeout(()=>map.invalidateSize(),150);
@@ -1105,7 +1114,7 @@ function App(){
     });
     if(userPos){L.circleMarker([userPos.lat,userPos.lng],{radius:10,fillColor:'#FF3D8B',color:'#fff',weight:3,opacity:1,fillOpacity:1}).addTo(map).bindPopup('📍 Tu es ici');}
     if(bounds.length>1)map.fitBounds(bounds,{padding:[40,40]});
-  },[tab,spots,dark,userPos]);
+  },[tab,spots,userPos]);
 
   // Filtered spots
   const visible=useMemo(()=>{
@@ -1570,19 +1579,6 @@ function App(){
       <div style={{padding:'28px 20px 24px',background:'var(--bg-cream)'}}>
         <div className="mono-label" style={{marginBottom:6}}>☻ Profil · v3</div>
         <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.025em',margin:0}}>C'est ton<br/>safe place 🏠</h1>
-      </div>
-
-      {/* Theme toggle */}
-      <div style={{padding:'24px 20px 0'}}>
-        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:18,boxShadow:'var(--shadow-sm)',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div>
-            <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:15}}>Mode sombre</div>
-            <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>{dark?'🌙 La nuit te va bien':'☀️ Tout en lumière'}</div>
-          </div>
-          <button onClick={()=>setDark(d=>!d)} style={{width:54,height:30,borderRadius:999,background:dark?'var(--ink-900)':'var(--bg-soft)',border:'1px solid var(--hairline)',position:'relative',cursor:'pointer'}}>
-            <div style={{position:'absolute',top:2,left:dark?26:2,width:24,height:24,borderRadius:999,background:'#fff',boxShadow:'var(--shadow-sm)',transition:'left 200ms var(--ease)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13}}>{dark?'🌙':'☀️'}</div>
-          </button>
-        </div>
       </div>
 
       {/* Stats card */}
