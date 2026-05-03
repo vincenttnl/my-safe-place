@@ -578,6 +578,100 @@ function PhotoCarousel({photos,catColor}){
 }
 
 /* =============================================
+   SPOT FORM MODAL — isolated state, no parent re-render
+   ============================================= */
+function SpotFormModal({editingId,gApiKey,onSave,onClose,initialData}){
+  const s=initialData;
+  const [nName,setNName]=useState(s?.name||"");
+  const [nDesc,setNDesc]=useState(s?.desc||"");
+  const [nCats,setNCats]=useState(s?getCats(s):["sortie"]);
+  const [nPhoto,setNPhoto]=useState(s?firstPhoto(s):"");
+  const [nPhotos,setNPhotos]=useState(s?getPhotos(s):[]);
+  const [nWebsite,setNWebsite]=useState(s?.website||"");
+  const [nAddr,setNAddr]=useState(s?.adresse||"");
+  const [nLat,setNLat]=useState(s?.lat?String(s.lat):"");
+  const [nLng,setNLng]=useState(s?.lng?String(s.lng):"");
+  const [nMetro,setNMetro]=useState(s?.metro||"");
+  const [nPrice,setNPrice]=useState(s?.price||"");
+  const [nHours,setNHours]=useState(s?.hours||"");
+  const [nCuisine,setNCuisine]=useState(Array.isArray(s?.tags?.cuisine)?s.tags.cuisine:[]);
+  const [nWork,setNWork]=useState(!!s?.tags?.work);
+  const [enriching,setEnriching]=useState(false);
+
+  const runEnrich=async()=>{
+    if(!nName.trim()&&!nWebsite.trim())return;setEnriching(true);const found={};
+    try{
+      if(nName){const q=nName+(nAddr?" "+nAddr:"")+" Paris";try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`,{headers:{"User-Agent":"MySafePlace/1.0"}});const d=await r.json();if(d.length>0){const x=d[0];const extra=x.extratags||{};found.lat=x.lat;found.lng=x.lon;if(extra.opening_hours)found.hours=extra.opening_hours;if(extra.website||extra["contact:website"])found.website=extra.website||extra["contact:website"];found.addr=x.display_name.split(",").slice(0,3).join(",").trim();}}catch{}}
+      const useLat=nLat||found.lat;const useLng=nLng||found.lng;
+      if(useLat&&useLng){try{const opQ=`[out:json][timeout:10];(node(around:100,${useLat},${useLng})["name"];way(around:100,${useLat},${useLng})["name"];);out tags 15;`;const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(opQ)});const d=await r.json();const els=(d.elements||[]).filter(e=>e.tags?.name);const nameNorm=(nName||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");let best=els.find(e=>(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")===nameNorm);if(!best)best=els.find(e=>{const n=(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");return n.includes(nameNorm)||nameNorm.includes(n);});if(!best)best=els.find(e=>e.tags.opening_hours)||els[0];if(best){const t=best.tags||{};if(t.opening_hours&&!found.hours)found.hours=t.opening_hours;if(t.cuisine)found.cuisine=t.cuisine;if(t.website||t["contact:website"])found.website=found.website||(t.website||t["contact:website"]);if(t.internet_access==="wlan"||t.internet_access==="yes")found.wifi=true;const ap=[t["addr:housenumber"],t["addr:street"]].filter(Boolean);const af=[ap.join(" "),[t["addr:postcode"],t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", ");if(af&&!found.addr)found.addr=af;}}catch{}}
+      if(gApiKey){try{const gPhotos=await googlePlacePhotos(nName,nAddr||found.addr,gApiKey,4);if(gPhotos.length){if(!found.photo)found.photo=gPhotos[0];found.photos=gPhotos;}}catch{}}
+    }catch{}
+    if(found.lat)setNLat(p=>p||String(found.lat));if(found.lng)setNLng(p=>p||String(found.lng));if(found.hours)setNHours(p=>p||found.hours);if(found.addr)setNAddr(p=>p||found.addr);if(found.photo)setNPhoto(p=>p||found.photo);if(found.photos)setNPhotos(p=>p.length?p:found.photos);if(found.desc)setNDesc(p=>p||found.desc);if(found.website)setNWebsite(p=>p||found.website);if(found.wifi)setNWork(true);
+    if(found.cuisine){const mapped=found.cuisine.split(/[;,]/).map(c=>c.trim().toLowerCase()).filter(Boolean).map(c=>{for(const[k,v]of Object.entries(DC)){if(v.includes(c)||c.includes(k))return k;}return null;}).filter(Boolean);if(mapped.length)setNCuisine(p=>p.length?p:mapped);}
+    setEnriching(false);
+  };
+
+  const handleSave=()=>{
+    if(!nName.trim())return;
+    const lat=parseFloat(String(nLat).replace(",","."))||48.8566;
+    const lng=parseFloat(String(nLng).replace(",","."))||2.3522;
+    const photos=nPhotos.length?nPhotos:(nPhoto?[nPhoto]:[]);
+    const data={name:nName.trim(),cats:nCats.length?nCats:["sortie"],photo:photos[0]||"",photos,website:nWebsite.trim(),desc:nDesc.trim(),adresse:nAddr.trim(),lat,lng,metro:nMetro.trim(),price:nPrice.trim(),hours:nHours.trim(),tags:{cuisine:nCuisine,work:nWork}};
+    if(editingId!=null)data._editId=editingId;
+    onSave(data);
+  };
+
+  return(
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()} style={{maxHeight:"95vh"}}>
+        <div className="sheet-handle"/>
+        <div className="mono-label" style={{marginBottom:4}}>{editingId!=null?"✏️ Modifier":"+ Nouveau"}</div>
+        <div className="section-title" style={{marginBottom:16}}>{editingId!=null?"Modifier le spot":"Nouveau spot"}</div>
+        <input value={nName} onChange={e=>setNName(e.target.value)} placeholder="Nom du lieu *" className="input-v2" style={{marginBottom:8}} autoFocus/>
+        <div style={{display:"flex",gap:8,marginBottom:8}}>
+          <input value={nWebsite} onChange={e=>setNWebsite(e.target.value)} placeholder="🌐 Site web" className="input-v2" style={{flex:1}}/>
+          <button onClick={runEnrich} disabled={enriching||(!nName.trim()&&!nWebsite.trim())} className="press" style={{padding:"12px 16px",borderRadius:'var(--radius-md)',border:"none",background:"var(--ink-900)",color:"#fff",fontWeight:700,fontSize:12,whiteSpace:"nowrap"}}>{enriching?"⏳":"🔍 Auto"}</button>
+        </div>
+        <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
+          <input value={nPhoto} onChange={e=>setNPhoto(e.target.value)} placeholder="📷 URL photo" className="input-v2" style={{flex:1}}/>
+          {nPhoto&&<img src={nPhoto} alt="" style={{width:42,height:42,borderRadius:10,objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>}
+        </div>
+        <AddressAutocomplete value={nAddr} onChange={setNAddr} onPick={o=>{setNAddr(o.adresse);setNLat(String(o.lat));setNLng(String(o.lng));}} placeholder="📍 Adresse"/>
+        <textarea value={nDesc} onChange={e=>setNDesc(e.target.value)} placeholder="Description" className="input-v2" style={{resize:"vertical",minHeight:60,marginBottom:8,fontSize:14}}/>
+        <div style={{display:"flex",gap:8,marginBottom:8}}>
+          <input value={nMetro} onChange={e=>setNMetro(e.target.value)} placeholder="🚇 Métro" className="input-v2" style={{flex:2}}/>
+          <input value={nPrice} onChange={e=>setNPrice(e.target.value)} placeholder="💶 Prix" className="input-v2" style={{flex:1}}/>
+        </div>
+        <input value={nHours} onChange={e=>setNHours(e.target.value)} placeholder="🕐 Horaires" className="input-v2" style={{marginBottom:8}}/>
+        <div style={{display:"flex",gap:8,marginBottom:8}}>
+          <input value={nLat} onChange={e=>setNLat(e.target.value)} placeholder="Lat" className="input-v2" style={{flex:1}}/>
+          <input value={nLng} onChange={e=>setNLng(e.target.value)} placeholder="Lng" className="input-v2" style={{flex:1}}/>
+        </div>
+        <div style={{marginBottom:12}}>
+          <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Catégories</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+            {CATS.filter(c=>c.key!=="all").map(c=>{const on=nCats.includes(c.key);return<button key={c.key} onClick={()=>setNCats(n=>on?n.filter(x=>x!==c.key):[...n,c.key])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:CC[c.key],background:CC[c.key],color:'#fff'}:{}}>{c.emoji} {c.label}</button>;})}
+          </div>
+        </div>
+        {(nCats.includes("resto")||nCats.includes("cafe"))&&(
+          <div style={{marginBottom:12}}>
+            <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Cuisine</div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {Q_CUISINE.map(c=>{const on=nCuisine.includes(c.k);return<button key={c.k} onClick={()=>setNCuisine(n=>on?n.filter(x=>x!==c.k):[...n,c.k])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:'var(--pop-orange)',background:'var(--pop-orange)',color:'#fff'}:{}}>{c.l}</button>;})}
+            </div>
+          </div>
+        )}
+        <button onClick={()=>setNWork(w=>!w)} className={`pill-btn${nWork?" active":""}`} style={{marginBottom:16}}>💻 Workfriendly {nWork?"✓":""}</button>
+        <div style={{display:"flex",gap:8}}>
+          <button onClick={handleSave} disabled={!nName.trim()} className="btn-primary" style={{flex:1}}>{editingId!=null?"Sauver":"Ajouter"}</button>
+          <button onClick={onClose} className="btn-secondary" style={{flex:1}}>Annuler</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =============================================
    SPOT DETAIL - Partiful bottom sheet
    ============================================= */
 function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit,onContactPicker,onNote,onShare}){
@@ -971,9 +1065,7 @@ function App(){
   const [showEventForm,setShowEventForm]=useState(false);
   const [editingEvId,setEditingEvId]=useState(null);
 
-  // Form state
-  const [nName,setNName]=useState("");const [nDesc,setNDesc]=useState("");const [nCats,setNCats]=useState(["sortie"]);const [nPhoto,setNPhoto]=useState("");const [nPhotos,setNPhotos]=useState([]);const [nAddr,setNAddr]=useState("");const [nLat,setNLat]=useState("");const [nLng,setNLng]=useState("");
-  const [nMetro,setNMetro]=useState("");const [nPrice,setNPrice]=useState("");const [nHours,setNHours]=useState("");const [nCuisine,setNCuisine]=useState([]);const [nWork,setNWork]=useState(false);const [nWebsite,setNWebsite]=useState("");const [enriching,setEnriching]=useState(false);
+  // Form state (now in SpotFormModal, only editingId/showForm needed here)
   const [evName,setEvName]=useState("");const [evDate,setEvDate]=useState("");const [evLieu,setEvLieu]=useState("");const [evDesc,setEvDesc]=useState("");const [evPhoto,setEvPhoto]=useState("");const [evLink,setEvLink]=useState("");const [evSpotId,setEvSpotId]=useState("");
 
   // Discover state
@@ -1051,26 +1143,8 @@ function App(){
   const refreshChallenge=()=>setChallenge({ids:pickChallenge(spots),month:getMonthLabel()});
   const pickRandom=()=>{const todo=spots.filter(s=>s.status!=="rejected"&&!s.done);if(todo.length){const s=todo[Math.floor(Math.random()*todo.length)];setSelectedSpot(s);}};
 
-  // Form
-  const resetForm=()=>{setNName("");setNDesc("");setNAddr("");setNLat("");setNLng("");setNMetro("");setNPrice("");setNHours("");setNCats(["resto"]);setNPhoto("");setNPhotos([]);setNWebsite("");setNCuisine([]);setNWork(false);setEnriching(false);setEditingId(null);setShowForm(false);};
-  const startEdit=(spot)=>{setEditingId(spot.id);setNName(spot.name||"");setNDesc(spot.desc||"");setNCats(getCats(spot));setNPhoto(firstPhoto(spot));setNPhotos(getPhotos(spot));setNWebsite(spot.website||"");setNAddr(spot.adresse||"");setNLat(spot.lat?String(spot.lat):"");setNLng(spot.lng?String(spot.lng):"");setNMetro(spot.metro||"");setNPrice(spot.price||"");setNHours(spot.hours||"");setNCuisine(Array.isArray(spot.tags?.cuisine)?spot.tags.cuisine:[]);setNWork(!!spot.tags?.work);setShowForm(true);setSelectedSpot(null);setTab("spots");};
-  const saveSpot=()=>{if(!nName.trim())return;const lat=parseFloat(String(nLat).replace(",","."))||48.8566;const lng=parseFloat(String(nLng).replace(",","."))||2.3522;const photos=nPhotos.length?nPhotos:(nPhoto?[nPhoto]:[]);const data={name:nName.trim(),cats:nCats.length?nCats:["sortie"],photo:photos[0]||"",photos,website:nWebsite.trim(),desc:nDesc.trim(),adresse:nAddr.trim(),lat,lng,metro:nMetro.trim(),price:nPrice.trim(),hours:nHours.trim()};if(editingId!=null){setSpots(s=>s.map(x=>x.id===editingId?{...x,...data,tags:{...(x.tags||{}),cuisine:nCuisine,work:nWork}}:x));}else{setSpots(s=>[...s,{id:Date.now(),done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),vibe:"📌 Ajoute",tags:{cuisine:nCuisine,work:nWork},...data}]);}resetForm();};
-
-  // Enrich
-  const runEnrich=async()=>{
-    if(!nName.trim()&&!nWebsite.trim())return;setEnriching(true);const found={};
-    try{
-      if(nName){const q=nName+(nAddr?" "+nAddr:"")+" Paris";try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`,{headers:{"User-Agent":"MySafePlace/1.0"}});const d=await r.json();if(d.length>0){const x=d[0];const extra=x.extratags||{};found.lat=x.lat;found.lng=x.lon;if(extra.opening_hours)found.hours=extra.opening_hours;if(extra.website||extra["contact:website"])found.website=extra.website||extra["contact:website"];found.addr=x.display_name.split(",").slice(0,3).join(",").trim();}}catch{}}
-      const useLat=nLat||found.lat;const useLng=nLng||found.lng;
-      if(useLat&&useLng){try{const opQ=`[out:json][timeout:10];(node(around:100,${useLat},${useLng})["name"];way(around:100,${useLat},${useLng})["name"];);out tags 15;`;const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(opQ)});const d=await r.json();const els=(d.elements||[]).filter(e=>e.tags?.name);const nameNorm=(nName||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");let best=els.find(e=>(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")===nameNorm);if(!best)best=els.find(e=>{const n=(e.tags.name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");return n.includes(nameNorm)||nameNorm.includes(n);});if(!best)best=els.find(e=>e.tags.opening_hours)||els[0];if(best){const t=best.tags||{};if(t.opening_hours&&!found.hours)found.hours=t.opening_hours;if(t.cuisine)found.cuisine=t.cuisine;if(t.website||t["contact:website"])found.website=found.website||(t.website||t["contact:website"]);if(t.internet_access==="wlan"||t.internet_access==="yes")found.wifi=true;const ap=[t["addr:housenumber"],t["addr:street"]].filter(Boolean);const af=[ap.join(" "),[t["addr:postcode"],t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", ");if(af&&!found.addr)found.addr=af;}}catch{}}
-      const useWeb=nWebsite||found.website;
-      if(useWeb){try{let url=useWeb.trim();if(!url.startsWith("http"))url="https://"+url;const r=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(10000)});if(r.ok){const html=await r.text();const doc=new DOMParser().parseFromString(html,"text/html");const getMeta=n=>{const el=doc.querySelector(`meta[property="${n}"],meta[name="${n}"]`);return el?el.getAttribute("content"):"";};if(!found.photo)found.photo=getMeta("og:image")||getMeta("twitter:image");if(!found.desc)found.desc=(getMeta("og:description")||getMeta("description")||"").slice(0,300);}}catch{}}
-    }catch{}
-    if(gApiKey){try{const gPhotos=await googlePlacePhotos(nName,nAddr||found.addr,gApiKey,4);if(gPhotos.length){if(!found.photo)found.photo=gPhotos[0];found.photos=gPhotos;}}catch{}}
-    if(found.lat)setNLat(p=>p||String(found.lat));if(found.lng)setNLng(p=>p||String(found.lng));if(found.hours)setNHours(p=>p||found.hours);if(found.addr)setNAddr(p=>p||found.addr);if(found.photo)setNPhoto(p=>p||found.photo);if(found.photos)setNPhotos(p=>p.length?p:found.photos);if(found.desc)setNDesc(p=>p||found.desc);if(found.website)setNWebsite(p=>p||found.website);if(found.wifi)setNWork(true);
-    if(found.cuisine){const mapped=found.cuisine.split(/[;,]/).map(c=>c.trim().toLowerCase()).filter(Boolean).map(c=>{for(const[k,v]of Object.entries(DC)){if(v.includes(c)||c.includes(k))return k;}return null;}).filter(Boolean);if(mapped.length)setNCuisine(p=>p.length?p:mapped);}
-    setEnriching(false);
-  };
+  // Form (state lives in SpotFormModal, only open/close here)
+  const startEdit=(spot)=>{setEditingId(spot.id);setShowForm(true);setSelectedSpot(null);setTab("spots");};
 
   // Events
   const resetEventForm=()=>{setEvName("");setEvDate("");setEvLieu("");setEvDesc("");setEvPhoto("");setEvLink("");setEvSpotId("");setEditingEvId(null);setShowEventForm(false);};
@@ -1343,7 +1417,7 @@ function App(){
         <button onClick={()=>{setSearchMode("local");setDiscoverResults([]);}} style={{padding:'8px 14px',borderRadius:999,background:searchMode==="local"?'var(--ink-900)':'#fff',color:searchMode==="local"?'#fff':'var(--ink-900)',border:searchMode==="local"?'none':'1px solid var(--hairline)',fontFamily:'var(--font-body)',fontWeight:600,fontSize:13,cursor:'pointer'}}>📚 Mes spots</button>
         <button onClick={()=>setSearchMode("discover")} style={{padding:'8px 14px',borderRadius:999,background:searchMode==="discover"?'var(--ink-900)':'#fff',color:searchMode==="discover"?'#fff':'var(--ink-900)',border:searchMode==="discover"?'none':'1px solid var(--hairline)',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,cursor:'pointer'}}>🌐 Decouvrir</button>
         <div style={{flex:1}}/>
-        <button onClick={()=>{resetForm();setShowForm(true);}} className="press" style={{padding:'8px 16px',borderRadius:999,border:'none',background:'var(--pop-pink)',color:'#fff',fontWeight:700,fontSize:13,fontFamily:'var(--font-body)',cursor:'pointer'}}>+ Ajouter</button>
+        <button onClick={()=>{setEditingId(null);setShowForm(true);}} className="press" style={{padding:'8px 16px',borderRadius:999,border:'none',background:'var(--pop-pink)',color:'#fff',fontWeight:700,fontSize:13,fontFamily:'var(--font-body)',cursor:'pointer'}}>+ Ajouter</button>
       </div>
 
       {/* Cat chips */}
@@ -1680,55 +1754,12 @@ function App(){
       {showZones&&<ZonesModal zones={zones||{resto:[],sortie:[]}} isOnboarding={false} onClose={()=>setShowZones(false)} onSave={z=>{setZones(z);setShowZones(false);}}/>}
       {showSuggest&&<SuggestModal spots={spots} onClose={()=>setShowSuggest(false)} onPick={s=>setSelectedSpot(s)} onStatus={setStatus} onDone={markDone}/>}
 
-      {/* Add/Edit spot form — at root level to avoid remount */}
-      {showForm&&(
-        <div className="modal-overlay" onClick={resetForm}>
-          <div className="modal-sheet slide-up" onClick={e=>e.stopPropagation()} style={{maxHeight:"95vh"}}>
-            <div className="sheet-handle"/>
-            <div className="mono-label" style={{marginBottom:4}}>{editingId!=null?"✏️ Modifier":"+ Nouveau"}</div>
-            <div className="section-title" style={{marginBottom:16}}>{editingId!=null?"Modifier le spot":"Nouveau spot"}</div>
-            <input value={nName} onChange={e=>setNName(e.target.value)} placeholder="Nom du lieu *" className="input-v2" style={{marginBottom:8}}/>
-            <div style={{display:"flex",gap:8,marginBottom:8}}>
-              <input value={nWebsite} onChange={e=>setNWebsite(e.target.value)} placeholder="🌐 Site web" className="input-v2" style={{flex:1}}/>
-              <button onClick={runEnrich} disabled={enriching||(!nName.trim()&&!nWebsite.trim())} className="press" style={{padding:"12px 16px",borderRadius:'var(--radius-md)',border:"none",background:"var(--ink-900)",color:"#fff",fontWeight:700,fontSize:12,whiteSpace:"nowrap"}}>{enriching?"⏳":"🔍 Auto"}</button>
-            </div>
-            <div style={{display:"flex",gap:8,marginBottom:8,alignItems:"center"}}>
-              <input value={nPhoto} onChange={e=>setNPhoto(e.target.value)} placeholder="📷 URL photo" className="input-v2" style={{flex:1}}/>
-              {nPhoto&&<img src={nPhoto} alt="" style={{width:42,height:42,borderRadius:10,objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>}
-            </div>
-            <AddressAutocomplete value={nAddr} onChange={setNAddr} onPick={o=>{setNAddr(o.adresse);setNLat(String(o.lat));setNLng(String(o.lng));}} placeholder="📍 Adresse"/>
-            <textarea value={nDesc} onChange={e=>setNDesc(e.target.value)} placeholder="Description" className="input-v2" style={{resize:"vertical",minHeight:60,marginBottom:8,fontSize:14}}/>
-            <div style={{display:"flex",gap:8,marginBottom:8}}>
-              <input value={nMetro} onChange={e=>setNMetro(e.target.value)} placeholder="🚇 Métro" className="input-v2" style={{flex:2}}/>
-              <input value={nPrice} onChange={e=>setNPrice(e.target.value)} placeholder="💶 Prix" className="input-v2" style={{flex:1}}/>
-            </div>
-            <input value={nHours} onChange={e=>setNHours(e.target.value)} placeholder="🕐 Horaires" className="input-v2" style={{marginBottom:8}}/>
-            <div style={{display:"flex",gap:8,marginBottom:8}}>
-              <input value={nLat} onChange={e=>setNLat(e.target.value)} placeholder="Lat" className="input-v2" style={{flex:1}}/>
-              <input value={nLng} onChange={e=>setNLng(e.target.value)} placeholder="Lng" className="input-v2" style={{flex:1}}/>
-            </div>
-            <div style={{marginBottom:12}}>
-              <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Catégories</div>
-              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                {CATS.filter(c=>c.key!=="all").map(c=>{const on=nCats.includes(c.key);return<button key={c.key} onClick={()=>setNCats(n=>on?n.filter(x=>x!==c.key):[...n,c.key])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:CC[c.key],background:CC[c.key],color:'#fff'}:{}}>{c.emoji} {c.label}</button>;})}
-              </div>
-            </div>
-            {(nCats.includes("resto")||nCats.includes("cafe"))&&(
-              <div style={{marginBottom:12}}>
-                <div style={{fontFamily:'var(--font-body)',fontSize:13,fontWeight:700,marginBottom:6}}>Cuisine</div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                  {Q_CUISINE.map(c=>{const on=nCuisine.includes(c.k);return<button key={c.k} onClick={()=>setNCuisine(n=>on?n.filter(x=>x!==c.k):[...n,c.k])} className={`pill-btn${on?" active":""}`} style={on?{borderColor:'var(--pop-orange)',background:'var(--pop-orange)',color:'#fff'}:{}}>{c.l}</button>;})}
-                </div>
-              </div>
-            )}
-            <button onClick={()=>setNWork(w=>!w)} className={`pill-btn${nWork?" active":""}`} style={{marginBottom:16}}>💻 Workfriendly {nWork?"✓":""}</button>
-            <div style={{display:"flex",gap:8}}>
-              <button onClick={saveSpot} disabled={!nName.trim()} className="btn-primary" style={{flex:1}}>{editingId!=null?"Sauver":"Ajouter"}</button>
-              <button onClick={resetForm} className="btn-secondary" style={{flex:1}}>Annuler</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Add/Edit spot form — isolated component */}
+      {showForm&&<SpotFormModal editingId={editingId} gApiKey={gApiKey} onSave={(data)=>{
+        if(data._editId!=null){setSpots(s=>s.map(x=>x.id===data._editId?{...x,...data,_editId:undefined}:x));}
+        else{setSpots(s=>[...s,{id:Date.now(),done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),vibe:"📌 Ajouté",contacts:[],...data}]);}
+        setShowForm(false);setEditingId(null);
+      }} onClose={()=>{setShowForm(false);setEditingId(null);}} initialData={editingId!=null?spots.find(s=>s.id===editingId):null}/>}
       {showContacts&&<ContactsModal contacts={contacts} onAdd={addContact} onUpdate={updateContact} onDelete={deleteContact} onClose={()=>setShowContacts(false)}/>}
       {contactPickerFor&&<ContactPicker spot={spots.find(s=>s.id===contactPickerFor)||{}} contacts={contacts} onToggle={cid=>toggleContactOnSpot(contactPickerFor,cid)} onClose={()=>setContactPickerFor(null)} onOpenContacts={()=>{setContactPickerFor(null);setShowContacts(true);}}/>}
       {reactionSpot&&<ReactionModal spot={reactionSpot} onSave={(e,n)=>saveReaction(reactionSpot.id,e,n)} onSkip={()=>setReactionSpot(null)}/>}
