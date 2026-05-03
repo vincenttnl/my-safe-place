@@ -785,8 +785,7 @@ function OnboardingFlow({onComplete}){
   const [parisAll,setParisAll]=useState(false);
   const [selArr,setSelArr]=useState([]);
   const [selDepts,setSelDepts]=useState([]);
-  const VINCENZO_IDS=[1,3,6,8,12,13];
-  const TOTAL_STEPS=4;
+  const TOTAL_STEPS=3;
 
   const pageStyle={position:'fixed',inset:0,zIndex:200,background:'var(--bg-cream)',overflowY:'auto',display:'flex',flexDirection:'column'};
   const contentStyle=(centered)=>({flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:centered?'center':'flex-start',padding:'0 24px env(safe-area-inset-bottom,24px)',maxWidth:440,width:'100%',margin:'0 auto'});
@@ -804,7 +803,7 @@ function OnboardingFlow({onComplete}){
         {step>0&&<button onClick={()=>setStep(step-1)} style={{background:'none',border:'none',cursor:'pointer',fontFamily:'var(--font-body)',fontSize:13,color:'var(--ink-400)',fontWeight:500}}>← Retour</button>}
       </div>
       <div style={{display:'flex',gap:6}}>
-        {[0,1,2,3].map(i=>(
+        {[0,1,2].map(i=>(
           <div key={i} style={{flex:1,height:4,borderRadius:999,background:i<=step?'var(--pop-pink)':'var(--hairline)',transition:'background .3s var(--ease)'}}/>
         ))}
       </div>
@@ -916,59 +915,21 @@ function OnboardingFlow({onComplete}){
     );
   }
 
-  // Step 3 — Vincenzo's spots
+  // Step 3 — Ready to go
   if(step===3)return(
     <div style={pageStyle}>
       <ProgressBar/>
-      <div style={contentStyle(false)}>
-        <div style={{width:'100%',paddingTop:24}}>
-          <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:32,lineHeight:1.05,letterSpacing:'-0.02em'}}>Dernière question 🍕</div>
-          <div style={{fontFamily:'var(--font-body)',fontSize:15,color:'var(--ink-400)',marginTop:10,lineHeight:1.55}}>Tu veux démarrer de zéro ou avec quelques<br/>recos de Vincenzo pour te lancer ?</div>
-
-          <div style={{display:'flex',flexDirection:'column',gap:14,marginTop:28}}>
-            <button onClick={()=>saveAndFinish([])} className="press" style={{width:'100%',textAlign:'left',background:'#fff',border:'1.5px solid var(--hairline)',borderRadius:'var(--radius-lg)',padding:22,cursor:'pointer',transform:`rotate(${stableTilt(201,1.2)}deg)`,transition:'transform .2s var(--ease)'}}>
-              <div style={{display:'flex',alignItems:'center',gap:14}}>
-                <div style={{fontSize:36}}>🗒️</div>
-                <div>
-                  <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:17}}>Page blanche</div>
-                  <div style={{fontFamily:'var(--font-body)',fontSize:13,color:'var(--ink-400)',marginTop:2}}>Je gère mes spots moi-même</div>
-                </div>
-              </div>
-            </button>
-
-            <button onClick={()=>setStep(4)} className="press" style={{width:'100%',textAlign:'left',background:'var(--pop-yellow)',border:'2.5px solid var(--ink-900)',borderRadius:'var(--radius-lg)',padding:22,cursor:'pointer',transform:`rotate(${stableTilt(202,1.2)}deg)`,transition:'transform .2s var(--ease)'}}>
-              <div style={{display:'flex',alignItems:'center',gap:14}}>
-                <div style={{fontSize:36}}>🤌</div>
-                <div>
-                  <div style={{fontFamily:'var(--font-body)',fontWeight:700,fontSize:17}}>Les spots de Vincenzo</div>
-                  <div style={{fontFamily:'var(--font-body)',fontSize:13,color:'var(--ink-600)',marginTop:2}}>File-moi tes bons plans !</div>
-                </div>
-              </div>
-            </button>
-          </div>
+      <div style={contentStyle(true)}>
+        <div style={{textAlign:'center',maxWidth:360}}>
+          <div className="anim-delay-1" style={{fontSize:64}}>🤌</div>
+          <div className="anim-delay-1" style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:32,lineHeight:1.1,letterSpacing:'-0.02em',marginTop:16}}>T'es prêt.</div>
+          <div className="anim-delay-2" style={{fontFamily:'var(--font-body)',fontSize:17,marginTop:16,color:'var(--ink-600)',lineHeight:1.5}}>On t'a préparé <strong style={{color:'var(--pop-pink)'}}>{INITIAL_SPOTS.length} spots</strong> pour démarrer.<br/>Restos, bars, rooftops, clubs...</div>
+          <div className="anim-delay-3" style={{fontFamily:'var(--font-display)',fontStyle:'italic',fontSize:18,marginTop:16,color:'var(--ink-400)'}}>À toi de jouer.</div>
+          <div className="anim-delay-4"><button onClick={()=>saveAndFinish(INITIAL_SPOTS)} className="press" style={ctaStyle}>Let's go 🚀</button></div>
         </div>
       </div>
     </div>
   );
-
-  // Step 4 — Vincenzo reveal
-  if(step===4){
-    const vincenzoSpots=INITIAL_SPOTS.filter(s=>VINCENZO_IDS.includes(s.id));
-    return(
-      <div style={pageStyle}>
-        <ProgressBar/>
-        <div style={contentStyle(true)}>
-          <div style={{textAlign:'center',maxWidth:360}}>
-            <div className="anim-delay-1" style={{fontSize:56}}>😏</div>
-            <div className="anim-delay-1" style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:30,lineHeight:1.1,letterSpacing:'-0.02em',marginTop:16}}>T'as cru que j'allais balancer mes meilleurs spots comme ça ?</div>
-            <div className="anim-delay-2" style={{fontFamily:'var(--font-display)',fontStyle:'italic',fontSize:20,marginTop:20,color:'var(--ink-600)'}}>T'es bien naïf !</div>
-            <div className="anim-delay-3" style={{fontFamily:'var(--font-body)',fontSize:17,marginTop:16,color:'var(--pop-pink)',fontWeight:700}}>Mais comme c'est toi...<br/>je t'en donne 2 de chaque 🤪</div>
-            <div className="anim-delay-4"><button onClick={()=>saveAndFinish(vincenzoSpots)} className="press" style={ctaStyle}>Let's go 🚀</button></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return null;
 }
