@@ -261,6 +261,26 @@ async function googlePlacePhotos(name,address,apiKey,count=4){
 }
 function getPhotos(s){if(Array.isArray(s.photos)&&s.photos.length)return s.photos;if(s.photo)return[s.photo];return[];}
 function firstPhoto(s){const p=getPhotos(s);return p[0]||"";}
+
+/* Spot sharing — encode/decode via URL */
+function encodeSpotForShare(spot,senderName){
+  const mini={n:spot.name,c:getCats(spot),p:firstPhoto(spot),d:spot.desc||"",a:spot.adresse||"",la:spot.lat||0,ln:spot.lng||0,m:spot.metro||"",pr:spot.price||"",h:spot.hours||"",v:spot.vibe||"",w:spot.website||"",t:spot.tags||{},by:senderName||"un ami"};
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify(mini))));}catch{return"";}
+}
+function decodeSpotFromURL(){
+  try{
+    const params=new URLSearchParams(window.location.search);
+    const data=params.get("spot");
+    if(!data)return null;
+    const json=JSON.parse(decodeURIComponent(escape(atob(data))));
+    return{name:json.n,cats:json.c||["sortie"],photo:json.p||"",photos:json.p?[json.p]:[],desc:json.d||"",adresse:json.a||"",lat:json.la||48.8566,lng:json.ln||2.3522,metro:json.m||"",price:json.pr||"",hours:json.h||"",vibe:json.v||"",website:json.w||"",tags:json.t||{},sharedBy:json.by||"un ami"};
+  }catch{return null;}
+}
+function buildShareURL(spot,senderName){
+  const encoded=encodeSpotForShare(spot,senderName);
+  if(!encoded)return"";
+  return`https://vincenttnl.github.io/my-safe-place/?spot=${encoded}`;
+}
 function distKm(lat1,lng1,lat2,lng2){
   const R=6371;const dLat=(lat2-lat1)*Math.PI/180;const dLng=(lng2-lng1)*Math.PI/180;
   const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
@@ -560,7 +580,7 @@ function PhotoCarousel({photos,catColor}){
 /* =============================================
    SPOT DETAIL - Partiful bottom sheet
    ============================================= */
-function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit,onContactPicker,onNote}){
+function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit,onContactPicker,onNote,onShare}){
   const [noteMode,setNoteMode]=useState(false);const [noteText,setNoteText]=useState(spot.note||"");
   const gmaps=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name+" "+(spot.adresse||"")).trim())}`;
   const spotContacts=(spot.contacts||[]).map(id=>contacts.find(c=>c.id===id)).filter(Boolean);
@@ -586,6 +606,7 @@ function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit
             {getCats(spot).map(c=><CatPill key={c} cat={c} size="lg"/>)}
             {spot.vibe&&<span style={{background:'var(--ink-900)',color:'#fff',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:500,fontSize:12.5}}>{spot.vibe}</span>}
             {spot.status==="wishlist"&&<span style={{background:'var(--pop-yellow)',color:'var(--ink-900)',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:12.5}}>★ Envie</span>}
+            {spot.sharedBy&&<span style={{background:'var(--pop-cyan)',color:'var(--ink-900)',padding:'6px 12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:600,fontSize:12.5}}>📩 via {spot.sharedBy}</span>}
           </div>
 
           {/* Title */}
@@ -683,10 +704,7 @@ function SpotDetail({spot,contacts,onClose,onDone,onFav,onStatus,onRemove,onEdit
           <div style={{display:"flex",gap:8,marginTop:14}}>
             <button onClick={()=>onEdit(spot)} style={{flex:1,background:'transparent',border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13}}>✏️ Modifier</button>
             <a href={gmaps} target="_blank" rel="noopener noreferrer" style={{flex:1,background:'transparent',border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,textDecoration:'none',color:'var(--ink-900)',textAlign:'center'}}>↗ Maps</a>
-            <button onClick={()=>{
-              if(navigator.share)navigator.share({title:spot.name,text:spot.desc||'',url:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name+" "+(spot.adresse||"")).trim())}`});
-              else{navigator.clipboard.writeText(spot.name+" — "+(spot.adresse||""));alert("Copié !");}
-            }} style={{background:'transparent',border:'1px solid var(--hairline)',padding:'12px 14px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13}}>📤</button>
+            <button onClick={()=>onShare(spot)} style={{flex:1,background:'var(--pop-pink)',color:'#fff',border:'none',padding:'12px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:600,fontSize:13}}>📤 Envoyer</button>
             <button onClick={()=>{if(confirm(`Supprimer "${spot.name}" ?`))onRemove(spot.id);onClose();}} style={{background:'transparent',border:'1px solid var(--hairline)',padding:'12px 14px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,color:'#E91E63'}}>🗑️</button>
           </div>
           <button onClick={()=>onStatus(spot.id,"rejected")} style={{marginTop:8,width:'100%',background:spot.status==="rejected"?"#fee2e2":"transparent",border:'1px solid var(--hairline)',padding:'12px',borderRadius:999,cursor:'pointer',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,color:spot.status==="rejected"?"#991b1b":"var(--ink-400)"}}>🚫 {spot.status==="rejected"?"Annuler refus":"Refuser"}</button>
@@ -749,6 +767,7 @@ function CleanSpotCard({s,onOpen}){
           <CatPill cat={primaryCat(s)}/>
           {s.fav&&<span style={{color:'var(--pop-pink)',fontSize:14}}>♥</span>}
           {s.status==='wishlist'&&<span style={{fontSize:11,color:'var(--ink-400)'}}>· envie</span>}
+          {s.sharedBy&&<span style={{fontSize:11,color:'var(--pop-cyan)'}}>· via {s.sharedBy}</span>}
         </div>
         <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:16,color:'var(--ink-900)',lineHeight:1.2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{s.name}</div>
         <div style={{fontFamily:'var(--font-body)',fontSize:12.5,color:'var(--ink-400)',marginTop:3,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>📍 {s.metro||s.adresse||''} · {s.price||''}</div>
@@ -970,6 +989,10 @@ function App(){
   const [gApiKey,setGApiKey]=useState(()=>{try{return localStorage.getItem(GK)||"";}catch{return"";}});
   const [onboardingDone,setOnboardingDone]=useState(()=>{try{return localStorage.getItem(OBK)==="1";}catch{return false;}});
   const [photoLoading,setPhotoLoading]=useState(false);const [photoProgress,setPhotoProgress]=useState("");
+  const [myName,setMyName]=useState(()=>{try{return localStorage.getItem("myplace_username_v1")||"";}catch{return"";}});
+  const [incomingSpot,setIncomingSpot]=useState(()=>decodeSpotFromURL());
+  const [showNamePrompt,setShowNamePrompt]=useState(false);
+  const [pendingShareSpot,setPendingShareSpot]=useState(null);
 
   // UI state
   const [cat,setCat]=useState("all");
@@ -1021,6 +1044,36 @@ function App(){
   useEffect(()=>{try{localStorage.setItem(GK,gApiKey);}catch{}},[gApiKey]);
   useEffect(()=>{const cleaned=events.filter(ev=>new Date(ev.date)>=new Date(new Date().toDateString()));if(cleaned.length!==events.length)setEvents(cleaned);try{localStorage.setItem(EVK,JSON.stringify(cleaned));}catch{}},[events]);
   useEffect(()=>{const m=getMonthLabel();if(challenge.month!==m)setChallenge({ids:pickChallenge(spots),month:m});},[]);
+  useEffect(()=>{try{if(myName)localStorage.setItem("myplace_username_v1",myName);}catch{}},[myName]);
+  // Clean URL after reading shared spot
+  useEffect(()=>{if(incomingSpot&&window.history.replaceState)window.history.replaceState({},"",window.location.pathname);},[]);
+
+  // Share a spot
+  const shareSpot=(spot)=>{
+    if(!myName){setPendingShareSpot(spot);setShowNamePrompt(true);return;}
+    const url=buildShareURL(spot,myName);
+    if(!url)return;
+    const text=`${spot.name} — ${spot.adresse||"Paris"}\n\nDécouvre ce spot sur My Safe Place 👇`;
+    if(navigator.share)navigator.share({title:spot.name,text,url}).catch(()=>{});
+    else{navigator.clipboard.writeText(url).then(()=>alert("Lien copié !")).catch(()=>{});}
+  };
+  const finishNameAndShare=(name)=>{
+    setMyName(name);setShowNamePrompt(false);
+    if(pendingShareSpot){
+      const url=buildShareURL(pendingShareSpot,name);
+      const text=`${pendingShareSpot.name} — ${pendingShareSpot.adresse||"Paris"}\n\nDécouvre ce spot sur My Safe Place 👇`;
+      if(navigator.share)navigator.share({title:pendingShareSpot.name,text,url}).catch(()=>{});
+      else{navigator.clipboard.writeText(url).then(()=>alert("Lien copié !")).catch(()=>{});}
+      setPendingShareSpot(null);
+    }
+  };
+  // Accept incoming shared spot
+  const acceptSharedSpot=()=>{
+    if(!incomingSpot)return;
+    const newSpot={id:Date.now(),done:false,fav:false,note:"",reaction:null,addedAt:Date.now(),status:"wishlist",contacts:[],...incomingSpot,vibe:incomingSpot.vibe||"📩 Reçu"};
+    setSpots(s=>[...s,newSpot]);
+    setIncomingSpot(null);
+  };
 
   // Actions
   const markDone=id=>{const spot=spots.find(s=>s.id===id);if(!spot)return;if(!spot.done){setSpots(s=>s.map(x=>x.id===id?{...x,done:true}:x));setReactionSpot(spot);}else setSpots(s=>s.map(x=>x.id===id?{...x,done:false,reaction:null}:x));};
@@ -1581,6 +1634,18 @@ function App(){
         <h1 style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:48,lineHeight:0.95,letterSpacing:'-0.025em',margin:0}}>C'est ton<br/>safe place 🏠</h1>
       </div>
 
+      {/* Username */}
+      <div style={{padding:'24px 20px 0'}}>
+        <div style={{background:'#fff',border:'1px solid var(--hairline)',borderRadius:'var(--radius-md)',padding:18,boxShadow:'var(--shadow-sm)',display:'flex',alignItems:'center',gap:12}}>
+          <div style={{width:44,height:44,borderRadius:999,background:'var(--pop-pink)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,color:'#fff',fontWeight:700,flexShrink:0}}>{myName?myName[0].toUpperCase():'?'}</div>
+          <div style={{flex:1}}>
+            <div style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:15}}>{myName||'Pas de prénom'}</div>
+            <div style={{fontFamily:'var(--font-body)',fontSize:12,color:'var(--ink-400)',marginTop:2}}>Affiché quand tu partages un spot</div>
+          </div>
+          <button onClick={()=>{const n=prompt("Ton prénom :",myName);if(n!==null)setMyName(n.trim());}} className="press" style={{padding:'8px 14px',borderRadius:999,border:'1px solid var(--hairline)',background:'#fff',fontFamily:'var(--font-body)',fontWeight:500,fontSize:13,cursor:'pointer'}}>✏️</button>
+        </div>
+      </div>
+
       {/* Stats card */}
       <div style={{padding:'14px 20px 0'}}>
         <div style={{background:'var(--ink-900)',color:'#fff',borderRadius:'var(--radius-lg)',padding:20}}>
@@ -1705,7 +1770,50 @@ function App(){
       {showContacts&&<ContactsModal contacts={contacts} onAdd={addContact} onUpdate={updateContact} onDelete={deleteContact} onClose={()=>setShowContacts(false)}/>}
       {contactPickerFor&&<ContactPicker spot={spots.find(s=>s.id===contactPickerFor)||{}} contacts={contacts} onToggle={cid=>toggleContactOnSpot(contactPickerFor,cid)} onClose={()=>setContactPickerFor(null)} onOpenContacts={()=>{setContactPickerFor(null);setShowContacts(true);}}/>}
       {reactionSpot&&<ReactionModal spot={reactionSpot} onSave={(e,n)=>saveReaction(reactionSpot.id,e,n)} onSkip={()=>setReactionSpot(null)}/>}
-      {selectedSpot&&<SpotDetail spot={spots.find(s=>s.id===selectedSpot.id)||selectedSpot} contacts={contacts} onClose={()=>setSelectedSpot(null)} onDone={markDone} onFav={toggleFav} onStatus={setStatus} onRemove={removeSpot} onEdit={startEdit} onContactPicker={id=>{setSelectedSpot(null);setContactPickerFor(id);}} onNote={saveNote}/>}
+      {selectedSpot&&<SpotDetail spot={spots.find(s=>s.id===selectedSpot.id)||selectedSpot} contacts={contacts} onClose={()=>setSelectedSpot(null)} onDone={markDone} onFav={toggleFav} onStatus={setStatus} onRemove={removeSpot} onEdit={startEdit} onContactPicker={id=>{setSelectedSpot(null);setContactPickerFor(id);}} onNote={saveNote} onShare={shareSpot}/>}
+
+      {/* Incoming shared spot modal */}
+      {incomingSpot&&onboardingDone&&(
+        <div className="modal-center">
+          <div className="modal-box slide-up" style={{textAlign:'center'}}>
+            <div style={{fontSize:48,marginBottom:12}}>🤌</div>
+            <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:28,lineHeight:1.1,letterSpacing:'-0.015em'}}>
+              {incomingSpot.sharedBy} t'envoie un spot
+            </div>
+            <div style={{marginTop:20,background:'var(--bg-cream)',borderRadius:'var(--radius-lg)',padding:16,textAlign:'left'}}>
+              {firstPhoto(incomingSpot)&&<img src={firstPhoto(incomingSpot)} alt="" style={{width:'100%',height:160,objectFit:'cover',borderRadius:'var(--radius-md)',marginBottom:12}} onError={e=>{e.target.style.display='none';}}/>}
+              <div style={{display:'flex',gap:6,marginBottom:8}}>
+                {getCats(incomingSpot).map(c=>{const ci=CATS.find(x=>x.key===c);return ci&&<span key={c} className="chip" style={{background:CB[c],color:CC[c],border:`1px solid ${CC[c]}33`}}>{ci.emoji} {ci.label}</span>;})}
+              </div>
+              <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:22,letterSpacing:'-0.01em'}}>{incomingSpot.name}</div>
+              {incomingSpot.adresse&&<div style={{fontSize:13,color:'var(--ink-400)',marginTop:4}}>📍 {incomingSpot.adresse}</div>}
+              {incomingSpot.desc&&<div style={{fontSize:14,color:'var(--ink-600)',marginTop:8,lineHeight:1.5}}>{incomingSpot.desc}</div>}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+                {incomingSpot.metro&&<span className="stat-pill" style={{fontSize:12}}>🚇 {incomingSpot.metro}</span>}
+                {incomingSpot.price&&<span className="stat-pill" style={{fontSize:12}}>💸 {incomingSpot.price}</span>}
+              </div>
+            </div>
+            <div style={{display:'flex',gap:10,marginTop:20}}>
+              <button onClick={acceptSharedSpot} className="press" style={{flex:1,padding:16,borderRadius:'var(--radius-pill)',border:'none',background:'var(--ink-900)',color:'#fff',fontFamily:'var(--font-body)',fontWeight:700,fontSize:16,cursor:'pointer',boxShadow:'var(--shadow-pop)'}}>Ajouter à mes spots 🎉</button>
+            </div>
+            <button onClick={()=>setIncomingSpot(null)} style={{marginTop:12,background:'none',border:'none',cursor:'pointer',fontFamily:'var(--font-body)',fontSize:14,color:'var(--ink-400)',textDecoration:'underline'}}>Non merci</button>
+          </div>
+        </div>
+      )}
+
+      {/* Name prompt for sharing */}
+      {showNamePrompt&&(
+        <div className="modal-center">
+          <div className="modal-box slide-up" style={{textAlign:'center'}}>
+            <div style={{fontSize:40,marginBottom:12}}>👋</div>
+            <div style={{fontFamily:'var(--font-display)',fontWeight:900,fontSize:24,lineHeight:1.1}}>Comment tu t'appelles ?</div>
+            <div style={{fontFamily:'var(--font-body)',fontSize:14,color:'var(--ink-400)',marginTop:8}}>Ton prénom apparaîtra quand tu envoies un spot</div>
+            <input id="name-input" placeholder="Ton prénom" className="input-v2" style={{marginTop:16,textAlign:'center',fontSize:18,fontWeight:600}} autoFocus onKeyDown={e=>{if(e.key==="Enter"&&e.target.value.trim())finishNameAndShare(e.target.value.trim());}}/>
+            <button onClick={()=>{const v=document.getElementById("name-input")?.value?.trim();if(v)finishNameAndShare(v);}} className="press" style={{marginTop:14,width:'100%',padding:16,borderRadius:'var(--radius-pill)',border:'none',background:'var(--ink-900)',color:'#fff',fontFamily:'var(--font-body)',fontWeight:700,fontSize:16,cursor:'pointer',boxShadow:'var(--shadow-pop)'}}>C'est parti</button>
+            <button onClick={()=>{setShowNamePrompt(false);setPendingShareSpot(null);}} style={{marginTop:10,background:'none',border:'none',cursor:'pointer',fontFamily:'var(--font-body)',fontSize:14,color:'var(--ink-400)'}}>Annuler</button>
+          </div>
+        </div>
+      )}
 
       <div style={{paddingBottom:20}}>
         {tab==="home"&&<HomeTab/>}
