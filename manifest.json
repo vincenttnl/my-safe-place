@@ -1,6 +1,6 @@
 {
-  "name": "My Safe Place",
-  "short_name": "Safe Place",
+  "name": "MonParis",
+  "short_name": "MonParis",
   "description": "Tes spots parisiens — restos, bars, rooftops, sorties",
   "start_url": "/my-safe-place/",
   "scope": "/my-safe-place/",
