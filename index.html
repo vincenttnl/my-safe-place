@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-10T23:25:37.256Z -->
+<!-- built 2026-06-12T08:45:03.524Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -4514,6 +4514,48 @@ const MIGRATION_KEY = "myplace_schema_version";
     if (migrated > 0) console.log(`[my-safe-place] ${migrated} clé(s) migrée(s) monparis_* → myplace_*`);
   } catch {}
 })();
+const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";
+const supaEnabled = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+const isPlaceholderPhoto = u => typeof u === "string" && u.includes("images.unsplash.com");
+async function fetchRemoteSpots() {
+  if (!supaEnabled()) return null;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&order=id`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    return rows.map(x => ({
+      id: x.id,
+      done: false,
+      fav: false,
+      note: "",
+      reaction: null,
+      addedAt: Date.now(),
+      name: x.name,
+      cats: x.cats || [],
+      photo: x.photo || "",
+      photos: x.photos || [],
+      desc: x.desc || "",
+      vibe: x.vibe || "",
+      adresse: x.adresse || "",
+      lat: x.lat,
+      lng: x.lng,
+      metro: x.metro || "",
+      price: x.price || "",
+      hours: x.hours || "",
+      website: x.website || "",
+      tags: x.tags || {}
+    }));
+  } catch {
+    return null;
+  }
+}
 const CT_COLORS = ["#FF3D8B", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
 const TRASH_DAYS = 7;
 const DC = {
@@ -8462,6 +8504,35 @@ function App() {
   const [incomingSpot, setIncomingSpot] = useState(() => decodeSpotFromURL());
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [pendingShareSpot, setPendingShareSpot] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const remote = await fetchRemoteSpots();
+      if (!remote) return;
+      const remoteMax = Math.max(...remote.map(s => s.id));
+      setSpots(prev => {
+        const seedMax = parseInt(localStorage.getItem("myplace_seedmax_v1") || "52", 10);
+        const fresh = remote.filter(r => r.id > seedMax && !prev.some(s => s.id === r.id));
+        let changed = fresh.length > 0;
+        const updated = prev.map(s => {
+          const r = remote.find(x => x.id === s.id);
+          if (!r) return s;
+          if (isPlaceholderPhoto(s.photo) && r.photo && !isPlaceholderPhoto(r.photo)) {
+            changed = true;
+            return {
+              ...s,
+              photo: r.photo,
+              photos: r.photos
+            };
+          }
+          return s;
+        });
+        try {
+          localStorage.setItem("myplace_seedmax_v1", String(Math.max(remoteMax, seedMax)));
+        } catch {}
+        return changed ? [...updated, ...fresh] : prev;
+      });
+    })();
+  }, []);
   const [cat, setCat] = useState("all");
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
