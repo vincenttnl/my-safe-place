@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-19T14:45:28.812Z -->
+<!-- built 2026-06-19T16:51:51.420Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -107,7 +107,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 
 /* Modal overlay - Partiful */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
-.modal-sheet{background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
+.modal-sheet{position:relative;background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
 .modal-sheet .sheet-handle{width:46px;height:5px;border-radius:var(--radius-pill);background:var(--hairline);margin:0 auto 16px}
 .modal-center{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-center .modal-box{background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
@@ -3491,6 +3491,35 @@ function CatPill({
     }
   }, c.emoji), " ", c.label);
 }
+function SheetClose({
+  onClose
+}) {
+  if (!onClose) return null;
+  return React.createElement("button", {
+    onClick: onClose,
+    "aria-label": "Fermer",
+    className: "press",
+    style: {
+      position: 'absolute',
+      top: 6,
+      right: 6,
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      background: 'rgba(0,0,0,0.06)',
+      border: '1px solid var(--hairline)',
+      color: 'var(--ink-600)',
+      cursor: 'pointer',
+      fontSize: 15,
+      fontWeight: 700,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 20,
+      lineHeight: 1
+    }
+  }, "\u2715");
+}
 function ReactionModal({
   spot,
   onSave,
@@ -3750,6 +3779,8 @@ function ZonesModal({
     onClick: e => e.stopPropagation()
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: isOnboarding ? null : onClose
   }), React.createElement("div", {
     style: {
       marginBottom: 20
@@ -3834,6 +3865,8 @@ function ContactsModal({
     onClick: e => e.stopPropagation()
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: onClose
   }), React.createElement("div", {
     style: {
       marginBottom: 16
@@ -4117,6 +4150,7 @@ function SuggestModal({
     work: false
   });
   const [shown, setShown] = useState(false);
+  const [topN, setTopN] = useState(5);
   const set = (k, v) => setA(x => ({
     ...x,
     [k]: x[k] === v ? "" : v
@@ -4126,7 +4160,7 @@ function SuggestModal({
     return spots.filter(s => !s.done && s.status !== "rejected").map(s => ({
       s,
       score: scoreSpot(s, a)
-    })).filter(r => r.score > 0).sort((a, b) => b.score - a.score).slice(0, 5);
+    })).filter(r => r.score > 0).sort((a, b) => b.score - a.score).slice(0, 20);
   }, [shown, a, spots]);
   const Pill = ({
     list,
@@ -4165,6 +4199,8 @@ function SuggestModal({
     }
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: onClose
   }), React.createElement("div", {
     className: "mono-label",
     style: {
@@ -4178,7 +4214,7 @@ function SuggestModal({
       lineHeight: 1,
       letterSpacing: '-0.02em'
     }
-  }, shown ? React.createElement(React.Fragment, null, "Tes 5 best", React.createElement("br", null), "matchs \u2728") : React.createElement(React.Fragment, null, "Trouve ton", React.createElement("br", null), "spot \uD83C\uDFAF"))), !shown && React.createElement("div", {
+  }, shown ? React.createElement(React.Fragment, null, "Ton", React.createElement("br", null), "classement \uD83C\uDFC6") : React.createElement(React.Fragment, null, "Trouve ton", React.createElement("br", null), "spot \uD83C\uDFAF"))), !shown && React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
@@ -4301,7 +4337,10 @@ function SuggestModal({
       marginTop: 20
     }
   }, React.createElement("button", {
-    onClick: () => setShown(true),
+    onClick: () => {
+      setTopN(5);
+      setShown(true);
+    },
     className: "btn-primary",
     style: {
       flex: 1
@@ -4332,11 +4371,11 @@ function SuggestModal({
     icon: "\uD83C\uDFAF",
     title: "Aucune correspondance",
     hint: "Tes crit\xE8res sont trop pr\xE9cis. \xC9largis le filtre ou retire quelques tags."
-  }), results.map(({
+  }), results.slice(0, topN).map(({
     s,
     score
   }, i) => {
-    const medal = ['🥇', '🥈', '🥉', '✨', '✨'][i];
+    const medal = i < 3 ? ['🥇', '🥈', '🥉'][i] : null;
     const live = spots.find(x => x.id === s.id) || s;
     return React.createElement("button", {
       key: s.id,
@@ -4360,9 +4399,27 @@ function SuggestModal({
       }
     }, React.createElement("div", {
       style: {
-        fontSize: 24
+        fontSize: 24,
+        width: 34,
+        textAlign: 'center',
+        flexShrink: 0
       }
-    }, medal), React.createElement("div", {
+    }, medal || React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 28,
+        height: 28,
+        borderRadius: 999,
+        background: 'var(--bg-soft)',
+        border: '1px solid var(--hairline)',
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 15,
+        color: 'var(--ink-600)'
+      }
+    }, i + 1)), React.createElement("div", {
       style: {
         width: 60,
         height: 60,
@@ -4405,11 +4462,27 @@ function SuggestModal({
         marginTop: 2
       }
     }, s.metro, " \xB7 ", s.price, " \xB7 ", score, " pts")));
-  }), React.createElement("button", {
+  }), topN < results.length && React.createElement("button", {
+    onClick: () => setTopN(n => Math.min(20, n + 5)),
+    className: "press",
+    style: {
+      width: '100%',
+      marginTop: 14,
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      border: 'none',
+      padding: '14px 24px',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 14
+    }
+  }, "Voir 5 de plus \u2193 (", results.length - topN, " en r\xE9serve)"), React.createElement("button", {
     onClick: () => setShown(false),
     style: {
       width: '100%',
-      marginTop: 18,
+      marginTop: 12,
       background: 'transparent',
       color: 'var(--ink-900)',
       border: '1px solid var(--hairline)',
@@ -4445,6 +4518,7 @@ function PropositionsModal({
   const [photoCache, setPhotoCache] = useState({});
   const [currentPair, setCurrentPair] = useState([]);
   const [noMore, setNoMore] = useState(false);
+  const [topN, setTopN] = useState(5);
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
   const allResults = useMemo(() => {
     return POOL.map(s => {
@@ -4491,13 +4565,9 @@ function PropositionsModal({
     setNoMore(false);
   }, [allResults, seenIds]);
   const startResults = () => {
-    setSeenIds(new Set());
-    setNoMore(false);
+    setTopN(5);
     setStep("results");
   };
-  useEffect(() => {
-    if (step === "results" && currentPair.length === 0 && !noMore) pickTwo();
-  }, [step]);
   const alreadyHas = s => userNames.has(s.name.toLowerCase()) || addedIds.has(s.id);
   const fetchPhotosFor = async s => {
     if (photoCache[s.id]) return photoCache[s.id];
@@ -4576,6 +4646,8 @@ function PropositionsModal({
     }
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: onClose
   }), React.createElement("div", {
     style: {
       display: 'flex',
@@ -4726,7 +4798,7 @@ function PropositionsModal({
     style: {
       paddingTop: 8
     }
-  }, noMore && React.createElement("div", {
+  }, allResults.length === 0 && React.createElement("div", {
     style: {
       padding: '40px 0',
       textAlign: 'center'
@@ -4736,40 +4808,35 @@ function PropositionsModal({
       fontSize: 48,
       marginBottom: 12
     }
-  }, "\uD83C\uDF89"), React.createElement("div", {
+  }, "\uD83D\uDD0D"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
       fontSize: 24,
       letterSpacing: '-0.01em'
     }
-  }, "Tu as tout vu !"), React.createElement("div", {
+  }, "Aucune proposition"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       color: 'var(--ink-400)',
       fontSize: 14,
       marginTop: 8
     }
-  }, "Change tes filtres pour d\xE9couvrir d'autres spots."), React.createElement("button", {
-    onClick: () => {
-      setStep("filter");
-      setCurrentPair([]);
-      setSeenIds(new Set());
-      setNoMore(false);
-    },
+  }, "\xC9largis tes filtres pour d\xE9couvrir d'autres spots."), React.createElement("button", {
+    onClick: () => setStep("filter"),
     className: "btn-primary",
     style: {
       marginTop: 20,
       width: 'auto',
       padding: '14px 32px'
     }
-  }, "\u2190 Modifier les filtres")), !noMore && React.createElement("div", {
+  }, "\u2190 Modifier les filtres")), allResults.length > 0 && React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
       gap: 10
     }
-  }, currentPair.map(({
+  }, allResults.slice(0, topN).map(({
     s,
     score
   }, i) => {
@@ -4866,6 +4933,29 @@ function PropositionsModal({
         }
       });
     })(), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: 6,
+        right: 6,
+        zIndex: 1,
+        fontSize: 20,
+        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))'
+      }
+    }, i < 3 ? ['🥇', '🥈', '🥉'][i] : React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 24,
+        height: 24,
+        borderRadius: 999,
+        background: 'rgba(0,0,0,0.72)',
+        color: '#fff',
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 12
+      }
+    }, i + 1)), React.createElement("div", {
       style: {
         position: 'absolute',
         top: 6,
@@ -4975,24 +5065,24 @@ function PropositionsModal({
         cursor: 'pointer'
       }
     }, "+ Ajouter")));
-  })), !noMore && React.createElement("button", {
-    onClick: pickTwo,
+  })), topN < Math.min(20, allResults.length) && React.createElement("button", {
+    onClick: () => setTopN(n => Math.min(20, n + 5)),
     className: "press",
     style: {
       width: '100%',
       padding: '16px 24px',
       borderRadius: 999,
-      border: '2px solid var(--ink-900)',
-      background: '#fff',
-      color: 'var(--ink-900)',
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 15,
       cursor: 'pointer',
-      marginTop: 4,
+      marginTop: 8,
       marginBottom: 16
     }
-  }, "\uD83D\uDD04 Autres propositions"))));
+  }, "Voir 5 de plus \u2193 (", Math.min(20, allResults.length) - topN, " en r\xE9serve)"))));
 }
 function AddressAutocomplete({
   value,
@@ -5356,6 +5446,8 @@ function SpotFormModal({
     }
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: onClose
   }), React.createElement("div", {
     className: "mono-label",
     style: {
@@ -8801,6 +8893,8 @@ function App() {
     onClick: e => e.stopPropagation()
   }, React.createElement("div", {
     className: "sheet-handle"
+  }), React.createElement(SheetClose, {
+    onClose: resetEventForm
   }), React.createElement("div", {
     className: "section-title",
     style: {
