@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-12T09:37:40.331Z -->
+<!-- built 2026-06-19T14:45:28.812Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -202,14 +202,14 @@ const monthLabel = iso => {
 const INITIAL_SPOTS = [{
   id: 1,
   done: false,
-  fav: true,
+  fav: false,
   note: "",
   reaction: null,
   addedAt: Date.now(),
   name: "Le Perchoir Marais",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80", "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80", "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/1-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/1-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/1-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/1-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/1-4.jpg"],
   desc: "LE rooftop parisien par excellence. 250m² au-dessus du BHV avec vue imprenable sur les toits. Cocktails top, ambiance décontractée.",
   vibe: "🔥 Incontournable",
   adresse: "33 rue de la Verrerie, 75004",
@@ -219,10 +219,10 @@ const INITIAL_SPOTS = [{
   price: "15-25€",
   hours: "Mar-Sam 18h-2h",
   tags: {
-    who: ["date", "potes", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "festif"],
-    zone: "centre"
+    "who": ["date", "potes", "collegues"],
+    "vibe": ["chic", "festif"],
+    "when": ["apero", "soiree"],
+    "zone": "centre"
   }
 }, {
   id: 2,
@@ -233,8 +233,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Toit de la Bellevilloise",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80", "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/2-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/2-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/2-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/2-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/2-4.jpg"],
   desc: "Rooftop rouvert printemps 2026. 170m², vins bio, planches charcuterie, ambiance festive.",
   vibe: "🆕 Nouveau 2026",
   adresse: "21 rue Boyer, 75020",
@@ -244,98 +244,22 @@ const INITIAL_SPOTS = [{
   price: "8-15€",
   hours: "Avr-Oct, 18h-2h",
   tags: {
-    who: ["potes", "date"],
-    when: ["apero", "soiree"],
-    vibe: ["decontracte", "festif"],
-    zone: "est"
-  }
-}, {
-  id: 3,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Aqua Kyoto",
-  cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80", "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],
-  desc: "Nouveau rooftop japonais sur les Champs-Élysées avec vue Tour Eiffel, Arc de Triomphe et Grand Palais.",
-  vibe: "🆕 Nouveau 2026",
-  adresse: "26 av. des Champs-Élysées, 75008",
-  lat: 48.8726,
-  lng: 2.3057,
-  metro: "M1 Champs-Élysées Clemenceau",
-  price: "25-50€",
-  hours: "18h-2h",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "depaysant"],
-    zone: "ouest"
-  }
-}, {
-  id: 4,
-  done: false,
-  fav: true,
-  status: "wishlist",
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Cœur Sacré Montmartre",
-  cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],
-  desc: "Nouveau lieu hybride : boutique créateurs + boulangerie + coffee shop + rooftop bar-lounge.",
-  vibe: "🆕 Nouveau 2026",
-  adresse: "Butte Montmartre, 75018",
-  lat: 48.8867,
-  lng: 2.3431,
-  metro: "M12 Abbesses",
-  price: "10-20€",
-  hours: "10h-23h",
-  tags: {
-    who: ["date", "potes", "famille"],
-    when: ["journee", "apero"],
-    vibe: ["chic", "depaysant"],
-    zone: "nord"
-  }
-}, {
-  id: 5,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Khayma Rooftop",
-  cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=900&q=80"],
-  desc: "Toit-terrasse 150m² au-dessus du Generator Hostel. Cocktails a moins de 10€, vue sur Montmartre.",
-  vibe: "💸 Abordable",
-  adresse: "9-11 place du Colonel Fabien, 75010",
-  lat: 48.8748,
-  lng: 2.3695,
-  metro: "M2 Colonel Fabien",
-  price: "5-10€",
-  hours: "18h-1h",
-  tags: {
-    who: ["potes", "solo"],
-    when: ["apero", "soiree"],
-    vibe: ["decontracte", "festif"],
-    zone: "nord"
+    "who": ["potes", "date"],
+    "vibe": ["decontracte", "festif"],
+    "when": ["apero", "soiree"],
+    "zone": "est"
   }
 }, {
   id: 6,
-  done: true,
-  fav: true,
-  note: "Demander Hugo le barman, Negroni de fou.",
-  reaction: "🔥",
+  done: false,
+  fav: false,
+  note: "",
+  reaction: null,
   addedAt: Date.now(),
   name: "Moonshiner",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80", "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/6-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/6-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/6-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/6-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/6-4.jpg"],
   desc: "Entrer par la pizzeria Da Vito, traverser la chambre froide fictive... repaire de gangsters des années 20. Jazz, cocktails shakés.",
   vibe: "🍸 Bar",
   adresse: "5 rue Sedaine, 75011",
@@ -345,47 +269,22 @@ const INITIAL_SPOTS = [{
   price: "12-18€",
   hours: "18h-2h",
   tags: {
-    who: ["date", "potes"],
-    when: ["soiree", "after"],
-    vibe: ["intime", "depaysant"],
-    zone: "est"
+    "who": ["date", "potes"],
+    "vibe": ["intime", "depaysant"],
+    "when": ["soiree", "after"],
+    "zone": "est"
   }
 }, {
-  id: 7,
+  id: 8,
   done: false,
   fav: false,
   note: "",
   reaction: null,
   addedAt: Date.now(),
-  name: "Le Lavomatic",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],
-  desc: "Façade de laverie. Trouver le bon bouton, ouvrir la fausse machine a laver... bar a cocktails coloré avec balançoire.",
-  vibe: "🍸 Bar",
-  adresse: "10 rue René Boulanger, 75010",
-  lat: 48.8671,
-  lng: 2.3601,
-  metro: "M3/5/8/9/11 République",
-  price: "10-15€",
-  hours: "18h-2h",
-  tags: {
-    who: ["potes", "date"],
-    when: ["soiree"],
-    vibe: ["festif", "depaysant"],
-    zone: "est"
-  }
-}, {
-  id: 8,
-  done: true,
-  fav: false,
-  note: "",
-  reaction: "👍",
-  addedAt: Date.now(),
   name: "Candelaria",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/8-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/8-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/8-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/8-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/8-4.jpg"],
   desc: "Comptoir a tacos mexicains en facade, porte derobee au fond. DJ sets et cocktails dingues.",
   vibe: "🍸 Bar",
   adresse: "52 rue de Saintonge, 75003",
@@ -395,86 +294,10 @@ const INITIAL_SPOTS = [{
   price: "12-18€",
   hours: "18h-2h",
   tags: {
-    who: ["date", "potes"],
-    when: ["soiree", "after"],
-    vibe: ["intime", "depaysant"],
-    zone: "centre"
-  }
-}, {
-  id: 9,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Bistrot des Cinéastes",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80"],
-  desc: "Bar caché au 1er etage d'un vrai cinema d'art et essai. Decor hommage a Méliès, 250 ans d'histoire nocturne.",
-  vibe: "🎬 Insolite",
-  adresse: "7 av. de Clichy, 75017",
-  lat: 48.8842,
-  lng: 2.3264,
-  metro: "M2/13 Place de Clichy",
-  price: "8-14€",
-  hours: "19h-2h",
-  tags: {
-    who: ["date", "potes", "solo"],
-    when: ["soiree"],
-    vibe: ["intime", "depaysant"],
-    zone: "ouest"
-  }
-}, {
-  id: 10,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Monastic",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80"],
-  desc: "Speakeasy dans une chapelle néo-gothique classée Monument Historique. 400+ références de rhum.",
-  vibe: "⛪ Insolite",
-  adresse: "3 cr. de la Reine Margot, Issy-les-Moulineaux",
-  lat: 48.8198,
-  lng: 2.2717,
-  metro: "T2 Issy-Val de Seine",
-  price: "14-22€",
-  hours: "18h-2h",
-  tags: {
-    who: ["date", "potes"],
-    when: ["soiree", "after"],
-    vibe: ["chic", "intime", "depaysant"],
-    zone: "banlieue"
-  }
-}, {
-  id: 11,
-  done: false,
-  fav: true,
-  status: "wishlist",
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Divine House",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],
-  desc: "Porte miroitée dans le restaurant Public House. Decor tartan signé Laura Gonzalez. Associé au bar Paradiso (4e mondial).",
-  vibe: "🌍 Top mondial",
-  adresse: "Public House, Paris 8e",
-  lat: 48.8752,
-  lng: 2.3068,
-  metro: "M1/13 Concorde",
-  price: "20-35€",
-  hours: "19h-2h",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["soiree"],
-    vibe: ["chic", "intime"],
-    zone: "ouest"
+    "who": ["date", "potes"],
+    "vibe": ["intime", "depaysant"],
+    "when": ["soiree", "after"],
+    "zone": "centre"
   }
 }, {
   id: 12,
@@ -485,8 +308,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Péniche-guinguette Seine",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/12-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/12-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/12-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/12-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/12-4.jpg"],
   desc: "Jusqu'au 30 sept 2026 : péniche apéro entre Hôtel de Ville et Saint-Paul. Bières artisanales, ambiance festive.",
   vibe: "☀️ Éphémère 2026",
   adresse: "Quais de Seine, 75004",
@@ -496,119 +319,10 @@ const INITIAL_SPOTS = [{
   price: "5-10€",
   hours: "Avr-Sep, jour-23h",
   tags: {
-    who: ["potes", "famille", "date"],
-    when: ["apero", "journee"],
-    vibe: ["decontracte", "festif"],
-    zone: "centre"
-  }
-}, {
-  id: 13,
-  done: false,
-  fav: true,
-  status: "wishlist",
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Philharmonie Belvédère",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
-  desc: "Rooftop gratuit sur le toit de la Philharmonie. Vue 360 sur La Villette. Ouvert avril-octobre.",
-  vibe: "🆓 Gratuit",
-  adresse: "221 av. Jean Jaurès, 75019",
-  lat: 48.8894,
-  lng: 2.3942,
-  metro: "M5 Porte de Pantin",
-  price: "Gratuit",
-  hours: "Avr-Oct",
-  tags: {
-    who: ["potes", "solo", "date", "famille"],
-    when: ["journee", "apero"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "est"
-  }
-}, {
-  id: 14,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Au Top — Marais secret",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
-  desc: "Cour pavée + ascenseur cache = restaurant panoramique confidentiel sur les toits du Marais. Connu des initiés seulement.",
-  vibe: "🤫 Confidentiel",
-  adresse: "93 rue Vieille du Temple, 75003",
-  lat: 48.8607,
-  lng: 2.3590,
-  metro: "M1/11 Hôtel de Ville",
-  price: "20-40€",
-  hours: "19h-23h",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["soiree"],
-    vibe: ["chic", "intime", "depaysant"],
-    zone: "centre"
-  }
-}, {
-  id: 15,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "La Clairière",
-  cats: ["resto", "sortie"],
-  photo: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
-  desc: "Restaurant/bar dans une ancienne église, esprit nature et bien-être. Cuisine consciente et ambiance zen.",
-  vibe: "🌿 Éco-spirituel",
-  adresse: "14 rue Jean-Baptiste Berlier, 75013 Paris",
-  lat: 48.8285,
-  lng: 2.3595,
-  metro: "M14 Bibliothèque",
-  price: "20-35€",
-  hours: "12h-2h",
-  tags: {
-    who: ["date", "potes"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["depaysant", "intime"],
-    zone: "est",
-    cuisine: ["healthy"],
-    work: false
-  }
-}, {
-  id: 16,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Wanderlust",
-  cats: ["club", "sortie"],
-  photo: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],
-  desc: "Lieu de vie au bord de la Seine : yoga, resto, dancefloor. L'endroit hybride par excellence.",
-  vibe: "🌊 Sur la Seine",
-  adresse: "32 quai d'Austerlitz, 75013 Paris",
-  lat: 48.8420,
-  lng: 2.3680,
-  metro: "M6 Quai de la Gare",
-  price: "10-20€",
-  hours: "12h-6h",
-  tags: {
-    who: ["potes", "date"],
-    when: ["journee", "soiree", "after"],
-    vibe: ["festif", "decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes", "famille", "date"],
+    "vibe": ["decontracte", "festif"],
+    "when": ["apero", "journee"],
+    "zone": "centre"
   }
 }, {
   id: 17,
@@ -616,13 +330,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Le Comptoir Général",
   cats: ["speakeasy", "sortie"],
-  photo: "https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1525268323446-0505b6fe7778?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/17-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/17-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/17-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/17-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/17-4.jpg"],
   desc: "Musée-bar-cantine afro dans un ancien entrepôt. Déco dingue, cocktails exotiques, expos.",
   vibe: "🌍 Musée-bar",
   adresse: "80 quai de Jemmapes, 75010 Paris",
@@ -632,128 +344,12 @@ const INITIAL_SPOTS = [{
   price: "8-15€",
   hours: "11h-2h",
   tags: {
-    who: ["potes", "date", "solo"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["depaysant", "decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: true
-  }
-}, {
-  id: 18,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Le Perchoir Ménilmontant",
-  cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=900&q=80"],
-  desc: "Le rooftop OG, vue sur tout Paris. L'original qui a lancé la mode des rooftops parisiens.",
-  vibe: "🔥 L'original",
-  adresse: "14 rue Crespin du Gast, 75011 Paris",
-  lat: 48.8651,
-  lng: 2.3830,
-  metro: "M2 Ménilmontant",
-  price: "12-20€",
-  hours: "18h-2h",
-  tags: {
-    who: ["date", "potes", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 19,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Le Hoxton",
-  cats: ["speakeasy", "resto"],
-  photo: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],
-  desc: "Hôtel trendy avec lobby-bar, terrasse, restaurant. Le spot work & chill parfait.",
-  vibe: "💻 Work & chill",
-  adresse: "30-32 rue du Sentier, 75002 Paris",
-  lat: 48.8685,
-  lng: 2.3476,
-  metro: "M3 Sentier",
-  price: "15-25€",
-  hours: "7h-1h",
-  tags: {
-    who: ["collegues", "solo", "date"],
-    when: ["journee", "apero"],
-    vibe: ["chic", "decontracte"],
-    zone: "centre",
-    cuisine: ["brunch"],
-    work: true
-  }
-}, {
-  id: 20,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Le Grand Bréguet",
-  cats: ["resto", "speakeasy"],
-  photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],
-  desc: "Restaurant-bar dans un ancien garage, terrasse cachée. Cuisine bistrot et cocktails soignés.",
-  vibe: "🍷 Bistrot chic",
-  adresse: "7 rue Bréguet, 75011 Paris",
-  lat: 48.8560,
-  lng: 2.3715,
-  metro: "M5 Bréguet-Sabin",
-  price: "18-30€",
-  hours: "12h-2h",
-  tags: {
-    who: ["date", "collegues", "potes"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["chic", "decontracte"],
-    zone: "est",
-    cuisine: ["francais", "bistrot"],
-    work: false
-  }
-}, {
-  id: 21,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Virage",
-  cats: ["club", "sortie"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
-  desc: "Open air électro à Saint-Ouen, ancien espace industriel. Le son et la nuit.",
-  vibe: "🎧 Open air",
-  adresse: "4 impasse Léon, 93400 Saint-Ouen",
-  lat: 48.9088,
-  lng: 2.3345,
-  metro: "M4 Porte de Clignancourt",
-  price: "15-25€",
-  hours: "23h-7h",
-  tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "banlieue",
-    cuisine: [],
-    work: false
+    "who": ["potes", "date", "solo"],
+    "vibe": ["depaysant", "decontracte"],
+    "when": ["journee", "apero", "soiree"],
+    "work": true,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 22,
@@ -761,13 +357,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Le Syndicat",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/22-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/22-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/22-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/22-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/22-4.jpg"],
   desc: "Cocktails 100% spiritueux français, élu meilleur bar de France. Ambiance speakeasy brut.",
   vibe: "🏆 Best bar FR",
   adresse: "51 rue du Faubourg Saint-Denis, 75010 Paris",
@@ -777,12 +371,12 @@ const INITIAL_SPOTS = [{
   price: "14-18€",
   hours: "18h-2h",
   tags: {
-    who: ["date", "potes"],
-    when: ["soiree"],
-    vibe: ["chic", "intime"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["date", "potes"],
+    "vibe": ["chic", "intime"],
+    "when": ["soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 23,
@@ -790,13 +384,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Little Red Door",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/23-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/23-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/23-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/23-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/23-4.jpg"],
   desc: "Cocktail bar conceptuel, carte thématique qui change. Créativité en verre.",
   vibe: "🎨 Cocktails d'auteur",
   adresse: "60 rue Charlot, 75003 Paris",
@@ -806,12 +398,12 @@ const INITIAL_SPOTS = [{
   price: "16-20€",
   hours: "18h-2h",
   tags: {
-    who: ["date", "potes"],
-    when: ["soiree"],
-    vibe: ["chic", "intime"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["date", "potes"],
+    "vibe": ["chic", "intime"],
+    "when": ["soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 24,
@@ -819,115 +411,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Combat",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/24-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/24-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/24-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/24-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/24-4.jpg"],
   desc: "Bar rock/indie, concerts live, terrasse fumeur mythique. Le QG des nuits de Belleville.",
   vibe: "🎸 Rock & indie",
   adresse: "63 rue de Belleville, 75019 Paris",
-  lat: 48.8750,
-  lng: 2.3810,
+  lat: 48.875,
+  lng: 2.381,
   metro: "M11 Jourdain",
   price: "5-10€",
   hours: "17h-2h",
   tags: {
-    who: ["potes", "solo"],
-    when: ["apero", "soiree"],
-    vibe: ["decontracte", "festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 25,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Gravity Bar",
-  cats: ["speakeasy", "rooftop"],
-  photo: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],
-  desc: "Bar panoramique au sommet de la tour de la Cité de la Mode. Vue imprenable sur la Seine.",
-  vibe: "🌃 Vue Seine",
-  adresse: "34 quai d'Austerlitz, 75013 Paris",
-  lat: 48.8415,
-  lng: 2.3690,
-  metro: "M6 Quai de la Gare",
-  price: "12-18€",
-  hours: "18h-1h30",
-  tags: {
-    who: ["date", "potes"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 26,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Bisou",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551024506-0bccd828d307?w=900&q=80"],
-  desc: "Bar à cocktails sans carte, le barman improvise selon tes goûts. Chaque verre est unique.",
-  vibe: "🎲 Pas de carte",
-  adresse: "15 boulevard du Temple, 75003 Paris",
-  lat: 48.8641,
-  lng: 2.3648,
-  metro: "M8 Filles du Calvaire",
-  price: "13-17€",
-  hours: "18h-2h",
-  tags: {
-    who: ["date", "potes"],
-    when: ["soiree"],
-    vibe: ["intime", "depaysant"],
-    zone: "centre",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 27,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Créatures",
-  cats: ["rooftop", "resto"],
-  photo: "https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80"],
-  desc: "Rooftop des Galeries Lafayette Champs-Élysées, cuisine végétale. Le green rooftop chic.",
-  vibe: "🌱 Green rooftop",
-  adresse: "52 avenue des Champs-Élysées, 75008 Paris",
-  lat: 48.8712,
-  lng: 2.3065,
-  metro: "M1 Franklin D. Roosevelt",
-  price: "20-40€",
-  hours: "12h-minuit",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["journee", "apero"],
-    vibe: ["chic", "depaysant"],
-    zone: "ouest",
-    cuisine: ["healthy"],
-    work: false
+    "who": ["potes", "solo"],
+    "vibe": ["decontracte", "festif"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 28,
@@ -935,28 +438,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Mama Shelter Paris East",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/28-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/28-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/28-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/28-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/28-4.jpg"],
   desc: "Rooftop d'hôtel, cocktails, vue 360°, ping-pong. Fun garanti.",
   vibe: "🎯 Fun & games",
   adresse: "109 rue de Bagnolet, 75020 Paris",
-  lat: 48.8580,
+  lat: 48.858,
   lng: 2.4015,
   metro: "M3 Alexandre Dumas",
   price: "10-18€",
   hours: "17h-minuit",
   tags: {
-    who: ["potes", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["decontracte", "festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes", "collegues"],
+    "vibe": ["decontracte", "festif"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 29,
@@ -964,115 +465,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Le Tout-Paris",
   cats: ["rooftop", "resto"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/29-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/29-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/29-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/29-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/29-4.jpg"],
   desc: "Rooftop du Cheval Blanc (LVMH), vue Pont Neuf et Seine. Le plus luxe de Paris.",
   vibe: "👑 Le plus luxe",
   adresse: "Cheval Blanc Paris, 25 quai du Louvre, 75001 Paris",
-  lat: 48.8580,
-  lng: 2.3440,
+  lat: 48.858,
+  lng: 2.344,
   metro: "M7 Pont Neuf",
   price: "30-60€",
   hours: "12h-minuit",
   tags: {
-    who: ["date"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "intime"],
-    zone: "centre",
-    cuisine: ["gastro"],
-    work: false
-  }
-}, {
-  id: 30,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Terrass'' Hotel",
-  cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
-  desc: "Terrasse panoramique Montmartre, vue Tour Eiffel. Le rooftop le plus romantique.",
-  vibe: "🗼 Vue Tour Eiffel",
-  adresse: "12-14 rue Joseph de Maistre, 75018 Paris",
-  lat: 48.8903,
-  lng: 2.3315,
-  metro: "M13 Place de Clichy",
-  price: "15-25€",
-  hours: "11h-1h",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["journee", "apero"],
-    vibe: ["chic", "intime"],
-    zone: "nord",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 31,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Laho",
-  cats: ["rooftop", "resto"],
-  photo: "https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80"],
-  desc: "Rooftop de la Gare de Lyon, food court + bar, ambiance décontractée. Vue sur les trains.",
-  vibe: "🚂 Sur la gare",
-  adresse: "Gare de Lyon, place Louis Armand, 75012 Paris",
-  lat: 48.8443,
-  lng: 2.3747,
-  metro: "M1 Gare de Lyon",
-  price: "10-20€",
-  hours: "12h-minuit",
-  tags: {
-    who: ["potes", "collegues", "solo"],
-    when: ["journee", "apero"],
-    vibe: ["decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: true
-  }
-}, {
-  id: 32,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Concrete",
-  cats: ["club"],
-  photo: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],
-  desc: "Club iconique sur une péniche, techno/house, après minuit. Le temple de la nuit parisienne.",
-  vibe: "⚡ Techno temple",
-  adresse: "69 port de la Rapée, 75012 Paris",
-  lat: 48.8435,
-  lng: 2.3660,
-  metro: "M6 Quai de la Gare",
-  price: "15-20€",
-  hours: "23h-12h",
-  tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["date"],
+    "vibe": ["chic", "intime"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": ["gastro"]
   }
 }, {
   id: 33,
@@ -1080,13 +492,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Rex Club",
   cats: ["club"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/33-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/33-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/33-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/33-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/33-4.jpg"],
   desc: "Institution techno parisienne depuis 1988. La légende qui ne vieillit pas.",
   vibe: "👑 Légende techno",
   adresse: "5 boulevard Poissonnière, 75002 Paris",
@@ -1096,12 +506,12 @@ const INITIAL_SPOTS = [{
   price: "10-20€",
   hours: "23h30-6h",
   tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["potes"],
+    "vibe": ["festif"],
+    "when": ["soiree", "after"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 34,
@@ -1109,28 +519,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Badaboum",
   cats: ["club", "speakeasy"],
-  photo: "https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1543007630-9710e4a00a20?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/34-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/34-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/34-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/34-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/34-4.jpg"],
   desc: "Club + bar + concerts, electro éclectique, Bastille. La programmation qui surprend toujours.",
   vibe: "🎵 Éclectique",
   adresse: "2bis rue des Taillandiers, 75011 Paris",
-  lat: 48.8540,
+  lat: 48.854,
   lng: 2.3745,
   metro: "M1 Bastille",
   price: "10-15€",
   hours: "20h-5h",
   tags: {
-    who: ["potes", "date"],
-    when: ["soiree", "after"],
-    vibe: ["festif", "decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes", "date"],
+    "vibe": ["festif", "decontracte"],
+    "when": ["soiree", "after"],
+    "work": false,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 35,
@@ -1138,13 +546,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "La Station - Gare des Mines",
   cats: ["club", "sortie"],
-  photo: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/35-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/35-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/35-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/35-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/35-4.jpg"],
   desc: "Friche culturelle, open air, art + techno. L'underground parisien à son meilleur.",
   vibe: "🏭 Friche arty",
   adresse: "29 avenue de la Porte d'Aubervilliers, 75018 Paris",
@@ -1154,41 +560,12 @@ const INITIAL_SPOTS = [{
   price: "10-15€",
   hours: "22h-6h",
   tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif", "depaysant"],
-    zone: "nord",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 36,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Nuba",
-  cats: ["club", "rooftop"],
-  photo: "https://images.unsplash.com/photo-1551218808-94e220e084d2?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551218808-94e220e084d2?w=900&q=80"],
-  desc: "Rooftop-club sur le toit de la Cité de la Mode, electro + soleil. Le dancefloor avec vue.",
-  vibe: "☀️ Rooftop dancefloor",
-  adresse: "34 quai d'Austerlitz, 75013 Paris",
-  lat: 48.8418,
-  lng: 2.3688,
-  metro: "M6 Quai de la Gare",
-  price: "10-20€",
-  hours: "19h-6h",
-  tags: {
-    who: ["potes"],
-    when: ["apero", "soiree", "after"],
-    vibe: ["festif", "decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes"],
+    "vibe": ["festif", "depaysant"],
+    "when": ["soiree", "after"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": []
   }
 }, {
   id: 37,
@@ -1196,13 +573,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Café Oberkampf",
   cats: ["cafe", "resto"],
-  photo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/37-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/37-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/37-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/37-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/37-4.jpg"],
   desc: "Coffee shop de spécialité + brunch le weekend. Terrasse soleil, wifi, bon café.",
   vibe: "☕ Coffee & brunch",
   adresse: "3 rue Neuve Popincourt, 75011 Paris",
@@ -1212,12 +587,12 @@ const INITIAL_SPOTS = [{
   price: "10-20€",
   hours: "8h30-17h",
   tags: {
-    who: ["potes", "date", "solo"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "est",
-    cuisine: ["brunch"],
-    work: true
+    "who": ["potes", "date", "solo"],
+    "vibe": ["decontracte"],
+    "when": ["journee"],
+    "work": true,
+    "zone": "est",
+    "cuisine": ["brunch"]
   }
 }, {
   id: 38,
@@ -1225,86 +600,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Fragments",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/38-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/38-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/38-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/38-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/38-4.jpg"],
   desc: "Café de spécialité, déco minimaliste, super wifi. Le QG des freelances du Haut-Marais.",
   vibe: "💻 Freelance HQ",
   adresse: "76 rue des Tournelles, 75003 Paris",
-  lat: 48.8570,
+  lat: 48.857,
   lng: 2.3664,
   metro: "M8 Chemin Vert",
   price: "3-8€",
   hours: "8h-17h",
   tags: {
-    who: ["solo", "collegues"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "centre",
-    cuisine: [],
-    work: true
-  }
-}, {
-  id: 39,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Dose",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],
-  desc: "Micro coffee shop, torréfaction maison, 12 places max. Le café le plus sérieux du 5e.",
-  vibe: "☕ Micro-torréfacteur",
-  adresse: "73 rue Mouffetard, 75005 Paris",
-  lat: 48.8414,
-  lng: 2.3496,
-  metro: "M7 Place Monge",
-  price: "3-6€",
-  hours: "9h-17h",
-  tags: {
-    who: ["solo"],
-    when: ["journee"],
-    vibe: ["intime"],
-    zone: "centre",
-    cuisine: [],
-    work: true
-  }
-}, {
-  id: 40,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Treize au Jardin",
-  cats: ["cafe", "resto"],
-  photo: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80"],
-  desc: "Café-restaurant dans une serre au fond d'un jardin secret. Hors du temps.",
-  vibe: "🌿 Jardin secret",
-  adresse: "5 rue de Médicis, 75006 Paris",
-  lat: 48.8488,
-  lng: 2.3375,
-  metro: "M10 Cluny-La Sorbonne",
-  price: "10-20€",
-  hours: "12h-18h",
-  tags: {
-    who: ["date", "solo", "potes"],
-    when: ["journee"],
-    vibe: ["intime", "depaysant"],
-    zone: "centre",
-    cuisine: ["brunch"],
-    work: false
+    "who": ["solo", "collegues"],
+    "vibe": ["decontracte"],
+    "when": ["journee"],
+    "work": true,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 41,
@@ -1312,86 +627,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Mokonuts",
   cats: ["resto", "cafe"],
-  photo: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/41-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/41-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/41-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/41-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/41-4.jpg"],
   desc: "Minuscule resto-boulangerie, cuisine du marché et cookies légendaires. Réserver ou venir tôt.",
   vibe: "🍪 Petit bijou",
   adresse: "5 rue Saint-Bernard, 75011 Paris",
-  lat: 48.8520,
+  lat: 48.852,
   lng: 2.3835,
   metro: "M8 Faidherbe-Chaligny",
   price: "15-25€",
   hours: "9h-17h",
   tags: {
-    who: ["date", "solo", "potes"],
-    when: ["journee"],
-    vibe: ["intime", "decontracte"],
-    zone: "est",
-    cuisine: ["bistrot"],
-    work: false
-  }
-}, {
-  id: 42,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Season",
-  cats: ["resto", "cafe"],
-  photo: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=80"],
-  desc: "Brunch healthy et photogénique. Avocado toast, bowls, jus pressés. Le spot Instagram du 10e.",
-  vibe: "🥑 Healthy brunch",
-  adresse: "1 rue Charles Robin, 75010 Paris",
-  lat: 48.8724,
-  lng: 2.3620,
-  metro: "M5 Jacques Bonsergent",
-  price: "15-25€",
-  hours: "9h-16h",
-  tags: {
-    who: ["potes", "date", "solo"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "est",
-    cuisine: ["brunch", "healthy"],
-    work: true
-  }
-}, {
-  id: 43,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Hardware Société",
-  cats: ["resto", "cafe"],
-  photo: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=900&q=80"],
-  desc: "Le brunch australien de Montmartre. Pancakes, eggs benedict, flat white. Queue le weekend = normal.",
-  vibe: "🇦🇺 Brunch aussie",
-  adresse: "10 rue Lamarck, 75018 Paris",
-  lat: 48.8878,
-  lng: 2.3414,
-  metro: "M12 Lamarck-Caulaincourt",
-  price: "15-25€",
-  hours: "8h30-16h",
-  tags: {
-    who: ["potes", "date", "famille"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "nord",
-    cuisine: ["brunch"],
-    work: false
+    "who": ["date", "solo", "potes"],
+    "vibe": ["intime", "decontracte"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "est",
+    "cuisine": ["bistrot"]
   }
 }, {
   id: 44,
@@ -1399,13 +654,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Pink Mamma",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/44-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/44-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/44-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/44-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/44-4.jpg"],
   desc: "5 étages de trattoria XXL, de la cave à vin au rooftop. File d'attente légendaire mais ça vaut le coup.",
   vibe: "🍝 Trattoria géante",
   adresse: "20bis rue de Douai, 75009 Paris",
@@ -1415,12 +668,12 @@ const INITIAL_SPOTS = [{
   price: "15-30€",
   hours: "12h-23h",
   tags: {
-    who: ["potes", "date", "famille"],
-    when: ["journee", "soiree"],
-    vibe: ["festif", "decontracte"],
-    zone: "nord",
-    cuisine: ["italien"],
-    work: false
+    "who": ["potes", "date", "famille"],
+    "vibe": ["festif", "decontracte"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": ["italien"]
   }
 }, {
   id: 45,
@@ -1428,13 +681,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Bouillon Chartier",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/45-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/45-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/45-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/45-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/45-4.jpg"],
   desc: "Institution depuis 1896. Cuisine française traditionnelle à prix plancher dans un décor Belle Époque classé.",
   vibe: "🏛️ Monument",
   adresse: "7 rue du Faubourg Montmartre, 75009 Paris",
@@ -1444,12 +695,12 @@ const INITIAL_SPOTS = [{
   price: "8-15€",
   hours: "11h30-minuit",
   tags: {
-    who: ["potes", "famille", "date", "solo"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "centre",
-    cuisine: ["francais"],
-    work: false
+    "who": ["potes", "famille", "date", "solo"],
+    "vibe": ["decontracte", "depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": ["francais"]
   }
 }, {
   id: 46,
@@ -1457,13 +708,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Kodawari Ramen",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/46-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/46-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/46-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/46-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/46-4.jpg"],
   desc: "Décor de ruelle de Tokyo reconstitué sous terre. Les meilleurs ramen de Paris, ambiance immersive.",
   vibe: "🍜 Tokyo à Paris",
   adresse: "29 rue Mazarine, 75006 Paris",
@@ -1473,12 +722,12 @@ const INITIAL_SPOTS = [{
   price: "15-20€",
   hours: "12h-15h, 19h-23h",
   tags: {
-    who: ["potes", "date", "solo"],
-    when: ["journee", "soiree"],
-    vibe: ["depaysant"],
-    zone: "centre",
-    cuisine: ["asiat"],
-    work: false
+    "who": ["potes", "date", "solo"],
+    "vibe": ["depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": ["asiat"]
   }
 }, {
   id: 47,
@@ -1486,13 +735,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Chez Janou",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/47-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/47-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/47-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/47-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/47-4.jpg"],
   desc: "Terrasse provençale cachée dans le Marais. La mousse au chocolat à volonté est mythique.",
   vibe: "🫕 Terrasse cachée",
   adresse: "2 rue Roger Verlomme, 75003 Paris",
@@ -1502,12 +749,12 @@ const INITIAL_SPOTS = [{
   price: "20-35€",
   hours: "12h-15h, 19h30-minuit",
   tags: {
-    who: ["potes", "date", "collegues"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "intime"],
-    zone: "centre",
-    cuisine: ["francais"],
-    work: false
+    "who": ["potes", "date", "collegues"],
+    "vibe": ["decontracte", "intime"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": ["francais"]
   }
 }, {
   id: 48,
@@ -1515,28 +762,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Aux Deux Amis",
   cats: ["resto", "speakeasy"],
-  photo: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/48-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/48-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/48-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/48-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/48-4.jpg"],
   desc: "Bar à vins naturels et petites assiettes. L'adresse secrète d'Oberkampf que tout le monde connaît.",
   vibe: "🍷 Néo-bistrot",
   adresse: "45 rue Oberkampf, 75011 Paris",
   lat: 48.8653,
-  lng: 2.3770,
+  lng: 2.377,
   metro: "M5 Oberkampf",
   price: "15-25€",
   hours: "12h-2h",
   tags: {
-    who: ["potes", "date"],
-    when: ["apero", "soiree"],
-    vibe: ["decontracte", "intime"],
-    zone: "est",
-    cuisine: ["francais", "bistrot"],
-    work: false
+    "who": ["potes", "date"],
+    "vibe": ["decontracte", "intime"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": ["francais", "bistrot"]
   }
 }, {
   id: 49,
@@ -1544,28 +789,26 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Le Bouillon Pigalle",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/49-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/49-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/49-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/49-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/49-4.jpg"],
   desc: "Bouillon moderne, déco art déco, plats français généreux à petit prix. Queue dehors = bon signe.",
   vibe: "💸 Bon et pas cher",
   adresse: "22 boulevard de Clichy, 75018 Paris",
-  lat: 48.8840,
+  lat: 48.884,
   lng: 2.3342,
   metro: "M2 Pigalle",
   price: "8-15€",
   hours: "12h-minuit",
   tags: {
-    who: ["potes", "famille", "solo"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte"],
-    zone: "nord",
-    cuisine: ["francais"],
-    work: false
+    "who": ["potes", "famille", "solo"],
+    "vibe": ["decontracte"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": ["francais"]
   }
 }, {
   id: 50,
@@ -1573,13 +816,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Daroco",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/50-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/50-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/50-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/50-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/50-4.jpg"],
   desc: "Pizzas napolitaines dans l'ancien siège de Jean-Paul Gaultier. Décor mode + cuisine italienne.",
   vibe: "✨ Fashion food",
   adresse: "6 rue Vivienne, 75002 Paris",
@@ -1589,41 +830,12 @@ const INITIAL_SPOTS = [{
   price: "18-35€",
   hours: "12h-14h30, 19h-23h30",
   tags: {
-    who: ["date", "collegues", "potes"],
-    when: ["journee", "soiree"],
-    vibe: ["chic"],
-    zone: "centre",
-    cuisine: ["italien", "pizza"],
-    work: false
-  }
-}, {
-  id: 51,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  status: null,
-  addedAt: Date.now(),
-  contacts: [],
-  name: "Mun Korean",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=900&q=80"],
-  desc: "Korean BBQ authentique, tu grilles toi-même ta viande à table. Ambiance Seoul conviviale.",
-  vibe: "🔥 BBQ coréen",
-  adresse: "1 rue Volta, 75003 Paris",
-  lat: 48.8654,
-  lng: 2.3580,
-  metro: "M3 Arts et Métiers",
-  price: "20-35€",
-  hours: "12h-14h30, 19h-22h30",
-  tags: {
-    who: ["potes", "date"],
-    when: ["soiree"],
-    vibe: ["depaysant", "festif"],
-    zone: "centre",
-    cuisine: ["asiat"],
-    work: false
+    "who": ["date", "collegues", "potes"],
+    "vibe": ["chic"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": ["italien", "pizza"]
   }
 }, {
   id: 52,
@@ -1631,13 +843,11 @@ const INITIAL_SPOTS = [{
   fav: false,
   note: "",
   reaction: null,
-  status: null,
   addedAt: Date.now(),
-  contacts: [],
   name: "Le Train Bleu",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/52-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/52-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/52-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/52-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/52-4.jpg"],
   desc: "Restaurant gastronomique classé Monument Historique dans la Gare de Lyon. Plafonds peints, dorures, voyage dans le temps.",
   vibe: "👑 Monument culinaire",
   adresse: "Gare de Lyon, 75012 Paris",
@@ -1647,68 +857,12 @@ const INITIAL_SPOTS = [{
   price: "40-80€",
   hours: "11h30-14h45, 19h-22h45",
   tags: {
-    who: ["date", "collegues"],
-    when: ["journee", "soiree"],
-    vibe: ["chic", "depaysant"],
-    zone: "est",
-    cuisine: ["gastro", "francais"],
-    work: false
-  }
-}, {
-  id: 53,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Hexagone Café",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80"],
-  desc: "Torréfacteur pointu du 14e à la touche japonaise : café de spécialité, pâtisseries maison et kakigori l'été. Pas de wifi, et c'est voulu — ici tu déconnectes vraiment.",
-  vibe: "☕ Torréfacteur zen",
-  adresse: "121 rue du Château, 75014",
-  lat: 48.8345,
-  lng: 2.321,
-  metro: "M13 Pernety",
-  price: "4-12€",
-  hours: "Lun-Ven 8h30-16h30, Sam-Dim 9h30-17h30",
-  website: "https://www.hexagone-cafe.fr/",
-  tags: {
-    who: ["solo", "potes"],
-    when: ["journee"],
-    vibe: ["decontracte", "intime"],
-    zone: "sud",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 54,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Strada Café",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80"],
-  desc: "Le QG cosy de la rue Monge : brunch à prix doux servi dès le matin, œufs brouillés cultes et grandes tables où poser ton laptop. L'adresse parfaite pour bosser des heures sans culpabiliser.",
-  vibe: "💻 Brunch work-friendly",
-  adresse: "24 rue Monge, 75005",
-  lat: 48.8469,
-  lng: 2.3514,
-  metro: "M10 Cardinal Lemoine",
-  price: "5-20€",
-  hours: "Lun-Ven 8h-18h, Sam-Dim 10h-18h",
-  website: "https://stradacafe.fr/",
-  tags: {
-    who: ["solo", "potes", "collegues"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "sud",
-    cuisine: ["brunch"],
-    work: true
+    "who": ["date", "collegues"],
+    "vibe": ["chic", "depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": ["gastro", "francais"]
   }
 }, {
   id: 55,
@@ -1719,8 +873,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "L'OisiveThé",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/55-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/55-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/55-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/55-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/55-4.jpg"],
   desc: "Salon de thé-tricot de la Butte-aux-Cailles : près de 70 thés, scones maison et pelotes de laine en rayon. Tu peux littéralement tricoter ton écharpe en sirotant un oolong, ambiance cocon garantie.",
   vibe: "🫖 Salon de thé cocon",
   adresse: "8 bis rue de la Butte aux Cailles, 75013",
@@ -1731,40 +885,12 @@ const INITIAL_SPOTS = [{
   hours: "Mar-Ven 12h-18h, Sam-Dim 11h-18h",
   website: "https://www.loisivethe.com/",
   tags: {
-    who: ["solo", "potes", "famille"],
-    when: ["journee"],
-    vibe: ["intime", "decontracte"],
-    zone: "sud",
-    cuisine: ["brunch"],
-    work: false
-  }
-}, {
-  id: 56,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Judy, Cantine Qualitarienne",
-  cats: ["cafe", "resto"],
-  photo: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80"],
-  desc: "Cantine healthy et 100% sans gluten à deux pas du Luxembourg : granola bowls, pancakes et jus pressés dans un décor pastel très instagrammable. Le brunch se compose à la carte, du matin au goûter.",
-  vibe: "🥑 Cantine healthy pastel",
-  adresse: "18 rue de Fleurus, 75006",
-  lat: 48.847,
-  lng: 2.3312,
-  metro: "M12 Rennes",
-  price: "15-30€",
-  hours: "Lun-Dim 8h-18h",
-  website: "https://www.judy-paris.com/",
-  tags: {
-    who: ["potes", "date", "famille"],
-    when: ["journee"],
-    vibe: ["chic", "decontracte"],
-    zone: "sud",
-    cuisine: ["healthy", "brunch"],
-    work: false
+    "who": ["solo", "potes", "famille"],
+    "vibe": ["intime", "decontracte"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": ["brunch"]
   }
 }, {
   id: 57,
@@ -1775,8 +901,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Coutume Café",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/57-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/57-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/57-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/57-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/57-4.jpg"],
   desc: "Le pionnier du café de spécialité à Paris, planqué rue de Babylone : torréfaction maison, flat whites impeccables et brunch le week-end. Grande salle lumineuse où les laptops sont les bienvenus.",
   vibe: "☕ Pionnier du specialty",
   adresse: "47 rue de Babylone, 75007",
@@ -1787,12 +913,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Ven 8h30-17h30, Sam-Dim 9h-18h",
   website: "https://www.coutumecafe.com/",
   tags: {
-    who: ["solo", "potes", "collegues"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "ouest",
-    cuisine: ["brunch"],
-    work: true
+    "who": ["solo", "potes", "collegues"],
+    "vibe": ["decontracte"],
+    "when": ["journee"],
+    "work": true,
+    "zone": "ouest",
+    "cuisine": ["brunch"]
   }
 }, {
   id: 58,
@@ -1803,8 +929,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Carette Trocadéro",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/58-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/58-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/58-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/58-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/58-4.jpg"],
   desc: "Institution Art déco de 1927 face à la tour Eiffel : chocolat chaud onctueux, macarons et mille-feuilles servis par des serveurs en tablier. Le goûter chic parisien dans toute sa splendeur.",
   vibe: "🏛️ Salon de thé mythique",
   adresse: "4 place du Trocadéro, 75016",
@@ -1815,40 +941,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Dim 7h-23h30",
   website: "https://paris-carette.fr/",
   tags: {
-    who: ["date", "famille", "potes"],
-    when: ["journee"],
-    vibe: ["chic"],
-    zone: "ouest",
-    cuisine: ["francais"],
-    work: false
-  }
-}, {
-  id: 59,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Vague Coffee",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],
-  desc: "Le coffee shop chouchou des Batignolles : specialty coffee, matcha bio et egg drop sandos au brunch du week-end. Petit, pointu et plein de bonnes ondes de quartier.",
-  vibe: "🌊 Coffee shop de quartier",
-  adresse: "40 rue Dulong, 75017",
-  lat: 48.8852,
-  lng: 2.3163,
-  metro: "M14 Pont Cardinet",
-  price: "5-16€",
-  hours: "Lun-Ven 8h30-18h, Sam-Dim 10h-18h",
-  website: "https://www.vaguecoffee.com/",
-  tags: {
-    who: ["solo", "potes"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "ouest",
-    cuisine: ["brunch"],
-    work: true
+    "who": ["date", "famille", "potes"],
+    "vibe": ["chic"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "ouest",
+    "cuisine": ["francais"]
   }
 }, {
   id: 60,
@@ -1859,8 +957,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Café Lomi",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/60-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/60-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/60-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/60-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/60-4.jpg"],
   desc: "Torréfacteur historique du 18e dans un grand atelier brut : cafés filtres précis, assiettes locavores le midi et école de barista au fond. Spacieux et décontracté, parfait pour s'installer avec son ordi.",
   vibe: "🏭 Atelier-torréfacteur",
   adresse: "3ter rue Marcadet, 75018",
@@ -1871,66 +969,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Ven 8h-18h, Sam-Dim 10h-19h",
   website: "https://lomi.cafe/",
   tags: {
-    who: ["solo", "potes", "collegues"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "nord",
-    cuisine: ["brunch"],
-    work: true
-  }
-}, {
-  id: 61,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "KB CaféShop",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80"],
-  desc: "L'angle le plus caféiné de South Pigalle : torréfaction maison, espressos single origin et terrasse en or pour mater l'avenue Trudaine. Toujours blindé, toujours excellent.",
-  vibe: "☕ Spot culte de SoPi",
-  adresse: "53 avenue Trudaine, 75009",
-  lat: 48.8818,
-  lng: 2.34,
-  metro: "M2/M12 Pigalle",
-  price: "4-12€",
-  hours: "Lun-Ven 7h30-18h30, Sam-Dim 9h-18h30",
-  tags: {
-    who: ["solo", "potes"],
-    when: ["journee"],
-    vibe: ["decontracte"],
-    zone: "nord",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 62,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Télescope",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&q=80"],
-  desc: "Minuscule comptoir minimaliste à deux pas du Palais-Royal, pionnier de la vague specialty : cafés torréfiés sur place, filtres précis et cookies maison. Le détour obligé des coffee geeks.",
-  vibe: "🔭 Comptoir minimaliste",
-  adresse: "5 rue Villedo, 75001",
-  lat: 48.8662,
-  lng: 2.3373,
-  metro: "M7/M14 Pyramides",
-  price: "4-10€",
-  hours: "Lun-Ven 8h30-17h, Sam 9h30-18h30",
-  tags: {
-    who: ["solo", "date"],
-    when: ["journee"],
-    vibe: ["intime", "decontracte"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["solo", "potes", "collegues"],
+    "vibe": ["decontracte"],
+    "when": ["journee"],
+    "work": true,
+    "zone": "nord",
+    "cuisine": ["brunch"]
   }
 }, {
   id: 63,
@@ -1941,8 +985,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "La Caféothèque",
   cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/63-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/63-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/63-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/63-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/63-4.jpg"],
   desc: "Le temple du café face à l'île Saint-Louis : torréfaction maison, dégustations façon cave à vin et enfilade de salons aux fauteuils dépareillés. Tu peux y passer l'aprem entre deux crus d'Éthiopie.",
   vibe: "🛋️ Temple du café cosy",
   adresse: "52 rue de l'Hôtel de Ville, 75004",
@@ -1953,12 +997,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Dim 9h-19h",
   website: "https://lacafeotheque.com/",
   tags: {
-    who: ["solo", "date", "potes"],
-    when: ["journee"],
-    vibe: ["intime", "depaysant"],
-    zone: "centre",
-    cuisine: [],
-    work: true
+    "who": ["solo", "date", "potes"],
+    "vibe": ["intime", "depaysant"],
+    "when": ["journee"],
+    "work": true,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 64,
@@ -1969,8 +1013,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Holybelly",
   cats: ["cafe", "resto"],
-  photo: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/64-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/64-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/64-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/64-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/64-4.jpg"],
   desc: "LE brunch culte du canal Saint-Martin : pancakes au beurre-sirop d'érable légendaires, œufs parfaits et service qui envoie. Pas de résa, la queue fait partie de l'expérience — ça vaut chaque minute.",
   vibe: "🥞 Brunch culte",
   adresse: "5 rue Lucien Sampaix, 75010",
@@ -1981,39 +1025,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Dim 9h-17h",
   website: "https://www.holybellycafe.com/",
   tags: {
-    who: ["potes", "date", "famille"],
-    when: ["journee"],
-    vibe: ["decontracte", "festif"],
-    zone: "est",
-    cuisine: ["brunch"],
-    work: false
-  }
-}, {
-  id: 65,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Dreamin Man",
-  cats: ["cafe"],
-  photo: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=900&q=80"],
-  desc: "Petit café japonais tenu par un couple adorable près de République : pudding nihon-fu signature, financiers à la figue et flat whites soyeux. Minuscule, précis, attachant — un vrai bijou de quartier.",
-  vibe: "🇯🇵 Pépite japonaise",
-  adresse: "140 rue Amelot, 75011",
-  lat: 48.8651,
-  lng: 2.3661,
-  metro: "M5/M9 Oberkampf",
-  price: "5-12€",
-  hours: "Lun-Sam 8h30-18h30",
-  tags: {
-    who: ["solo", "date"],
-    when: ["journee"],
-    vibe: ["intime", "depaysant"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes", "date", "famille"],
+    "vibe": ["decontracte", "festif"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "est",
+    "cuisine": ["brunch"]
   }
 }, {
   id: 66,
@@ -2024,8 +1041,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Pho Tai",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/66-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/66-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/66-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/66-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/66-4.jpg"],
   desc: "La cantine vietnamienne culte du 13e, tenue par Monsieur Té. Tu viens pour le poulet croustillant au gingembre et un pho fumant qui réconcilie avec la vie.",
   vibe: "🍜 Pépite du 13e",
   adresse: "13 rue Philibert Lucot, 75013",
@@ -2035,12 +1052,12 @@ const INITIAL_SPOTS = [{
   price: "15-25€",
   hours: "Mar-Dim 12h-14h30, 19h-22h30",
   tags: {
-    who: ["solo", "potes"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "sud",
-    cuisine: ["asiat"],
-    work: false
+    "who": ["solo", "potes"],
+    "vibe": ["decontracte", "depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": ["asiat"]
   }
 }, {
   id: 67,
@@ -2051,8 +1068,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Impérial Choisy",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/67-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/67-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/67-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/67-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/67-4.jpg"],
   desc: "Institution cantonaise du quartier chinois depuis 1981, Bib Gourmand au Michelin. Canard laqué cinq épices et poulet au gingembre, service non-stop de midi à 23h.",
   vibe: "🥢 Légende de Choisy",
   adresse: "32 avenue de Choisy, 75013",
@@ -2062,95 +1079,12 @@ const INITIAL_SPOTS = [{
   price: "20-35€",
   hours: "Tous les jours 12h-23h non-stop",
   tags: {
-    who: ["famille", "potes"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "sud",
-    cuisine: ["asiat"],
-    work: false
-  }
-}, {
-  id: 68,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "La Crêperie de Josselin",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=900&q=80"],
-  desc: "La reine des crêperies bretonnes de la rue du Montparnasse. Tu prends la galette complète au beurre salé, une bolée de cidre, et tu remercies la Bretagne.",
-  vibe: "🥞 Bretagne à Montparnasse",
-  adresse: "67 rue du Montparnasse, 75014",
-  lat: 48.8413,
-  lng: 2.325,
-  metro: "M6 Edgar Quinet",
-  price: "15-25€",
-  hours: "Mar-Sam 12h-14h30, 18h30-23h",
-  tags: {
-    who: ["famille", "date", "potes"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte"],
-    zone: "sud",
-    cuisine: ["francais"],
-    work: false
-  }
-}, {
-  id: 69,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Radis Beurre",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=80"],
-  desc: "Bistronomie Bib Gourmand du chef Jérôme Bonnet : ris de veau, cuissons parfaites et un riz au lait légendaire. Le menu déjeuner à 35€ est un des meilleurs deals du 15e.",
-  vibe: "⭐ Bistronomie maligne",
-  adresse: "51 boulevard Garibaldi, 75015",
-  lat: 48.846,
-  lng: 2.3071,
-  metro: "M6 Sèvres-Lecourbe",
-  price: "35-55€",
-  hours: "Lun-Ven 12h-14h, 19h30-21h30",
-  website: "https://restaurantleradisbeurre.com/",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["soiree"],
-    vibe: ["intime", "chic"],
-    zone: "sud",
-    cuisine: ["bistrot", "gastro"],
-    work: false
-  }
-}, {
-  id: 70,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Grenier de Notre-Dame",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=900&q=80"],
-  desc: "Le tout premier resto végétarien de Paris (1978), planqué à deux pas de Notre-Dame. Burger de lentilles, assiettes veggie généreuses et déco bohème pleine de charme.",
-  vibe: "🌿 Pionnier veggie",
-  adresse: "18 rue de la Bûcherie, 75005",
-  lat: 48.8522,
-  lng: 2.3478,
-  metro: "M10 Maubert-Mutualité",
-  price: "20-30€",
-  hours: "Tous les jours 12h-14h30, 18h30-22h30",
-  website: "https://www.legrenierdenotredame.fr",
-  tags: {
-    who: ["date", "solo"],
-    when: ["journee", "soiree"],
-    vibe: ["intime"],
-    zone: "sud",
-    cuisine: ["healthy"],
-    work: false
+    "who": ["famille", "potes"],
+    "vibe": ["decontracte", "depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": ["asiat"]
   }
 }, {
   id: 71,
@@ -2161,8 +1095,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Mamma Primi",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/71-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/71-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/71-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/71-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/71-4.jpg"],
   desc: "La trattoria du groupe Big Mamma aux Batignolles : pâtes fraîches maison, burrata crémeuse et terrasse fleurie. Ambiance dolce vita garantie, vas-y tôt pour éviter la queue.",
   vibe: "🇮🇹 Dolce vita Batignolles",
   adresse: "71 rue des Dames, 75017",
@@ -2173,68 +1107,12 @@ const INITIAL_SPOTS = [{
   hours: "Tous les jours 12h-14h30, 18h45-23h",
   website: "https://www.bigmammagroup.com/italian-restaurants/mamma-primi",
   tags: {
-    who: ["potes", "date"],
-    when: ["apero", "soiree"],
-    vibe: ["festif"],
-    zone: "ouest",
-    cuisine: ["italien"],
-    work: false
-  }
-}, {
-  id: 72,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Petit Rétro",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80"],
-  desc: "Bistrot Art nouveau de 1904 aux faïences classées, repris par un chef passé chez Guy Savoy. Cuisine bourgeoise impeccable : tu craques pour le pâté en croûte et la blanquette.",
-  vibe: "🕰️ Bijou Belle Époque",
-  adresse: "5 rue Mesnil, 75116",
-  lat: 48.8697,
-  lng: 2.2847,
-  metro: "M2 Victor Hugo",
-  price: "40-60€",
-  hours: "Lun-Sam 12h-14h30, 19h-22h30",
-  website: "https://www.petitretro.fr/",
-  tags: {
-    who: ["date", "collegues", "famille"],
-    when: ["soiree"],
-    vibe: ["chic", "intime"],
-    zone: "ouest",
-    cuisine: ["francais", "bistrot"],
-    work: false
-  }
-}, {
-  id: 73,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Noura Marceau",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1557872943-16a5ac26437e?w=900&q=80"],
-  desc: "La grande brasserie libanaise de l'avenue Marceau : mezzés à partager, houmous soyeux et grillades au charbon. Parfait pour un festin dépaysant à deux pas de l'Alma.",
-  vibe: "🧆 Voyage à Beyrouth",
-  adresse: "27 avenue Marceau, 75116",
-  lat: 48.8662,
-  lng: 2.2997,
-  metro: "M9 Alma-Marceau",
-  price: "30-45€",
-  hours: "Tous les jours 11h30-15h, 19h-00h",
-  website: "https://restaurants.noura.com/paris-16-marceau/",
-  tags: {
-    who: ["famille", "collegues", "date"],
-    when: ["journee", "soiree"],
-    vibe: ["depaysant", "chic"],
-    zone: "ouest",
-    cuisine: ["healthy"],
-    work: false
+    "who": ["potes", "date"],
+    "vibe": ["festif"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "ouest",
+    "cuisine": ["italien"]
   }
 }, {
   id: 74,
@@ -2245,8 +1123,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Le Coq d'Or",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/74-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/74-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/74-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/74-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/74-4.jpg"],
   desc: "L'institution des Puces de Saint-Ouen : couscous royal, tajines et grillades servis au coin de la cheminée depuis des décennies. Tu chines le matin, tu te poses ici le midi, c'est le rituel.",
   vibe: "🧆 Trésor des puces",
   adresse: "76 rue des Rosiers, 93400 Saint-Ouen-sur-Seine",
@@ -2257,40 +1135,12 @@ const INITIAL_SPOTS = [{
   hours: "Ven-Lun 10h-18h (jours de puces)",
   website: "https://lecoqdor.eatbu.com",
   tags: {
-    who: ["potes", "famille"],
-    when: ["journee"],
-    vibe: ["depaysant", "decontracte"],
-    zone: "banlieue",
-    cuisine: ["francais"],
-    work: false
-  }
-}, {
-  id: 75,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "L'Amourette",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80"],
-  desc: "Le bistrot de Maître Restaurateur planqué à Montreuil : tartare au couteau, confit de canard et desserts maison à deux pas du métro. La vraie cuisine de bistrot sans les prix parisiens.",
-  vibe: "🍷 Bistrot de quartier en or",
-  adresse: "54 rue Robespierre, 93100 Montreuil",
-  lat: 48.855,
-  lng: 2.4256,
-  metro: "M9 Robespierre",
-  price: "24-45€",
-  hours: "Lun-Ven 8h30-22h30, Sam 9h30-minuit",
-  website: "https://www.lamourette.fr",
-  tags: {
-    who: ["date", "collegues", "famille"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "intime"],
-    zone: "banlieue",
-    cuisine: ["bistrot", "francais"],
-    work: false
+    "who": ["potes", "famille"],
+    "vibe": ["depaysant", "decontracte"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "banlieue",
+    "cuisine": ["francais"]
   }
 }, {
   id: 76,
@@ -2301,8 +1151,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "La Guinguette de l'Île du Martin-Pêcheur",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/76-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/76-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/76-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/76-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/76-4.jpg"],
   desc: "Une vraie guinguette sur une île de la Marne, accessible par passerelle : friture, pétanque, mölkky et bal sous les guirlandes. L'esprit Gégène en mieux, et toujours vivant.",
   vibe: "🌊 Guinguette bord de Marne",
   adresse: "41 quai Victor Hugo, 94500 Champigny-sur-Marne",
@@ -2313,95 +1163,12 @@ const INITIAL_SPOTS = [{
   hours: "Jeu-Dim midi-2h (saison avril-octobre)",
   website: "https://www.laguingz.com",
   tags: {
-    who: ["potes", "famille", "date"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["festif", "depaysant"],
-    zone: "banlieue",
-    cuisine: ["francais"],
-    work: false
-  }
-}, {
-  id: 77,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Peppe Boulogne",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=900&q=80"],
-  desc: "La pizza napolitaine du double champion du monde Giuseppe Cutraro, dans le quartier du Point du Jour. Pâte aérienne, produits qui arrivent de Naples, et une terrasse pour les soirs d'été.",
-  vibe: "🍕 Napoli championne du monde",
-  adresse: "104 rue du Point du Jour, 92100 Boulogne-Billancourt",
-  lat: 48.8278,
-  lng: 2.2443,
-  metro: "M9 Marcel Sembat (10 min à pied)",
-  price: "13-22€",
-  hours: "Tous les jours 12h-14h30, 19h-23h",
-  website: "https://peppe.pizza/peppe-pizzeria-boulogne/",
-  tags: {
-    who: ["potes", "famille", "date"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte"],
-    zone: "banlieue",
-    cuisine: ["pizza", "italien"],
-    work: false
-  }
-}, {
-  id: 78,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Maquis",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1498654896293-37aacf113fd9?w=900&q=80"],
-  desc: "Le bistrot des anciens du Châteaubriand, côté Montmartre des vrais gens (Jules Joffrin, pas le Sacré-Cœur). Menu déjeuner à 25€ imbattable, cuisine de saison qui claque.",
-  vibe: "🥂 Bistronomie planquée",
-  adresse: "53 rue des Cloys, 75018",
-  lat: 48.8931,
-  lng: 2.3399,
-  metro: "M12 Jules Joffrin",
-  price: "25-55€",
-  hours: "Mar-Ven 12h30-14h30, 19h30-22h30",
-  website: "https://lemaquisrestaurant.fr",
-  tags: {
-    who: ["date", "collegues"],
-    when: ["journee", "soiree"],
-    vibe: ["decontracte", "intime"],
-    zone: "nord",
-    cuisine: ["bistrot", "francais"],
-    work: false
-  }
-}, {
-  id: 79,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Le Cadoret",
-  cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
-  desc: "Bistrot de quartier en or aux portes des Buttes-Chaumont : zinc, mosaïque d'origine et assiettes de saison futées. Le genre d'adresse qui te fait aimer ton quartier.",
-  vibe: "🍳 Zinc des Buttes",
-  adresse: "1 rue Pradier, 75019",
-  lat: 48.874,
-  lng: 2.3826,
-  metro: "M11 Pyrénées",
-  price: "22-45€",
-  hours: "Mar-Sam 8h-minuit",
-  tags: {
-    who: ["date", "potes", "solo"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["decontracte", "intime"],
-    zone: "est",
-    cuisine: ["bistrot", "francais"],
-    work: false
+    "who": ["potes", "famille", "date"],
+    "vibe": ["festif", "depaysant"],
+    "when": ["journee", "apero", "soiree"],
+    "work": false,
+    "zone": "banlieue",
+    "cuisine": ["francais"]
   }
 }, {
   id: 80,
@@ -2412,8 +1179,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Le Grand Bain",
   cats: ["resto"],
-  photo: "https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1559329007-40df8a9345d8?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/80-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/80-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/80-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/80-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/80-4.jpg"],
   desc: "Petites assiettes créatives et vins nature dans la rue la plus street-art de Belleville. Ambiance atelier brut, comptoir central, tu picores et tu recommandes jusqu'à la fermeture.",
   vibe: "🐟 Belleville qui bouillonne",
   adresse: "14 rue Denoyez, 75020",
@@ -2424,12 +1191,12 @@ const INITIAL_SPOTS = [{
   hours: "Mer-Dim 19h-23h30",
   website: "https://www.legrandbainparis.com",
   tags: {
-    who: ["date", "potes"],
-    when: ["apero", "soiree"],
-    vibe: ["festif", "decontracte"],
-    zone: "est",
-    cuisine: ["bistrot"],
-    work: false
+    "who": ["date", "potes"],
+    "vibe": ["festif", "decontracte"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": ["bistrot"]
   }
 }, {
   id: 81,
@@ -2440,8 +1207,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Atelier des Lumières",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/81-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/81-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/81-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/81-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/81-4.jpg"],
   desc: "Tu plonges dans des œuvres projetées à 360° sur 10 mètres de haut, son immersif inclus. En 2026 c'est la Renaissance italienne (De Vinci, Raphaël, Michel-Ange) qui tapisse les murs de cette ancienne fonderie.",
   vibe: "🖼️ Expo immersive",
   adresse: "38 rue Saint-Maur, 75011",
@@ -2452,12 +1219,12 @@ const INITIAL_SPOTS = [{
   hours: "Tous les jours 10h-18h, nocturne Ven-Sam jusqu'à 21h",
   website: "https://www.atelier-lumieres.com",
   tags: {
-    who: ["date", "solo", "famille"],
-    when: ["journee", "soiree"],
-    vibe: ["depaysant"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["date", "solo", "famille"],
+    "vibe": ["depaysant"],
+    "when": ["journee", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 82,
@@ -2468,8 +1235,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "BAM Karaoke Box Richer",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/82-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/82-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/82-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/82-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/82-4.jpg"],
   desc: "Box privée au design néon, son haut de gamme et 45 000 titres au catalogue : tu chantes faux entre potes sans que personne d'autre ne t'entende. Cocktails livrés directement dans la salle.",
   vibe: "🎤 Karaoké entre potes",
   adresse: "30 rue Richer, 75009",
@@ -2480,68 +1247,12 @@ const INITIAL_SPOTS = [{
   hours: "7j/7, env. 17h-2h",
   website: "https://fr.bam-karaokebox.com/paris/",
   tags: {
-    who: ["potes", "collegues"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "centre",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 83,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Casa Padel",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
-  desc: "Le plus grand club de padel d'Île-de-France : 12 pistes indoor, ambiance espagnole, tapas et bar après le match. Parfait pour transpirer entre potes ou collègues même quand il pleut.",
-  vibe: "🎾 Padel & tapas",
-  adresse: "103 rue Charles Michels, 93200 Saint-Denis",
-  lat: 48.9077,
-  lng: 2.3622,
-  metro: "M12 Front Populaire",
-  price: "10-20€/pers la session",
-  hours: "Lun-Jeu 10h-minuit, Ven 10h-22h, Sam-Dim 9h-23h",
-  website: "https://casapadel.fr",
-  tags: {
-    who: ["potes", "collegues"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["decontracte", "festif"],
-    zone: "banlieue",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 84,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Fondation Jérôme Seydoux-Pathé",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
-  desc: "Un bâtiment-tatou signé Renzo Piano caché derrière une façade sculptée par Rodin : tu y mates des films muets accompagnés au piano en live. Pépite de cinéphile loin des multiplexes.",
-  vibe: "🎬 Ciné patrimoine",
-  adresse: "73 avenue des Gobelins, 75013",
-  lat: 48.8334,
-  lng: 2.354,
-  metro: "M7 Place d'Italie",
-  price: "5-7€",
-  hours: "Mar 14h-20h30, Mer-Jeu 14h-19h (+ séances Sam)",
-  website: "https://www.fondation-jeromeseydoux-pathe.com",
-  tags: {
-    who: ["date", "solo"],
-    when: ["journee", "soiree"],
-    vibe: ["intime", "chic"],
-    zone: "sud",
-    cuisine: [],
-    work: false
+    "who": ["potes", "collegues"],
+    "vibe": ["festif"],
+    "when": ["soiree", "after"],
+    "work": false,
+    "zone": "centre",
+    "cuisine": []
   }
 }, {
   id: 85,
@@ -2552,8 +1263,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Piscine de la Butte-aux-Cailles",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/85-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/85-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/85-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/85-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/85-4.jpg"],
   desc: "Piscine Art déco classée de 1924 avec bassin extérieur ouvert toute l'année, alimentée par une source naturelle. Tu nages sous une voûte en béton centenaire pour le prix d'un café.",
   vibe: "🏊 Piscine Art déco",
   adresse: "5 place Paul Verlaine, 75013",
@@ -2564,40 +1275,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Ven 11h30-13h30 et 17h-21h, Mer 7h-18h, Sam-Dim 7h-19h",
   website: "https://www.paris.fr/lieux/piscine-de-la-butte-aux-cailles-2927",
   tags: {
-    who: ["solo", "potes", "famille"],
-    when: ["journee"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "sud",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 86,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "The Game Escape Game",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
-  desc: "Le plus grand escape game de Paris : 16 salles dont braquage de banque, métro parisien et univers Assassin's Creed. Décors dignes d'un plateau de ciné, régulièrement élu meilleur escape de la capitale.",
-  vibe: "🔐 Escape game culte",
-  adresse: "51 rue du Cardinal Lemoine, 75005",
-  lat: 48.8462,
-  lng: 2.3515,
-  metro: "M10 Cardinal Lemoine",
-  price: "20-40€/pers",
-  hours: "Tous les jours 9h30-23h30",
-  website: "https://www.thegame-france.com",
-  tags: {
-    who: ["potes", "collegues", "date"],
-    when: ["journee", "soiree"],
-    vibe: ["festif"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["solo", "potes", "famille"],
+    "vibe": ["decontracte", "depaysant"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": []
   }
 }, {
   id: 87,
@@ -2608,8 +1291,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Ground Control",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/87-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/87-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/87-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/87-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/87-4.jpg"],
   desc: "Friche SNCF transformée en QG géant : food court, friperies, expos, DJ sets et transats sous les anciennes halles de tri postal. Tu y passes l'aprem et tu y restes pour la soirée sans voir le temps filer.",
   vibe: "🚂 Friche culturelle",
   adresse: "81 rue du Charolais, 75012",
@@ -2620,12 +1303,12 @@ const INITIAL_SPOTS = [{
   hours: "Mer-Jeu 12h-minuit, Ven-Sam 12h-1h, Dim 12h-22h30",
   website: "https://www.groundcontrolparis.com",
   tags: {
-    who: ["potes", "date", "collegues"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["festif", "decontracte"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["potes", "date", "collegues"],
+    "vibe": ["festif", "decontracte"],
+    "when": ["journee", "apero", "soiree"],
+    "work": false,
+    "zone": "est",
+    "cuisine": []
   }
 }, {
   id: 88,
@@ -2636,8 +1319,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "La REcyclerie",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/88-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/88-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/88-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/88-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/88-4.jpg"],
   desc: "Une ancienne gare de la Petite Ceinture devenue café-cantine avec ferme urbaine, poules comprises. Tu brunches au bord des rails désaffectés avant un atelier récup' ou un concert.",
   vibe: "🌱 Gare-ferme urbaine",
   adresse: "83 boulevard Ornano, 75018",
@@ -2648,12 +1331,12 @@ const INITIAL_SPOTS = [{
   hours: "Mer-Jeu 10h-1h, Ven 10h-2h, Sam 11h-2h, Dim 11h-22h",
   website: "https://www.larecyclerie.com",
   tags: {
-    who: ["potes", "date", "solo"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["decontracte", "depaysant"],
-    zone: "nord",
-    cuisine: [],
-    work: false
+    "who": ["potes", "date", "solo"],
+    "vibe": ["decontracte", "depaysant"],
+    "when": ["journee", "apero", "soiree"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": []
   }
 }, {
   id: 89,
@@ -2664,8 +1347,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Parc de Sceaux",
   cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1521577352947-9bb58764b69a?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/89-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/89-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/89-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/89-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/89-4.jpg"],
   desc: "Domaine à la Le Nôtre avec château, grand canal et le fameux bosquet de cerisiers japonais qui explose de rose en avril (hanami géant, réservation gratuite conseillée). Spot photo absolu à 20 min du centre.",
   vibe: "🌸 Balade hanami",
   adresse: "Domaine départemental de Sceaux, 92330 Sceaux",
@@ -2676,39 +1359,12 @@ const INITIAL_SPOTS = [{
   hours: "Tous les jours, env. 7h-20h en été, 8h-17h en hiver",
   website: "https://domaine-de-sceaux.hauts-de-seine.fr",
   tags: {
-    who: ["date", "famille", "potes", "solo"],
-    when: ["journee"],
-    vibe: ["depaysant", "intime"],
-    zone: "banlieue",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 90,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Bowling Front de Seine",
-  cats: ["sortie"],
-  photo: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=900&q=80"],
-  desc: "Institution rétro de 1976 plantée sous les tours du 15e : 20 pistes, ambiance vintage assumée et parties jusqu'à 4h du mat' le week-end. Le plan parfait quand tout le reste est fermé.",
-  vibe: "🎳 Bowling de nuit",
-  adresse: "15 rue Gaston de Caillavet, 75015",
-  lat: 48.8503,
-  lng: 2.2848,
-  metro: "M10 Charles Michels",
-  price: "3-9€ la partie",
-  hours: "Lun-Jeu 11h-2h, Ven 11h-4h, Sam 10h-4h, Dim 10h-2h",
-  tags: {
-    who: ["potes", "date"],
-    when: ["soiree", "after"],
-    vibe: ["festif", "decontracte"],
-    zone: "sud",
-    cuisine: [],
-    work: false
+    "who": ["date", "famille", "potes", "solo"],
+    "vibe": ["depaysant", "intime"],
+    "when": ["journee"],
+    "work": false,
+    "zone": "banlieue",
+    "cuisine": []
   }
 }, {
   id: 91,
@@ -2719,8 +1375,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Prescription Cocktail Club",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/91-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/91-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/91-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/91-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/91-4.jpg"],
   desc: "Derrière une façade discrète de la rue Mazarine, un cocktail bar rive gauche au décor cosmique signé Dorothée Meilichzon. Tu t'enfonces dans un fauteuil et tu laisses le bar décider de ta soirée.",
   vibe: "🍸 Classique rive gauche",
   adresse: "23 rue Mazarine, 75006",
@@ -2731,12 +1387,12 @@ const INITIAL_SPOTS = [{
   hours: "Lun-Jeu 19h-2h, Ven-Sam 19h-4h, Dim 20h-2h",
   website: "https://www.prescriptioncocktailclub.com/",
   tags: {
-    who: ["date", "potes"],
-    when: ["apero", "soiree"],
-    vibe: ["intime", "chic"],
-    zone: "sud",
-    cuisine: [],
-    work: false
+    "who": ["date", "potes"],
+    "vibe": ["intime", "chic"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": []
   }
 }, {
   id: 92,
@@ -2747,8 +1403,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Cravan",
   cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/92-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/92-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/92-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/92-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/92-4.jpg"],
   desc: "Quatre étages, trois bars et une librairie Rizzoli dans un immeuble du XVIIe siècle à Saint-Germain. Cocktails ciselés par l'équipe de Franck Audoux — commence en bas, finis tout en haut.",
   vibe: "🥂 Temple du cocktail",
   adresse: "165 boulevard Saint-Germain, 75006",
@@ -2759,67 +1415,12 @@ const INITIAL_SPOTS = [{
   hours: "Mar-Sam 17h-1h",
   website: "https://www.cravanparis.com/",
   tags: {
-    who: ["date", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "intime"],
-    zone: "sud",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 93,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Danico",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=900&q=80"],
-  desc: "Tu traverses le restaurant Daroco et tu débarques dans un repaire planqué côté galerie Vivienne. Cocktails inspirés des voyages de Nico de Soto, classé au World's 50 Best Bars — ose le hors-carte.",
-  vibe: "🍸 Speakeasy caché",
-  adresse: "6 rue Vivienne, 75002",
-  lat: 48.8668,
-  lng: 2.3392,
-  metro: "M3 Bourse",
-  price: "14-17€",
-  hours: "Tous les jours 18h-2h",
-  website: "https://www.daroco.com/en/danico/",
-  tags: {
-    who: ["date", "potes"],
-    when: ["soiree"],
-    vibe: ["chic", "intime"],
-    zone: "centre",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 94,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Bambino",
-  cats: ["speakeasy"],
-  photo: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=900&q=80"],
-  desc: "Bar à vinyles et tapas inspiré des listening bars de Tokyo : sound system audiophile, assiettes qui claquent et ambiance qui monte au fil de la soirée. Pas de résa, tu tentes ta chance.",
-  vibe: "🎶 Listening bar",
-  adresse: "25 rue Saint-Sébastien, 75011",
-  lat: 48.8616,
-  lng: 2.3705,
-  metro: "M5/M9 Oberkampf",
-  price: "12-16€",
-  hours: "Tous les jours 18h-2h",
-  tags: {
-    who: ["date", "potes"],
-    when: ["apero", "soiree"],
-    vibe: ["intime", "festif"],
-    zone: "est",
-    cuisine: [],
-    work: false
+    "who": ["date", "collegues"],
+    "vibe": ["chic", "intime"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": []
   }
 }, {
   id: 95,
@@ -2830,8 +1431,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "La Machine du Moulin Rouge",
   cats: ["club"],
-  photo: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/95-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/95-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/95-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/95-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/95-4.jpg"],
   desc: "Trois niveaux de fête collés au Moulin Rouge : grande salle, chaufferie au sous-sol et Bar à Bulles sur le toit. Programmation éclectique, du gros club électro au concert punk.",
   vibe: "🪩 Usine à danser",
   adresse: "90 boulevard de Clichy, 75018",
@@ -2842,40 +1443,12 @@ const INITIAL_SPOTS = [{
   hours: "Ven-Sam minuit-6h (+ soirs selon programmation)",
   website: "https://www.lamachinedumoulinrouge.com/",
   tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "nord",
-    cuisine: [],
-    work: false
-  }
-}, {
-  id: 96,
-  done: false,
-  fav: false,
-  note: "",
-  reaction: null,
-  addedAt: Date.now(),
-  name: "Sacré",
-  cats: ["club"],
-  photo: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80"],
-  desc: "À l'adresse mythique de l'ancien Social Club, un sous-sol électro qui tape house, UK garage et ghettotech, avec bar à tapas et scène stand-up à l'étage. Le combo rire puis danser jusqu'à 6h.",
-  vibe: "🪩 Club du moment",
-  adresse: "142 rue Montmartre, 75002",
-  lat: 48.8706,
-  lng: 2.3434,
-  metro: "M8/M9 Grands Boulevards",
-  price: "10-20€ l'entrée",
-  hours: "Jeu-Sam 19h-6h (selon programmation)",
-  website: "https://www.sacre.paris/",
-  tags: {
-    who: ["potes"],
-    when: ["soiree", "after"],
-    vibe: ["festif"],
-    zone: "centre",
-    cuisine: [],
-    work: false
+    "who": ["potes"],
+    "vibe": ["festif"],
+    "when": ["soiree", "after"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": []
   }
 }, {
   id: 97,
@@ -2886,8 +1459,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Dock B",
   cats: ["club"],
-  photo: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/97-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/97-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/97-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/97-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/97-4.jpg"],
   desc: "1200 m² dans les anciens Magasins Généraux au bord du canal de l'Ourcq : terrasse géante en journée, concerts et soirées club le soir. L'avant-poste de la fête côté Pantin.",
   vibe: "🛥️ Fête au bord du canal",
   adresse: "1 place de la Pointe, 93500 Pantin",
@@ -2898,12 +1471,12 @@ const INITIAL_SPOTS = [{
   hours: "Mer-Sam 12h-minuit, Dim 12h-19h",
   website: "https://dockbpantin.com/",
   tags: {
-    who: ["potes", "collegues"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["festif", "decontracte"],
-    zone: "banlieue",
-    cuisine: [],
-    work: false
+    "who": ["potes", "collegues"],
+    "vibe": ["festif", "decontracte"],
+    "when": ["journee", "apero", "soiree"],
+    "work": false,
+    "zone": "banlieue",
+    "cuisine": []
   }
 }, {
   id: 98,
@@ -2914,8 +1487,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "The Rooftop — Dame des Arts",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1519214605650-76a613ee3245?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/98-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/98-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/98-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/98-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/98-4.jpg"],
   desc: "Au 9e étage de l'hôtel Dame des Arts, une vue 360° qui aligne Notre-Dame, le Panthéon et la tour Eiffel. Cocktails sur-mesure au coucher du soleil, en plein Quartier latin.",
   vibe: "🌇 Vue 360° folle",
   adresse: "4 rue Danton, 75006",
@@ -2926,12 +1499,12 @@ const INITIAL_SPOTS = [{
   hours: "Tous les jours 18h-23h (selon météo)",
   website: "https://www.damedesarts.com/rooftop",
   tags: {
-    who: ["date", "collegues"],
-    when: ["apero", "soiree"],
-    vibe: ["chic"],
-    zone: "sud",
-    cuisine: [],
-    work: false
+    "who": ["date", "collegues"],
+    "vibe": ["chic"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "sud",
+    "cuisine": []
   }
 }, {
   id: 99,
@@ -2942,8 +1515,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Rooftop Molitor",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/99-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/99-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/99-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/99-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/99-4.jpg"],
   desc: "Le toit de la piscine la plus iconique de l'Ouest parisien, relooké façon Méditerranée. Spritz au-dessus du bassin Art déco, à deux pas de Roland-Garros.",
   vibe: "🏊 Toit Art déco",
   adresse: "13 rue Nungesser et Coli, 75016",
@@ -2954,12 +1527,12 @@ const INITIAL_SPOTS = [{
   hours: "7j/7 en saison (dès mi-mai), bar 17h-1h",
   website: "https://www.molitorparis.com/",
   tags: {
-    who: ["date", "collegues"],
-    when: ["journee", "apero", "soiree"],
-    vibe: ["chic", "depaysant"],
-    zone: "ouest",
-    cuisine: [],
-    work: false
+    "who": ["date", "collegues"],
+    "vibe": ["chic", "depaysant"],
+    "when": ["journee", "apero", "soiree"],
+    "work": false,
+    "zone": "ouest",
+    "cuisine": []
   }
 }, {
   id: 100,
@@ -2970,8 +1543,8 @@ const INITIAL_SPOTS = [{
   addedAt: Date.now(),
   name: "Le Toit — Hôtel Rochechouart",
   cats: ["rooftop"],
-  photo: "https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80",
-  photos: ["https://images.unsplash.com/photo-1572116469696-31de0f17cc34?w=900&q=80"],
+  photo: "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/100-1.jpg",
+  photos: ["https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/100-1.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/100-2.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/100-3.jpg", "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/100-4.jpg"],
   desc: "Un rooftop confidentiel au 9e étage avec le Sacré-Cœur en face de toi, quasi à portée de main. Cocktails et grillades l'été, ambiance années folles côté déco.",
   vibe: "⛪ Face au Sacré-Cœur",
   adresse: "55 boulevard de Rochechouart, 75009",
@@ -2982,12 +1555,12 @@ const INITIAL_SPOTS = [{
   hours: "Avril-octobre, 7j/7 17h-minuit (grill le week-end 12h-15h)",
   website: "https://www.orsohotels.com/hotel-rochechouart/nos-bars",
   tags: {
-    who: ["date", "potes"],
-    when: ["apero", "soiree"],
-    vibe: ["chic", "intime"],
-    zone: "nord",
-    cuisine: [],
-    work: false
+    "who": ["date", "potes"],
+    "vibe": ["chic", "intime"],
+    "when": ["apero", "soiree"],
+    "work": false,
+    "zone": "nord",
+    "cuisine": []
   }
 }];
 const PHOTO_POOLS = {
@@ -4518,10 +3091,10 @@ const SUPABASE_URL = "https://gyulgensyqsmpsaxrwcz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-ImlWY2HRTt_MywWgAzRkA_eUkS_LYs";
 const supaEnabled = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const isPlaceholderPhoto = u => typeof u === "string" && u.includes("images.unsplash.com");
-async function fetchRemoteSpots() {
+async function fetchSpotsFrom(filter) {
   if (!supaEnabled()) return null;
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&order=id`, {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&${filter}&order=id`, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`
@@ -4529,7 +3102,7 @@ async function fetchRemoteSpots() {
     });
     if (!r.ok) return null;
     const rows = await r.json();
-    if (!Array.isArray(rows) || rows.length === 0) return null;
+    if (!Array.isArray(rows)) return null;
     return rows.map(x => ({
       id: x.id,
       done: false,
@@ -4555,6 +3128,13 @@ async function fetchRemoteSpots() {
   } catch {
     return null;
   }
+}
+async function fetchRemoteSpots() {
+  const r = await fetchSpotsFrom("starter=eq.true");
+  return r && r.length ? r : null;
+}
+async function fetchRemoteProposals() {
+  return await fetchSpotsFrom("starter=eq.false");
 }
 const CT_COLORS = ["#FF3D8B", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
 const TRASH_DAYS = 7;
@@ -5848,8 +4428,10 @@ function PropositionsModal({
   onClose,
   onPick,
   gApiKey,
-  stockPhotoCache
+  stockPhotoCache,
+  proposals
 }) {
+  const POOL = proposals && proposals.length ? proposals : STOCK_SPOTS;
   const [step, setStep] = useState("filter");
   const [catFilter, setCatFilter] = useState("all");
   const [who, setWho] = useState("");
@@ -5865,7 +4447,7 @@ function PropositionsModal({
   const [noMore, setNoMore] = useState(false);
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
   const allResults = useMemo(() => {
-    return STOCK_SPOTS.map(s => {
+    return POOL.map(s => {
       if (catFilter !== "all" && !s.cats.includes(catFilter)) return null;
       let score = 0;
       if (s.tags) {
@@ -5882,7 +4464,7 @@ function PropositionsModal({
         score: anyFilter ? score : 1
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
-  }, [catFilter, who, when, vibe, zone, cuisine]);
+  }, [catFilter, who, when, vibe, zone, cuisine, POOL]);
   const pickTwo = useCallback(() => {
     const unseen = allResults.filter(r => !seenIds.has(r.s.id));
     if (unseen.length === 0) {
@@ -5937,7 +4519,7 @@ function PropositionsModal({
     }
   };
   const handleAdd = async s => {
-    const photos = await fetchPhotosFor(s);
+    const photos = s.photos && s.photos.length ? s.photos : await fetchPhotosFor(s);
     onAdd({
       ...s,
       id: Date.now() + Math.floor(Math.random() * 1000),
@@ -8533,6 +7115,13 @@ function App() {
       });
     })();
   }, []);
+  const [remoteProposals, setRemoteProposals] = useState(null);
+  useEffect(() => {
+    (async () => {
+      const p = await fetchRemoteProposals();
+      if (p && p.length) setRemoteProposals(p);
+    })();
+  }, []);
   const [cat, setCat] = useState("all");
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -10988,6 +9577,7 @@ function App() {
     onDone: markDone
   }), showPropositions && React.createElement(PropositionsModal, {
     userSpots: spots,
+    proposals: remoteProposals,
     gApiKey: gApiKey,
     stockPhotoCache: stockPhotoCache,
     onAdd: s => {
