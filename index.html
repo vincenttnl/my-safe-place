@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-19T16:51:51.420Z -->
+<!-- built 2026-06-19T16:58:30.816Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -4832,9 +4832,9 @@ function PropositionsModal({
     }
   }, "\u2190 Modifier les filtres")), allResults.length > 0 && React.createElement("div", {
     style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: 10
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 14
     }
   }, allResults.slice(0, topN).map(({
     s,
@@ -4876,31 +4876,29 @@ function PropositionsModal({
     };
     return React.createElement("div", {
       key: s.id,
-      className: "fade-in",
+      className: "fade-in press",
       onClick: handleCardClick,
       style: {
         background: '#fff',
         border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
+        borderRadius: 22,
         padding: 0,
         overflow: 'hidden',
-        opacity: has ? 0.6 : 1,
-        animationDelay: `${i * 0.12}s`,
+        opacity: has ? 0.55 : 1,
+        animationDelay: `${i * 0.07}s`,
         cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative'
+        position: 'relative',
+        boxShadow: '0 12px 34px -14px rgba(0,0,0,0.32)'
       }
     }, loadingPhotos === s.id && React.createElement("div", {
       style: {
         position: 'absolute',
         inset: 0,
         background: 'rgba(255,255,255,0.8)',
-        zIndex: 2,
+        zIndex: 3,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 'var(--radius-lg)'
+        justifyContent: 'center'
       }
     }, React.createElement("div", {
       style: {
@@ -4912,9 +4910,8 @@ function PropositionsModal({
     }, "\uD83D\uDCF8 Chargement...")), React.createElement("div", {
       style: {
         position: 'relative',
-        height: 130,
-        background: CB[s.cats[0]] || 'var(--bg-soft)',
-        flexShrink: 0
+        height: 208,
+        background: CB[s.cats[0]] || 'var(--bg-soft)'
       }
     }, (() => {
       const cachedPhoto = stockPhotoCache && stockPhotoCache[s.id] ? stockPhotoCache[s.id][0] : s.photo;
@@ -4935,31 +4932,44 @@ function PropositionsModal({
     })(), React.createElement("div", {
       style: {
         position: 'absolute',
-        top: 6,
-        right: 6,
-        zIndex: 1,
-        fontSize: 20,
-        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.45))'
+        inset: 0,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.12) 48%, transparent 72%)'
       }
-    }, i < 3 ? ['🥇', '🥈', '🥉'][i] : React.createElement("span", {
+    }), React.createElement("div", {
       style: {
-        display: 'inline-flex',
+        position: 'absolute',
+        top: 11,
+        right: 11,
+        zIndex: 2
+      }
+    }, i < 3 ? React.createElement("div", {
+      style: {
+        fontSize: 32,
+        lineHeight: 1,
+        filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))'
+      }
+    }, ['🥇', '🥈', '🥉'][i]) : React.createElement("div", {
+      style: {
+        display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 24,
-        height: 24,
+        width: 34,
+        height: 34,
         borderRadius: 999,
-        background: 'rgba(0,0,0,0.72)',
+        background: 'rgba(0,0,0,0.55)',
+        backdropFilter: 'blur(8px)',
+        border: '1.5px solid rgba(255,255,255,0.55)',
         color: '#fff',
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 12
+        fontSize: 16
       }
     }, i + 1)), React.createElement("div", {
       style: {
         position: 'absolute',
-        top: 6,
-        left: 6
+        top: 13,
+        left: 13,
+        zIndex: 2
       }
     }, s.cats.slice(0, 1).map(c => {
       const ci = CATS.find(x => x.key === c);
@@ -4968,103 +4978,112 @@ function PropositionsModal({
         style: {
           background: 'rgba(255,255,255,0.92)',
           backdropFilter: 'blur(8px)',
-          padding: '3px 8px',
+          padding: '4px 11px',
           borderRadius: 999,
-          fontSize: 10,
-          fontWeight: 600,
+          fontSize: 11,
+          fontWeight: 700,
           fontFamily: 'var(--font-body)',
-          color: CC[c] || 'var(--ink-900)',
-          border: `1px solid ${CC[c] || 'var(--hairline)'}33`
+          color: CC[c] || 'var(--ink-900)'
         }
       }, ci.emoji, " ", ci.label);
-    })), has && React.createElement("div", {
+    })), React.createElement("div", {
       style: {
         position: 'absolute',
-        bottom: 6,
-        right: 6,
-        background: 'rgba(0,0,0,0.7)',
-        color: 'var(--pop-lime)',
-        padding: '4px 8px',
-        borderRadius: 999,
-        fontSize: 10,
-        fontWeight: 700,
-        fontFamily: 'var(--font-body)'
-      }
-    }, "\u2705 Ajout\xE9")), React.createElement("div", {
-      style: {
-        padding: '10px 12px',
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column'
+        left: 15,
+        right: 15,
+        bottom: 12,
+        zIndex: 2
       }
     }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 16,
-        letterSpacing: '-0.01em',
-        lineHeight: 1.1
+        fontSize: 24,
+        letterSpacing: '-0.02em',
+        lineHeight: 1.04,
+        color: '#fff',
+        textShadow: '0 1px 10px rgba(0,0,0,0.55)'
       }
     }, s.name), s.vibe && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-mono)',
-        fontSize: 9.5,
-        letterSpacing: '0.1em',
-        color: 'var(--ink-400)',
-        marginTop: 3
+        fontSize: 10,
+        letterSpacing: '0.12em',
+        color: 'rgba(255,255,255,0.92)',
+        marginTop: 5,
+        textTransform: 'uppercase'
       }
-    }, s.vibe), React.createElement("div", {
+    }, s.vibe)), has && React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: 13,
+        left: 13,
+        zIndex: 3,
+        background: 'rgba(0,0,0,0.72)',
+        color: 'var(--pop-lime)',
+        padding: '5px 11px',
+        borderRadius: 999,
+        fontSize: 11,
+        fontWeight: 700,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "\u2705 D\xE9j\xE0 ajout\xE9")), React.createElement("div", {
+      style: {
+        padding: '15px 17px'
+      }
+    }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
-        fontSize: 12,
+        fontSize: 13.5,
         color: 'var(--ink-600)',
-        marginTop: 6,
-        lineHeight: 1.4,
-        flex: 1,
+        lineHeight: 1.45,
         display: '-webkit-box',
-        WebkitLineClamp: 3,
+        WebkitLineClamp: 2,
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
     }, s.desc), React.createElement("div", {
       style: {
         display: 'flex',
-        gap: 4,
-        flexWrap: 'wrap',
-        marginTop: 8
+        alignItems: 'center',
+        gap: 8,
+        marginTop: 11,
+        flexWrap: 'wrap'
       }
     }, s.price && React.createElement("span", {
       style: {
-        fontSize: 10,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-mono)'
+        fontSize: 11.5,
+        color: 'var(--ink-900)',
+        fontFamily: 'var(--font-mono)',
+        fontWeight: 600
       }
     }, s.price), s.metro && React.createElement("span", {
       style: {
-        fontSize: 10,
+        fontSize: 11.5,
         color: 'var(--ink-400)',
         fontFamily: 'var(--font-mono)'
       }
-    }, "\xB7 ", s.metro.split(' ').slice(0, 2).join(' '))), !has && React.createElement("button", {
+    }, "\xB7 ", s.metro)), !has && React.createElement("button", {
       onClick: e => {
         e.stopPropagation();
         handleAdd(s);
       },
       className: "press",
       style: {
-        marginTop: 10,
+        marginTop: 13,
         width: '100%',
-        padding: '10px 0',
+        padding: '13px 0',
         borderRadius: 999,
         border: 'none',
-        background: 'var(--ink-900)',
+        background: 'var(--pop-pink)',
         color: '#fff',
         fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 12,
-        cursor: 'pointer'
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer',
+        boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
       }
-    }, "+ Ajouter")));
+    }, "+ Ajouter \xE0 mes spots")));
   })), topN < Math.min(20, allResults.length) && React.createElement("button", {
     onClick: () => setTopN(n => Math.min(20, n + 5)),
     className: "press",
@@ -9304,6 +9323,19 @@ function App() {
       t: 'Corbeille',
       s: `${trash.length} spots · recup. 7 jours`,
       action: null
+    }, {
+      i: '♻️',
+      t: 'Repartir de la sélection de base',
+      s: `Remet les ${INITIAL_SPOTS.length} spots de base`,
+      action: () => {
+        if (confirm(`Remplacer ta liste actuelle (${spots.length} spots) par la sélection de base (${INITIAL_SPOTS.length} spots) ?\n\nTes ajouts perso et favoris seront retirés de Mes Spots.`)) {
+          setSpots(INITIAL_SPOTS);
+          try {
+            localStorage.setItem("myplace_seedmax_v1", String(Math.max(...INITIAL_SPOTS.map(s => s.id))));
+          } catch {}
+          window.mspToast?.(`Liste remise à ${INITIAL_SPOTS.length} spots de base`, "success");
+        }
+      }
     }, {
       i: '⬇️',
       t: 'Exporter en JSON',
