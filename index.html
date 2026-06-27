@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-19T16:58:30.816Z -->
+<!-- built 2026-06-27T18:46:55.125Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -4506,12 +4506,13 @@ function PropositionsModal({
 }) {
   const POOL = proposals && proposals.length ? proposals : STOCK_SPOTS;
   const [step, setStep] = useState("filter");
-  const [catFilter, setCatFilter] = useState("all");
-  const [who, setWho] = useState("");
-  const [when, setWhen] = useState("");
-  const [vibe, setVibe] = useState("");
-  const [zone, setZone] = useState("");
-  const [cuisine, setCuisine] = useState("");
+  const [catFilter, setCatFilter] = useState([]);
+  const [who, setWho] = useState([]);
+  const [when, setWhen] = useState([]);
+  const [vibe, setVibe] = useState([]);
+  const [zone, setZone] = useState([]);
+  const [cuisine, setCuisine] = useState([]);
+  const toggleVal = setter => v => setter(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v]);
   const [addedIds, setAddedIds] = useState(new Set());
   const [seenIds, setSeenIds] = useState(new Set());
   const [loadingPhotos, setLoadingPhotos] = useState(null);
@@ -4522,16 +4523,16 @@ function PropositionsModal({
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
   const allResults = useMemo(() => {
     return POOL.map(s => {
-      if (catFilter !== "all" && !s.cats.includes(catFilter)) return null;
+      if (catFilter.length && !catFilter.some(c => s.cats.includes(c))) return null;
       let score = 0;
       if (s.tags) {
-        if (who && s.tags.who?.includes(who)) score += 3;
-        if (when && s.tags.when?.includes(when)) score += 3;
-        if (vibe && s.tags.vibe?.includes(vibe)) score += 3;
-        if (zone && s.tags.zone === zone) score += 2;
-        if (cuisine && s.tags.cuisine?.includes(cuisine)) score += 4;
+        if (who.length && who.some(w => s.tags.who?.includes(w))) score += 3;
+        if (when.length && when.some(w => s.tags.when?.includes(w))) score += 3;
+        if (vibe.length && vibe.some(v => s.tags.vibe?.includes(v))) score += 3;
+        if (zone.length && zone.includes(s.tags.zone)) score += 2;
+        if (cuisine.length && cuisine.some(c => s.tags.cuisine?.includes(c))) score += 4;
       }
-      const anyFilter = who || when || vibe || zone || cuisine;
+      const anyFilter = who.length || when.length || vibe.length || zone.length || cuisine.length;
       if (anyFilter && score === 0) return null;
       return {
         s,
@@ -4608,17 +4609,21 @@ function PropositionsModal({
   const Pill = ({
     list,
     value: val,
-    onToggle: onT
+    onToggle: onT,
+    onAll
   }) => React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
       gap: 6
     }
-  }, list.map(o => React.createElement("button", {
+  }, onAll && React.createElement("button", {
+    onClick: onAll,
+    className: `pill-btn${val.length === 0 ? " active" : ""}`
+  }, "Tout"), list.map(o => React.createElement("button", {
     key: o.k,
     onClick: () => onT(o.k),
-    className: `pill-btn${val === o.k ? " active" : ""}`
+    className: `pill-btn${val.includes(o.k) ? " active" : ""}`
   }, o.l)));
   const catOptions = CATS.filter(c => c.key !== "all");
   const totalMatch = allResults.length;
@@ -4652,7 +4657,9 @@ function PropositionsModal({
     style: {
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center'
+      alignItems: 'flex-end',
+      gap: 12,
+      paddingRight: 44
     }
   }, React.createElement("div", null, React.createElement("div", {
     className: "mono-label",
@@ -4706,12 +4713,12 @@ function PropositionsModal({
       gap: 6
     }
   }, React.createElement("button", {
-    onClick: () => setCatFilter("all"),
-    className: `pill-btn${catFilter === "all" ? " active" : ""}`
+    onClick: () => setCatFilter([]),
+    className: `pill-btn${catFilter.length === 0 ? " active" : ""}`
   }, "\uD83C\uDF1F Tout"), catOptions.map(c => React.createElement("button", {
     key: c.key,
-    onClick: () => setCatFilter(catFilter === c.key ? "all" : c.key),
-    className: `pill-btn${catFilter === c.key ? " active" : ""}`
+    onClick: () => toggleVal(setCatFilter)(c.key),
+    className: `pill-btn${catFilter.includes(c.key) ? " active" : ""}`
   }, c.emoji, " ", c.label)))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4722,7 +4729,8 @@ function PropositionsModal({
   }, "\uD83E\uDEC2 Avec qui ?"), React.createElement(Pill, {
     list: Q_WHO,
     value: who,
-    onToggle: v => setWho(p => p === v ? "" : v)
+    onToggle: toggleVal(setWho),
+    onAll: () => setWho([])
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4733,7 +4741,8 @@ function PropositionsModal({
   }, "\uD83D\uDD50 Quand ?"), React.createElement(Pill, {
     list: Q_WHEN,
     value: when,
-    onToggle: v => setWhen(p => p === v ? "" : v)
+    onToggle: toggleVal(setWhen),
+    onAll: () => setWhen([])
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4744,7 +4753,8 @@ function PropositionsModal({
   }, "\u2728 Ambiance ?"), React.createElement(Pill, {
     list: Q_VIBE,
     value: vibe,
-    onToggle: v => setVibe(p => p === v ? "" : v)
+    onToggle: toggleVal(setVibe),
+    onAll: () => setVibe([])
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4755,7 +4765,8 @@ function PropositionsModal({
   }, "\uD83D\uDDFA\uFE0F Zone ?"), React.createElement(Pill, {
     list: Q_ZONE,
     value: zone,
-    onToggle: v => setZone(p => p === v ? "" : v)
+    onToggle: toggleVal(setZone),
+    onAll: () => setZone([])
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4766,7 +4777,8 @@ function PropositionsModal({
   }, "\uD83C\uDF74 Cuisine ?"), React.createElement(Pill, {
     list: Q_CUISINE,
     value: cuisine,
-    onToggle: v => setCuisine(p => p === v ? "" : v)
+    onToggle: toggleVal(setCuisine),
+    onAll: () => setCuisine([])
   })), React.createElement("div", {
     style: {
       display: "flex",
@@ -4782,12 +4794,12 @@ function PropositionsModal({
     disabled: totalMatch === 0
   }, totalMatch > 0 ? "Voir les propositions →" : "Aucun match"), React.createElement("button", {
     onClick: () => {
-      setCatFilter("all");
-      setWho("");
-      setWhen("");
-      setVibe("");
-      setZone("");
-      setCuisine("");
+      setCatFilter([]);
+      setWho([]);
+      setWhen([]);
+      setVibe([]);
+      setZone([]);
+      setCuisine([]);
     },
     className: "btn-secondary",
     style: {
@@ -4842,37 +4854,12 @@ function PropositionsModal({
   }, i) => {
     const has = alreadyHas(s);
     const handleCardClick = async () => {
-      const photos = await fetchPhotosFor(s);
-      if (!has) {
-        const newId = Date.now() + Math.floor(Math.random() * 1000);
-        onAdd({
-          ...s,
-          id: newId,
-          addedAt: Date.now(),
-          done: false,
-          fav: false,
-          note: "",
-          reaction: null,
-          status: "wishlist",
-          contacts: [],
-          photo: photos[0] || s.photo,
-          photos
-        });
-        setAddedIds(prev => new Set([...prev, s.id]));
-        onPick({
-          ...s,
-          id: newId,
-          photos,
-          photo: photos[0] || s.photo
-        });
-      } else {
-        onPick({
-          ...s,
-          photos,
-          photo: photos[0] || s.photo
-        });
-      }
-      onClose();
+      const photos = s.photos && s.photos.length ? s.photos : await fetchPhotosFor(s);
+      onPick({
+        ...s,
+        photos,
+        photo: photos[0] || s.photo
+      });
     };
     return React.createElement("div", {
       key: s.id,
@@ -5708,7 +5695,9 @@ function SpotDetail({
   onEdit,
   onContactPicker,
   onNote,
-  onShare
+  onShare,
+  preview,
+  onAddPreview
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -5717,6 +5706,8 @@ function SpotDetail({
   const meta = [spot.metro ? `🚇 ${spot.metro}` : "", spot.price ? `💸 ${spot.price}` : "", spot.hours ? `🕐 ${spot.hours}` : ""].filter(Boolean);
   const photos = getPhotos(spot);
   const cat = CATS.find(c => c.key === primaryCat(spot));
+  const isNight = getCats(spot).some(c => ["club", "speakeasy", "rooftop", "sortie"].includes(c));
+  const eventsUrl = `https://shotgun.live/fr/search?q=${encodeURIComponent(spot.name)}`;
   return React.createElement("div", {
     style: {
       position: 'fixed',
@@ -5978,7 +5969,63 @@ function SpotDetail({
       fontSize: 14,
       marginTop: 2
     }
-  }, REACTIONS.find(r => r.emoji === spot.reaction)?.label))), noteMode ? React.createElement("div", {
+  }, REACTIONS.find(r => r.emoji === spot.reaction)?.label))), preview && React.createElement("div", {
+    style: {
+      marginTop: 24,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10
+    }
+  }, React.createElement("button", {
+    onClick: () => onAddPreview && onAddPreview(spot),
+    className: "press",
+    style: {
+      width: '100%',
+      padding: '15px 0',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 15,
+      cursor: 'pointer',
+      boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
+    }
+  }, "+ Ajouter \xE0 mes spots"), React.createElement("a", {
+    href: gmaps,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      width: '100%',
+      background: 'transparent',
+      border: '1px solid var(--hairline)',
+      padding: '13px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13,
+      textDecoration: 'none',
+      color: 'var(--ink-900)',
+      textAlign: 'center'
+    }
+  }, "\u2197 Voir sur Maps"), isNight && React.createElement("a", {
+    href: eventsUrl,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      width: '100%',
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      padding: '13px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      textDecoration: 'none',
+      textAlign: 'center'
+    }
+  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es")), !preview && React.createElement(React.Fragment, null, noteMode ? React.createElement("div", {
     style: {
       marginTop: 14
     }
@@ -6179,7 +6226,26 @@ function SpotDetail({
       fontSize: 13,
       color: '#E91E63'
     }
-  }, "\uD83D\uDDD1\uFE0F")), React.createElement("button", {
+  }, "\uD83D\uDDD1\uFE0F")), isNight && React.createElement("a", {
+    href: eventsUrl,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "press",
+    style: {
+      display: 'block',
+      marginTop: 8,
+      width: '100%',
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      padding: '13px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13.5,
+      textDecoration: 'none',
+      textAlign: 'center'
+    }
+  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es"), React.createElement("button", {
     onClick: () => onStatus(spot.id, "rejected"),
     style: {
       marginTop: 8,
@@ -6194,7 +6260,7 @@ function SpotDetail({
       fontSize: 13,
       color: spot.status === "rejected" ? "#991b1b" : "var(--ink-400)"
     }
-  }, "\uD83D\uDEAB ", spot.status === "rejected" ? "Annuler refus" : "Refuser"))));
+  }, "\uD83D\uDEAB ", spot.status === "rejected" ? "Annuler refus" : "Refuser")))));
 }
 function PosterSpotCard({
   spot,
@@ -7238,9 +7304,9 @@ function App() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
+  const [peekSpot, setPeekSpot] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [showSuggest, setShowSuggest] = useState(false);
   const [showPropositions, setShowPropositions] = useState(false);
   const [showZones, setShowZones] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
@@ -7486,6 +7552,25 @@ function App() {
       setSelectedSpot(s);
     }
   };
+  const addPreviewSpot = spot => {
+    const newId = Date.now() + Math.floor(Math.random() * 1000);
+    const added = {
+      ...spot,
+      id: newId,
+      addedAt: Date.now(),
+      done: false,
+      fav: false,
+      note: "",
+      reaction: null,
+      status: "wishlist",
+      contacts: []
+    };
+    setSpots(s => [...s, added]);
+    setSelectedSpot(added);
+    window.mspHaptic?.(15);
+    window.mspPopEmoji?.("✨");
+    window.mspToast?.("Ajouté à tes spots !", "success");
+  };
   const startEdit = spot => {
     setEditingId(spot.id);
     setShowForm(true);
@@ -7707,20 +7792,33 @@ function App() {
     r.readAsText(file);
   };
   useEffect(() => {
-    if (tab !== "map" || !mapContainerRef.current) return;
-    if (mapRef.current) {
-      mapRef.current.invalidateSize();
-      return;
-    }
-    const map = L.map(mapContainerRef.current).setView([48.8606, 2.3376], 12);
+    if (tab !== "map") return;
+    const el = mapContainerRef.current;
+    if (!el) return;
+    const map = L.map(el).setView([48.8606, 2.3376], 12);
     const url = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     L.tileLayer(url, {
       maxZoom: 19,
       attribution: 'OSM, CARTO'
     }).addTo(map);
     mapRef.current = map;
-    setTimeout(() => map.invalidateSize(), 150);
-    return () => {};
+    const r1 = requestAnimationFrame(() => map.invalidateSize());
+    const t1 = setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch {}
+    }, 250);
+    return () => {
+      cancelAnimationFrame(r1);
+      clearTimeout(t1);
+      try {
+        map.remove();
+      } catch {}
+      mapRef.current = null;
+    };
+  }, [tab]);
+  useEffect(() => {
+    if (tab !== "map" && peekSpot) setPeekSpot(null);
   }, [tab]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
@@ -7739,7 +7837,12 @@ function App() {
         opacity: 1,
         fillOpacity: s.done ? 0.5 : 0.9
       }).addTo(map);
-      m.on("click", () => setSelectedSpot(s));
+      m.on("click", () => {
+        setPeekSpot(s);
+        try {
+          map.panTo([s.lat, s.lng]);
+        } catch {}
+      });
       bounds.push([s.lat, s.lng]);
     });
     if (userPos) {
@@ -7839,20 +7942,6 @@ function App() {
         boxShadow: '0 12px 32px rgba(255,61,139,0.35)'
       }
     }, "\uD83D\uDCA1 Propositions"), React.createElement("button", {
-      onClick: () => setShowSuggest(true),
-      className: "press",
-      style: {
-        background: 'var(--ink-900)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: 999,
-        padding: '14px 18px',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 15,
-        cursor: 'pointer'
-      }
-    }, "\uD83C\uDFAF"), React.createElement("button", {
       onClick: pickRandom,
       className: "press",
       style: {
@@ -7862,11 +7951,15 @@ function App() {
         borderRadius: 999,
         padding: '14px 18px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 600,
+        fontWeight: 700,
         fontSize: 15,
-        cursor: 'pointer'
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 7,
+        whiteSpace: 'nowrap'
       }
-    }, "\uD83C\uDFB2"))), React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
       style: {
         padding: '24px 20px 4px'
       }
@@ -8341,7 +8434,11 @@ function App() {
     }
   }, "x"), React.createElement("select", {
     value: sort,
-    onChange: e => setSort(e.target.value),
+    onChange: e => {
+      const v = e.target.value;
+      setSort(v);
+      if (v === "distance" && !userPos) requestGeo();
+    },
     style: {
       border: 'none',
       background: 'transparent',
@@ -8729,7 +8826,15 @@ function App() {
       fontSize: 13,
       fontFamily: 'var(--font-body)'
     }
-  }, "+ Ajouter")), sortedEvents.length === 0 && !showEventForm && React.createElement(EmptyState, {
+  }, "+ Ajouter")), sortedEvents.length === 0 && !showEventForm && React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '46vh',
+      padding: '0 20px'
+    }
+  }, React.createElement(EmptyState, {
     icon: "\uD83C\uDFAB",
     title: "Pas d'event \xE0 l'horizon",
     hint: "Concert, d\xEEner, expo, anniv\u2026 Ajoute ton prochain plan pour ne pas l'oublier.",
@@ -8738,7 +8843,7 @@ function App() {
       resetEventForm();
       setShowEventForm(true);
     }
-  }), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
       padding: '0 20px',
       display: "flex",
@@ -9695,12 +9800,6 @@ function App() {
       setZones(z);
       setShowZones(false);
     }
-  }), showSuggest && React.createElement(SuggestModal, {
-    spots: spots,
-    onClose: () => setShowSuggest(false),
-    onPick: s => setSelectedSpot(s),
-    onStatus: setStatus,
-    onDone: markDone
   }), showPropositions && React.createElement(PropositionsModal, {
     userSpots: spots,
     proposals: remoteProposals,
@@ -9767,6 +9866,8 @@ function App() {
     onSkip: () => setReactionSpot(null)
   }), selectedSpot && React.createElement(SpotDetail, {
     spot: spots.find(s => s.id === selectedSpot.id) || selectedSpot,
+    preview: !spots.some(s => s.id === selectedSpot.id),
+    onAddPreview: addPreviewSpot,
     contacts: contacts,
     onClose: () => setSelectedSpot(null),
     onDone: markDone,
@@ -9780,7 +9881,204 @@ function App() {
     },
     onNote: saveNote,
     onShare: shareSpot
-  }), incomingSpot && onboardingDone && React.createElement("div", {
+  }), tab === "map" && peekSpot && (() => {
+    const idx = spots.findIndex(s => s.id === peekSpot.id);
+    const go = d => {
+      if (!spots.length) return;
+      const n = spots[(idx + d + spots.length) % spots.length];
+      setPeekSpot(n);
+      if (mapRef.current) try {
+        mapRef.current.panTo([n.lat, n.lng]);
+      } catch {}
+    };
+    const cat = CATS.find(c => c.key === primaryCat(peekSpot));
+    const ph = firstPhoto(peekSpot);
+    return React.createElement("div", {
+      className: "slide-up",
+      style: {
+        position: 'fixed',
+        left: 0,
+        right: 0,
+        bottom: 60,
+        zIndex: 1500,
+        maxWidth: 600,
+        margin: '0 auto',
+        background: 'var(--bg-primary)',
+        borderRadius: '20px 20px 0 0',
+        boxShadow: '0 -10px 40px -8px rgba(0,0,0,0.35)',
+        padding: '14px 16px 18px'
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'center',
+        marginBottom: 8
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 42,
+        height: 5,
+        borderRadius: 999,
+        background: 'var(--hairline)'
+      }
+    })), React.createElement("button", {
+      onClick: () => setPeekSpot(null),
+      "aria-label": "Fermer",
+      style: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        background: 'rgba(0,0,0,0.06)',
+        border: '1px solid var(--hairline)',
+        cursor: 'pointer',
+        fontSize: 14,
+        fontWeight: 700,
+        color: 'var(--ink-600)',
+        zIndex: 2
+      }
+    }, "\u2715"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 72,
+        height: 72,
+        borderRadius: 14,
+        overflow: 'hidden',
+        flexShrink: 0,
+        background: CB[primaryCat(peekSpot)],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 30
+      }
+    }, ph ? React.createElement("img", {
+      src: ph,
+      alt: peekSpot.name,
+      style: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover'
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }) : cat?.emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        alignItems: 'center',
+        flexWrap: 'wrap'
+      }
+    }, cat && React.createElement(CatPill, {
+      cat: primaryCat(peekSpot)
+    }), peekSpot.fav && React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontSize: 14
+      }
+    }, "\u2665")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 20,
+        letterSpacing: '-0.01em',
+        lineHeight: 1.05,
+        marginTop: 4,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, peekSpot.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        color: 'var(--ink-400)',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, [peekSpot.metro, peekSpot.price].filter(Boolean).join(' · ')))), peekSpot.desc && React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        lineHeight: 1.45,
+        marginTop: 10,
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }
+    }, peekSpot.desc), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        marginTop: 14,
+        alignItems: 'center'
+      }
+    }, React.createElement("button", {
+      onClick: () => go(-1),
+      "aria-label": "Spot pr\xE9c\xE9dent",
+      className: "press",
+      style: {
+        width: 46,
+        flexShrink: 0,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '12px 0',
+        cursor: 'pointer',
+        fontSize: 16,
+        fontWeight: 700
+      }
+    }, "\u2039"), React.createElement("button", {
+      onClick: () => {
+        setSelectedSpot(peekSpot);
+        setPeekSpot(null);
+      },
+      className: "press",
+      style: {
+        flex: 1,
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 999,
+        padding: '13px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, "Voir la fiche \u2192"), React.createElement("button", {
+      onClick: () => go(1),
+      "aria-label": "Spot suivant",
+      className: "press",
+      style: {
+        width: 46,
+        flexShrink: 0,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '12px 0',
+        cursor: 'pointer',
+        fontSize: 16,
+        fontWeight: 700
+      }
+    }, "\u203A")));
+  })(), incomingSpot && onboardingDone && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
     "aria-modal": "true"
