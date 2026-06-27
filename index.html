@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-27T18:46:55.125Z -->
+<!-- built 2026-06-27T19:01:25.024Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3135,6 +3135,10 @@ async function fetchRemoteSpots() {
 }
 async function fetchRemoteProposals() {
   return await fetchSpotsFrom("starter=eq.false");
+}
+async function fetchAllRemoteSpots() {
+  const r = await fetchSpotsFrom("id=gte.0");
+  return r && r.length ? r : null;
 }
 const CT_COLORS = ["#FF3D8B", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
 const TRASH_DAYS = 7;
@@ -7265,12 +7269,13 @@ function App() {
   const [pendingShareSpot, setPendingShareSpot] = useState(null);
   useEffect(() => {
     (async () => {
-      const remote = await fetchRemoteSpots();
+      const remote = await fetchAllRemoteSpots();
       if (!remote) return;
       const remoteMax = Math.max(...remote.map(s => s.id));
       setSpots(prev => {
+        const fullSeeded = localStorage.getItem("myplace_allseeded_v1") === "1";
         const seedMax = parseInt(localStorage.getItem("myplace_seedmax_v1") || "52", 10);
-        const fresh = remote.filter(r => r.id > seedMax && !prev.some(s => s.id === r.id));
+        const fresh = remote.filter(r => (!fullSeeded || r.id > seedMax) && !prev.some(s => s.id === r.id));
         let changed = fresh.length > 0;
         const updated = prev.map(s => {
           const r = remote.find(x => x.id === s.id);
@@ -7287,6 +7292,9 @@ function App() {
         });
         try {
           localStorage.setItem("myplace_seedmax_v1", String(Math.max(remoteMax, seedMax)));
+        } catch {}
+        try {
+          localStorage.setItem("myplace_allseeded_v1", "1");
         } catch {}
         return changed ? [...updated, ...fresh] : prev;
       });
