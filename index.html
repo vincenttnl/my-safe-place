@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-27T19:27:08.865Z -->
+<!-- built 2026-06-28T23:44:06.899Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -4487,8 +4487,8 @@ function PropositionsModal({
         borderRadius: 22,
         padding: 0,
         overflow: 'hidden',
-        opacity: has ? 0.55 : 1,
-        animationDelay: `${i * 0.07}s`,
+        opacity: 1,
+        animationDelay: `${Math.min(i, 8) * 0.06}s`,
         cursor: 'pointer',
         position: 'relative',
         boxShadow: '0 12px 34px -14px rgba(0,0,0,0.32)'
@@ -4541,35 +4541,6 @@ function PropositionsModal({
     }), React.createElement("div", {
       style: {
         position: 'absolute',
-        top: 11,
-        right: 11,
-        zIndex: 2
-      }
-    }, i < 3 ? React.createElement("div", {
-      style: {
-        fontSize: 32,
-        lineHeight: 1,
-        filter: 'drop-shadow(0 2px 5px rgba(0,0,0,0.55))'
-      }
-    }, ['🥇', '🥈', '🥉'][i]) : React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 34,
-        height: 34,
-        borderRadius: 999,
-        background: 'rgba(0,0,0,0.55)',
-        backdropFilter: 'blur(8px)',
-        border: '1.5px solid rgba(255,255,255,0.55)',
-        color: '#fff',
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 16
-      }
-    }, i + 1)), React.createElement("div", {
-      style: {
-        position: 'absolute',
         top: 13,
         left: 13,
         zIndex: 2
@@ -4616,21 +4587,7 @@ function PropositionsModal({
         marginTop: 5,
         textTransform: 'uppercase'
       }
-    }, s.vibe)), has && React.createElement("div", {
-      style: {
-        position: 'absolute',
-        top: 13,
-        left: 13,
-        zIndex: 3,
-        background: 'rgba(0,0,0,0.72)',
-        color: 'var(--pop-lime)',
-        padding: '5px 11px',
-        borderRadius: 999,
-        fontSize: 11,
-        fontWeight: 700,
-        fontFamily: 'var(--font-body)'
-      }
-    }, "\u2705 D\xE9j\xE0 ajout\xE9")), React.createElement("div", {
+    }, s.vibe))), React.createElement("div", {
       style: {
         padding: '15px 17px'
       }
@@ -4686,9 +4643,25 @@ function PropositionsModal({
         cursor: 'pointer',
         boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
       }
-    }, "+ Ajouter \xE0 mes spots")));
-  })), topN < Math.min(20, allResults.length) && React.createElement("button", {
-    onClick: () => setTopN(n => Math.min(20, n + 5)),
+    }, "+ Ajouter \xE0 mes spots"), has && React.createElement("div", {
+      style: {
+        marginTop: 11,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        fontWeight: 600,
+        color: 'var(--ink-400)'
+      }
+    }, React.createElement("span", {
+      style: {
+        color: '#2ECC71',
+        fontWeight: 800
+      }
+    }, "\u2713"), " Dans mes spots")));
+  })), topN < allResults.length && React.createElement("button", {
+    onClick: () => setTopN(n => Math.min(allResults.length, n + 10)),
     className: "press",
     style: {
       width: '100%',
@@ -4704,7 +4677,7 @@ function PropositionsModal({
       marginTop: 8,
       marginBottom: 16
     }
-  }, "Voir 5 de plus \u2193 (", Math.min(20, allResults.length) - topN, " en r\xE9serve)"))));
+  }, "Voir 10 de plus \u2193 (", allResults.length - topN, " en r\xE9serve)"))));
 }
 function AddressAutocomplete({
   value,
@@ -4906,7 +4879,61 @@ function PhotoCarousel({
       fontWeight: 700,
       color: "#fff"
     }
-  }, idx + 1, "/", photos.length)));
+  }, idx + 1, "/", photos.length), React.createElement("button", {
+    onClick: e => {
+      e.stopPropagation();
+      go(-1);
+    },
+    "aria-label": "Photo pr\xE9c\xE9dente",
+    style: {
+      position: "absolute",
+      top: "50%",
+      left: 12,
+      transform: "translateY(-50%)",
+      width: 38,
+      height: 38,
+      borderRadius: 999,
+      background: "rgba(0,0,0,0.42)",
+      backdropFilter: "blur(6px)",
+      border: "1.5px solid rgba(255,255,255,0.5)",
+      color: "#fff",
+      display: idx === 0 ? "none" : "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 22,
+      lineHeight: 1,
+      paddingBottom: 3,
+      zIndex: 5,
+      cursor: "pointer"
+    }
+  }, "\u2039"), React.createElement("button", {
+    onClick: e => {
+      e.stopPropagation();
+      go(1);
+    },
+    "aria-label": "Photo suivante",
+    style: {
+      position: "absolute",
+      top: "50%",
+      right: 12,
+      transform: "translateY(-50%)",
+      width: 38,
+      height: 38,
+      borderRadius: 999,
+      background: "rgba(0,0,0,0.42)",
+      backdropFilter: "blur(6px)",
+      border: "1.5px solid rgba(255,255,255,0.5)",
+      color: "#fff",
+      display: idx === photos.length - 1 ? "none" : "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 22,
+      lineHeight: 1,
+      paddingBottom: 3,
+      zIndex: 5,
+      cursor: "pointer"
+    }
+  }, "\u203A")));
 }
 function SpotFormModal({
   editingId,
