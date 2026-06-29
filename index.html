@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-28T23:44:06.899Z -->
+<!-- built 2026-06-28T23:58:56.971Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -63,6 +63,17 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 
 .leaflet-popup-content-wrapper{border-radius:var(--radius-md);box-shadow:var(--shadow-md)}
 .leaflet-popup-content{margin:10px 14px;font-family:var(--font-body)}
+/* Marqueur "tu es ici" — point bleu + halo qui pulse */
+.me-marker-wrap{position:relative}
+.me-marker-wrap .me-dot{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:999px;background:#2D7DFF;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.12),0 2px 7px rgba(0,0,0,0.4);transform:translate(-50%,-50%)}
+.me-marker-wrap .me-pulse{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:999px;background:rgba(45,125,255,0.45);transform:translate(-50%,-50%);animation:mePulse 2s var(--ease) infinite}
+@keyframes mePulse{0%{width:16px;height:16px;opacity:0.7}100%{width:64px;height:64px;opacity:0}}
+/* Spot sélectionné sur la carte — anneau pointillé tournant + étiquette nom */
+.spot-sel-wrap{position:relative}
+.spot-sel-wrap .spot-sel-ring{position:absolute;top:50%;left:50%;width:38px;height:38px;border-radius:999px;border:2.5px dashed var(--ink-900);transform:translate(-50%,-50%);animation:spotSpin 4.5s linear infinite}
+@keyframes spotSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 24px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}
+.spot-sel-wrap .spot-sel-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#16131A}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
@@ -7011,6 +7022,10 @@ function App() {
   };
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
+  const userMarkerRef = useRef(null);
+  const wantRecenterRef = useRef(false);
+  const didFitRef = useRef(false);
+  const selMarkerRef = useRef(null);
   useEffect(() => {
     try {
       localStorage.setItem(SK, JSON.stringify(spots));
@@ -7469,6 +7484,9 @@ function App() {
       attribution: 'OSM, CARTO'
     }).addTo(map);
     mapRef.current = map;
+    didFitRef.current = false;
+    userMarkerRef.current = null;
+    selMarkerRef.current = null;
     const r1 = requestAnimationFrame(() => map.invalidateSize());
     const t1 = setTimeout(() => {
       try {
@@ -7482,6 +7500,7 @@ function App() {
         map.remove();
       } catch {}
       mapRef.current = null;
+      userMarkerRef.current = null;
     };
   }, [tab]);
   useEffect(() => {
@@ -7512,20 +7531,64 @@ function App() {
       });
       bounds.push([s.lat, s.lng]);
     });
+    if (userMarkerRef.current) {
+      try {
+        map.removeLayer(userMarkerRef.current);
+      } catch {}
+      userMarkerRef.current = null;
+    }
     if (userPos) {
-      L.circleMarker([userPos.lat, userPos.lng], {
-        radius: 10,
-        fillColor: '#FF3D8B',
-        color: '#fff',
-        weight: 3,
-        opacity: 1,
-        fillOpacity: 1
+      const meIcon = L.divIcon({
+        className: 'me-marker-wrap',
+        html: '<div class="me-pulse"></div><div class="me-dot"></div>',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+      });
+      userMarkerRef.current = L.marker([userPos.lat, userPos.lng], {
+        icon: meIcon,
+        zIndexOffset: 1000,
+        keyboard: false
       }).addTo(map).bindPopup('📍 Tu es ici');
     }
-    if (bounds.length > 1) map.fitBounds(bounds, {
-      padding: [40, 40]
-    });
+    if (wantRecenterRef.current && userPos) {
+      map.setView([userPos.lat, userPos.lng], 14, {
+        animate: true
+      });
+      wantRecenterRef.current = false;
+      didFitRef.current = true;
+    } else if (!didFitRef.current && bounds.length > 1) {
+      map.fitBounds(bounds, {
+        padding: [40, 40]
+      });
+      didFitRef.current = true;
+    }
   }, [tab, spots, userPos]);
+  useEffect(() => {
+    if (tab !== "map" || !mapRef.current) return;
+    const map = mapRef.current;
+    if (selMarkerRef.current) {
+      try {
+        map.removeLayer(selMarkerRef.current);
+      } catch {}
+      selMarkerRef.current = null;
+    }
+    if (peekSpot && peekSpot.lat && peekSpot.lng) {
+      const col = CC[primaryCat(peekSpot)] || "#16131A";
+      const safeName = String(peekSpot.name || "").replace(/[<>&]/g, "");
+      const icon = L.divIcon({
+        className: 'spot-sel-wrap',
+        html: `<div class="spot-sel-ring" style="border-color:${col}"></div><div class="spot-sel-label">${safeName}</div>`,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
+      });
+      selMarkerRef.current = L.marker([peekSpot.lat, peekSpot.lng], {
+        icon,
+        zIndexOffset: 1500,
+        keyboard: false,
+        interactive: false
+      }).addTo(map);
+    }
+  }, [tab, peekSpot]);
   const visible = useMemo(() => {
     return spots.filter(s => {
       const catOk = cat === "all" || hasCat(s, cat);
@@ -8875,9 +8938,13 @@ function App() {
     }
   }, k))))), React.createElement("button", {
     onClick: () => {
-      requestGeo();
       if (userPos && mapRef.current) {
-        mapRef.current.setView([userPos.lat, userPos.lng], 14);
+        mapRef.current.setView([userPos.lat, userPos.lng], 14, {
+          animate: true
+        });
+      } else {
+        wantRecenterRef.current = true;
+        requestGeo();
       }
     },
     style: {
