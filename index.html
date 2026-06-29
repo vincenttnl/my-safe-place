@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-28T23:58:56.971Z -->
+<!-- built 2026-06-29T00:06:45.812Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -9630,6 +9630,9 @@ function App() {
     };
     const cat = CATS.find(c => c.key === primaryCat(peekSpot));
     const ph = firstPhoto(peekSpot);
+    const pkDist = userPos && peekSpot.lat && peekSpot.lng ? distKm(userPos.lat, userPos.lng, peekSpot.lat, peekSpot.lng) : null;
+    const walkMin = pkDist != null ? Math.max(1, Math.round(pkDist * 14)) : null;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&${userPos ? `origin=${userPos.lat},${userPos.lng}&` : ''}destination=${peekSpot.lat},${peekSpot.lng}&travelmode=transit`;
     return React.createElement("div", {
       className: "slide-up",
       style: {
@@ -9747,7 +9750,36 @@ function App() {
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, [peekSpot.metro, peekSpot.price].filter(Boolean).join(' · ')))), peekSpot.desc && React.createElement("div", {
+    }, [peekSpot.metro, peekSpot.price].filter(Boolean).join(' · ')), walkMin != null ? React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        marginTop: 4,
+        fontWeight: 700,
+        color: 'var(--ink-600)'
+      }
+    }, "\uD83D\uDEB6 ~", walkMin, " min \xE0 pied ", React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontWeight: 500
+      }
+    }, "\xB7 ", fmtKm(pkDist))) : React.createElement("button", {
+      onClick: () => {
+        wantRecenterRef.current = false;
+        requestGeo();
+      },
+      style: {
+        marginTop: 4,
+        padding: 0,
+        background: 'none',
+        border: 'none',
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        fontWeight: 600,
+        color: 'var(--pop-pink)',
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDCCD Activer ma position pour le temps de trajet"))), peekSpot.desc && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
@@ -9759,11 +9791,32 @@ function App() {
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
-    }, peekSpot.desc), React.createElement("div", {
+    }, peekSpot.desc), React.createElement("a", {
+      href: mapsUrl,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 7,
+        marginTop: 12,
+        padding: '12px 0',
+        borderRadius: 999,
+        background: 'var(--bg-soft,#F3F1F6)',
+        border: '1px solid var(--hairline)',
+        color: 'var(--ink-900)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13.5,
+        textDecoration: 'none'
+      }
+    }, "\uD83D\uDE87 Itin\xE9raire en transports \u2192"), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 8,
-        marginTop: 14,
+        marginTop: 10,
         alignItems: 'center'
       }
     }, React.createElement("button", {
