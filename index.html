@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-29T00:06:45.812Z -->
+<!-- built 2026-06-29T00:59:31.789Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3059,6 +3059,7 @@ const ZK = "myplace_zones_v1";
 const CTK = "myplace_contacts_v1";
 const EVK = "myplace_events_v1";
 const GK = "myplace_gapi_key";
+const IDFMK = "myplace_idfm_key";
 const OBK = "myplace_onboarding_done_v1";
 const MIGRATION_KEY = "myplace_schema_version";
 (function migrateLegacyKeys() {
@@ -3376,6 +3377,49 @@ async function googlePlacePhotos(name, address, apiKey, count = 4) {
   } catch {
     return [];
   }
+}
+async function idfmJourney(from, to, apiKey) {
+  const key = (apiKey || "").trim();
+  if (!key) throw new Error("no-key");
+  const url = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/journeys?from=${from.lng};${from.lat}&to=${to.lng};${to.lat}&max_nb_journeys=3`;
+  const r = await fetch(url, {
+    headers: {
+      apikey: key
+    }
+  });
+  if (!r.ok) {
+    let detail = "";
+    try {
+      const b = await r.text();
+      const j = JSON.parse(b);
+      detail = j.message || j.error || j.description || b.slice(0, 120);
+    } catch {}
+    if (r.status === 401 || r.status === 403) throw new Error(`Accès refusé (${r.status})${detail ? " — " + detail : " — jeton non abonné à l'API Calculateur ?"}`);
+    throw new Error(`IDFM ${r.status}${detail ? " — " + detail : ""}`);
+  }
+  const data = await r.json();
+  const js = (data.journeys || []).filter(j => j.duration);
+  if (!js.length) throw new Error("Aucun trajet trouvé");
+  const best = js.reduce((a, b) => b.duration < a.duration ? b : a, js[0]);
+  const legs = (best.sections || []).filter(s => s.type === "public_transport" || s.type === "street_network" || s.type === "transfer").map(s => {
+    if (s.type === "public_transport") {
+      const di = s.display_informations || {};
+      return {
+        line: di.code || di.label || di.commercial_mode || "?",
+        mode: di.physical_mode || di.commercial_mode || "",
+        color: di.color ? "#" + di.color : "#4A4654",
+        text: di.text_color ? "#" + di.text_color : "#fff"
+      };
+    }
+    return {
+      walk: true,
+      min: Math.max(1, Math.round((s.duration || 0) / 60))
+    };
+  });
+  return {
+    min: Math.round(best.duration / 60),
+    legs
+  };
 }
 function getPhotos(s) {
   if (Array.isArray(s.photos) && s.photos.length) return s.photos;
@@ -6903,6 +6947,13 @@ function App() {
       return "";
     }
   });
+  const [idfmKey, setIdfmKey] = useState(() => {
+    try {
+      return localStorage.getItem(IDFMK) || "";
+    } catch {
+      return "";
+    }
+  });
   const [onboardingDone, setOnboardingDone] = useState(() => {
     try {
       return localStorage.getItem(OBK) === "1";
@@ -6976,6 +7027,8 @@ function App() {
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [peekSpot, setPeekSpot] = useState(null);
+  const [metroJ, setMetroJ] = useState(null);
+  const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [showPropositions, setShowPropositions] = useState(false);
@@ -7020,6 +7073,31 @@ function App() {
       timeout: 8000
     });
   };
+  const calcMetro = async spot => {
+    if (!idfmKey) {
+      window.mspToast?.("Ajoute ta clé IDFM dans Profil d'abord", "warn");
+      return;
+    }
+    if (!userPos) {
+      requestGeo();
+      window.mspToast?.("Active ta position pour calculer le trajet", "warn");
+      return;
+    }
+    setMetroLoading(true);
+    setMetroJ(null);
+    try {
+      const j = await idfmJourney(userPos, {
+        lat: spot.lat,
+        lng: spot.lng
+      }, idfmKey);
+      setMetroJ(j);
+    } catch (e) {
+      setMetroJ({
+        err: e.message === "no-key" ? "Ajoute ta clé IDFM dans Profil" : e.message || "Erreur de calcul"
+      });
+    }
+    setMetroLoading(false);
+  };
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
@@ -7056,6 +7134,11 @@ function App() {
       localStorage.setItem(GK, gApiKey);
     } catch {}
   }, [gApiKey]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(IDFMK, idfmKey);
+    } catch {}
+  }, [idfmKey]);
   useEffect(() => {
     try {
       localStorage.setItem("myplace_stock_photos_v1", JSON.stringify(stockPhotoCache));
@@ -7506,6 +7589,10 @@ function App() {
   useEffect(() => {
     if (tab !== "map" && peekSpot) setPeekSpot(null);
   }, [tab]);
+  useEffect(() => {
+    setMetroJ(null);
+    setMetroLoading(false);
+  }, [peekSpot]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
@@ -9346,7 +9433,61 @@ function App() {
         marginTop: 8,
         fontFamily: 'var(--font-body)'
       }
-    }, spots.filter(s => getPhotos(s).length === 0).length, " spot", spots.filter(s => getPhotos(s).length === 0).length > 1 ? "s" : "", " sans photo"))), trash.length > 0 && React.createElement("div", {
+    }, spots.filter(s => getPhotos(s).length === 0).length, " spot", spots.filter(s => getPhotos(s).length === 0).length > 1 ? "s" : "", " sans photo"))), React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 4
+      }
+    }, "\uD83D\uDE87 \xCEle-de-France Mobilit\xE9s \u2014 Itin\xE9raires"), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginBottom: 10,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Calcule le trajet m\xE9tro/bus depuis la carte. Cl\xE9 gratuite sur ", React.createElement("a", {
+      href: "https://prim.iledefrance-mobilites.fr",
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        color: 'var(--pop-pink)',
+        fontWeight: 600
+      }
+    }, "prim.iledefrance-mobilites.fr")), React.createElement("input", {
+      value: idfmKey,
+      onChange: e => setIdfmKey(e.target.value.trim()),
+      placeholder: "Colle ton jeton PRIM ici",
+      className: "input-v2",
+      style: {
+        fontSize: 13
+      },
+      type: "text",
+      autoComplete: "off",
+      autoCorrect: "off",
+      autoCapitalize: "off",
+      spellCheck: false
+    }), React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: idfmKey ? '#2ECC71' : 'var(--ink-400)',
+        marginTop: 8,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600
+      }
+    }, idfmKey ? '✓ Clé configurée — itinéraires métro activés' : 'Sans clé : bouton « Ouvrir dans Maps » utilisé à la place'))), trash.length > 0 && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -9791,11 +9932,27 @@ function App() {
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
-    }, peekSpot.desc), React.createElement("a", {
-      href: mapsUrl,
-      target: "_blank",
-      rel: "noopener noreferrer",
+    }, peekSpot.desc), !metroJ && !metroLoading && React.createElement("button", {
+      onClick: () => calcMetro(peekSpot),
       className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 7,
+        width: '100%',
+        marginTop: 12,
+        padding: '12px 0',
+        borderRadius: 999,
+        background: 'var(--bg-soft,#F3F1F6)',
+        border: '1px solid var(--hairline)',
+        color: 'var(--ink-900)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13.5,
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDE87 Calculer le trajet en m\xE9tro"), metroLoading && React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -9806,13 +9963,99 @@ function App() {
         borderRadius: 999,
         background: 'var(--bg-soft,#F3F1F6)',
         border: '1px solid var(--hairline)',
-        color: 'var(--ink-900)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 13.5,
+        color: 'var(--ink-400)'
+      }
+    }, "\u23F3 Calcul de l'itin\xE9raire\u2026"), metroJ && metroJ.err && React.createElement("div", {
+      style: {
+        marginTop: 12,
+        display: 'flex',
+        gap: 10,
+        alignItems: 'center',
+        flexWrap: 'wrap'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600
+      }
+    }, "\u26A0\uFE0F ", metroJ.err), React.createElement("a", {
+      href: mapsUrl,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        fontSize: 12.5,
+        fontWeight: 700,
+        color: 'var(--ink-600)'
+      }
+    }, "Ouvrir dans Maps \u2197")), metroJ && !metroJ.err && React.createElement("div", {
+      style: {
+        marginTop: 12,
+        padding: '10px 12px',
+        borderRadius: 14,
+        background: 'var(--bg-soft,#F3F1F6)',
+        border: '1px solid var(--hairline)'
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        flexWrap: 'wrap'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 14
+      }
+    }, "\uD83D\uDE87 ", metroJ.min, " min"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        flexWrap: 'wrap'
+      }
+    }, metroJ.legs.map((l, i) => React.createElement(React.Fragment, {
+      key: i
+    }, i > 0 && React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 11
+      }
+    }, "\u203A"), l.walk ? React.createElement("span", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-600)',
+        fontWeight: 600
+      }
+    }, "\uD83D\uDEB6 ", l.min, "\u2032") : React.createElement("span", {
+      style: {
+        background: l.color,
+        color: l.text,
+        fontSize: 11,
+        fontWeight: 800,
+        padding: '2px 7px',
+        borderRadius: 6,
+        fontFamily: 'var(--font-body)'
+      }
+    }, l.line))))), React.createElement("a", {
+      href: mapsUrl,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        display: 'inline-block',
+        marginTop: 7,
+        fontSize: 12,
+        fontWeight: 700,
+        color: 'var(--ink-600)',
         textDecoration: 'none'
       }
-    }, "\uD83D\uDE87 Itin\xE9raire en transports \u2192"), React.createElement("div", {
+    }, "D\xE9tails & horaires dans Maps \u2197")), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 8,

@@ -1,6 +1,6 @@
 // MonParis — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'monparis-v13-2026-06-29';
+const CACHE_VERSION = 'monparis-v15-2026-06-29';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
