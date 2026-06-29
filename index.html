@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-29T00:59:31.789Z -->
+<!-- built 2026-06-29T02:31:00.250Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3060,6 +3060,8 @@ const CTK = "myplace_contacts_v1";
 const EVK = "myplace_events_v1";
 const GK = "myplace_gapi_key";
 const IDFMK = "myplace_idfm_key";
+const SESK = "myplace_session_v1";
+const SNAPK = "myplace_sync_snap_v1";
 const OBK = "myplace_onboarding_done_v1";
 const MIGRATION_KEY = "myplace_schema_version";
 (function migrateLegacyKeys() {
@@ -3136,6 +3138,101 @@ async function fetchAllRemoteSpots() {
   const r = await fetchSpotsFrom("id=gte.0");
   return r && r.length ? r : null;
 }
+async function supaSignIn(email, password) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email.trim().toLowerCase(),
+      password
+    })
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.error_description || d.msg || d.message || "Connexion refusée"), {
+    status: r.status
+  });
+  return d;
+}
+async function supaSignUp(email, password) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email.trim().toLowerCase(),
+      password
+    })
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error(d.error_description || d.msg || d.message || "Inscription refusée"), {
+    status: r.status
+  });
+  return d;
+}
+async function supaRefresh(refresh_token) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      refresh_token
+    })
+  });
+  if (!r.ok) throw new Error("refresh " + r.status);
+  return r.json();
+}
+async function supaPullUserSpots(token) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/user_spots?select=spot_id,data,deleted,updated_at`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!r.ok) throw new Error("pull " + r.status);
+  return r.json();
+}
+async function supaPushUserSpots(token, rows) {
+  if (!rows || !rows.length) return;
+  const nowIso = new Date().toISOString();
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/user_spots?on_conflict=user_id,spot_id`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal"
+    },
+    body: JSON.stringify(rows.map(x => ({
+      spot_id: x.spot_id,
+      data: x.data,
+      deleted: !!x.deleted,
+      updated_at: nowIso
+    })))
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error("push " + r.status + " " + t.slice(0, 120));
+  }
+}
+const spotContentKey = s => {
+  const {
+    updatedAt,
+    ...rest
+  } = s;
+  try {
+    return JSON.stringify(rest);
+  } catch {
+    return String(s.id);
+  }
+};
+const spotTs = s => s && (s.updatedAt || s.addedAt) || 0;
 const CT_COLORS = ["#FF3D8B", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
 const TRASH_DAYS = 7;
 const DC = {
@@ -6846,6 +6943,179 @@ function ToastStack() {
     "aria-hidden": "true"
   }, TOAST_ICONS[t.type] || TOAST_ICONS.info), React.createElement("span", null, t.msg))));
 }
+function AuthCard({
+  session,
+  syncState,
+  onLogin,
+  onSignOut,
+  onResync
+}) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const submit = async () => {
+    setErr("");
+    if (!/.+@.+\..+/.test(email)) {
+      setErr("Email invalide");
+      return;
+    }
+    if (password.length < 6) {
+      setErr("Mot de passe : 6 caractères minimum");
+      return;
+    }
+    setBusy(true);
+    try {
+      let d;
+      try {
+        d = await supaSignIn(email, password);
+      } catch (e) {
+        if (e.status === 400) {
+          let s;
+          try {
+            s = await supaSignUp(email, password);
+          } catch (e2) {
+            throw new Error("Mot de passe incorrect");
+          }
+          if (!s.access_token) throw new Error("Compte créé — confirme ton email puis reconnecte-toi (ou désactive la confirmation)");
+          d = s;
+        } else throw e;
+      }
+      await onLogin(d);
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
+  };
+  const card = {
+    background: '#fff',
+    border: '1px solid var(--hairline)',
+    borderRadius: 'var(--radius-md)',
+    padding: 16
+  };
+  if (session) {
+    const lbl = syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "synced" ? "✓ Synchronisé sur tous tes appareils" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "Connecté";
+    const col = syncState === "synced" ? "#2ECC71" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
+    return React.createElement("div", {
+      style: card
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 2
+      }
+    }, "\u2601\uFE0F Synchronisation"), React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        marginBottom: 8,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, session.user && session.user.email), React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: col,
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginBottom: 12
+      }
+    }, lbl), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8
+      }
+    }, React.createElement("button", {
+      onClick: onResync,
+      disabled: syncState === "syncing",
+      className: "press",
+      style: {
+        flex: 1,
+        background: 'var(--bg-soft,#F3F1F6)',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '11px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, "\u21BB Resynchroniser"), React.createElement("button", {
+      onClick: onSignOut,
+      className: "press",
+      style: {
+        flex: 1,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '11px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        cursor: 'pointer'
+      }
+    }, "Se d\xE9connecter")));
+  }
+  return React.createElement("div", {
+    style: card
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 15,
+      marginBottom: 4
+    }
+  }, "\u2601\uFE0F Synchroniser mes spots"), React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)',
+      marginBottom: 12
+    }
+  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils. Au 1er login, ton compte se cr\xE9e tout seul."), React.createElement("input", {
+    value: email,
+    onChange: e => setEmail(e.target.value),
+    placeholder: "ton@email.fr",
+    className: "input-v2",
+    style: {
+      fontSize: 14,
+      marginBottom: 8
+    },
+    type: "email",
+    autoComplete: "email",
+    inputMode: "email"
+  }), React.createElement("input", {
+    value: password,
+    onChange: e => setPassword(e.target.value),
+    onKeyDown: e => e.key === "Enter" && submit(),
+    placeholder: "Mot de passe (6 caract\xE8res min.)",
+    className: "input-v2",
+    style: {
+      fontSize: 14,
+      marginBottom: 10
+    },
+    type: "password",
+    autoComplete: "current-password"
+  }), React.createElement("button", {
+    onClick: submit,
+    disabled: busy,
+    className: "btn-primary",
+    style: {
+      fontSize: 14
+    }
+  }, busy ? "⏳ Connexion…" : "Se connecter / Créer mon compte"), err && React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--pop-pink)',
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)',
+      marginTop: 10
+    }
+  }, "\u26A0\uFE0F ", err));
+}
 function App() {
   const [tab, setTab] = useState("home");
   const [spots, setSpots] = useState(() => {
@@ -6954,6 +7224,19 @@ function App() {
       return "";
     }
   });
+  const [session, setSession] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(SESK) || "null");
+    } catch {
+      return null;
+    }
+  });
+  const [syncState, setSyncState] = useState("idle");
+  const syncSnapRef = useRef(null);
+  const sessionRef = useRef(session);
+  useEffect(() => {
+    sessionRef.current = session;
+  }, [session]);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     try {
       return localStorage.getItem(OBK) === "1";
@@ -7098,6 +7381,195 @@ function App() {
     }
     setMetroLoading(false);
   };
+  const persistSnap = snap => {
+    try {
+      localStorage.setItem(SNAPK, JSON.stringify(snap));
+    } catch {}
+  };
+  const validToken = async sess => {
+    if (!sess) return null;
+    if (sess.expires_at && sess.expires_at * 1000 < Date.now() + 60000) {
+      const nd = await supaRefresh(sess.refresh_token);
+      const ns = {
+        ...sess,
+        access_token: nd.access_token,
+        refresh_token: nd.refresh_token,
+        expires_at: nd.expires_at
+      };
+      setSession(ns);
+      sessionRef.current = ns;
+      return ns.access_token;
+    }
+    return sess.access_token;
+  };
+  const fullSync = async sess => {
+    if (!sess) return;
+    setSyncState("syncing");
+    try {
+      const token = await validToken(sess);
+      const remote = await supaPullUserSpots(token);
+      const remoteMap = new Map(remote.map(r => [Number(r.spot_id), r]));
+      const localMap = new Map(spots.map(s => [s.id, s]));
+      const trashMap = new Map(trash.map(t => [t.id, t]));
+      const ids = new Set([...remoteMap.keys(), ...localMap.keys(), ...trashMap.keys()]);
+      const merged = [];
+      const toPush = [];
+      ids.forEach(id => {
+        const r = remoteMap.get(id),
+          l = localMap.get(id),
+          tomb = trashMap.get(id);
+        const rTs = r ? r.data && r.data.updatedAt || new Date(r.updated_at).getTime() || 0 : 0;
+        const rDel = r ? r.deleted : false;
+        const lTs = spotTs(l),
+          tTs = tomb ? tomb.deletedAt || 0 : 0;
+        if (tomb && tTs >= rTs && tTs >= lTs) {
+          if (!rDel) toPush.push({
+            spot_id: id,
+            data: {},
+            deleted: true
+          });
+          return;
+        }
+        if (rDel && rTs >= lTs) return;
+        if (l && r && !rDel) {
+          if (lTs > rTs) {
+            merged.push(l);
+            toPush.push({
+              spot_id: id,
+              data: l,
+              deleted: false
+            });
+          } else merged.push({
+            ...r.data
+          });
+        } else if (l) {
+          merged.push(l);
+          toPush.push({
+            spot_id: id,
+            data: l,
+            deleted: false
+          });
+        } else if (r && !rDel) merged.push({
+          ...r.data
+        });
+      });
+      setSpots(merged);
+      await supaPushUserSpots(token, toPush);
+      const snap = {};
+      merged.forEach(s => {
+        snap[s.id] = spotContentKey(s);
+      });
+      syncSnapRef.current = snap;
+      persistSnap(snap);
+      setSyncState("synced");
+    } catch (e) {
+      setSyncState("error");
+      window.mspToast?.("Synchro échouée : " + e.message, "warn");
+    }
+  };
+  const pushChanges = async () => {
+    const sess = sessionRef.current;
+    if (!sess || !syncSnapRef.current) return;
+    const snap = syncSnapRef.current;
+    const rows = [];
+    const newSnap = {
+      ...snap
+    };
+    spots.forEach(s => {
+      const k = spotContentKey(s);
+      if (snap[s.id] !== k) {
+        const stamped = {
+          ...s,
+          updatedAt: Date.now()
+        };
+        rows.push({
+          spot_id: s.id,
+          data: stamped,
+          deleted: false
+        });
+        newSnap[s.id] = spotContentKey(stamped);
+      }
+    });
+    Object.keys(snap).forEach(idStr => {
+      const id = Number(idStr);
+      if (!spots.some(s => s.id === id)) {
+        rows.push({
+          spot_id: id,
+          data: {},
+          deleted: true
+        });
+        delete newSnap[id];
+      }
+    });
+    if (!rows.length) return;
+    setSyncState("syncing");
+    try {
+      const token = await validToken(sess);
+      await supaPushUserSpots(token, rows);
+      const changed = new Map(rows.filter(r => !r.deleted).map(r => [r.spot_id, r.data.updatedAt]));
+      if (changed.size) setSpots(prev => prev.map(s => changed.has(s.id) ? {
+        ...s,
+        updatedAt: changed.get(s.id)
+      } : s));
+      syncSnapRef.current = newSnap;
+      persistSnap(newSnap);
+      setSyncState("synced");
+    } catch (e) {
+      setSyncState("error");
+    }
+  };
+  const handleLogin = async data => {
+    const sess = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: data.expires_at,
+      user: {
+        id: data.user && data.user.id,
+        email: data.user && data.user.email
+      }
+    };
+    try {
+      localStorage.setItem("myplace_backup_" + Date.now(), JSON.stringify(spots));
+    } catch {}
+    setSession(sess);
+    sessionRef.current = sess;
+    await fullSync(sess);
+    window.mspToast?.("Connecté — synchro activée ✓", "success");
+  };
+  const signOut = async () => {
+    const sess = sessionRef.current;
+    try {
+      if (sess) await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${sess.access_token}`
+        }
+      });
+    } catch {}
+    setSession(null);
+    sessionRef.current = null;
+    syncSnapRef.current = null;
+    try {
+      localStorage.removeItem(SNAPK);
+    } catch {}
+    setSyncState("idle");
+    window.mspToast?.("Déconnecté — tes spots restent sur cet appareil", "info");
+  };
+  useEffect(() => {
+    if (session && !syncSnapRef.current) {
+      try {
+        const s = localStorage.getItem(SNAPK);
+        if (s) syncSnapRef.current = JSON.parse(s);
+      } catch {}
+      fullSync(session);
+    }
+  }, []);
+  useEffect(() => {
+    if (!session || !syncSnapRef.current) return;
+    const t = setTimeout(() => pushChanges(), 1500);
+    return () => clearTimeout(t);
+  }, [spots, trash, session]);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
@@ -7139,6 +7611,11 @@ function App() {
       localStorage.setItem(IDFMK, idfmKey);
     } catch {}
   }, [idfmKey]);
+  useEffect(() => {
+    try {
+      session ? localStorage.setItem(SESK, JSON.stringify(session)) : localStorage.removeItem(SESK);
+    } catch {}
+  }, [session]);
   useEffect(() => {
     try {
       localStorage.setItem("myplace_stock_photos_v1", JSON.stringify(stockPhotoCache));
@@ -9081,6 +9558,16 @@ function App() {
         margin: 0
       }
     }, "C'est ton", React.createElement("br", null), "safe place \uD83C\uDFE0")), React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement(AuthCard, {
+      session: session,
+      syncState: syncState,
+      onLogin: handleLogin,
+      onSignOut: signOut,
+      onResync: () => fullSync(sessionRef.current)
+    })), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
