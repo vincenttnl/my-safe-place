@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-29T02:31:00.250Z -->
+<!-- built 2026-06-29T16:07:32.878Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3087,6 +3087,13 @@ const MIGRATION_KEY = "myplace_schema_version";
 })();
 const SUPABASE_URL = "https://gyulgensyqsmpsaxrwcz.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_-ImlWY2HRTt_MywWgAzRkA_eUkS_LYs";
+const APP_URL = (() => {
+  try {
+    return window.location.origin + window.location.pathname;
+  } catch {
+    return "";
+  }
+})();
 const supaEnabled = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 const isPlaceholderPhoto = u => typeof u === "string" && u.includes("images.unsplash.com");
 async function fetchSpotsFrom(filter) {
@@ -3156,17 +3163,19 @@ async function supaSignIn(email, password) {
   });
   return d;
 }
-async function supaSignUp(email, password) {
-  const r = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+async function supaSignUp(email, password, meta) {
+  const body = {
+    email: email.trim().toLowerCase(),
+    password
+  };
+  if (meta) body.data = meta;
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/signup?redirect_to=${encodeURIComponent(APP_URL)}`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_ANON_KEY,
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      email: email.trim().toLowerCase(),
-      password
-    })
+    body: JSON.stringify(body)
   });
   const d = await r.json().catch(() => ({}));
   if (!r.ok) throw Object.assign(new Error(d.error_description || d.msg || d.message || "Inscription refusée"), {
@@ -3187,6 +3196,78 @@ async function supaRefresh(refresh_token) {
   });
   if (!r.ok) throw new Error("refresh " + r.status);
   return r.json();
+}
+async function supaRecover(email) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/recover?redirect_to=${encodeURIComponent(APP_URL)}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: email.trim().toLowerCase()
+    })
+  });
+  if (!r.ok) {
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d.error_description || d.msg || d.message || "Envoi impossible");
+  }
+  return true;
+}
+async function supaUpdatePassword(token, password) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: "PUT",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      password
+    })
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error_description || d.msg || d.message || "Mise à jour du mot de passe impossible");
+  return d;
+}
+async function supaGetUser(token) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!r.ok) throw new Error("user " + r.status);
+  return r.json();
+}
+async function supaUpsertProfile(token, row) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/profiles?on_conflict=id`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=representation"
+    },
+    body: JSON.stringify([row])
+  });
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error("profile " + r.status + " " + t.slice(0, 120));
+  }
+  const d = await r.json().catch(() => []);
+  return Array.isArray(d) ? d[0] : d;
+}
+async function supaGetProfile(token, uid) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${uid}`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!r.ok) return null;
+  const d = await r.json().catch(() => []);
+  return Array.isArray(d) && d.length ? d[0] : null;
 }
 async function supaPullUserSpots(token) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/user_spots?select=spot_id,data,deleted,updated_at`, {
@@ -6950,12 +7031,19 @@ function AuthCard({
   onSignOut,
   onResync
 }) {
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [optin, setOptin] = useState(true);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-  const submit = async () => {
+  const [info, setInfo] = useState("");
+  const reset = () => {
     setErr("");
+    setInfo("");
+  };
+  const submit = async () => {
+    reset();
     if (!/.+@.+\..+/.test(email)) {
       setErr("Email invalide");
       return;
@@ -6966,26 +7054,59 @@ function AuthCard({
     }
     setBusy(true);
     try {
-      let d;
       try {
-        d = await supaSignIn(email, password);
+        const d = await supaSignIn(email, password);
+        await onLogin(d);
+        return;
       } catch (e) {
-        if (e.status === 400) {
-          let s;
-          try {
-            s = await supaSignUp(email, password);
-          } catch (e2) {
-            throw new Error("Mot de passe incorrect");
-          }
-          if (!s.access_token) throw new Error("Compte créé — confirme ton email puis reconnecte-toi (ou désactive la confirmation)");
-          d = s;
-        } else throw e;
+        if (e.status !== 400) throw e;
+        const msg = (e.message || "").toLowerCase();
+        if (msg.includes("not confirmed") || msg.includes("non confirm")) {
+          setInfo("📧 Ton compte n'est pas encore activé. Clique le lien qu'on t'a envoyé par email (pense à regarder les spams).");
+          setBusy(false);
+          return;
+        }
+        if (!optin) {
+          setErr("Pour créer ton compte et rejoindre la communauté, coche la case ci-dessous.");
+          setBusy(false);
+          return;
+        }
+        const s = await supaSignUp(email, password, {
+          community_optin: true,
+          optin_at: new Date().toISOString(),
+          source: "monparis-app"
+        });
+        if (s.access_token) {
+          await onLogin(s);
+          return;
+        }
+        if (Array.isArray(s.identities) && s.identities.length === 0) {
+          setErr("Mot de passe incorrect. Mot de passe oublié ?");
+          setBusy(false);
+          return;
+        }
+        setInfo("📧 Bienvenue ! Ton compte est créé. Clique le lien qu'on vient de t'envoyer par email pour l'activer et lancer la synchro (pense aux spams).");
+        setBusy(false);
       }
-      await onLogin(d);
     } catch (e) {
       setErr(e.message);
       setBusy(false);
     }
+  };
+  const sendReset = async () => {
+    reset();
+    if (!/.+@.+\..+/.test(email)) {
+      setErr("Entre ton email d'abord");
+      return;
+    }
+    setBusy(true);
+    try {
+      await supaRecover(email);
+      setInfo("📧 Si un compte existe pour cet email, tu vas recevoir un lien pour choisir un nouveau mot de passe (regarde aussi les spams).");
+    } catch (e) {
+      setErr(e.message);
+    }
+    setBusy(false);
   };
   const card = {
     background: '#fff',
@@ -7059,6 +7180,76 @@ function AuthCard({
       }
     }, "Se d\xE9connecter")));
   }
+  if (mode === "forgot") {
+    return React.createElement("div", {
+      style: card
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 4
+      }
+    }, "\uD83D\uDD11 Mot de passe oubli\xE9"), React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        marginBottom: 12
+      }
+    }, "Entre ton email, on t'envoie un lien pour en choisir un nouveau."), React.createElement("input", {
+      value: email,
+      onChange: e => setEmail(e.target.value),
+      onKeyDown: e => e.key === "Enter" && sendReset(),
+      placeholder: "ton@email.fr",
+      className: "input-v2",
+      style: {
+        fontSize: 14,
+        marginBottom: 10
+      },
+      type: "email",
+      autoComplete: "email",
+      inputMode: "email"
+    }), React.createElement("button", {
+      onClick: sendReset,
+      disabled: busy,
+      className: "btn-primary",
+      style: {
+        fontSize: 14
+      }
+    }, busy ? "⏳ Envoi…" : "Envoyer le lien"), React.createElement("button", {
+      onClick: () => {
+        setMode("login");
+        reset();
+      },
+      style: {
+        marginTop: 10,
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)'
+      }
+    }, "\u2190 Retour \xE0 la connexion"), info && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: '#2ECC71',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, info), err && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, "\u26A0\uFE0F ", err));
+  }
   return React.createElement("div", {
     style: card
   }, React.createElement("div", {
@@ -7068,14 +7259,14 @@ function AuthCard({
       fontSize: 15,
       marginBottom: 4
     }
-  }, "\u2601\uFE0F Synchroniser mes spots"), React.createElement("div", {
+  }, "\u2601\uFE0F Rejoindre la communaut\xE9 MonParis"), React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: 'var(--ink-400)',
       fontFamily: 'var(--font-body)',
       marginBottom: 12
     }
-  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils. Au 1er login, ton compte se cr\xE9e tout seul."), React.createElement("input", {
+  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils. Pas encore de compte ? Il se cr\xE9e tout seul."), React.createElement("input", {
     value: email,
     onChange: e => setEmail(e.target.value),
     placeholder: "ton@email.fr",
@@ -7099,14 +7290,65 @@ function AuthCard({
     },
     type: "password",
     autoComplete: "current-password"
-  }), React.createElement("button", {
+  }), React.createElement("label", {
+    style: {
+      display: 'flex',
+      gap: 9,
+      alignItems: 'flex-start',
+      marginBottom: 12,
+      cursor: 'pointer'
+    }
+  }, React.createElement("input", {
+    type: "checkbox",
+    checked: optin,
+    onChange: e => setOptin(e.target.checked),
+    style: {
+      marginTop: 2,
+      width: 17,
+      height: 17,
+      accentColor: 'var(--pop-pink)',
+      flexShrink: 0,
+      cursor: 'pointer'
+    }
+  }), React.createElement("span", {
+    style: {
+      fontSize: 11.5,
+      color: 'var(--ink-600)',
+      fontFamily: 'var(--font-body)',
+      lineHeight: 1.4
+    }
+  }, "Je rejoins la communaut\xE9 MonParis et j'accepte de recevoir ses emails (nouveaut\xE9s, bons plans, newsletter). D\xE9sabonnable \xE0 tout moment.")), React.createElement("button", {
     onClick: submit,
     disabled: busy,
     className: "btn-primary",
     style: {
       fontSize: 14
     }
-  }, busy ? "⏳ Connexion…" : "Se connecter / Créer mon compte"), err && React.createElement("div", {
+  }, busy ? "⏳ Connexion…" : "Se connecter / Créer mon compte"), React.createElement("button", {
+    onClick: () => {
+      setMode("forgot");
+      reset();
+    },
+    style: {
+      marginTop: 10,
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      color: 'var(--ink-400)'
+    }
+  }, "Mot de passe oubli\xE9 ?"), info && React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: '#2ECC71',
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)',
+      marginTop: 10,
+      lineHeight: 1.4
+    }
+  }, info), err && React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: 'var(--pop-pink)',
@@ -7115,6 +7357,133 @@ function AuthCard({
       marginTop: 10
     }
   }, "\u26A0\uFE0F ", err));
+}
+function RecoveryCard({
+  onSubmit
+}) {
+  const [pw, setPw] = useState("");
+  const [pw2, setPw2] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const go = async () => {
+    setErr("");
+    if (pw.length < 6) {
+      setErr("6 caractères minimum");
+      return;
+    }
+    if (pw !== pw2) {
+      setErr("Les deux mots de passe ne correspondent pas");
+      return;
+    }
+    setBusy(true);
+    try {
+      await onSubmit(pw);
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
+  };
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    style: {
+      zIndex: 3000
+    }
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    style: {
+      textAlign: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 40,
+      marginBottom: 12
+    }
+  }, "\uD83D\uDD11"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 24,
+      lineHeight: 1.1
+    }
+  }, "Nouveau mot de passe"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)',
+      marginTop: 8
+    }
+  }, "Choisis un nouveau mot de passe pour ton compte MonParis."), React.createElement("input", {
+    type: "password",
+    value: pw,
+    onChange: e => setPw(e.target.value),
+    placeholder: "Nouveau mot de passe",
+    className: "input-v2",
+    style: {
+      marginTop: 16,
+      fontSize: 15
+    },
+    autoFocus: true,
+    autoComplete: "new-password"
+  }), React.createElement("input", {
+    type: "password",
+    value: pw2,
+    onChange: e => setPw2(e.target.value),
+    onKeyDown: e => e.key === "Enter" && go(),
+    placeholder: "Confirme le mot de passe",
+    className: "input-v2",
+    style: {
+      marginTop: 10,
+      fontSize: 15
+    },
+    autoComplete: "new-password"
+  }), React.createElement("button", {
+    onClick: go,
+    disabled: busy,
+    className: "btn-primary",
+    style: {
+      marginTop: 14,
+      fontSize: 15
+    }
+  }, busy ? "⏳ Enregistrement…" : "Valider"), err && React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--pop-pink)',
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)',
+      marginTop: 10
+    }
+  }, "\u26A0\uFE0F ", err)));
+}
+function parseAuthHash() {
+  try {
+    const h = window.location.hash || "";
+    if (h.length < 2) return null;
+    const p = new URLSearchParams(h.replace(/^#/, ""));
+    const err = p.get("error_description") || p.get("error");
+    if (err) return {
+      kind: "error",
+      message: decodeURIComponent(err).replace(/\+/g, " ")
+    };
+    const at = p.get("access_token");
+    const type = p.get("type");
+    if (!at) return null;
+    const base = {
+      token: at,
+      refresh: p.get("refresh_token"),
+      expires_at: Number(p.get("expires_at")) || 0
+    };
+    if (type === "recovery") return {
+      ...base,
+      kind: "recovery"
+    };
+    if (type === "signup" || type === "email" || type === "magiclink" || type === "email_change") return {
+      ...base,
+      kind: "confirmed"
+    };
+  } catch {}
+  return null;
 }
 function App() {
   const [tab, setTab] = useState("home");
@@ -7237,6 +7606,10 @@ function App() {
   useEffect(() => {
     sessionRef.current = session;
   }, [session]);
+  const [profile, setProfile] = useState(null);
+  const isPremium = profile && profile.plan === "premium" || false;
+  const [authEvent, setAuthEvent] = useState(() => parseAuthHash());
+  const [showWelcome, setShowWelcome] = useState(false);
   const [onboardingDone, setOnboardingDone] = useState(() => {
     try {
       return localStorage.getItem(OBK) === "1";
@@ -7533,8 +7906,25 @@ function App() {
     } catch {}
     setSession(sess);
     sessionRef.current = sess;
+    syncProfile(sess);
     await fullSync(sess);
     window.mspToast?.("Connecté — synchro activée ✓", "success");
+  };
+  const syncProfile = async sess => {
+    if (!sess || !sess.user || !sess.user.id) return;
+    try {
+      const token = await validToken(sess);
+      const optin = !!sess.user.community_optin;
+      const row = {
+        id: sess.user.id,
+        email: sess.user.email || null
+      };
+      if (optin) {
+        row.community_optin = true;
+      }
+      const p = await supaUpsertProfile(token, row);
+      setProfile(p || (await supaGetProfile(token, sess.user.id)));
+    } catch (e) {}
   };
   const signOut = async () => {
     const sess = sessionRef.current;
@@ -7550,12 +7940,62 @@ function App() {
     setSession(null);
     sessionRef.current = null;
     syncSnapRef.current = null;
+    setProfile(null);
     try {
       localStorage.removeItem(SNAPK);
     } catch {}
     setSyncState("idle");
     window.mspToast?.("Déconnecté — tes spots restent sur cet appareil", "info");
   };
+  const applyRecovery = async newPwd => {
+    const ev = authEvent;
+    if (!ev) return;
+    const user = await supaUpdatePassword(ev.token, newPwd);
+    setAuthEvent(null);
+    await handleLogin({
+      access_token: ev.token,
+      refresh_token: ev.refresh,
+      expires_at: ev.expires_at,
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+    window.mspToast?.("Mot de passe mis à jour ✓", "success");
+  };
+  useEffect(() => {
+    if (!authEvent || authEvent.kind !== "confirmed") return;
+    (async () => {
+      try {
+        const u = await supaGetUser(authEvent.token);
+        await handleLogin({
+          access_token: authEvent.token,
+          refresh_token: authEvent.refresh,
+          expires_at: authEvent.expires_at,
+          user: {
+            id: u.id,
+            email: u.email,
+            community_optin: !!(u.user_metadata && u.user_metadata.community_optin)
+          }
+        });
+        setShowWelcome(true);
+      } catch (e) {
+        window.mspToast?.("Compte activé — reconnecte-toi pour synchroniser", "info");
+      }
+      setAuthEvent(null);
+    })();
+  }, []);
+  useEffect(() => {
+    if (authEvent && authEvent.kind === "error") {
+      window.mspToast?.("Lien expiré ou invalide — refais une demande", "warn");
+      setAuthEvent(null);
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      if (window.location.hash && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname + window.location.search);
+    } catch {}
+  }, []);
   useEffect(() => {
     if (session && !syncSnapRef.current) {
       try {
@@ -10147,7 +10587,59 @@ function App() {
       margin: "0 auto",
       minHeight: "100vh"
     }
-  }, !onboardingDone && React.createElement(OnboardingFlow, {
+  }, authEvent && authEvent.kind === "recovery" && React.createElement(RecoveryCard, {
+    onSubmit: applyRecovery
+  }), showWelcome && React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    style: {
+      zIndex: 3000
+    }
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    style: {
+      textAlign: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 48,
+      marginBottom: 12
+    }
+  }, "\uD83C\uDF89"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 26,
+      lineHeight: 1.1,
+      letterSpacing: '-0.015em'
+    }
+  }, "Bienvenue dans la communaut\xE9 MonParis !"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 14.5,
+      color: 'var(--ink-600)',
+      marginTop: 12,
+      lineHeight: 1.5
+    }
+  }, "Ton compte est activ\xE9 \u2705", React.createElement("br", null), "Tes spots, favoris et notes se synchronisent maintenant sur tous tes appareils."), React.createElement("button", {
+    onClick: () => setShowWelcome(false),
+    className: "press",
+    style: {
+      marginTop: 20,
+      width: '100%',
+      padding: 16,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 16,
+      cursor: 'pointer',
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "C'est parti \uD83D\uDE80"))), !onboardingDone && React.createElement(OnboardingFlow, {
     onComplete: (selectedZones, selectedSpots) => {
       if (selectedZones) setZones(selectedZones);
       if (selectedSpots) setSpots(selectedSpots);
