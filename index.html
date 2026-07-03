@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-06-29T16:07:32.878Z -->
+<!-- built 2026-07-03T12:28:33.150Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -68,11 +68,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .me-marker-wrap .me-dot{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:999px;background:#2D7DFF;border:3px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.12),0 2px 7px rgba(0,0,0,0.4);transform:translate(-50%,-50%)}
 .me-marker-wrap .me-pulse{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:999px;background:rgba(45,125,255,0.45);transform:translate(-50%,-50%);animation:mePulse 2s var(--ease) infinite}
 @keyframes mePulse{0%{width:16px;height:16px;opacity:0.7}100%{width:64px;height:64px;opacity:0}}
-/* Spot sélectionné sur la carte — anneau pointillé tournant + étiquette nom */
+/* Spot sélectionné sur la carte — halo/aura qui pulse (même langage que "tu es ici") + étiquette nom */
 .spot-sel-wrap{position:relative}
-.spot-sel-wrap .spot-sel-ring{position:absolute;top:50%;left:50%;width:38px;height:38px;border-radius:999px;border:2.5px dashed var(--ink-900);transform:translate(-50%,-50%);animation:spotSpin 4.5s linear infinite}
-@keyframes spotSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 24px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}
+.spot-sel-wrap .spot-sel-halo{position:absolute;top:50%;left:50%;width:44px;height:44px;border-radius:999px;transform:translate(-50%,-50%);filter:blur(5px);opacity:0.4;animation:spotBreath 2.8s ease-in-out infinite}
+@keyframes spotBreath{0%,100%{opacity:0.3;transform:translate(-50%,-50%) scale(0.9)}50%{opacity:0.48;transform:translate(-50%,-50%) scale(1.06)}}
+.spot-sel-wrap .spot-sel-core{position:absolute;top:50%;left:50%;width:15px;height:15px;border-radius:999px;border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.4)}
+.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 22px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}
 .spot-sel-wrap .spot-sel-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#16131A}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -2991,48 +2992,48 @@ const CATS = [{
   key: "resto",
   label: "Restos",
   emoji: "🍽️",
-  color: "#FF3D8B"
+  color: "#16A34A"
 }, {
   key: "cafe",
   label: "Cafés",
   emoji: "☕",
-  color: "#FF6B2C"
+  color: "#6F4E37"
 }, {
   key: "rooftop",
   label: "Rooftops",
   emoji: "🏙️",
-  color: "#8B5CF6"
+  color: "#2563EB"
 }, {
   key: "speakeasy",
   label: "Bars",
   emoji: "🍸",
-  color: "#E91E63"
+  color: "#7C3AED"
 }, {
   key: "club",
   label: "Clubs",
   emoji: "🪩",
-  color: "#3DC8FF"
+  color: "#DB2777"
 }, {
   key: "sortie",
   label: "Sorties",
   emoji: "✨",
-  color: "#C6FF3D"
+  color: "#EA580C"
 }];
 const CC = {
-  resto: "#FF3D8B",
-  cafe: "#FF6B2C",
-  rooftop: "#8B5CF6",
-  speakeasy: "#E91E63",
-  club: "#3DC8FF",
-  sortie: "#C6FF3D"
+  resto: "#16A34A",
+  cafe: "#6F4E37",
+  rooftop: "#2563EB",
+  speakeasy: "#7C3AED",
+  club: "#DB2777",
+  sortie: "#EA580C"
 };
 const CB = {
-  resto: "#FFE4EE",
-  cafe: "#FFE7D6",
-  rooftop: "#EDE5FF",
-  speakeasy: "#FFE0EC",
-  club: "#D6F2FF",
-  sortie: "#EAFFC6"
+  resto: "#D6F5E0",
+  cafe: "#EAE0D6",
+  rooftop: "#DDE8FF",
+  speakeasy: "#ECE4FE",
+  club: "#FBDDEE",
+  sortie: "#FEE7D6"
 };
 const CAT_TYPE = {
   resto: "resto",
@@ -4519,9 +4520,11 @@ function PropositionsModal({
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
-      fontSize: step === "filter" ? 30 : 26,
-      lineHeight: 1,
-      letterSpacing: '-0.02em'
+      fontSize: step === "filter" ? 28 : 25,
+      lineHeight: 1.08,
+      letterSpacing: '-0.02em',
+      whiteSpace: 'pre-line',
+      paddingBottom: 2
     }
   }, step === "filter" ? "Qu'est-ce qui\nte ferait plaisir ?" : "Notre sélection\npour toi")), step === "results" && React.createElement("button", {
     onClick: () => {
@@ -4630,18 +4633,34 @@ function PropositionsModal({
     onAll: () => setCuisine([])
   })), React.createElement("div", {
     style: {
+      position: 'sticky',
+      bottom: 0,
       display: "flex",
       gap: 8,
-      marginTop: 8
+      marginTop: 8,
+      paddingTop: 14,
+      paddingBottom: 'max(4px,env(safe-area-inset-bottom,0px))',
+      background: 'linear-gradient(to top, var(--bg-cream) 74%, transparent)',
+      zIndex: 4
     }
   }, React.createElement("button", {
     onClick: startResults,
-    className: "btn-primary",
+    disabled: totalMatch === 0,
+    className: "press",
     style: {
-      flex: 1
-    },
-    disabled: totalMatch === 0
-  }, totalMatch > 0 ? "Voir les propositions →" : "Aucun match"), React.createElement("button", {
+      flex: 1,
+      padding: 16,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: totalMatch > 0 ? 'var(--pop-pink)' : 'var(--hairline)',
+      color: totalMatch > 0 ? '#fff' : 'var(--ink-400)',
+      fontWeight: 700,
+      fontSize: 16,
+      fontFamily: 'var(--font-body)',
+      cursor: totalMatch > 0 ? 'pointer' : 'not-allowed',
+      boxShadow: totalMatch > 0 ? '0 12px 32px rgba(255,61,139,0.4)' : 'none'
+    }
+  }, totalMatch > 0 ? `Voir les propositions (${totalMatch}) →` : "Aucun match"), React.createElement("button", {
     onClick: () => {
       setCatFilter([]);
       setWho([]);
@@ -4653,7 +4672,8 @@ function PropositionsModal({
     className: "btn-secondary",
     style: {
       flex: 0,
-      padding: "14px 20px"
+      padding: "14px 20px",
+      boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
     }
   }, "Reset"))), step === "results" && React.createElement("div", {
     style: {
@@ -7683,6 +7703,7 @@ function App() {
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [peekSpot, setPeekSpot] = useState(null);
+  const [mapCats, setMapCats] = useState(() => new Set(["resto", "cafe", "rooftop", "speakeasy", "club", "sortie"]));
   const [metroJ, setMetroJ] = useState(null);
   const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -8518,6 +8539,7 @@ function App() {
     });
     const bounds = [];
     spots.forEach(s => {
+      if (!mapCats.has(primaryCat(s))) return;
       const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
       const m = L.circleMarker([s.lat, s.lng], {
         radius: s.done ? 6 : 8,
@@ -8566,7 +8588,7 @@ function App() {
       });
       didFitRef.current = true;
     }
-  }, [tab, spots, userPos]);
+  }, [tab, spots, userPos, mapCats]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
@@ -8581,9 +8603,9 @@ function App() {
       const safeName = String(peekSpot.name || "").replace(/[<>&]/g, "");
       const icon = L.divIcon({
         className: 'spot-sel-wrap',
-        html: `<div class="spot-sel-ring" style="border-color:${col}"></div><div class="spot-sel-label">${safeName}</div>`,
-        iconSize: [38, 38],
-        iconAnchor: [19, 19]
+        html: `<div class="spot-sel-halo" style="background:${col}"></div><div class="spot-sel-core" style="background:${col}"></div><div class="spot-sel-label">${safeName}</div>`,
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
       });
       selMarkerRef.current = L.marker([peekSpot.lat, peekSpot.lng], {
         icon,
@@ -9905,42 +9927,79 @@ function App() {
       fontSize: 18,
       letterSpacing: '-0.01em'
     }
-  }, "\uD83D\uDDFA\uFE0F Paris \xB7 ", spots.length, " spots"), React.createElement("div", {
+  }, "\uD83D\uDDFA\uFE0F Paris \xB7 ", spots.filter(s => mapCats.has(primaryCat(s))).length, " spots"), React.createElement("div", {
     className: "mono-label"
   }, "Tap pour ouvrir")), React.createElement("div", {
     style: {
-      background: "rgba(255,255,255,0.92)",
+      background: "rgba(255,255,255,0.94)",
       backdropFilter: 'blur(12px)',
       borderRadius: 'var(--radius-md)',
-      padding: "8px 12px",
+      padding: "6px 7px",
       boxShadow: "var(--shadow-md)",
       display: "flex",
       flexDirection: 'column',
-      gap: 6,
+      gap: 1,
       pointerEvents: "auto"
-    }
-  }, Object.entries(CC).map(([k, c]) => React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8
     }
   }, React.createElement("div", {
     style: {
-      width: 14,
-      height: 14,
-      borderRadius: 999,
-      background: c,
-      border: '2px solid #fff'
+      display: "flex",
+      alignItems: "center",
+      gap: 5,
+      padding: "2px 5px 5px",
+      borderBottom: "1px solid var(--hairline)",
+      marginBottom: 3
     }
-  }), React.createElement("div", {
+  }, React.createElement("span", {
     style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 11.5,
-      fontWeight: 500
+      fontSize: 12
     }
-  }, k))))), React.createElement("button", {
+  }, "\uD83C\uDF9A\uFE0F"), React.createElement("span", {
+    className: "mono-label",
+    style: {
+      fontSize: 10
+    }
+  }, "Filtres \xB7 tap")), CATS.filter(c => c.key !== "all").map(c => {
+    const on = mapCats.has(c.key);
+    return React.createElement("button", {
+      key: c.key,
+      onClick: () => setMapCats(prev => {
+        const n = new Set(prev);
+        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
+        return n;
+      }),
+      className: "press",
+      "aria-pressed": on,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 7,
+        background: "none",
+        border: "none",
+        padding: "4px 5px",
+        borderRadius: 8,
+        cursor: "pointer",
+        opacity: on ? 1 : 0.4
+      }
+    }, React.createElement("span", {
+      style: {
+        width: 13,
+        height: 13,
+        borderRadius: 999,
+        background: on ? CC[c.key] : "transparent",
+        border: `2px solid ${CC[c.key]}`,
+        flexShrink: 0
+      }
+    }), React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        fontWeight: on ? 700 : 500,
+        color: 'var(--ink-900)',
+        textDecoration: on ? "none" : "line-through"
+      }
+    }, c.label));
+  }))), React.createElement("button", {
     onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
@@ -11313,13 +11372,13 @@ function App() {
     icon: "📍",
     label: "Spots"
   }, {
-    key: "events",
-    icon: "🎫",
-    label: "Events"
-  }, {
     key: "map",
     icon: "🗺️",
     label: "Carte"
+  }, {
+    key: "events",
+    icon: "🎫",
+    label: "Events"
   }, {
     key: "profile",
     icon: "⚙️",
