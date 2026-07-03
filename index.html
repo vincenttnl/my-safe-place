@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-03T12:28:33.150Z -->
+<!-- built 2026-07-03T12:40:13.110Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -9902,7 +9902,7 @@ function App() {
   }), React.createElement("div", {
     style: {
       position: "absolute",
-      top: 12,
+      top: "calc(12px + env(safe-area-inset-top,0px))",
       left: 12,
       right: 12,
       zIndex: 1000,
@@ -9973,10 +9973,10 @@ function App() {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: 7,
+        gap: 8,
         background: "none",
         border: "none",
-        padding: "4px 5px",
+        padding: "7px 8px",
         borderRadius: 8,
         cursor: "pointer",
         opacity: on ? 1 : 0.4
