@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-03T12:55:09.161Z -->
+<!-- built 2026-07-03T13:02:38.242Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -8498,7 +8498,9 @@ function App() {
     if (tab !== "map") return;
     const el = mapContainerRef.current;
     if (!el) return;
-    const map = L.map(el).setView([48.8606, 2.3376], 12);
+    const map = L.map(el, {
+      zoomControl: false
+    }).setView([48.8606, 2.3376], 12);
     const url = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     L.tileLayer(url, {
       maxZoom: 19,
@@ -9959,7 +9961,14 @@ function App() {
     style: {
       fontSize: 10
     }
-  }, "Filtres \xB7 tap")), CATS.filter(c => c.key !== "all").map(c => {
+  }, "Filtres \xB7 tap")), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      columnGap: 4,
+      rowGap: 1
+    }
+  }, CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
     return React.createElement("button", {
       key: c.key,
@@ -9973,18 +9982,18 @@ function App() {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: 8,
+        gap: 7,
         background: "none",
         border: "none",
-        padding: "7px 8px",
+        padding: "6px 6px",
         borderRadius: 8,
         cursor: "pointer",
         opacity: on ? 1 : 0.4
       }
     }, React.createElement("span", {
       style: {
-        width: 13,
-        height: 13,
+        width: 12,
+        height: 12,
         borderRadius: 999,
         background: on ? CC[c.key] : "transparent",
         border: `2px solid ${CC[c.key]}`,
@@ -9996,10 +10005,11 @@ function App() {
         fontSize: 11.5,
         fontWeight: on ? 700 : 500,
         color: 'var(--ink-900)',
-        textDecoration: on ? "none" : "line-through"
+        textDecoration: on ? "none" : "line-through",
+        whiteSpace: "nowrap"
       }
     }, c.label));
-  }))), React.createElement("button", {
+  })))), React.createElement("button", {
     onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
