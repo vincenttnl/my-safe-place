@@ -1,6 +1,6 @@
 // MonParis — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'monparis-v19-2026-07-03';
+const CACHE_VERSION = 'monparis-v20-2026-07-03';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -84,9 +84,28 @@ self.addEventListener('fetch', (event) => {
 
   const sameOrigin = new URL(url).origin === self.location.origin;
   if (sameOrigin) {
-    event.respondWith(cacheFirst(req, STATIC_CACHE));
+    // HTML (navigation / index.html / racine) : network-first pour que les MAJ
+    // s'affichent dès le rechargement quand on est en ligne. Fallback cache offline.
+    const isHtml = req.mode === 'navigate' || url.endsWith('/') || url.endsWith('/index.html');
+    if (isHtml) {
+      event.respondWith(networkFirst(req, STATIC_CACHE));
+    } else {
+      event.respondWith(cacheFirst(req, STATIC_CACHE));
+    }
   }
 });
+
+async function networkFirst(req, cacheName) {
+  const cache = await caches.open(cacheName);
+  try {
+    const fresh = await fetch(req);
+    if (fresh && fresh.ok) cache.put(req, fresh.clone());
+    return fresh;
+  } catch (e) {
+    const cached = await cache.match(req);
+    return cached || (await cache.match('./index.html')) || Response.error();
+  }
+}
 
 async function cacheFirst(req, cacheName) {
   const cache = await caches.open(cacheName);
