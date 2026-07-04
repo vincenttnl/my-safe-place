@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-03T13:02:38.242Z -->
+<!-- built 2026-07-04T15:08:00.004Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -79,6 +79,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
 
 .fade-in{animation:fadeIn .3s ease-out both}
 .slide-up{animation:slideUp .35s var(--ease) both}
@@ -2954,6 +2955,33 @@ const Q_CUISINE = [{
   k: "fastfood",
   l: "🌯 Fast-food"
 }];
+const Q_BUDGET = [{
+  k: "free",
+  l: "🆓 Gratuit"
+}, {
+  k: "€",
+  l: "€ · -15€"
+}, {
+  k: "€€",
+  l: "€€ · 15-30€"
+}, {
+  k: "€€€",
+  l: "€€€ · 30€+"
+}];
+const STREET_KEYS = ["burger", "pizza", "fastfood"];
+const Q_CUISINE_WIZ = [...Q_CUISINE.filter(c => !STREET_KEYS.includes(c.k)), {
+  k: "streetfood",
+  l: "🍔 Sur le pouce"
+}];
+function priceBucket(p) {
+  if (!p) return null;
+  const nums = (String(p).match(/\d+[.,]?\d*/g) || []).map(n => parseFloat(n.replace(",", ".")));
+  if (!nums.length) return /gratuit|libre|free/i.test(p) ? "free" : null;
+  const max = Math.max(...nums);
+  if (max <= 15) return "€";
+  if (max <= 30) return "€€";
+  return "€€€";
+}
 const DEPTS = [{
   k: "75",
   l: "75 Paris",
@@ -4358,10 +4386,17 @@ function PropositionsModal({
   const [step, setStep] = useState("filter");
   const [catFilter, setCatFilter] = useState([]);
   const [who, setWho] = useState([]);
-  const [when, setWhen] = useState([]);
+  const [when, setWhen] = useState(() => {
+    const h = new Date().getHours();
+    if (h >= 17 && h < 20) return ["apero"];
+    if (h >= 20 || h < 1) return ["soiree"];
+    if (h < 6) return ["after"];
+    return ["journee"];
+  });
   const [vibe, setVibe] = useState([]);
   const [zone, setZone] = useState([]);
   const [cuisine, setCuisine] = useState([]);
+  const [budget, setBudget] = useState([]);
   const toggleVal = setter => v => setter(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v]);
   const [addedIds, setAddedIds] = useState(new Set());
   const [seenIds, setSeenIds] = useState(new Set());
@@ -4372,15 +4407,17 @@ function PropositionsModal({
   const [topN, setTopN] = useState(5);
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
   const allResults = useMemo(() => {
+    const cuisineExp = cuisine.flatMap(c => c === "streetfood" ? STREET_KEYS : [c]);
     return POOL.map(s => {
       if (catFilter.length && !catFilter.some(c => s.cats.includes(c))) return null;
+      if (budget.length && !budget.includes(priceBucket(s.price))) return null;
       let score = 0;
       if (s.tags) {
         if (who.length && who.some(w => s.tags.who?.includes(w))) score += 3;
         if (when.length && when.some(w => s.tags.when?.includes(w))) score += 3;
         if (vibe.length && vibe.some(v => s.tags.vibe?.includes(v))) score += 3;
         if (zone.length && zone.includes(s.tags.zone)) score += 2;
-        if (cuisine.length && cuisine.some(c => s.tags.cuisine?.includes(c))) score += 4;
+        if (cuisine.length && cuisineExp.some(c => s.tags.cuisine?.includes(c))) score += 4;
       }
       const anyFilter = who.length || when.length || vibe.length || zone.length || cuisine.length;
       if (anyFilter && score === 0) return null;
@@ -4389,7 +4426,36 @@ function PropositionsModal({
         score: anyFilter ? score : 1
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
-  }, [catFilter, who, when, vibe, zone, cuisine, POOL]);
+  }, [catFilter, who, when, vibe, zone, cuisine, budget, POOL]);
+  const pillCounts = useMemo(() => {
+    const counts = {
+      who: {},
+      when: {},
+      vibe: {},
+      zone: {},
+      cuisine: {},
+      cat: {},
+      budget: {}
+    };
+    for (const s of POOL) {
+      const okCat = !catFilter.length || catFilter.some(c => s.cats.includes(c));
+      const okBud = !budget.length || budget.includes(priceBucket(s.price));
+      if (okBud) s.cats.forEach(c => counts.cat[c] = (counts.cat[c] || 0) + 1);
+      if (okCat) {
+        const b = priceBucket(s.price);
+        if (b) counts.budget[b] = (counts.budget[b] || 0) + 1;
+      }
+      if (!okCat || !okBud) continue;
+      const t = s.tags || {};
+      (t.who || []).forEach(k => counts.who[k] = (counts.who[k] || 0) + 1);
+      (t.when || []).forEach(k => counts.when[k] = (counts.when[k] || 0) + 1);
+      (t.vibe || []).forEach(k => counts.vibe[k] = (counts.vibe[k] || 0) + 1);
+      if (t.zone) counts.zone[t.zone] = (counts.zone[t.zone] || 0) + 1;
+      (t.cuisine || []).forEach(k => counts.cuisine[k] = (counts.cuisine[k] || 0) + 1);
+      if ((t.cuisine || []).some(k => STREET_KEYS.includes(k))) counts.cuisine.streetfood = (counts.cuisine.streetfood || 0) + 1;
+    }
+    return counts;
+  }, [POOL, catFilter, budget]);
   const pickTwo = useCallback(() => {
     const unseen = allResults.filter(r => !seenIds.has(r.s.id));
     if (unseen.length === 0) {
@@ -4460,7 +4526,8 @@ function PropositionsModal({
     list,
     value: val,
     onToggle: onT,
-    onAll
+    onAll,
+    counts
   }) => React.createElement("div", {
     style: {
       display: "flex",
@@ -4470,11 +4537,27 @@ function PropositionsModal({
   }, onAll && React.createElement("button", {
     onClick: onAll,
     className: `pill-btn${val.length === 0 ? " active" : ""}`
-  }, "Tout"), list.map(o => React.createElement("button", {
-    key: o.k,
-    onClick: () => onT(o.k),
-    className: `pill-btn${val.includes(o.k) ? " active" : ""}`
-  }, o.l)));
+  }, "Tout"), list.map(o => {
+    const n = counts && o.k ? counts[o.k] || 0 : null;
+    const off = n === 0 && !val.includes(o.k);
+    return React.createElement("button", {
+      key: o.k,
+      onClick: () => !off && onT(o.k),
+      className: `pill-btn${val.includes(o.k) ? " active" : ""}`,
+      style: off ? {
+        opacity: .35,
+        cursor: 'default'
+      } : {},
+      "aria-disabled": off
+    }, o.l, n !== null && React.createElement("span", {
+      style: {
+        opacity: .55,
+        fontSize: 11,
+        marginLeft: 5,
+        fontWeight: 600
+      }
+    }, n));
+  }));
   const catOptions = CATS.filter(c => c.key !== "all");
   const totalMatch = allResults.length;
   const seenCount = seenIds.size;
@@ -4567,11 +4650,27 @@ function PropositionsModal({
   }, React.createElement("button", {
     onClick: () => setCatFilter([]),
     className: `pill-btn${catFilter.length === 0 ? " active" : ""}`
-  }, "\uD83C\uDF1F Tout"), catOptions.map(c => React.createElement("button", {
-    key: c.key,
-    onClick: () => toggleVal(setCatFilter)(c.key),
-    className: `pill-btn${catFilter.includes(c.key) ? " active" : ""}`
-  }, c.emoji, " ", c.label)))), React.createElement("div", null, React.createElement("div", {
+  }, "\uD83C\uDF1F Tout"), catOptions.map(c => {
+    const n = pillCounts.cat[c.key] || 0;
+    const off = n === 0 && !catFilter.includes(c.key);
+    return React.createElement("button", {
+      key: c.key,
+      onClick: () => !off && toggleVal(setCatFilter)(c.key),
+      className: `pill-btn${catFilter.includes(c.key) ? " active" : ""}`,
+      style: off ? {
+        opacity: .35,
+        cursor: 'default'
+      } : {},
+      "aria-disabled": off
+    }, c.emoji, " ", c.label, React.createElement("span", {
+      style: {
+        opacity: .55,
+        fontSize: 11,
+        marginLeft: 5,
+        fontWeight: 600
+      }
+    }, n));
+  }))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 14,
@@ -4582,7 +4681,8 @@ function PropositionsModal({
     list: Q_WHO,
     value: who,
     onToggle: toggleVal(setWho),
-    onAll: () => setWho([])
+    onAll: () => setWho([]),
+    counts: pillCounts.who
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4594,7 +4694,8 @@ function PropositionsModal({
     list: Q_WHEN,
     value: when,
     onToggle: toggleVal(setWhen),
-    onAll: () => setWhen([])
+    onAll: () => setWhen([]),
+    counts: pillCounts.when
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4606,7 +4707,21 @@ function PropositionsModal({
     list: Q_VIBE,
     value: vibe,
     onToggle: toggleVal(setVibe),
-    onAll: () => setVibe([])
+    onAll: () => setVibe([]),
+    counts: pillCounts.vibe
+  })), React.createElement("div", null, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      fontWeight: 600,
+      marginBottom: 8
+    }
+  }, "\uD83D\uDCB6 Budget ?"), React.createElement(Pill, {
+    list: Q_BUDGET,
+    value: budget,
+    onToggle: toggleVal(setBudget),
+    onAll: () => setBudget([]),
+    counts: pillCounts.budget
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4618,7 +4733,8 @@ function PropositionsModal({
     list: Q_ZONE,
     value: zone,
     onToggle: toggleVal(setZone),
-    onAll: () => setZone([])
+    onAll: () => setZone([]),
+    counts: pillCounts.zone
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
@@ -4627,10 +4743,11 @@ function PropositionsModal({
       marginBottom: 8
     }
   }, "\uD83C\uDF74 Cuisine ?"), React.createElement(Pill, {
-    list: Q_CUISINE,
+    list: Q_CUISINE_WIZ,
     value: cuisine,
     onToggle: toggleVal(setCuisine),
-    onAll: () => setCuisine([])
+    onAll: () => setCuisine([]),
+    counts: pillCounts.cuisine
   })), React.createElement("div", {
     style: {
       position: 'sticky',
@@ -4668,6 +4785,7 @@ function PropositionsModal({
       setVibe([]);
       setZone([]);
       setCuisine([]);
+      setBudget([]);
     },
     className: "btn-secondary",
     style: {
@@ -5210,6 +5328,7 @@ function SpotFormModal({
   const [nHours, setNHours] = useState(s?.hours || "");
   const [nCuisine, setNCuisine] = useState(Array.isArray(s?.tags?.cuisine) ? s.tags.cuisine : []);
   const [nWork, setNWork] = useState(!!s?.tags?.work);
+  const [nVibe, setNVibe] = useState(Array.isArray(s?.tags?.vibe) ? s.tags.vibe : []);
   const [enriching, setEnriching] = useState(false);
   const runEnrich = async () => {
     if (!nName.trim() && !nWebsite.trim()) return;
@@ -5328,8 +5447,10 @@ function SpotFormModal({
       price: nPrice.trim(),
       hours: nHours.trim(),
       tags: {
+        ...(s?.tags || {}),
         cuisine: nCuisine,
-        work: nWork
+        work: nWork,
+        vibe: nVibe
       }
     };
     if (editingId != null) data._editId = editingId;
@@ -5554,6 +5675,35 @@ function SpotFormModal({
         color: '#fff'
       } : {}
     }, c.l);
+  }))), React.createElement("div", {
+    style: {
+      marginBottom: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      fontWeight: 700,
+      marginBottom: 6
+    }
+  }, "Ambiance"), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6
+    }
+  }, Q_VIBE.map(v => {
+    const on = nVibe.includes(v.k);
+    return React.createElement("button", {
+      key: v.k,
+      onClick: () => setNVibe(n => on ? n.filter(x => x !== v.k) : [...n, v.k]),
+      className: `pill-btn${on ? " active" : ""}`,
+      style: on ? {
+        borderColor: 'var(--pop-violet)',
+        background: 'var(--pop-violet)',
+        color: '#fff'
+      } : {}
+    }, v.l);
   }))), React.createElement("button", {
     onClick: () => setNWork(w => !w),
     className: `pill-btn${nWork ? " active" : ""}`,
@@ -7699,6 +7849,8 @@ function App() {
   }, []);
   const [cat, setCat] = useState("all");
   const [filter, setFilter] = useState("all");
+  const [budgetF, setBudgetF] = useState([]);
+  const [vibeF, setVibeF] = useState([]);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -8623,22 +8775,25 @@ function App() {
       let fOk = true;
       if (filter === "all") fOk = s.status !== "rejected";else if (filter === "todo") fOk = !s.done && s.status !== "rejected";else if (filter === "done") fOk = s.done;else if (filter === "fav") fOk = s.fav;else if (filter === "wishlist") fOk = s.status === "wishlist";else if (filter === "rejected") fOk = s.status === "rejected";else if (filter === "work") fOk = s.tags?.work === true;
       const q = search.trim().toLowerCase();
-      const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q);
+      const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
+      const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
+      const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
       let zOk = true;
       if (zones) {
         const type = CAT_TYPE[primaryCat(s)] || "sortie";
         const zList = type === "resto" ? zones.resto : zones.sortie;
         zOk = matchesZones(s, zList);
       }
-      return catOk && fOk && sOk && zOk;
+      return catOk && fOk && sOk && bOk && vbOk && zOk;
     });
-  }, [spots, cat, filter, search, zones]);
+  }, [spots, cat, filter, search, budgetF, vibeF, zones]);
   const sortedVisible = useMemo(() => {
     const arr = [...visible];
     const extractPrice = p => {
       if (!p) return 999;
       const m = p.match(/(\d+)/);
-      return m ? parseInt(m[1]) : 999;
+      if (m) return parseInt(m[1]);
+      return /gratuit|libre|free/i.test(p) ? 0 : 999;
     };
     if (sort === "recent") arr.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "fav") arr.sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "alpha") arr.sort((a, b) => a.name.localeCompare(b.name, "fr"));else if (sort === "price-asc") arr.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));else if (sort === "price-desc") arr.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));else if (sort === "distance" && userPos) arr.sort((a, b) => distKm(userPos.lat, userPos.lng, a.lat, a.lng) - distKm(userPos.lat, userPos.lng, b.lat, b.lng));
     return arr;
@@ -8697,9 +8852,9 @@ function App() {
         fontWeight: 600,
         fontSize: 15,
         cursor: 'pointer',
-        boxShadow: '0 12px 32px rgba(255,61,139,0.35)'
+        animation: 'goldGlow 2.6s ease-in-out infinite'
       }
-    }, "\uD83D\uDCA1 Propositions"), React.createElement("button", {
+    }, "\u2728 Propositions"), React.createElement("button", {
       onClick: pickRandom,
       className: "press",
       style: {
@@ -8737,20 +8892,36 @@ function App() {
       }
     }, [{
       v: spots.length,
-      l: 'spots'
+      l: 'spots',
+      f: 'all'
     }, {
       v: todoCount,
-      l: 'a faire'
+      l: 'a faire',
+      f: 'todo'
     }, {
       v: doneCount,
-      l: 'faits'
+      l: 'faits',
+      f: 'done'
     }, {
       v: favCount,
-      l: 'favoris'
-    }].map((s, i) => React.createElement("div", {
+      l: 'favoris',
+      f: 'fav'
+    }].map((s, i) => React.createElement("button", {
       key: i,
+      className: "press",
+      onClick: () => {
+        setCat("all");
+        setFilter(s.f);
+        setSearch("");
+        setSearchMode("local");
+        setTab("spots");
+      },
       style: {
-        textAlign: 'center'
+        textAlign: 'center',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer'
       }
     }, React.createElement("div", {
       style: {
@@ -8758,7 +8929,8 @@ function App() {
         fontWeight: 900,
         fontSize: 30,
         lineHeight: 1,
-        letterSpacing: '-0.02em'
+        letterSpacing: '-0.02em',
+        color: 'var(--ink-900)'
       }
     }, s.v), React.createElement("div", {
       style: {
@@ -9031,6 +9203,8 @@ function App() {
       const tilt = stableTilt(ev.id || Date.now(), 1.5);
       return React.createElement("div", {
         key: ev.id,
+        className: "press",
+        onClick: () => setTab("events"),
         style: {
           width: 200,
           flexShrink: 0,
@@ -9039,7 +9213,8 @@ function App() {
           background: '#fff',
           border: '1px solid var(--hairline)',
           boxShadow: 'var(--shadow-sm)',
-          transform: `rotate(${tilt}deg)`
+          transform: `rotate(${tilt}deg)`,
+          cursor: 'pointer'
         }
       }, React.createElement("div", {
         style: {
@@ -9210,8 +9385,6 @@ function App() {
   }, React.createElement("option", {
     value: "recent"
   }, "Recents"), React.createElement("option", {
-    value: "fav"
-  }, "Favoris"), React.createElement("option", {
     value: "alpha"
   }, "A-Z"), React.createElement("option", {
     value: "price-asc"
@@ -9317,10 +9490,10 @@ function App() {
       display: 'flex',
       gap: 6,
       overflowX: 'auto',
-      padding: '10px 20px 14px',
+      padding: '10px 20px 6px',
       scrollbarWidth: 'none'
     }
-  }, [["all", "Tous"], ["todo", "A faire"], ["wishlist", "Envies"], ["done", "Faits"], ["fav", "Favoris"], ["work", "Workfriendly"], ["rejected", "Refuses"]].map(([k, l]) => {
+  }, [["all", "Tous"], ["todo", "A faire"], ["wishlist", "Envies"], ["done", "Faits"], ["fav", "Favoris"], ["work", "Workfriendly"]].map(([k, l]) => {
     const active = filter === k;
     return React.createElement("button", {
       key: k,
@@ -9339,6 +9512,60 @@ function App() {
         flexShrink: 0
       }
     }, l);
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      overflowX: 'auto',
+      padding: '0 20px 6px',
+      scrollbarWidth: 'none'
+    }
+  }, Q_BUDGET.map(b => {
+    const active = budgetF.includes(b.k);
+    return React.createElement("button", {
+      key: b.k,
+      onClick: () => setBudgetF(p => active ? p.filter(x => x !== b.k) : [...p, b.k]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
+        background: active ? 'var(--pop-orange)' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, b.l);
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      overflowX: 'auto',
+      padding: '0 20px 14px',
+      scrollbarWidth: 'none'
+    }
+  }, Q_VIBE.map(v => {
+    const active = vibeF.includes(v.k);
+    return React.createElement("button", {
+      key: v.k,
+      onClick: () => setVibeF(p => active ? p.filter(x => x !== v.k) : [...p, v.k]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
+        background: active ? 'var(--pop-violet)' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, v.l);
   }))), searchMode === "local" ? React.createElement("div", {
     style: {
       padding: '20px 20px 0'
@@ -10483,7 +10710,66 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 600
       }
-    }, idfmKey ? '✓ Clé configurée — itinéraires métro activés' : 'Sans clé : bouton « Ouvrir dans Maps » utilisé à la place'))), trash.length > 0 && React.createElement("div", {
+    }, idfmKey ? '✓ Clé configurée — itinéraires métro activés' : 'Sans clé : bouton « Ouvrir dans Maps » utilisé à la place'))), spots.some(s => s.status === "rejected") && React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 4
+      }
+    }, "\uD83D\uDEAB Spots refus\xE9s"), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginBottom: 12,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Masqu\xE9s de tes listes \u2014 r\xE9tablis-les d'un tap"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6
+      }
+    }, spots.filter(s => s.status === "rejected").map(s => React.createElement("div", {
+      key: s.id,
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '8px 10px',
+        background: 'var(--bg-soft)',
+        borderRadius: 10
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        fontWeight: 600
+      }
+    }, s.name), React.createElement("button", {
+      onClick: () => setStatus(s.id, "rejected"),
+      className: "press",
+      style: {
+        padding: '4px 10px',
+        borderRadius: 8,
+        border: 'none',
+        background: '#d1fae5',
+        color: '#065f46',
+        fontWeight: 700,
+        fontSize: 12
+      }
+    }, "\u21A9\uFE0F R\xE9tablir")))))), trash.length > 0 && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
