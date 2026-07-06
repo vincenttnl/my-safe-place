@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-04T15:08:00.004Z -->
+<!-- built 2026-07-06T12:16:12.644Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -7202,6 +7202,7 @@ function AuthCard({
   onResync
 }) {
   const [mode, setMode] = useState("login");
+  const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [optin, setOptin] = useState(true);
@@ -7212,7 +7213,11 @@ function AuthCard({
     setErr("");
     setInfo("");
   };
-  const submit = async () => {
+  const swap = m => {
+    setMode(m);
+    reset();
+  };
+  const login = async () => {
     reset();
     if (!/.+@.+\..+/.test(email)) {
       setErr("Email invalide");
@@ -7224,44 +7229,60 @@ function AuthCard({
     }
     setBusy(true);
     try {
-      try {
-        const d = await supaSignIn(email, password);
-        await onLogin(d);
+      const d = await supaSignIn(email, password);
+      await onLogin(d);
+      return;
+    } catch (e) {
+      const msg = (e.message || "").toLowerCase();
+      if (e.status === 400 && (msg.includes("not confirmed") || msg.includes("non confirm"))) {
+        setInfo("📧 Ton compte n'est pas encore activé. Clique le lien qu'on t'a envoyé par email (pense à regarder les spams).");
+      } else if (e.status === 400) {
+        setErr("Email ou mot de passe incorrect. Pas encore de compte ? Crée-le en dessous.");
+      } else setErr(e.message);
+    }
+    setBusy(false);
+  };
+  const signup = async () => {
+    reset();
+    const p = pseudo.trim();
+    if (p.length < 2) {
+      setErr("Choisis un pseudo (2 caractères minimum)");
+      return;
+    }
+    if (!/.+@.+\..+/.test(email)) {
+      setErr("Email invalide");
+      return;
+    }
+    if (password.length < 6) {
+      setErr("Mot de passe : 6 caractères minimum");
+      return;
+    }
+    if (!optin) {
+      setErr("Pour créer ton compte et rejoindre la communauté, coche la case ci-dessus.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const s = await supaSignUp(email, password, {
+        pseudo: p,
+        community_optin: true,
+        optin_at: new Date().toISOString(),
+        source: "monparis-app"
+      });
+      if (s.access_token) {
+        await onLogin(s);
         return;
-      } catch (e) {
-        if (e.status !== 400) throw e;
-        const msg = (e.message || "").toLowerCase();
-        if (msg.includes("not confirmed") || msg.includes("non confirm")) {
-          setInfo("📧 Ton compte n'est pas encore activé. Clique le lien qu'on t'a envoyé par email (pense à regarder les spams).");
-          setBusy(false);
-          return;
-        }
-        if (!optin) {
-          setErr("Pour créer ton compte et rejoindre la communauté, coche la case ci-dessous.");
-          setBusy(false);
-          return;
-        }
-        const s = await supaSignUp(email, password, {
-          community_optin: true,
-          optin_at: new Date().toISOString(),
-          source: "monparis-app"
-        });
-        if (s.access_token) {
-          await onLogin(s);
-          return;
-        }
-        if (Array.isArray(s.identities) && s.identities.length === 0) {
-          setErr("Mot de passe incorrect. Mot de passe oublié ?");
-          setBusy(false);
-          return;
-        }
-        setInfo("📧 Bienvenue ! Ton compte est créé. Clique le lien qu'on vient de t'envoyer par email pour l'activer et lancer la synchro (pense aux spams).");
-        setBusy(false);
       }
+      if (Array.isArray(s.identities) && s.identities.length === 0) {
+        setErr("Un compte existe déjà avec cet email. Connecte-toi, ou passe par « Mot de passe oublié ».");
+        setBusy(false);
+        return;
+      }
+      setInfo("📧 Bienvenue " + p + " ! Ton compte est créé. Clique le lien qu'on vient de t'envoyer par email pour l'activer et lancer la synchro (pense aux spams).");
     } catch (e) {
       setErr(e.message);
-      setBusy(false);
     }
+    setBusy(false);
   };
   const sendReset = async () => {
     reset();
@@ -7305,7 +7326,11 @@ function AuthCard({
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, session.user && session.user.email), React.createElement("div", {
+    }, session.user && session.user.pseudo ? React.createElement("span", null, React.createElement("b", {
+      style: {
+        color: 'var(--ink-600)'
+      }
+    }, session.user.pseudo), " \xB7 ", session.user.email) : session.user && session.user.email), React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: col,
@@ -7388,10 +7413,7 @@ function AuthCard({
         fontSize: 14
       }
     }, busy ? "⏳ Envoi…" : "Envoyer le lien"), React.createElement("button", {
-      onClick: () => {
-        setMode("login");
-        reset();
-      },
+      onClick: () => swap("login"),
       style: {
         marginTop: 10,
         width: '100%',
@@ -7420,6 +7442,124 @@ function AuthCard({
       }
     }, "\u26A0\uFE0F ", err));
   }
+  if (mode === "signup") {
+    return React.createElement("div", {
+      style: card
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 4
+      }
+    }, "\u2728 Cr\xE9er ton compte"), React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        marginBottom: 12
+      }
+    }, "Choisis un pseudo \u2014 c'est lui qui te repr\xE9sentera dans la communaut\xE9 MonParis."), React.createElement("input", {
+      value: pseudo,
+      onChange: e => setPseudo(e.target.value),
+      placeholder: "Ton pseudo (ex : Vincent75)",
+      className: "input-v2",
+      style: {
+        fontSize: 14,
+        marginBottom: 8
+      },
+      type: "text",
+      autoComplete: "nickname",
+      maxLength: 20
+    }), React.createElement("input", {
+      value: email,
+      onChange: e => setEmail(e.target.value),
+      placeholder: "ton@email.fr",
+      className: "input-v2",
+      style: {
+        fontSize: 14,
+        marginBottom: 8
+      },
+      type: "email",
+      autoComplete: "email",
+      inputMode: "email"
+    }), React.createElement("input", {
+      value: password,
+      onChange: e => setPassword(e.target.value),
+      onKeyDown: e => e.key === "Enter" && signup(),
+      placeholder: "Mot de passe (6 caract\xE8res min.)",
+      className: "input-v2",
+      style: {
+        fontSize: 14,
+        marginBottom: 10
+      },
+      type: "password",
+      autoComplete: "new-password"
+    }), React.createElement("label", {
+      style: {
+        display: 'flex',
+        gap: 9,
+        alignItems: 'flex-start',
+        marginBottom: 12,
+        cursor: 'pointer'
+      }
+    }, React.createElement("input", {
+      type: "checkbox",
+      checked: optin,
+      onChange: e => setOptin(e.target.checked),
+      style: {
+        marginTop: 2,
+        width: 17,
+        height: 17,
+        accentColor: 'var(--pop-pink)',
+        flexShrink: 0,
+        cursor: 'pointer'
+      }
+    }), React.createElement("span", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-600)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, "Je rejoins la communaut\xE9 MonParis et j'accepte de recevoir ses emails (nouveaut\xE9s, bons plans, newsletter). D\xE9sabonnable \xE0 tout moment.")), React.createElement("button", {
+      onClick: signup,
+      disabled: busy,
+      className: "btn-primary",
+      style: {
+        fontSize: 14
+      }
+    }, busy ? "⏳ Création…" : "Créer mon compte"), React.createElement("button", {
+      onClick: () => swap("login"),
+      style: {
+        marginTop: 10,
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)'
+      }
+    }, "\u2190 J'ai d\xE9j\xE0 un compte"), info && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: '#2ECC71',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10,
+        lineHeight: 1.4
+      }
+    }, info), err && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, "\u26A0\uFE0F ", err));
+  }
   return React.createElement("div", {
     style: card
   }, React.createElement("div", {
@@ -7436,7 +7576,7 @@ function AuthCard({
       fontFamily: 'var(--font-body)',
       marginBottom: 12
     }
-  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils. Pas encore de compte ? Il se cr\xE9e tout seul."), React.createElement("input", {
+  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils."), React.createElement("input", {
     value: email,
     onChange: e => setEmail(e.target.value),
     placeholder: "ton@email.fr",
@@ -7451,8 +7591,8 @@ function AuthCard({
   }), React.createElement("input", {
     value: password,
     onChange: e => setPassword(e.target.value),
-    onKeyDown: e => e.key === "Enter" && submit(),
-    placeholder: "Mot de passe (6 caract\xE8res min.)",
+    onKeyDown: e => e.key === "Enter" && login(),
+    placeholder: "Mot de passe",
     className: "input-v2",
     style: {
       fontSize: 14,
@@ -7460,45 +7600,31 @@ function AuthCard({
     },
     type: "password",
     autoComplete: "current-password"
-  }), React.createElement("label", {
-    style: {
-      display: 'flex',
-      gap: 9,
-      alignItems: 'flex-start',
-      marginBottom: 12,
-      cursor: 'pointer'
-    }
-  }, React.createElement("input", {
-    type: "checkbox",
-    checked: optin,
-    onChange: e => setOptin(e.target.checked),
-    style: {
-      marginTop: 2,
-      width: 17,
-      height: 17,
-      accentColor: 'var(--pop-pink)',
-      flexShrink: 0,
-      cursor: 'pointer'
-    }
-  }), React.createElement("span", {
-    style: {
-      fontSize: 11.5,
-      color: 'var(--ink-600)',
-      fontFamily: 'var(--font-body)',
-      lineHeight: 1.4
-    }
-  }, "Je rejoins la communaut\xE9 MonParis et j'accepte de recevoir ses emails (nouveaut\xE9s, bons plans, newsletter). D\xE9sabonnable \xE0 tout moment.")), React.createElement("button", {
-    onClick: submit,
+  }), React.createElement("button", {
+    onClick: login,
     disabled: busy,
     className: "btn-primary",
     style: {
       fontSize: 14
     }
-  }, busy ? "⏳ Connexion…" : "Se connecter / Créer mon compte"), React.createElement("button", {
-    onClick: () => {
-      setMode("forgot");
-      reset();
-    },
+  }, busy ? "⏳ Connexion…" : "Se connecter"), React.createElement("button", {
+    onClick: () => swap("signup"),
+    disabled: busy,
+    className: "press",
+    style: {
+      marginTop: 8,
+      width: '100%',
+      background: 'var(--bg-soft,#F3F1F6)',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '11px 0',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      cursor: 'pointer'
+    }
+  }, "\u2728 Cr\xE9er un compte"), React.createElement("button", {
+    onClick: () => swap("forgot"),
     style: {
       marginTop: 10,
       width: '100%',
@@ -8065,13 +8191,17 @@ function App() {
     }
   };
   const handleLogin = async data => {
+    const u = data.user || {};
+    const meta = u.user_metadata || {};
     const sess = {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
       expires_at: data.expires_at,
       user: {
-        id: data.user && data.user.id,
-        email: data.user && data.user.email
+        id: u.id,
+        email: u.email,
+        pseudo: u.pseudo || meta.pseudo || null,
+        community_optin: !!(u.community_optin || meta.community_optin)
       }
     };
     try {
@@ -8087,15 +8217,25 @@ function App() {
     if (!sess || !sess.user || !sess.user.id) return;
     try {
       const token = await validToken(sess);
-      const optin = !!sess.user.community_optin;
       const row = {
         id: sess.user.id,
         email: sess.user.email || null
       };
-      if (optin) {
+      if (sess.user.community_optin) {
         row.community_optin = true;
       }
-      const p = await supaUpsertProfile(token, row);
+      if (sess.user.pseudo) {
+        row.pseudo = sess.user.pseudo;
+      }
+      let p;
+      try {
+        p = await supaUpsertProfile(token, row);
+      } catch (e) {
+        if (row.pseudo) {
+          delete row.pseudo;
+          p = await supaUpsertProfile(token, row);
+        } else throw e;
+      }
       setProfile(p || (await supaGetProfile(token, sess.user.id)));
     } catch (e) {}
   };
@@ -8129,10 +8269,7 @@ function App() {
       access_token: ev.token,
       refresh_token: ev.refresh,
       expires_at: ev.expires_at,
-      user: {
-        id: user.id,
-        email: user.email
-      }
+      user: user
     });
     window.mspToast?.("Mot de passe mis à jour ✓", "success");
   };
@@ -8145,11 +8282,7 @@ function App() {
           access_token: authEvent.token,
           refresh_token: authEvent.refresh,
           expires_at: authEvent.expires_at,
-          user: {
-            id: u.id,
-            email: u.email,
-            community_optin: !!(u.user_metadata && u.user_metadata.community_optin)
-          }
+          user: u
         });
         setShowWelcome(true);
       } catch (e) {
