@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-06T12:16:12.644Z -->
+<!-- built 2026-07-06T12:23:29.216Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -7194,6 +7194,54 @@ function ToastStack() {
     "aria-hidden": "true"
   }, TOAST_ICONS[t.type] || TOAST_ICONS.info), React.createElement("span", null, t.msg))));
 }
+function PwdInput({
+  value,
+  onChange,
+  onEnter,
+  placeholder,
+  autoComplete,
+  autoFocus,
+  style,
+  fontSize
+}) {
+  const [show, setShow] = useState(false);
+  return React.createElement("div", {
+    style: {
+      position: 'relative',
+      ...style
+    }
+  }, React.createElement("input", {
+    value: value,
+    onChange: onChange,
+    onKeyDown: e => e.key === "Enter" && onEnter && onEnter(),
+    placeholder: placeholder,
+    className: "input-v2",
+    style: {
+      fontSize: fontSize || 14,
+      paddingRight: 46
+    },
+    type: show ? "text" : "password",
+    autoComplete: autoComplete,
+    autoFocus: autoFocus
+  }), React.createElement("button", {
+    type: "button",
+    onClick: () => setShow(s => !s),
+    "aria-label": show ? "Masquer le mot de passe" : "Afficher le mot de passe",
+    style: {
+      position: 'absolute',
+      right: 4,
+      top: '50%',
+      transform: 'translateY(-50%)',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: 17,
+      padding: '8px 10px',
+      lineHeight: 1,
+      opacity: show ? 1 : 0.55
+    }
+  }, show ? "🙈" : "👁️"));
+}
 function AuthCard({
   session,
   syncState,
@@ -7483,18 +7531,15 @@ function AuthCard({
       type: "email",
       autoComplete: "email",
       inputMode: "email"
-    }), React.createElement("input", {
+    }), React.createElement(PwdInput, {
       value: password,
       onChange: e => setPassword(e.target.value),
-      onKeyDown: e => e.key === "Enter" && signup(),
+      onEnter: signup,
       placeholder: "Mot de passe (6 caract\xE8res min.)",
-      className: "input-v2",
+      autoComplete: "new-password",
       style: {
-        fontSize: 14,
         marginBottom: 10
-      },
-      type: "password",
-      autoComplete: "new-password"
+      }
     }), React.createElement("label", {
       style: {
         display: 'flex',
@@ -7588,18 +7633,15 @@ function AuthCard({
     type: "email",
     autoComplete: "email",
     inputMode: "email"
-  }), React.createElement("input", {
+  }), React.createElement(PwdInput, {
     value: password,
     onChange: e => setPassword(e.target.value),
-    onKeyDown: e => e.key === "Enter" && login(),
+    onEnter: login,
     placeholder: "Mot de passe",
-    className: "input-v2",
+    autoComplete: "current-password",
     style: {
-      fontSize: 14,
       marginBottom: 10
-    },
-    type: "password",
-    autoComplete: "current-password"
+    }
   }), React.createElement("button", {
     onClick: login,
     disabled: busy,
@@ -7710,30 +7752,26 @@ function RecoveryCard({
       color: 'var(--ink-400)',
       marginTop: 8
     }
-  }, "Choisis un nouveau mot de passe pour ton compte MonParis."), React.createElement("input", {
-    type: "password",
+  }, "Choisis un nouveau mot de passe pour ton compte MonParis."), React.createElement(PwdInput, {
     value: pw,
     onChange: e => setPw(e.target.value),
     placeholder: "Nouveau mot de passe",
-    className: "input-v2",
-    style: {
-      marginTop: 16,
-      fontSize: 15
-    },
+    autoComplete: "new-password",
     autoFocus: true,
-    autoComplete: "new-password"
-  }), React.createElement("input", {
-    type: "password",
+    style: {
+      marginTop: 16
+    },
+    fontSize: 15
+  }), React.createElement(PwdInput, {
     value: pw2,
     onChange: e => setPw2(e.target.value),
-    onKeyDown: e => e.key === "Enter" && go(),
+    onEnter: go,
     placeholder: "Confirme le mot de passe",
-    className: "input-v2",
+    autoComplete: "new-password",
     style: {
-      marginTop: 10,
-      fontSize: 15
+      marginTop: 10
     },
-    autoComplete: "new-password"
+    fontSize: 15
   }), React.createElement("button", {
     onClick: go,
     disabled: busy,
