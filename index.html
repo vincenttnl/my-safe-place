@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-07T00:37:38.001Z -->
+<!-- built 2026-07-07T01:01:22.280Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -7304,6 +7304,278 @@ function fileToAvatar(file, size) {
     rd.readAsDataURL(file);
   });
 }
+function fileToDataUrl(file, maxSide) {
+  return new Promise((resolve, reject) => {
+    const rd = new FileReader();
+    rd.onerror = () => reject(new Error("Lecture du fichier impossible"));
+    rd.onload = () => {
+      const im = new Image();
+      im.onerror = () => reject(new Error("Image illisible"));
+      im.onload = () => {
+        const m = maxSide || 1600,
+          sc = Math.min(1, m / Math.max(im.width, im.height));
+        if (sc >= 1) {
+          resolve(rd.result);
+          return;
+        }
+        const c = document.createElement('canvas');
+        c.width = Math.round(im.width * sc);
+        c.height = Math.round(im.height * sc);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', 0.92));
+      };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(file);
+  });
+}
+function AvatarCropper({
+  src,
+  onCancel,
+  onDone
+}) {
+  const V = 260,
+    O = 320;
+  const [img, setImg] = useState(null);
+  const [z, setZ] = useState(1);
+  const [off, setOff] = useState({
+    x: 0,
+    y: 0
+  });
+  const base = useRef(1);
+  const zRef = useRef(1);
+  const wrapRef = useRef(null);
+  const ptrs = useRef(new Map());
+  const pinch = useRef(null);
+  useEffect(() => {
+    const im = new Image();
+    im.onload = () => {
+      base.current = Math.max(V / im.width, V / im.height);
+      const dW = im.width * base.current,
+        dH = im.height * base.current;
+      setOff({
+        x: (V - dW) / 2,
+        y: (V - dH) / 2
+      });
+      setImg(im);
+      zRef.current = 1;
+      setZ(1);
+    };
+    im.src = src;
+  }, [src]);
+  const clamp = (o, zz) => {
+    const im = img;
+    if (!im) return o;
+    const dW = im.width * base.current * zz,
+      dH = im.height * base.current * zz;
+    return {
+      x: Math.min(0, Math.max(V - dW, o.x)),
+      y: Math.min(0, Math.max(V - dH, o.y))
+    };
+  };
+  const setZoom = (nz, cx, cy) => {
+    nz = Math.min(4, Math.max(1, nz));
+    const k = nz / zRef.current;
+    setOff(o => clamp({
+      x: cx - (cx - o.x) * k,
+      y: cy - (cy - o.y) * k
+    }, nz));
+    zRef.current = nz;
+    setZ(nz);
+  };
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const local = p => {
+    const r = wrapRef.current.getBoundingClientRect();
+    return {
+      x: p.x - r.left,
+      y: p.y - r.top
+    };
+  };
+  const onDown = e => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    ptrs.current.set(e.pointerId, {
+      x: e.clientX,
+      y: e.clientY
+    });
+    if (ptrs.current.size === 2) {
+      const [a, b] = [...ptrs.current.values()];
+      pinch.current = {
+        d: dist(a, b),
+        z: zRef.current
+      };
+    }
+  };
+  const onMove = e => {
+    if (!ptrs.current.has(e.pointerId)) return;
+    const prev = ptrs.current.get(e.pointerId);
+    const cur = {
+      x: e.clientX,
+      y: e.clientY
+    };
+    ptrs.current.set(e.pointerId, cur);
+    if (ptrs.current.size === 1) {
+      setOff(o => clamp({
+        x: o.x + (cur.x - prev.x),
+        y: o.y + (cur.y - prev.y)
+      }, zRef.current));
+    } else if (ptrs.current.size === 2 && pinch.current) {
+      const [a, b] = [...ptrs.current.values()];
+      const m = local({
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2
+      });
+      setZoom(pinch.current.z * (dist(a, b) / pinch.current.d), m.x, m.y);
+    }
+  };
+  const onUp = e => {
+    ptrs.current.delete(e.pointerId);
+    if (ptrs.current.size < 2) pinch.current = null;
+  };
+  const onWheel = e => {
+    e.preventDefault();
+    const m = local({
+      x: e.clientX,
+      y: e.clientY
+    });
+    setZoom(zRef.current * (e.deltaY < 0 ? 1.08 : 0.92), m.x, m.y);
+  };
+  const done = () => {
+    const c = document.createElement('canvas');
+    c.width = O;
+    c.height = O;
+    const ctx = c.getContext('2d');
+    const f = O / V;
+    ctx.drawImage(img, off.x * f, off.y * f, img.width * base.current * zRef.current * f, img.height * base.current * zRef.current * f);
+    onDone(c.toDataURL('image/jpeg', 0.85));
+  };
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    style: {
+      zIndex: 4000
+    }
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    style: {
+      textAlign: 'center',
+      maxWidth: 320
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 15,
+      marginBottom: 4
+    }
+  }, "Ajuste ta photo"), React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)',
+      marginBottom: 14
+    }
+  }, "Glisse pour d\xE9placer \xB7 pince ou molette pour zoomer"), React.createElement("div", {
+    ref: wrapRef,
+    onPointerDown: onDown,
+    onPointerMove: onMove,
+    onPointerUp: onUp,
+    onPointerCancel: onUp,
+    onWheel: onWheel,
+    style: {
+      position: 'relative',
+      width: V,
+      height: V,
+      margin: '0 auto',
+      overflow: 'hidden',
+      borderRadius: 14,
+      background: '#000',
+      touchAction: 'none',
+      cursor: 'grab'
+    }
+  }, img && React.createElement("img", {
+    src: src,
+    draggable: false,
+    alt: "",
+    style: {
+      position: 'absolute',
+      left: off.x,
+      top: off.y,
+      width: img.width * base.current * z,
+      height: img.height * base.current * z,
+      pointerEvents: 'none',
+      userSelect: 'none'
+    }
+  }), React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      borderRadius: '50%',
+      boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+      border: '2px solid rgba(255,255,255,0.85)',
+      pointerEvents: 'none'
+    }
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      margin: '16px 4px 4px'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 15
+    }
+  }, "\uD83D\uDD0D"), React.createElement("input", {
+    type: "range",
+    min: "1",
+    max: "4",
+    step: "0.01",
+    value: z,
+    onChange: e => setZoom(parseFloat(e.target.value), V / 2, V / 2),
+    style: {
+      flex: 1,
+      accentColor: 'var(--pop-pink)'
+    }
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 14
+    }
+  }, React.createElement("button", {
+    onClick: onCancel,
+    className: "press",
+    style: {
+      flex: 1,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '12px 0',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 14,
+      color: 'var(--ink-600)',
+      cursor: 'pointer'
+    }
+  }, "Annuler"), React.createElement("button", {
+    onClick: done,
+    disabled: !img,
+    className: "press",
+    style: {
+      flex: 1,
+      background: 'var(--ink-900)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: 999,
+      padding: '12px 0',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 14,
+      cursor: 'pointer'
+    }
+  }, "Valider"))));
+}
 function Avatar({
   src,
   name,
@@ -7408,21 +7680,47 @@ function AuthCard({
   const [eOptin, setEOptin] = useState(false);
   const [eAvatar, setEAvatar] = useState("");
   const [confirmDel, setConfirmDel] = useState(false);
+  const [cropSrc, setCropSrc] = useState(null);
+  const [showBig, setShowBig] = useState(false);
   const fileRef = useRef(null);
+  const pickModeRef = useRef("edit");
+  const openPicker = mode => {
+    pickModeRef.current = mode;
+    if (fileRef.current) fileRef.current.click();
+  };
   const pickPhoto = async e => {
     const f = e.target.files && e.target.files[0];
     e.target.value = "";
     if (!f) return;
-    if (f.size > 12 * 1024 * 1024) {
-      setErr("Photo trop lourde (12 Mo max)");
+    if (f.size > 15 * 1024 * 1024) {
+      setErr("Photo trop lourde (15 Mo max)");
       return;
     }
     try {
-      setEAvatar(await fileToAvatar(f, 256));
+      setCropSrc(await fileToDataUrl(f, 1600));
       reset();
     } catch (ex) {
       setErr(ex.message || "Photo illisible");
     }
+  };
+  const onCropDone = async dataUrl => {
+    setCropSrc(null);
+    if (pickModeRef.current === "edit") {
+      setEAvatar(dataUrl);
+      return;
+    }
+    setBusy(true);
+    reset();
+    try {
+      await onUpdateProfile({
+        pseudo: curPseudo,
+        community_optin: curOptin,
+        avatar: dataUrl
+      });
+    } catch (ex) {
+      setErr(ex.message);
+    }
+    setBusy(false);
   };
   const reset = () => {
     setErr("");
@@ -7565,8 +7863,18 @@ function AuthCard({
     borderRadius: 'var(--radius-md)',
     padding: 16
   };
-  if (session && acct === "edit") {
-    return React.createElement("div", {
+  if (session) {
+    const lbl = syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "synced" ? "✓ Synchronisé sur tous tes appareils" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "Connecté";
+    const col = syncState === "synced" ? "#2ECC71" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
+    return React.createElement(React.Fragment, null, React.createElement("input", {
+      ref: fileRef,
+      type: "file",
+      accept: "image/*",
+      onChange: pickPhoto,
+      style: {
+        display: 'none'
+      }
+    }), acct === "edit" ? React.createElement("div", {
       style: card
     }, React.createElement("div", {
       style: {
@@ -7575,15 +7883,7 @@ function AuthCard({
         fontSize: 15,
         marginBottom: 12
       }
-    }, "\u2699\uFE0F Mon profil"), React.createElement("input", {
-      ref: fileRef,
-      type: "file",
-      accept: "image/*",
-      onChange: pickPhoto,
-      style: {
-        display: 'none'
-      }
-    }), React.createElement("div", {
+    }, "\u2699\uFE0F Mon profil"), React.createElement("div", {
       style: {
         display: 'flex',
         flexDirection: 'column',
@@ -7592,7 +7892,7 @@ function AuthCard({
       }
     }, React.createElement("button", {
       type: "button",
-      onClick: () => fileRef.current && fileRef.current.click(),
+      onClick: () => openPicker("edit"),
       className: "press",
       style: {
         position: 'relative',
@@ -7784,12 +8084,7 @@ function AuthCard({
         fontFamily: 'var(--font-body)',
         marginTop: 10
       }
-    }, "\u26A0\uFE0F ", err));
-  }
-  if (session) {
-    const lbl = syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "synced" ? "✓ Synchronisé sur tous tes appareils" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "Connecté";
-    const col = syncState === "synced" ? "#2ECC71" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
-    return React.createElement("div", {
+    }, "\u26A0\uFE0F ", err)) : React.createElement("div", {
       style: card
     }, React.createElement("div", {
       style: {
@@ -7798,11 +8093,51 @@ function AuthCard({
         gap: 11,
         marginBottom: 10
       }
+    }, React.createElement("div", {
+      style: {
+        position: 'relative',
+        flexShrink: 0
+      }
+    }, React.createElement("button", {
+      type: "button",
+      onClick: () => avatar ? setShowBig(true) : openPicker("direct"),
+      disabled: busy,
+      className: "press",
+      "aria-label": "Photo de profil",
+      style: {
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer',
+        display: 'block'
+      }
     }, React.createElement(Avatar, {
       src: avatar,
       name: curPseudo,
-      size: 44
-    }), React.createElement("div", {
+      size: 46
+    })), React.createElement("button", {
+      type: "button",
+      onClick: () => openPicker("direct"),
+      disabled: busy,
+      "aria-label": "Changer la photo",
+      style: {
+        position: 'absolute',
+        right: -4,
+        bottom: -4,
+        width: 21,
+        height: 21,
+        borderRadius: '50%',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        border: '2px solid #fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 9.5,
+        cursor: 'pointer',
+        padding: 0
+      }
+    }, "\uD83D\uDCF7")), React.createElement("div", {
       style: {
         minWidth: 0,
         flex: 1
@@ -7883,7 +8218,89 @@ function AuthCard({
         color: 'var(--ink-400)',
         padding: '4px 0'
       }
-    }, "\u2699\uFE0F Mon profil"));
+    }, "\u2699\uFE0F Mon profil"), info && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: '#2ECC71',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, info), err && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, "\u26A0\uFE0F ", err)), cropSrc && React.createElement(AvatarCropper, {
+      src: cropSrc,
+      onCancel: () => setCropSrc(null),
+      onDone: onCropDone
+    }), showBig && avatar && React.createElement("div", {
+      className: "modal-center",
+      role: "dialog",
+      "aria-modal": "true",
+      style: {
+        zIndex: 4000
+      },
+      onClick: () => setShowBig(false)
+    }, React.createElement("div", {
+      onClick: e => e.stopPropagation(),
+      style: {
+        textAlign: 'center'
+      }
+    }, React.createElement("img", {
+      src: avatar,
+      alt: "",
+      style: {
+        width: 'min(78vw,320px)',
+        height: 'min(78vw,320px)',
+        borderRadius: '50%',
+        objectFit: 'cover',
+        boxShadow: '0 10px 44px rgba(0,0,0,0.5)',
+        border: '3px solid #fff'
+      }
+    }), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        justifyContent: 'center',
+        marginTop: 18
+      }
+    }, React.createElement("button", {
+      onClick: () => setShowBig(false),
+      className: "press",
+      style: {
+        background: 'rgba(255,255,255,0.15)',
+        color: '#fff',
+        border: '1px solid rgba(255,255,255,0.4)',
+        borderRadius: 999,
+        padding: '11px 22px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, "Fermer"), React.createElement("button", {
+      onClick: () => {
+        setShowBig(false);
+        openPicker("direct");
+      },
+      className: "press",
+      style: {
+        background: '#fff',
+        color: 'var(--ink-900)',
+        border: 'none',
+        borderRadius: 999,
+        padding: '11px 22px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDCF7 Changer")))));
   }
   if (mode === "forgot") {
     return React.createElement("div", {
