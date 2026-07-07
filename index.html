@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-07T13:23:41.592Z -->
+<!-- built 2026-07-07T14:00:14.975Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -7375,6 +7375,9 @@ function fileToDataUrl(file, maxSide) {
     rd.readAsDataURL(file);
   });
 }
+function withTimeout(promise, ms, label) {
+  return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error(label || "Réseau trop lent — réessaie")), ms || 12000))]);
+}
 function AvatarCropper({
   src,
   onCancel,
@@ -7755,7 +7758,6 @@ function AuthCard({
       setEAvatar(dataUrl);
       return;
     }
-    setBusy(true);
     reset();
     try {
       await onUpdateProfile({
@@ -7763,10 +7765,7 @@ function AuthCard({
         community_optin: curOptin,
         avatar: dataUrl
       });
-    } catch (ex) {
-      setErr(ex.message);
-    }
-    setBusy(false);
+    } catch (ex) {}
   };
   const reset = () => {
     setErr("");
@@ -7801,11 +7800,11 @@ function AuthCard({
         avatar: eAvatar
       });
       setInfo("Profil mis à jour ✓");
-      setAcct("status");
     } catch (e) {
-      setErr(e.message);
+      window.mspToast?.("Profil enregistré sur cet appareil — synchro à réessayer", "warn");
     }
     setBusy(false);
+    setAcct("status");
   };
   const doDelete = async () => {
     reset();
@@ -8984,17 +8983,7 @@ function App() {
       }
     })();
   }, [city]);
-  const [mapMode, setMapMode] = useState(() => {
-    try {
-      const raw = localStorage.getItem(SK);
-      if (!raw) return "discover";
-      const arr = JSON.parse(raw);
-      const c = localStorage.getItem(CITYK) || "paris";
-      return arr.filter(s => (s.tags && s.tags.city || "paris") === c).length ? "mine" : "discover";
-    } catch {
-      return "discover";
-    }
-  });
+  const [mapMode, setMapMode] = useState("discover");
   const mapSource = useMemo(() => mapMode === "discover" ? catalog : spots, [mapMode, catalog, spots]);
   const [remoteProposals, setRemoteProposals] = useState(null);
   useEffect(() => {
@@ -9030,7 +9019,7 @@ function App() {
   const [evPhoto, setEvPhoto] = useState("");
   const [evLink, setEvLink] = useState("");
   const [evSpotId, setEvSpotId] = useState("");
-  const [searchMode, setSearchMode] = useState("local");
+  const [searchMode, setSearchMode] = useState("discover");
   const [discoverQ, setDiscoverQ] = useState("");
   const [discoverResults, setDiscoverResults] = useState([]);
   const [discoverLoading, setDiscoverLoading] = useState(false);
@@ -9270,31 +9259,6 @@ function App() {
   }) => {
     const sess = sessionRef.current;
     if (!sess) throw new Error("Non connecté");
-    const token = await validToken(sess);
-    await supaUpdateUserMeta(token, {
-      pseudo,
-      community_optin: !!community_optin
-    });
-    const wasOptin = profile ? !!profile.community_optin : !!(sess.user && sess.user.community_optin);
-    const row = {
-      id: sess.user.id,
-      email: sess.user.email || null,
-      display_name: pseudo,
-      community_optin: !!community_optin
-    };
-    if (community_optin && !wasOptin) row.optin_at = new Date().toISOString();
-    if (newAvatar !== undefined) row.avatar = newAvatar || null;
-    let p;
-    try {
-      p = await supaUpsertProfile(token, row);
-    } catch (e) {
-      if (row.avatar !== undefined) {
-        delete row.avatar;
-        p = await supaUpsertProfile(token, row);
-        window.mspToast?.("Photo enregistrée sur cet appareil (lance 07-avatar.sql pour la synchroniser)", "info");
-      } else throw e;
-    }
-    setProfile(p || (await supaGetProfile(token, sess.user.id)));
     if (newAvatar !== undefined) setAvatar(newAvatar || "");
     const ns = {
       ...sess,
@@ -9306,6 +9270,31 @@ function App() {
     };
     setSession(ns);
     sessionRef.current = ns;
+    const token = await withTimeout(validToken(sess));
+    await withTimeout(supaUpdateUserMeta(token, {
+      pseudo,
+      community_optin: !!community_optin
+    }));
+    const wasOptin = profile ? !!profile.community_optin : !!(sess.user && sess.user.community_optin);
+    const row = {
+      id: sess.user.id,
+      email: sess.user.email || null,
+      display_name: pseudo,
+      community_optin: !!community_optin
+    };
+    if (community_optin && !wasOptin) row.optin_at = new Date().toISOString();
+    if (newAvatar !== undefined) row.avatar = newAvatar || null;
+    let p;
+    try {
+      p = await withTimeout(supaUpsertProfile(token, row));
+    } catch (e) {
+      if (row.avatar !== undefined) {
+        delete row.avatar;
+        p = await withTimeout(supaUpsertProfile(token, row));
+        window.mspToast?.("Photo enregistrée sur cet appareil (lance 07-avatar.sql pour la synchroniser)", "info");
+      } else throw e;
+    }
+    setProfile(p || (await withTimeout(supaGetProfile(token, sess.user.id))));
     window.mspToast?.("Profil mis à jour ✓", "success");
   };
   const deleteAccount = async () => {
@@ -9644,6 +9633,28 @@ function App() {
     window.mspHaptic?.(15);
     window.mspPopEmoji?.("✨");
     window.mspToast?.(sessionRef.current ? "Ajouté à tes spots !" : "Ajouté ! Crée ton compte gratuit pour le retrouver partout ✨", "success");
+  };
+  const addCatalogSpot = (spot, openAfter) => {
+    const owned = allSpots.find(s => s.id === spot.id);
+    if (owned) {
+      if (openAfter) setSelectedSpot(owned);
+      return;
+    }
+    const added = {
+      ...spot,
+      addedAt: Date.now(),
+      done: false,
+      fav: false,
+      note: "",
+      reaction: null,
+      status: "wishlist",
+      contacts: []
+    };
+    setSpots(s => [...s, added]);
+    if (openAfter) setSelectedSpot(added);
+    window.mspHaptic?.(15);
+    window.mspPopEmoji?.("✨");
+    window.mspToast?.(sessionRef.current ? "Ajouté à Mes spots !" : "Ajouté ! Crée ton compte gratuit pour le retrouver partout ✨", "success");
   };
   const startEdit = spot => {
     setEditingId(spot.id);
@@ -10029,6 +10040,17 @@ function App() {
     if (sort === "recent") arr.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "fav") arr.sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "alpha") arr.sort((a, b) => a.name.localeCompare(b.name, "fr"));else if (sort === "price-asc") arr.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));else if (sort === "price-desc") arr.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));else if (sort === "distance" && userPos) arr.sort((a, b) => distKm(userPos.lat, userPos.lng, a.lat, a.lng) - distKm(userPos.lat, userPos.lng, b.lat, b.lng));
     return arr;
   }, [visible, sort, userPos]);
+  const ownedIds = useMemo(() => new Set(allSpots.map(s => s.id)), [allSpots]);
+  const catalogVisible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return catalog.filter(s => {
+      const catOk = cat === "all" || hasCat(s, cat);
+      const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
+      const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
+      const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
+      return catOk && sOk && bOk && vbOk;
+    });
+  }, [catalog, cat, search, budgetF, vibeF]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -10655,35 +10677,63 @@ function App() {
       alignItems: 'center'
     }
   }, React.createElement("button", {
+    onClick: () => setSearchMode("discover"),
+    className: "press",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '8px 15px',
+      borderRadius: 999,
+      background: searchMode === "discover" ? 'linear-gradient(135deg,#ff5c8a,#8b5cf6)' : '#fff',
+      color: searchMode === "discover" ? '#fff' : 'var(--ink-900)',
+      border: searchMode === "discover" ? 'none' : '1px solid var(--hairline)',
+      boxShadow: searchMode === "discover" ? '0 4px 14px rgba(139,92,246,0.35)' : 'none',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      cursor: 'pointer',
+      transition: 'all .18s var(--ease)'
+    }
+  }, "\uD83E\uDDED D\xE9couvrir", catalog.length > 0 && React.createElement("span", {
+    style: {
+      background: searchMode === "discover" ? 'rgba(255,255,255,0.28)' : 'var(--bg-soft,#F3F1F6)',
+      borderRadius: 999,
+      padding: '1px 7px',
+      fontSize: 11,
+      fontWeight: 800
+    }
+  }, catalog.length)), React.createElement("button", {
     onClick: () => {
       setSearchMode("local");
       setDiscoverResults([]);
     },
+    className: "press",
     style: {
-      padding: '8px 14px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '8px 15px',
       borderRadius: 999,
       background: searchMode === "local" ? 'var(--ink-900)' : '#fff',
       color: searchMode === "local" ? '#fff' : 'var(--ink-900)',
       border: searchMode === "local" ? 'none' : '1px solid var(--hairline)',
+      boxShadow: searchMode === "local" ? '0 4px 12px rgba(0,0,0,0.18)' : 'none',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: 13,
-      cursor: 'pointer'
+      cursor: 'pointer',
+      transition: 'all .18s var(--ease)'
     }
-  }, "\uD83D\uDCDA Mes spots"), React.createElement("button", {
-    onClick: () => setSearchMode("discover"),
+  }, "\uD83D\uDCDA Mes spots", spots.length > 0 && React.createElement("span", {
     style: {
-      padding: '8px 14px',
+      background: searchMode === "local" ? 'rgba(255,255,255,0.22)' : 'var(--bg-soft,#F3F1F6)',
       borderRadius: 999,
-      background: searchMode === "discover" ? 'var(--ink-900)' : '#fff',
-      color: searchMode === "discover" ? '#fff' : 'var(--ink-900)',
-      border: searchMode === "discover" ? 'none' : '1px solid var(--hairline)',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13,
-      cursor: 'pointer'
+      padding: '1px 7px',
+      fontSize: 11,
+      fontWeight: 800
     }
-  }, "\uD83C\uDF10 Decouvrir"), React.createElement("div", {
+  }, spots.length)), React.createElement("div", {
     style: {
       flex: 1
     }
@@ -10882,6 +10932,126 @@ function App() {
       padding: '20px 20px 0'
     }
   }, React.createElement("div", {
+    className: "mono-label",
+    style: {
+      marginBottom: 12
+    }
+  }, (CITIES[city] || CITIES.paris).emoji, " Le meilleur de ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), catalog.length === 0 ? React.createElement("div", {
+    style: {
+      marginBottom: 26
+    }
+  }, React.createElement(EmptyState, {
+    icon: "\uD83C\uDF0D",
+    title: "Catalogue en route\u2026",
+    hint: "Les spots de cette ville se chargent. Si \xE7a persiste, v\xE9rifie ta connexion."
+  })) : React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      marginBottom: 26
+    }
+  }, catalogVisible.map(s => {
+    const owned = ownedIds.has(s.id);
+    const ph = firstPhoto(s);
+    return React.createElement("div", {
+      key: s.id,
+      onClick: () => setSelectedSpot(owned ? allSpots.find(x => x.id === s.id) || s : s),
+      className: "press",
+      style: {
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
+        background: '#fff',
+        borderRadius: 'var(--radius-md)',
+        padding: 10,
+        border: '1px solid var(--hairline)',
+        cursor: 'pointer'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 56,
+        height: 56,
+        borderRadius: 12,
+        flexShrink: 0,
+        backgroundImage: ph ? `url(${ph})` : 'none',
+        backgroundColor: 'var(--bg-soft,#F3F1F6)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }
+    }), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.name), s.vibe && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--pop-pink)',
+        marginTop: 1,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.vibe), React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, [s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
+      title: "D\xE9j\xE0 dans Mes spots",
+      style: {
+        fontSize: 20,
+        flexShrink: 0,
+        paddingRight: 5
+      }
+    }, "\u2705") : React.createElement("button", {
+      onClick: e => {
+        e.stopPropagation();
+        addCatalogSpot(s);
+      },
+      className: "press",
+      "aria-label": "Ajouter",
+      style: {
+        width: 38,
+        height: 38,
+        borderRadius: 12,
+        border: 'none',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontSize: 22,
+        lineHeight: 1,
+        flexShrink: 0,
+        cursor: 'pointer'
+      }
+    }, "+"));
+  }), catalogVisible.length === 0 && React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      padding: '18px 0',
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)',
+      fontSize: 13
+    }
+  }, "Aucun spot dans ce filtre. Change de cat\xE9gorie \uD83D\uDC46")), React.createElement("div", {
+    className: "mono-label",
+    style: {
+      marginBottom: 10
+    }
+  }, "\uD83D\uDD0E Chercher un autre lieu"), React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -10893,7 +11063,7 @@ function App() {
     onKeyDown: e => {
       if (e.key === "Enter") discoverSearch();
     },
-    placeholder: "Ex : resto italien paris, brunch 75011...",
+    placeholder: `Ex : resto italien ${(CITIES[city] || CITIES.paris).label}, brunch...`,
     className: "input-v2",
     style: {
       flex: 1
@@ -10916,7 +11086,7 @@ function App() {
     style: {
       marginBottom: 12
     }
-  }, [["🍽️ Resto italien", "resto italien paris"], ["🍜 Japonais", "japonais paris"], ["☕ Brunch", "brunch paris"], ["🍸 Cocktails", "bar cocktails paris"], ["🎵 Club", "club paris"], ["🍔 Burger", "resto burger paris"], ["🍕 Pizza", "pizzeria paris"], ["🥗 Vegan", "resto vegan paris"]].map(([label, q]) => React.createElement("button", {
+  }, (cv => [["🍽️ Resto italien", "resto italien " + cv], ["🍜 Japonais", "japonais " + cv], ["☕ Brunch", "brunch " + cv], ["🍸 Cocktails", "bar cocktails " + cv], ["🎵 Club", "club " + cv], ["🍔 Burger", "resto burger " + cv], ["🍕 Pizza", "pizzeria " + cv], ["🥗 Vegan", "resto vegan " + cv]])((CITIES[city] || CITIES.paris).label).map(([label, q]) => React.createElement("button", {
     key: q,
     onClick: () => {
       setDiscoverQ(q);
@@ -11524,7 +11694,43 @@ function App() {
         whiteSpace: "nowrap"
       }
     }, c.label));
-  })))), React.createElement("button", {
+  })))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s))).length === 0 && React.createElement("div", {
+    style: {
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%,-50%)',
+      zIndex: 900,
+      background: 'rgba(255,255,255,0.95)',
+      backdropFilter: 'blur(12px)',
+      borderRadius: 'var(--radius-lg)',
+      padding: '22px 24px',
+      boxShadow: 'var(--shadow-md)',
+      textAlign: 'center',
+      maxWidth: '80%',
+      pointerEvents: 'none'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 34,
+      marginBottom: 8
+    }
+  }, "\uD83D\uDDFA\uFE0F"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 18,
+      lineHeight: 1.15,
+      marginBottom: 6
+    }
+  }, mapMode === "discover" ? `Pas encore de spots à ${(CITIES[city] || CITIES.paris).label}` : "Ta carte est vide ici"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      lineHeight: 1.45
+    }
+  }, mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
     onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
@@ -11610,8 +11816,8 @@ function App() {
       }
     }, "Change de ville pour d\xE9couvrir ses meilleurs spots. Tes ajouts de chaque ville sont gard\xE9s s\xE9par\xE9ment."), React.createElement("div", {
       style: {
-        display: 'flex',
-        flexWrap: 'wrap',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3,1fr)',
         gap: 8
       }
     }, CITY_ORDER.map(k => {
@@ -11628,16 +11834,20 @@ function App() {
         },
         className: "press",
         style: {
-          padding: '9px 15px',
+          padding: '9px 6px',
           borderRadius: 'var(--radius-pill)',
           border: '1.5px solid ' + (active ? 'var(--ink-900)' : 'var(--hairline)'),
           background: active ? 'var(--ink-900)' : '#fff',
           color: active ? '#fff' : 'var(--ink-900)',
           fontFamily: 'var(--font-body)',
           fontWeight: 600,
-          fontSize: 13,
+          fontSize: 12.5,
           cursor: 'pointer',
-          transition: 'all .15s var(--ease)'
+          transition: 'all .15s var(--ease)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          textAlign: 'center'
         }
       }, c.emoji, " ", c.label);
     })))), React.createElement("div", {
