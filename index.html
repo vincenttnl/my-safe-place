@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-07T00:23:01.123Z -->
+<!-- built 2026-07-07T00:37:38.001Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3091,6 +3091,7 @@ const GK = "myplace_gapi_key";
 const IDFMK = "myplace_idfm_key";
 const SESK = "myplace_session_v1";
 const SNAPK = "myplace_sync_snap_v1";
+const AVK = "myplace_avatar_v1";
 const OBK = "myplace_onboarding_done_v1";
 const MIGRATION_KEY = "myplace_schema_version";
 (function migrateLegacyKeys() {
@@ -7275,6 +7276,72 @@ function PwdInput({
     }
   }, show ? "🙈" : "👁️"));
 }
+function fileToAvatar(file, size) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve("");
+      return;
+    }
+    const rd = new FileReader();
+    rd.onerror = () => reject(new Error("Lecture du fichier impossible"));
+    rd.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Image illisible"));
+      img.onload = () => {
+        const s = size || 256;
+        const c = document.createElement('canvas');
+        c.width = s;
+        c.height = s;
+        const ctx = c.getContext('2d');
+        const scale = Math.max(s / img.width, s / img.height);
+        const w = img.width * scale,
+          h = img.height * scale;
+        ctx.drawImage(img, (s - w) / 2, (s - h) / 2, w, h);
+        resolve(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.src = rd.result;
+    };
+    rd.readAsDataURL(file);
+  });
+}
+function Avatar({
+  src,
+  name,
+  size,
+  ring
+}) {
+  const d = size || 40;
+  const initial = (name || "?").trim().charAt(0).toUpperCase() || "?";
+  const common = {
+    width: d,
+    height: d,
+    borderRadius: '50%',
+    flexShrink: 0,
+    border: ring ? '2px solid #fff' : 'none',
+    boxShadow: ring ? '0 1px 4px rgba(0,0,0,.15)' : 'none'
+  };
+  if (src) return React.createElement("img", {
+    src: src,
+    alt: "",
+    style: {
+      ...common,
+      objectFit: 'cover'
+    }
+  });
+  return React.createElement("div", {
+    style: {
+      ...common,
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: d * 0.42
+    }
+  }, initial);
+}
 function PwdMeter({
   value
 }) {
@@ -7323,6 +7390,7 @@ function AuthCard({
   onSignOut,
   onResync,
   profile,
+  avatar,
   onUpdateProfile,
   onDeleteAccount
 }) {
@@ -7338,7 +7406,24 @@ function AuthCard({
   const [acct, setAcct] = useState("status");
   const [ePseudo, setEPseudo] = useState("");
   const [eOptin, setEOptin] = useState(false);
+  const [eAvatar, setEAvatar] = useState("");
   const [confirmDel, setConfirmDel] = useState(false);
+  const fileRef = useRef(null);
+  const pickPhoto = async e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!f) return;
+    if (f.size > 12 * 1024 * 1024) {
+      setErr("Photo trop lourde (12 Mo max)");
+      return;
+    }
+    try {
+      setEAvatar(await fileToAvatar(f, 256));
+      reset();
+    } catch (ex) {
+      setErr(ex.message || "Photo illisible");
+    }
+  };
   const reset = () => {
     setErr("");
     setInfo("");
@@ -7352,6 +7437,7 @@ function AuthCard({
   const openEdit = () => {
     setEPseudo(curPseudo);
     setEOptin(curOptin);
+    setEAvatar(avatar || "");
     setConfirmDel(false);
     reset();
     setAcct("edit");
@@ -7367,7 +7453,8 @@ function AuthCard({
     try {
       await onUpdateProfile({
         pseudo: p,
-        community_optin: eOptin
+        community_optin: eOptin,
+        avatar: eAvatar
       });
       setInfo("Profil mis à jour ✓");
       setAcct("status");
@@ -7488,7 +7575,65 @@ function AuthCard({
         fontSize: 15,
         marginBottom: 12
       }
-    }, "\u2699\uFE0F Mon profil"), React.createElement("div", {
+    }, "\u2699\uFE0F Mon profil"), React.createElement("input", {
+      ref: fileRef,
+      type: "file",
+      accept: "image/*",
+      onChange: pickPhoto,
+      style: {
+        display: 'none'
+      }
+    }), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        marginBottom: 16
+      }
+    }, React.createElement("button", {
+      type: "button",
+      onClick: () => fileRef.current && fileRef.current.click(),
+      className: "press",
+      style: {
+        position: 'relative',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0
+      }
+    }, React.createElement(Avatar, {
+      src: eAvatar,
+      name: ePseudo,
+      size: 76
+    }), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        right: -2,
+        bottom: -2,
+        width: 26,
+        height: 26,
+        borderRadius: '50%',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 13,
+        border: '2px solid #fff'
+      }
+    }, "\uD83D\uDCF7")), eAvatar && React.createElement("button", {
+      type: "button",
+      onClick: () => setEAvatar(""),
+      style: {
+        marginTop: 8,
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        color: 'var(--ink-400)'
+      }
+    }, "Retirer la photo")), React.createElement("div", {
       style: {
         fontSize: 11,
         fontFamily: 'var(--font-mono)',
@@ -7648,25 +7793,40 @@ function AuthCard({
       style: card
     }, React.createElement("div", {
       style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        marginBottom: 10
+      }
+    }, React.createElement(Avatar, {
+      src: avatar,
+      name: curPseudo,
+      size: 44
+    }), React.createElement("div", {
+      style: {
+        minWidth: 0,
+        flex: 1
+      }
+    }, React.createElement("div", {
+      style: {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 15,
-        marginBottom: 2
+        fontSize: 14.5,
+        lineHeight: 1.2,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }
-    }, "\u2601\uFE0F Synchronisation"), React.createElement("div", {
+    }, curPseudo || "Mon compte"), React.createElement("div", {
       style: {
-        fontSize: 12.5,
+        fontSize: 12,
         color: 'var(--ink-400)',
         fontFamily: 'var(--font-body)',
-        marginBottom: 8,
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
       }
-    }, curPseudo ? React.createElement("span", null, React.createElement("b", {
-      style: {
-        color: 'var(--ink-600)'
-      }
-    }, curPseudo), " \xB7 ", session.user && session.user.email) : session.user && session.user.email), React.createElement("div", {
+    }, session.user && session.user.email))), React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: col,
@@ -8253,6 +8413,18 @@ function App() {
     sessionRef.current = session;
   }, [session]);
   const [profile, setProfile] = useState(null);
+  const [avatar, setAvatar] = useState(() => {
+    try {
+      return localStorage.getItem(AVK) || "";
+    } catch {
+      return "";
+    }
+  });
+  useEffect(() => {
+    try {
+      avatar ? localStorage.setItem(AVK, avatar) : localStorage.removeItem(AVK);
+    } catch {}
+  }, [avatar]);
   const isPremium = profile && profile.plan === "premium" || false;
   const [authEvent, setAuthEvent] = useState(() => parseAuthHash());
   const [showWelcome, setShowWelcome] = useState(false);
@@ -8578,12 +8750,15 @@ function App() {
         row.display_name = sess.user.pseudo;
       }
       const p = await supaUpsertProfile(token, row);
-      setProfile(p || (await supaGetProfile(token, sess.user.id)));
+      const full = p || (await supaGetProfile(token, sess.user.id));
+      setProfile(full);
+      if (full && typeof full.avatar === "string" && full.avatar) setAvatar(full.avatar);
     } catch (e) {}
   };
   const updateAccount = async ({
     pseudo,
-    community_optin
+    community_optin,
+    avatar: newAvatar
   }) => {
     const sess = sessionRef.current;
     if (!sess) throw new Error("Non connecté");
@@ -8600,8 +8775,19 @@ function App() {
       community_optin: !!community_optin
     };
     if (community_optin && !wasOptin) row.optin_at = new Date().toISOString();
-    const p = await supaUpsertProfile(token, row);
+    if (newAvatar !== undefined) row.avatar = newAvatar || null;
+    let p;
+    try {
+      p = await supaUpsertProfile(token, row);
+    } catch (e) {
+      if (row.avatar !== undefined) {
+        delete row.avatar;
+        p = await supaUpsertProfile(token, row);
+        window.mspToast?.("Photo enregistrée sur cet appareil (lance 07-avatar.sql pour la synchroniser)", "info");
+      } else throw e;
+    }
     setProfile(p || (await supaGetProfile(token, sess.user.id)));
+    if (newAvatar !== undefined) setAvatar(newAvatar || "");
     const ns = {
       ...sess,
       user: {
@@ -8623,6 +8809,7 @@ function App() {
     sessionRef.current = null;
     syncSnapRef.current = null;
     setProfile(null);
+    setAvatar("");
     try {
       localStorage.removeItem(SNAPK);
     } catch {}
@@ -8644,6 +8831,7 @@ function App() {
     sessionRef.current = null;
     syncSnapRef.current = null;
     setProfile(null);
+    setAvatar("");
     try {
       localStorage.removeItem(SNAPK);
     } catch {}
@@ -9346,8 +9534,30 @@ function App() {
         background: 'var(--bg-cream)'
       }
     }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        gap: 12
+      }
+    }, React.createElement("div", {
       className: "mono-label"
-    }, "\u263C Salut", who ? " " + who : "", " \xB7 ", dayLabel), React.createElement("h1", {
+    }, "\u263C Salut", who ? " " + who : "", " \xB7 ", dayLabel), session && React.createElement("button", {
+      onClick: () => setTab("profile"),
+      className: "press",
+      style: {
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, React.createElement(Avatar, {
+      src: avatar,
+      name: who,
+      size: 38,
+      ring: true
+    }))), React.createElement("h1", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
@@ -10828,6 +11038,7 @@ function App() {
       onSignOut: signOut,
       onResync: () => fullSync(sessionRef.current),
       profile: profile,
+      avatar: avatar,
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount
     })), React.createElement("div", {
