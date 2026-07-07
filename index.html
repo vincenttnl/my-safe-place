@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-06T17:40:01.959Z -->
+<!-- built 2026-07-07T00:23:01.123Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3297,6 +3297,39 @@ async function supaGetProfile(token, uid) {
   if (!r.ok) return null;
   const d = await r.json().catch(() => []);
   return Array.isArray(d) && d.length ? d[0] : null;
+}
+async function supaUpdateUserMeta(token, meta) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    method: "PUT",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      data: meta
+    })
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error_description || d.msg || d.message || "Mise à jour impossible");
+  return d;
+}
+async function supaDeleteAccount(token) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/delete_own_account`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: "{}"
+  });
+  if (r.status === 404) throw new Error("Fonction de suppression pas encore installée côté serveur (backend/06-account.sql).");
+  if (!r.ok) {
+    const t = await r.text().catch(() => "");
+    throw new Error("Suppression impossible (" + r.status + ")" + (t ? " " + t.slice(0, 80) : ""));
+  }
+  return true;
 }
 async function supaPullUserSpots(token) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/user_spots?select=spot_id,data,deleted,updated_at`, {
@@ -7242,21 +7275,70 @@ function PwdInput({
     }
   }, show ? "🙈" : "👁️"));
 }
+function PwdMeter({
+  value
+}) {
+  if (!value) return null;
+  let s = 0;
+  if (value.length >= 6) s++;
+  if (value.length >= 10) s++;
+  if (/[A-Z]/.test(value) && /[a-z]/.test(value)) s++;
+  if (/[0-9]/.test(value) || /[^A-Za-z0-9]/.test(value)) s++;
+  const lvl = s <= 1 ? 0 : s === 2 ? 1 : s === 3 ? 2 : 3;
+  const cols = ['#E05252', '#F59E0B', '#3B9E5B', '#2ECC71'];
+  const labels = ['Faible', 'Moyen', 'Bon', 'Fort'];
+  return React.createElement("div", {
+    style: {
+      marginTop: -4,
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 4
+    }
+  }, [0, 1, 2, 3].map(i => React.createElement("div", {
+    key: i,
+    style: {
+      flex: 1,
+      height: 4,
+      borderRadius: 2,
+      background: i <= lvl ? cols[lvl] : 'var(--hairline)',
+      transition: 'background .2s'
+    }
+  }))), React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: cols[lvl],
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      marginTop: 4
+    }
+  }, "Robustesse : ", labels[lvl]));
+}
 function AuthCard({
   session,
   syncState,
   onLogin,
   onSignOut,
-  onResync
+  onResync,
+  profile,
+  onUpdateProfile,
+  onDeleteAccount
 }) {
   const [mode, setMode] = useState("login");
   const [pseudo, setPseudo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [optin, setOptin] = useState(true);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
+  const [acct, setAcct] = useState("status");
+  const [ePseudo, setEPseudo] = useState("");
+  const [eOptin, setEOptin] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
   const reset = () => {
     setErr("");
     setInfo("");
@@ -7264,6 +7346,45 @@ function AuthCard({
   const swap = m => {
     setMode(m);
     reset();
+  };
+  const curPseudo = session && session.user && session.user.pseudo || profile && profile.display_name || "";
+  const curOptin = profile ? !!profile.community_optin : !!(session && session.user && session.user.community_optin);
+  const openEdit = () => {
+    setEPseudo(curPseudo);
+    setEOptin(curOptin);
+    setConfirmDel(false);
+    reset();
+    setAcct("edit");
+  };
+  const saveProfile = async () => {
+    reset();
+    const p = ePseudo.trim();
+    if (p.length < 2) {
+      setErr("Pseudo : 2 caractères minimum");
+      return;
+    }
+    setBusy(true);
+    try {
+      await onUpdateProfile({
+        pseudo: p,
+        community_optin: eOptin
+      });
+      setInfo("Profil mis à jour ✓");
+      setAcct("status");
+    } catch (e) {
+      setErr(e.message);
+    }
+    setBusy(false);
+  };
+  const doDelete = async () => {
+    reset();
+    setBusy(true);
+    try {
+      await onDeleteAccount();
+    } catch (e) {
+      setErr(e.message);
+      setBusy(false);
+    }
   };
   const login = async () => {
     reset();
@@ -7303,6 +7424,10 @@ function AuthCard({
     }
     if (password.length < 6) {
       setErr("Mot de passe : 6 caractères minimum");
+      return;
+    }
+    if (password !== password2) {
+      setErr("Les deux mots de passe ne correspondent pas");
       return;
     }
     if (!optin) {
@@ -7353,6 +7478,169 @@ function AuthCard({
     borderRadius: 'var(--radius-md)',
     padding: 16
   };
+  if (session && acct === "edit") {
+    return React.createElement("div", {
+      style: card
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 12
+      }
+    }, "\u2699\uFE0F Mon profil"), React.createElement("div", {
+      style: {
+        fontSize: 11,
+        fontFamily: 'var(--font-mono)',
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: 'var(--ink-400)',
+        marginBottom: 6
+      }
+    }, "Pseudo"), React.createElement("input", {
+      value: ePseudo,
+      onChange: e => setEPseudo(e.target.value),
+      placeholder: "Ton pseudo",
+      className: "input-v2",
+      style: {
+        fontSize: 14,
+        marginBottom: 14
+      },
+      type: "text",
+      autoComplete: "nickname",
+      maxLength: 20
+    }), React.createElement("label", {
+      style: {
+        display: 'flex',
+        gap: 9,
+        alignItems: 'flex-start',
+        marginBottom: 14,
+        cursor: 'pointer'
+      }
+    }, React.createElement("input", {
+      type: "checkbox",
+      checked: eOptin,
+      onChange: e => setEOptin(e.target.checked),
+      style: {
+        marginTop: 2,
+        width: 17,
+        height: 17,
+        accentColor: 'var(--pop-pink)',
+        flexShrink: 0,
+        cursor: 'pointer'
+      }
+    }), React.createElement("span", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-600)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, "Je veux recevoir les emails de la communaut\xE9 MonParis (nouveaut\xE9s, bons plans, newsletter).")), React.createElement("button", {
+      onClick: saveProfile,
+      disabled: busy,
+      className: "btn-primary",
+      style: {
+        fontSize: 14
+      }
+    }, busy ? "⏳ Enregistrement…" : "Enregistrer"), React.createElement("button", {
+      onClick: () => {
+        setAcct("status");
+        reset();
+      },
+      style: {
+        marginTop: 10,
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)'
+      }
+    }, "\u2190 Retour"), React.createElement("div", {
+      style: {
+        borderTop: '1px solid var(--hairline)',
+        margin: '16px 0 12px'
+      }
+    }), !confirmDel ? React.createElement("button", {
+      onClick: () => {
+        setConfirmDel(true);
+        reset();
+      },
+      style: {
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600
+      }
+    }, "Supprimer mon compte") : React.createElement("div", null, React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--ink-600)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.45,
+        marginBottom: 10
+      }
+    }, "\u26A0\uFE0F Ton compte et tes donn\xE9es synchronis\xE9es seront ", React.createElement("b", null, "supprim\xE9s d\xE9finitivement"), ". Tes spots restent sur cet appareil. Confirmer ?"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8
+      }
+    }, React.createElement("button", {
+      onClick: doDelete,
+      disabled: busy,
+      className: "press",
+      style: {
+        flex: 1,
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 999,
+        padding: '11px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, busy ? "⏳…" : "Oui, supprimer"), React.createElement("button", {
+      onClick: () => setConfirmDel(false),
+      disabled: busy,
+      className: "press",
+      style: {
+        flex: 1,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '11px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        cursor: 'pointer'
+      }
+    }, "Annuler"))), info && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: '#2ECC71',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, info), err && React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        marginTop: 10
+      }
+    }, "\u26A0\uFE0F ", err));
+  }
   if (session) {
     const lbl = syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "synced" ? "✓ Synchronisé sur tous tes appareils" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "Connecté";
     const col = syncState === "synced" ? "#2ECC71" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
@@ -7374,11 +7662,11 @@ function AuthCard({
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, session.user && session.user.pseudo ? React.createElement("span", null, React.createElement("b", {
+    }, curPseudo ? React.createElement("span", null, React.createElement("b", {
       style: {
         color: 'var(--ink-600)'
       }
-    }, session.user.pseudo), " \xB7 ", session.user.email) : session.user && session.user.email), React.createElement("div", {
+    }, curPseudo), " \xB7 ", session.user && session.user.email) : session.user && session.user.email), React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: col,
@@ -7389,7 +7677,8 @@ function AuthCard({
     }, lbl), React.createElement("div", {
       style: {
         display: 'flex',
-        gap: 8
+        gap: 8,
+        marginBottom: 8
       }
     }, React.createElement("button", {
       onClick: onResync,
@@ -7421,7 +7710,20 @@ function AuthCard({
         color: 'var(--ink-600)',
         cursor: 'pointer'
       }
-    }, "Se d\xE9connecter")));
+    }, "Se d\xE9connecter")), React.createElement("button", {
+      onClick: openEdit,
+      className: "press",
+      style: {
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)',
+        padding: '4px 0'
+      }
+    }, "\u2699\uFE0F Mon profil"));
   }
   if (mode === "forgot") {
     return React.createElement("div", {
@@ -7534,8 +7836,18 @@ function AuthCard({
     }), React.createElement(PwdInput, {
       value: password,
       onChange: e => setPassword(e.target.value),
-      onEnter: signup,
       placeholder: "Mot de passe (6 caract\xE8res min.)",
+      autoComplete: "new-password",
+      style: {
+        marginBottom: 8
+      }
+    }), React.createElement(PwdMeter, {
+      value: password
+    }), React.createElement(PwdInput, {
+      value: password2,
+      onChange: e => setPassword2(e.target.value),
+      onEnter: signup,
+      placeholder: "Confirme le mot de passe",
       autoComplete: "new-password",
       style: {
         marginBottom: 10
@@ -8269,6 +8581,54 @@ function App() {
       setProfile(p || (await supaGetProfile(token, sess.user.id)));
     } catch (e) {}
   };
+  const updateAccount = async ({
+    pseudo,
+    community_optin
+  }) => {
+    const sess = sessionRef.current;
+    if (!sess) throw new Error("Non connecté");
+    const token = await validToken(sess);
+    await supaUpdateUserMeta(token, {
+      pseudo,
+      community_optin: !!community_optin
+    });
+    const wasOptin = profile ? !!profile.community_optin : !!(sess.user && sess.user.community_optin);
+    const row = {
+      id: sess.user.id,
+      email: sess.user.email || null,
+      display_name: pseudo,
+      community_optin: !!community_optin
+    };
+    if (community_optin && !wasOptin) row.optin_at = new Date().toISOString();
+    const p = await supaUpsertProfile(token, row);
+    setProfile(p || (await supaGetProfile(token, sess.user.id)));
+    const ns = {
+      ...sess,
+      user: {
+        ...sess.user,
+        pseudo,
+        community_optin: !!community_optin
+      }
+    };
+    setSession(ns);
+    sessionRef.current = ns;
+    window.mspToast?.("Profil mis à jour ✓", "success");
+  };
+  const deleteAccount = async () => {
+    const sess = sessionRef.current;
+    if (!sess) throw new Error("Non connecté");
+    const token = await validToken(sess);
+    await supaDeleteAccount(token);
+    setSession(null);
+    sessionRef.current = null;
+    syncSnapRef.current = null;
+    setProfile(null);
+    try {
+      localStorage.removeItem(SNAPK);
+    } catch {}
+    setSyncState("idle");
+    window.mspToast?.("Compte supprimé — tes spots restent sur cet appareil", "info");
+  };
   const signOut = async () => {
     const sess = sessionRef.current;
     try {
@@ -8974,6 +9334,7 @@ function App() {
       day: "numeric",
       month: "long"
     });
+    const who = session && session.user && session.user.pseudo || profile && profile.display_name || "";
     return React.createElement("div", {
       style: {
         paddingBottom: 100,
@@ -8986,7 +9347,7 @@ function App() {
       }
     }, React.createElement("div", {
       className: "mono-label"
-    }, "\u263C Salut \xB7 ", dayLabel), React.createElement("h1", {
+    }, "\u263C Salut", who ? " " + who : "", " \xB7 ", dayLabel), React.createElement("h1", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
@@ -10465,7 +10826,10 @@ function App() {
       syncState: syncState,
       onLogin: handleLogin,
       onSignOut: signOut,
-      onResync: () => fullSync(sessionRef.current)
+      onResync: () => fullSync(sessionRef.current),
+      profile: profile,
+      onUpdateProfile: updateAccount,
+      onDeleteAccount: deleteAccount
     })), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
@@ -11132,7 +11496,7 @@ function App() {
       lineHeight: 1.1,
       letterSpacing: '-0.015em'
     }
-  }, "Bienvenue dans la communaut\xE9 MonParis !"), React.createElement("div", {
+  }, "Bienvenue", session && session.user && session.user.pseudo ? " " + session.user.pseudo : "", " dans la communaut\xE9 MonParis !"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 14.5,
