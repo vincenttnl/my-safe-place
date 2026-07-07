@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-07T01:01:22.280Z -->
+<!-- built 2026-07-07T13:23:41.592Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -3093,6 +3093,47 @@ const SESK = "myplace_session_v1";
 const SNAPK = "myplace_sync_snap_v1";
 const AVK = "myplace_avatar_v1";
 const OBK = "myplace_onboarding_done_v1";
+const CITYK = "myplace_city_v1";
+const CITIES = {
+  paris: {
+    label: "Paris",
+    emoji: "🗼",
+    center: [48.8566, 2.3522],
+    zoom: 12
+  },
+  lyon: {
+    label: "Lyon",
+    emoji: "🦁",
+    center: [45.7640, 4.8357],
+    zoom: 12.5
+  },
+  marseille: {
+    label: "Marseille",
+    emoji: "⛵",
+    center: [43.2965, 5.3698],
+    zoom: 12.5
+  },
+  toulouse: {
+    label: "Toulouse",
+    emoji: "🌹",
+    center: [43.6045, 1.4442],
+    zoom: 12.5
+  },
+  nice: {
+    label: "Nice",
+    emoji: "🌴",
+    center: [43.7102, 7.2620],
+    zoom: 13
+  },
+  bordeaux: {
+    label: "Bordeaux",
+    emoji: "🍷",
+    center: [44.8378, -0.5792],
+    zoom: 12.5
+  }
+};
+const CITY_ORDER = ["paris", "lyon", "marseille", "toulouse", "nice", "bordeaux"];
+const spotCity = s => s && s.tags && s.tags.city || "paris";
 const MIGRATION_KEY = "myplace_schema_version";
 (function migrateLegacyKeys() {
   try {
@@ -3173,6 +3214,11 @@ async function fetchRemoteProposals() {
 }
 async function fetchAllRemoteSpots() {
   const r = await fetchSpotsFrom("id=gte.0");
+  return r && r.length ? r : null;
+}
+async function fetchCitySpots(city) {
+  const filter = city === "paris" ? "or=(tags->>city.eq.paris,tags->>city.is.null)" : `tags->>city=eq.${encodeURIComponent(city)}`;
+  const r = await fetchSpotsFrom(filter);
   return r && r.length ? r : null;
 }
 async function supaSignIn(email, password) {
@@ -8710,7 +8756,19 @@ function parseAuthHash() {
 }
 function App() {
   const [tab, setTab] = useState("home");
-  const [spots, setSpots] = useState(() => {
+  const [city, setCity] = useState(() => {
+    try {
+      return localStorage.getItem(CITYK) || "paris";
+    } catch {
+      return "paris";
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem(CITYK, city);
+    } catch {}
+  }, [city]);
+  const [allSpots, setAllSpots] = useState(() => {
     try {
       const raw = localStorage.getItem(SK);
       if (!raw) return INITIAL_SPOTS;
@@ -8751,6 +8809,8 @@ function App() {
       return INITIAL_SPOTS;
     }
   });
+  const setSpots = setAllSpots;
+  const spots = useMemo(() => allSpots.filter(s => spotCity(s) === city), [allSpots, city]);
   const [challenge, setChallenge] = useState(() => {
     try {
       const c = localStorage.getItem(CK);
@@ -8874,14 +8934,10 @@ function App() {
   const [pendingShareSpot, setPendingShareSpot] = useState(null);
   useEffect(() => {
     (async () => {
-      const remote = await fetchAllRemoteSpots();
-      if (!remote) return;
-      const remoteMax = Math.max(...remote.map(s => s.id));
+      const remote = await fetchCitySpots(city);
+      if (!remote || !remote.length) return;
       setSpots(prev => {
-        const fullSeeded = localStorage.getItem("myplace_allseeded_v1") === "1";
-        const seedMax = parseInt(localStorage.getItem("myplace_seedmax_v1") || "52", 10);
-        const fresh = remote.filter(r => (!fullSeeded || r.id > seedMax) && !prev.some(s => s.id === r.id));
-        let changed = fresh.length > 0;
+        let changed = false;
         const updated = prev.map(s => {
           const r = remote.find(x => x.id === s.id);
           if (!r) return s;
@@ -8895,16 +8951,51 @@ function App() {
           }
           return s;
         });
-        try {
-          localStorage.setItem("myplace_seedmax_v1", String(Math.max(remoteMax, seedMax)));
-        } catch {}
-        try {
-          localStorage.setItem("myplace_allseeded_v1", "1");
-        } catch {}
-        return changed ? [...updated, ...fresh] : prev;
+        return changed ? updated : prev;
       });
     })();
-  }, []);
+  }, [city]);
+  const [catalog, setCatalog] = useState(() => {
+    try {
+      const raw = localStorage.getItem("myplace_catalog_" + (localStorage.getItem(CITYK) || "paris"));
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("myplace_catalog_" + city);
+      setCatalog(raw ? JSON.parse(raw) : []);
+    } catch {
+      setCatalog([]);
+    }
+    (async () => {
+      const remote = await fetchCitySpots(city);
+      if (remote && remote.length) {
+        setCatalog(remote);
+        try {
+          const slim = remote.map(({
+            photos,
+            ...r
+          }) => r);
+          localStorage.setItem("myplace_catalog_" + city, JSON.stringify(slim));
+        } catch {}
+      }
+    })();
+  }, [city]);
+  const [mapMode, setMapMode] = useState(() => {
+    try {
+      const raw = localStorage.getItem(SK);
+      if (!raw) return "discover";
+      const arr = JSON.parse(raw);
+      const c = localStorage.getItem(CITYK) || "paris";
+      return arr.filter(s => (s.tags && s.tags.city || "paris") === c).length ? "mine" : "discover";
+    } catch {
+      return "discover";
+    }
+  });
+  const mapSource = useMemo(() => mapMode === "discover" ? catalog : spots, [mapMode, catalog, spots]);
   const [remoteProposals, setRemoteProposals] = useState(null);
   useEffect(() => {
     (async () => {
@@ -9020,7 +9111,7 @@ function App() {
       const token = await validToken(sess);
       const remote = await supaPullUserSpots(token);
       const remoteMap = new Map(remote.map(r => [Number(r.spot_id), r]));
-      const localMap = new Map(spots.map(s => [s.id, s]));
+      const localMap = new Map(allSpots.map(s => [s.id, s]));
       const trashMap = new Map(trash.map(t => [t.id, t]));
       const ids = new Set([...remoteMap.keys(), ...localMap.keys(), ...trashMap.keys()]);
       const merged = [];
@@ -9086,7 +9177,7 @@ function App() {
     const newSnap = {
       ...snap
     };
-    spots.forEach(s => {
+    allSpots.forEach(s => {
       const k = spotContentKey(s);
       if (snap[s.id] !== k) {
         const stamped = {
@@ -9103,7 +9194,7 @@ function App() {
     });
     Object.keys(snap).forEach(idStr => {
       const id = Number(idStr);
-      if (!spots.some(s => s.id === id)) {
+      if (!allSpots.some(s => s.id === id)) {
         rows.push({
           spot_id: id,
           data: {},
@@ -9144,7 +9235,7 @@ function App() {
       }
     };
     try {
-      localStorage.setItem("myplace_backup_" + Date.now(), JSON.stringify(spots));
+      localStorage.setItem("myplace_backup_" + Date.now(), JSON.stringify(allSpots));
     } catch {}
     setSession(sess);
     sessionRef.current = sess;
@@ -9310,7 +9401,7 @@ function App() {
     if (!session || !syncSnapRef.current) return;
     const t = setTimeout(() => pushChanges(), 1500);
     return () => clearTimeout(t);
-  }, [spots, trash, session]);
+  }, [allSpots, trash, session]);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
@@ -9319,9 +9410,9 @@ function App() {
   const selMarkerRef = useRef(null);
   useEffect(() => {
     try {
-      localStorage.setItem(SK, JSON.stringify(spots));
+      localStorage.setItem(SK, JSON.stringify(allSpots));
     } catch {}
-  }, [spots]);
+  }, [allSpots]);
   useEffect(() => {
     try {
       localStorage.setItem(CK, JSON.stringify(challenge));
@@ -9490,7 +9581,7 @@ function App() {
       deletedAt,
       ...rest
     } = item;
-    const newId = spots.some(s => s.id === rest.id) ? Date.now() : rest.id;
+    const newId = allSpots.some(s => s.id === rest.id) ? Date.now() : rest.id;
     setSpots(s => [...s, {
       ...rest,
       id: newId
@@ -9552,7 +9643,7 @@ function App() {
     setSelectedSpot(added);
     window.mspHaptic?.(15);
     window.mspPopEmoji?.("✨");
-    window.mspToast?.("Ajouté à tes spots !", "success");
+    window.mspToast?.(sessionRef.current ? "Ajouté à tes spots !" : "Ajouté ! Crée ton compte gratuit pour le retrouver partout ✨", "success");
   };
   const startEdit = spot => {
     setEditingId(spot.id);
@@ -9738,7 +9829,7 @@ function App() {
   };
   const exportJSON = () => {
     const blob = new Blob([JSON.stringify({
-      spots,
+      spots: allSpots,
       challenge,
       exportedAt: new Date().toISOString()
     }, null, 2)], {
@@ -9763,9 +9854,9 @@ function App() {
           if (d.challenge) setChallenge(d.challenge);
           window.mspToast?.(`${d.spots.length} spots importés`, "success");
         } else {
-          const ids = new Set(spots.map(s => s.id));
+          const ids = new Set(allSpots.map(s => s.id));
           const newOnes = d.spots.filter(s => !ids.has(s.id));
-          setSpots([...spots, ...newOnes]);
+          setSpots([...allSpots, ...newOnes]);
           window.mspToast?.(`${newOnes.length} nouveaux spots ajoutés`, "success");
         }
       } catch (err) {
@@ -9778,9 +9869,11 @@ function App() {
     if (tab !== "map") return;
     const el = mapContainerRef.current;
     if (!el) return;
+    const cc = CITIES[city] || CITIES.paris;
     const map = L.map(el, {
-      zoomControl: false
-    }).setView([48.8606, 2.3376], 12);
+      zoomControl: false,
+      preferCanvas: true
+    }).setView(cc.center, cc.zoom);
     const url = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     L.tileLayer(url, {
       maxZoom: 19,
@@ -9807,6 +9900,15 @@ function App() {
     };
   }, [tab]);
   useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const cc = CITIES[city] || CITIES.paris;
+    try {
+      map.setView(cc.center, cc.zoom);
+    } catch {}
+    didFitRef.current = false;
+  }, [city]);
+  useEffect(() => {
     if (tab !== "map" && peekSpot) setPeekSpot(null);
   }, [tab]);
   useEffect(() => {
@@ -9820,7 +9922,8 @@ function App() {
       if (l instanceof L.CircleMarker) map.removeLayer(l);
     });
     const bounds = [];
-    spots.forEach(s => {
+    mapSource.forEach(s => {
+      if (!s.lat || !s.lng) return;
       if (!mapCats.has(primaryCat(s))) return;
       const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
       const m = L.circleMarker([s.lat, s.lng], {
@@ -9870,7 +9973,7 @@ function App() {
       });
       didFitRef.current = true;
     }
-  }, [tab, spots, userPos, mapCats]);
+  }, [tab, mapSource, userPos, mapCats]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
@@ -10842,7 +10945,7 @@ function App() {
     const t = el.tags || {};
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
     const loc = [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ");
-    const already = discoverAdded.has(t.name) || spots.some(s => s.name === t.name);
+    const already = discoverAdded.has(t.name) || allSpots.some(s => s.name === t.name);
     return React.createElement("div", {
       key: el.id || i,
       className: "fade-in",
@@ -11296,20 +11399,54 @@ function App() {
       background: "rgba(255,255,255,0.92)",
       backdropFilter: 'blur(12px)',
       borderRadius: 'var(--radius-md)',
-      padding: "10px 14px",
+      padding: "9px 10px",
       boxShadow: "var(--shadow-md)",
       pointerEvents: "auto"
     }
   }, React.createElement("div", {
     style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 18,
-      letterSpacing: '-0.01em'
+      display: 'flex',
+      background: 'var(--bg-soft,#F3F1F6)',
+      borderRadius: 999,
+      padding: 3,
+      gap: 2,
+      marginBottom: 7
     }
-  }, "\uD83D\uDDFA\uFE0F Paris \xB7 ", spots.filter(s => mapCats.has(primaryCat(s))).length, " spots"), React.createElement("div", {
-    className: "mono-label"
-  }, "Tap pour ouvrir")), React.createElement("div", {
+  }, [{
+    k: 'mine',
+    l: 'Mes spots'
+  }, {
+    k: 'discover',
+    l: 'Découvrir'
+  }].map(o => {
+    const on = mapMode === o.k;
+    return React.createElement("button", {
+      key: o.k,
+      onClick: () => {
+        setMapMode(o.k);
+        setPeekSpot(null);
+      },
+      className: "press",
+      "aria-pressed": on,
+      style: {
+        border: 'none',
+        cursor: 'pointer',
+        borderRadius: 999,
+        padding: '6px 12px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 12.5,
+        background: on ? 'var(--ink-900)' : 'transparent',
+        color: on ? '#fff' : 'var(--ink-600)',
+        transition: 'all .15s var(--ease)'
+      }
+    }, o.l);
+  })), React.createElement("div", {
+    className: "mono-label",
+    style: {
+      paddingLeft: 2
+    }
+  }, (CITIES[city] || CITIES.paris).emoji, " ", mapSource.filter(s => s.lat && mapCats.has(primaryCat(s))).length, " spots \xB7 tap pour ouvrir")), React.createElement("div", {
     style: {
       background: "rgba(255,255,255,0.94)",
       backdropFilter: 'blur(12px)',
@@ -11445,6 +11582,65 @@ function App() {
         margin: 0
       }
     }, "C'est ton", React.createElement("br", null), "safe place \uD83C\uDFE0")), React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: 18,
+        boxShadow: 'var(--shadow-sm)'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15,
+        marginBottom: 4
+      }
+    }, "\uD83C\uDF0D Ta ville"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)',
+        marginBottom: 14,
+        lineHeight: 1.5
+      }
+    }, "Change de ville pour d\xE9couvrir ses meilleurs spots. Tes ajouts de chaque ville sont gard\xE9s s\xE9par\xE9ment."), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8
+      }
+    }, CITY_ORDER.map(k => {
+      const c = CITIES[k];
+      const active = city === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          if (city !== k) {
+            setCity(k);
+            window.mspHaptic?.(12);
+            window.mspToast?.(`${c.emoji} ${c.label}`, "success");
+          }
+        },
+        className: "press",
+        style: {
+          padding: '9px 15px',
+          borderRadius: 'var(--radius-pill)',
+          border: '1.5px solid ' + (active ? 'var(--ink-900)' : 'var(--hairline)'),
+          background: active ? 'var(--ink-900)' : '#fff',
+          color: active ? '#fff' : 'var(--ink-900)',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 600,
+          fontSize: 13,
+          cursor: 'pointer',
+          transition: 'all .15s var(--ease)'
+        }
+      }, c.emoji, " ", c.label);
+    })))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -12249,10 +12445,11 @@ function App() {
     onNote: saveNote,
     onShare: shareSpot
   }), tab === "map" && peekSpot && (() => {
-    const idx = spots.findIndex(s => s.id === peekSpot.id);
+    const navList = mapSource;
+    const idx = navList.findIndex(s => s.id === peekSpot.id);
     const go = d => {
-      if (!spots.length) return;
-      const n = spots[(idx + d + spots.length) % spots.length];
+      if (!navList.length) return;
+      const n = navList[(idx + d + navList.length) % navList.length];
       setPeekSpot(n);
       if (mapRef.current) try {
         mapRef.current.panTo([n.lat, n.lng]);
