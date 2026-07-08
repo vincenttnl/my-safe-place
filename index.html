@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T21:12:11.801Z -->
+<!-- built 2026-07-08T22:38:10.791Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -6758,13 +6758,12 @@ function CleanSpotCard({
   }, s.reaction));
 }
 function OnboardingFlow({
-  onComplete
+  onComplete,
+  initialCity
 }) {
   const [step, setStep] = useState(0);
-  const [parisAll, setParisAll] = useState(false);
-  const [selArr, setSelArr] = useState([]);
-  const [selDepts, setSelDepts] = useState([]);
-  const TOTAL_STEPS = 3;
+  const [selCity, setSelCity] = useState(initialCity || "paris");
+  const TOTAL_STEPS = 4;
   const pageStyle = {
     position: 'fixed',
     inset: 0,
@@ -6811,18 +6810,8 @@ function OnboardingFlow({
     padding: 8,
     textDecoration: 'underline'
   };
-  const getZoneList = () => {
-    let list = [];
-    if (parisAll) list.push("75");else list = [...selArr];
-    list = [...list, ...selDepts];
-    return list;
-  };
   const saveAndFinish = spotsArray => {
-    const zl = getZoneList();
-    onComplete({
-      resto: zl,
-      sortie: zl
-    }, spotsArray);
+    onComplete(selCity, spotsArray);
   };
   const ProgressBar = () => React.createElement("div", {
     style: {
@@ -6862,7 +6851,9 @@ function OnboardingFlow({
       display: 'flex',
       gap: 6
     }
-  }, [0, 1, 2].map(i => React.createElement("div", {
+  }, Array.from({
+    length: TOTAL_STEPS
+  }, (_, i) => React.createElement("div", {
     key: i,
     style: {
       flex: 1,
@@ -7030,171 +7021,81 @@ function OnboardingFlow({
     onClick: () => setStep(2),
     style: linkStyle
   }, "Plus tard"))))));
-  if (step === 2) {
-    const toggleArr = arr => {
-      if (selArr.includes(arr)) setSelArr(selArr.filter(a => a !== arr));else {
-        setSelArr([...selArr, arr]);
-        setParisAll(false);
-      }
-    };
-    const toggleParis = () => {
-      if (parisAll) {
-        setParisAll(false);
-      } else {
-        setParisAll(true);
-        setSelArr([]);
-      }
-    };
-    const toggleDept = d => {
-      if (selDepts.includes(d)) setSelDepts(selDepts.filter(x => x !== d));else setSelDepts([...selDepts, d]);
-    };
-    const hasSelection = parisAll || selArr.length > 0 || selDepts.length > 0;
-    const DEPT_NAMES = {
-      "77": "Seine-et-Marne",
-      "78": "Yvelines",
-      "91": "Essonne",
-      "92": "Hauts-de-Seine",
-      "93": "Seine-St-Denis",
-      "94": "Val-de-Marne",
-      "95": "Val-d'Oise"
-    };
-    return React.createElement("div", {
-      style: pageStyle
-    }, React.createElement(ProgressBar, null), React.createElement("div", {
-      style: contentStyle(false)
-    }, React.createElement("div", {
-      style: {
-        width: '100%',
-        paddingTop: 24
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 32,
-        lineHeight: 1.05,
-        letterSpacing: '-0.02em'
-      }
-    }, "Tu tra\xEEnes o\xF9 ? \uD83D\uDCCD"), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 15,
-        color: 'var(--ink-400)',
-        marginTop: 10,
-        lineHeight: 1.55
-      }
-    }, "S\xE9lectionne tes zones. Tu pourras changer", React.createElement("br", null), "quand tu veux dans le profil."), React.createElement("div", {
-      style: {
-        marginTop: 28
-      }
-    }, React.createElement("div", {
+  if (step === 2) return React.createElement("div", {
+    style: pageStyle
+  }, React.createElement(ProgressBar, null), React.createElement("div", {
+    style: contentStyle(false)
+  }, React.createElement("div", {
+    style: {
+      width: '100%',
+      paddingTop: 24
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 32,
+      lineHeight: 1.05,
+      letterSpacing: '-0.02em'
+    }
+  }, "T'es dans quelle ville ? \uD83C\uDF0D"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 15,
+      color: 'var(--ink-400)',
+      marginTop: 10,
+      lineHeight: 1.55
+    }
+  }, "On te montre les meilleurs spots du coin.", React.createElement("br", null), "Tu pourras changer quand tu veux."), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+      marginTop: 28
+    }
+  }, CITY_ORDER.map(k => {
+    const c = CITIES[k];
+    const active = selCity === k;
+    return React.createElement("button", {
+      key: k,
+      onClick: () => setSelCity(k),
+      className: "press",
       style: {
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 12
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 8,
+        padding: 18,
+        borderRadius: 'var(--radius-lg)',
+        border: '1.5px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: active ? 'var(--pop-pink)' : '#fff',
+        color: active ? '#fff' : 'var(--ink-900)',
+        cursor: 'pointer',
+        transition: 'all .15s var(--ease)'
       }
-    }, React.createElement("div", {
+    }, React.createElement("span", {
+      style: {
+        fontSize: 32,
+        lineHeight: 1
+      }
+    }, c.emoji), React.createElement("span", {
       style: {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 16
       }
-    }, "\uD83D\uDDFC Paris"), React.createElement("button", {
-      onClick: toggleParis,
-      className: "press",
-      style: {
-        padding: '8px 16px',
-        borderRadius: 'var(--radius-pill)',
-        border: '1.5px solid ' + (parisAll ? 'var(--ink-900)' : 'var(--hairline)'),
-        background: parisAll ? 'var(--ink-900)' : '#fff',
-        color: parisAll ? '#fff' : 'var(--ink-900)',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 13,
-        cursor: 'pointer'
-      }
-    }, "Tout Paris")), React.createElement("div", {
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5,1fr)',
-        gap: 6,
-        marginBottom: 24
-      }
-    }, Array.from({
-      length: 20
-    }, (_, i) => {
-      const key = `75-${i + 1}`;
-      const active = parisAll || selArr.includes(key);
-      return React.createElement("button", {
-        key: key,
-        onClick: () => {
-          if (!parisAll) toggleArr(key);
-        },
-        className: "press",
-        style: {
-          padding: '10px 4px',
-          borderRadius: 10,
-          border: '1.5px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
-          background: active ? 'var(--pop-pink)' : '#fff',
-          color: active ? '#fff' : 'var(--ink-900)',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 700,
-          fontSize: 13,
-          cursor: parisAll ? 'default' : 'pointer',
-          opacity: parisAll ? 0.5 : 1,
-          transition: 'all .15s var(--ease)'
-        }
-      }, i + 1, "e");
-    })), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 16,
-        marginBottom: 12
-      }
-    }, "\uD83C\uDFD9\uFE0F \xCEle-de-France"), React.createElement("div", {
-      style: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8
-      }
-    }, ["77", "78", "91", "92", "93", "94", "95"].map(d => {
-      const active = selDepts.includes(d);
-      return React.createElement("button", {
-        key: d,
-        onClick: () => toggleDept(d),
-        className: "press",
-        style: {
-          padding: '8px 14px',
-          borderRadius: 'var(--radius-pill)',
-          border: '1.5px solid ' + (active ? 'var(--ink-900)' : 'var(--hairline)'),
-          background: active ? 'var(--ink-900)' : '#fff',
-          color: active ? '#fff' : 'var(--ink-900)',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 600,
-          fontSize: 13,
-          cursor: 'pointer',
-          transition: 'all .15s var(--ease)'
-        }
-      }, d, " \xB7 ", DEPT_NAMES[d]);
-    }))), React.createElement("div", {
-      style: {
-        textAlign: 'center',
-        marginTop: 32,
-        paddingBottom: 24
-      }
-    }, React.createElement("button", {
-      onClick: () => setStep(3),
-      disabled: !hasSelection,
-      className: "press",
-      style: {
-        ...ctaStyle,
-        opacity: hasSelection ? 1 : 0.35,
-        cursor: hasSelection ? 'pointer' : 'not-allowed'
-      }
-    }, "Valider \u2192")))));
-  }
+    }, c.label));
+  })), React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      marginTop: 32,
+      paddingBottom: 24
+    }
+  }, React.createElement("button", {
+    onClick: () => setStep(3),
+    className: "press",
+    style: ctaStyle
+  }, "Valider \u2192")))));
   if (step === 3) return React.createElement("div", {
     style: pageStyle
   }, React.createElement(ProgressBar, null), React.createElement("div", {
@@ -11006,7 +10907,25 @@ function App() {
       padding: '0 20px 6px',
       scrollbarWidth: 'none'
     }
-  }, Q_BUDGET.map(b => {
+  }, (() => {
+    const active = budgetF.length === 0;
+    return React.createElement("button", {
+      onClick: () => setBudgetF([]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
+        background: active ? 'var(--pop-orange)' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, "\uD83C\uDF1F Tout");
+  })(), Q_BUDGET.map(b => {
     const active = budgetF.includes(b.k);
     return React.createElement("button", {
       key: b.k,
@@ -11033,7 +10952,25 @@ function App() {
       padding: '0 20px 14px',
       scrollbarWidth: 'none'
     }
-  }, Q_VIBE.map(v => {
+  }, (() => {
+    const active = vibeF.length === 0;
+    return React.createElement("button", {
+      onClick: () => setVibeF([]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
+        background: active ? 'var(--pop-violet)' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, "\uD83C\uDF1F Tout");
+  })(), Q_VIBE.map(v => {
     const active = vibeF.includes(v.k);
     return React.createElement("button", {
       key: v.k,
@@ -11442,7 +11379,11 @@ function App() {
       padding: '0 20px',
       display: "flex",
       flexDirection: "column",
-      gap: 18
+      gap: 18,
+      ...(sortedEvents.length > 0 && sortedEvents.length <= 2 ? {
+        minHeight: '46vh',
+        justifyContent: 'center'
+      } : {})
     }
   }, sortedEvents.map((ev, i) => {
     const linkedSpot = ev.spotId ? spots.find(s => s.id === ev.spotId) : null;
@@ -12803,8 +12744,9 @@ function App() {
       boxShadow: 'var(--shadow-pop)'
     }
   }, "C'est parti \uD83D\uDE80"))), !onboardingDone && React.createElement(OnboardingFlow, {
-    onComplete: (selectedZones, selectedSpots) => {
-      if (selectedZones) setZones(selectedZones);
+    initialCity: city,
+    onComplete: (selectedCity, selectedSpots) => {
+      if (selectedCity) setCity(selectedCity);
       if (selectedSpots) setSpots(selectedSpots);
       localStorage.setItem(OBK, "1");
       setOnboardingDone(true);
