@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T18:38:54.525Z -->
+<!-- built 2026-07-08T19:30:24.923Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -9927,6 +9927,9 @@ function App() {
     setMetroLoading(false);
   }, [peekSpot]);
   useEffect(() => {
+    didFitRef.current = false;
+  }, [mapMode]);
+  useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
     map.eachLayer(l => {
@@ -9981,6 +9984,11 @@ function App() {
     } else if (!didFitRef.current && bounds.length > 1) {
       map.fitBounds(bounds, {
         padding: [40, 40]
+      });
+      didFitRef.current = true;
+    } else if (!didFitRef.current && bounds.length === 1) {
+      map.setView(bounds[0], 14, {
+        animate: true
       });
       didFitRef.current = true;
     }
