@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T20:00:34.103Z -->
+<!-- built 2026-07-08T20:15:02.802Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -2981,6 +2981,92 @@ function priceBucket(p) {
   if (max <= 15) return "€";
   if (max <= 30) return "€€";
   return "€€€";
+}
+function nowParis() {
+  try {
+    const d = new Date(new Date().toLocaleString("en-US", {
+      timeZone: "Europe/Paris"
+    }));
+    return {
+      day: d.getDay(),
+      min: d.getHours() * 60 + d.getMinutes()
+    };
+  } catch {
+    const d = new Date();
+    return {
+      day: d.getDay(),
+      min: d.getHours() * 60 + d.getMinutes()
+    };
+  }
+}
+const _DMAP = {
+  dim: 0,
+  lun: 1,
+  mar: 2,
+  mer: 3,
+  jeu: 4,
+  ven: 5,
+  sam: 6
+};
+function _daysRange(a, b) {
+  const s = _DMAP[a],
+    e = _DMAP[b],
+    o = new Set();
+  let i = s;
+  for (let k = 0; k < 7; k++) {
+    o.add(i);
+    if (i === e) break;
+    i = (i + 1) % 7;
+  }
+  return o;
+}
+function isOpenNow(hoursRaw, now) {
+  if (!hoursRaw || !hoursRaw.trim()) return null;
+  let h = hoursRaw.toLowerCase().replace(/é/g, "e").replace(/è/g, "e").replace(/&/g, " , ").replace(/\s+/g, " ").trim();
+  h = h.replace(/minuit/g, "24h").replace(/\bmidi\b/g, "12h");
+  const closed = new Set();
+  const fmRe = /ferm[ee]s?\s+(?:le\s+)?((?:lun|mar|mer|jeu|ven|sam|dim)[a-z]*(?:\s*[,-]\s*(?:lun|mar|mer|jeu|ven|sam|dim)[a-z]*)*)/g;
+  let fm;
+  while (fm = fmRe.exec(h)) {
+    const toks = fm[1].match(/lun|mar|mer|jeu|ven|sam|dim/g) || [];
+    if (fm[1].includes("-") && toks.length >= 2) _daysRange(toks[0], toks[toks.length - 1]).forEach(d => closed.add(d));else toks.forEach(t => closed.add(_DMAP[t]));
+  }
+  if (closed.has(now.day)) return false;
+  if (/24\s*h\s*\/\s*24|24\s*\/\s*7/.test(h)) return true;
+  h = h.replace(/\([^)]*\)/g, " ");
+  const allDays = /tous les jours|7 ?j ?\/? ?7|tlj|7\/7/.test(h);
+  const clauses = h.split(",").map(s => s.trim()).filter(Boolean);
+  let sawSlot = false;
+  for (const cl of clauses) {
+    let days;
+    const toks = cl.match(/lun|mar|mer|jeu|ven|sam|dim/g);
+    if (/tous les jours|7 ?j ?\/? ?7|tlj|7\/7/.test(cl)) days = new Set([0, 1, 2, 3, 4, 5, 6]);else if (toks && toks.length) {
+      if (cl.match(/(lun|mar|mer|jeu|ven|sam|dim)[a-z]*\s*-\s*(lun|mar|mer|jeu|ven|sam|dim)/)) days = _daysRange(toks[0], toks[toks.length - 1]);else days = new Set(toks.map(t => _DMAP[t]));
+    } else days = new Set([0, 1, 2, 3, 4, 5, 6]);
+    const slots = [];
+    const des = cl.match(/d[èe]s\s+(\d{1,2})\s*h\s*(\d{0,2})/);
+    if (des) {
+      slots.push([+des[1] * 60 + +(des[2] || 0), 24 * 60 - 1]);
+      sawSlot = true;
+    }
+    const tmp = cl.replace(/d[èe]s\s+\d{1,2}\s*h\s*\d{0,2}/, "");
+    const slotRe = /(\d{1,2})\s*h\s*(\d{0,2})\s*(?:-|a|jusqu)?\s*(\d{1,2})?\s*h?\s*(\d{0,2})?/g;
+    let m;
+    while (m = slotRe.exec(tmp)) {
+      if (m[3] == null) continue;
+      slots.push([+m[1] * 60 + +(m[2] || 0), +m[3] * 60 + +(m[4] || 0)]);
+      sawSlot = true;
+    }
+    if (!days.has(now.day)) continue;
+    for (const [st, en] of slots) {
+      if (en >= st) {
+        if (now.min >= st && now.min <= en) return true;
+      } else {
+        if (now.min >= st || now.min <= en) return true;
+      }
+    }
+  }
+  return sawSlot ? false : null;
 }
 const DEPTS = [{
   k: "75",
@@ -8996,6 +9082,7 @@ function App() {
   const [filter, setFilter] = useState("all");
   const [budgetF, setBudgetF] = useState([]);
   const [vibeF, setVibeF] = useState([]);
+  const [openNow, setOpenNow] = useState(false);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -10020,7 +10107,9 @@ function App() {
     }
   }, [tab, peekSpot]);
   const visible = useMemo(() => {
+    const pnow = openNow ? nowParis() : null;
     return spots.filter(s => {
+      if (openNow && isOpenNow(s.hours, pnow) !== true) return false;
       const catOk = cat === "all" || hasCat(s, cat);
       let fOk = true;
       if (filter === "all") fOk = s.status !== "rejected";else if (filter === "todo") fOk = !s.done && s.status !== "rejected";else if (filter === "done") fOk = s.done;else if (filter === "fav") fOk = s.fav;else if (filter === "wishlist") fOk = s.status === "wishlist";else if (filter === "rejected") fOk = s.status === "rejected";else if (filter === "work") fOk = s.tags?.work === true;
@@ -10036,7 +10125,7 @@ function App() {
       }
       return catOk && fOk && sOk && bOk && vbOk && zOk;
     });
-  }, [spots, cat, filter, search, budgetF, vibeF, zones]);
+  }, [spots, cat, filter, search, budgetF, vibeF, zones, openNow]);
   const sortedVisible = useMemo(() => {
     const arr = [...visible];
     const extractPrice = p => {
@@ -10051,14 +10140,16 @@ function App() {
   const ownedIds = useMemo(() => new Set(allSpots.map(s => s.id)), [allSpots]);
   const catalogVisible = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const pnow = openNow ? nowParis() : null;
     return catalog.filter(s => {
+      if (openNow && isOpenNow(s.hours, pnow) !== true) return false;
       const catOk = cat === "all" || hasCat(s, cat);
       const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
       const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
       return catOk && sOk && bOk && vbOk;
     });
-  }, [catalog, cat, search, budgetF, vibeF]);
+  }, [catalog, cat, search, budgetF, vibeF, openNow]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -10835,7 +10926,25 @@ function App() {
       padding: '10px 20px 6px',
       scrollbarWidth: 'none'
     }
-  }, [["all", "Tous"], ["todo", "A faire"], ["wishlist", "Envies"], ["done", "Faits"], ["fav", "Favoris"], ["work", "Workfriendly"]].map(([k, l]) => {
+  }, React.createElement("button", {
+    onClick: () => setOpenNow(v => !v),
+    style: {
+      padding: '6px 12px',
+      borderRadius: 999,
+      whiteSpace: 'nowrap',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 12,
+      border: '1px solid ' + (openNow ? '#16A34A' : 'var(--hairline)'),
+      background: openNow ? '#16A34A' : 'transparent',
+      color: openNow ? '#fff' : 'var(--ink-600)',
+      cursor: 'pointer',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5
+    }
+  }, "\uD83D\uDFE2 Ouvert"), [["all", "Tous"], ["todo", "A faire"], ["wishlist", "Envies"], ["done", "Faits"], ["fav", "Favoris"], ["work", "Workfriendly"]].map(([k, l]) => {
     const active = filter === k;
     return React.createElement("button", {
       key: k,
