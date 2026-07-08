@@ -1,7 +1,7 @@
 {
-  "name": "MonParis",
-  "short_name": "MonParis",
-  "description": "Tes spots parisiens — restos, bars, rooftops, sorties",
+  "name": "Spotane",
+  "short_name": "Spotane",
+  "description": "Tes meilleurs spots — restos, bars, rooftops, sorties",
   "start_url": "/my-safe-place/",
   "scope": "/my-safe-place/",
   "display": "standalone",

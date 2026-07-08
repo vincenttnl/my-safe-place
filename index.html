@@ -1,25 +1,25 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T20:18:10.566Z -->
+<!-- built 2026-07-08T20:44:26.536Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>MonParis — Tes spots parisiens</title>
-<meta name="description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses parisiennes, à toi et à tes potes."/>
+<title>Spotane — Tes meilleurs spots</title>
+<meta name="description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#FF3D8B"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="Safe Place"/>
+<meta name="apple-mobile-web-app-title" content="Spotane"/>
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 
 <!-- Open Graph / Facebook / iMessage / WhatsApp -->
 <meta property="og:type" content="website"/>
-<meta property="og:site_name" content="MonParis"/>
-<meta property="og:title" content="MonParis — Tes spots parisiens"/>
-<meta property="og:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses parisiennes, à toi et à tes potes."/>
+<meta property="og:site_name" content="Spotane"/>
+<meta property="og:title" content="Spotane — Tes meilleurs spots"/>
+<meta property="og:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
 <meta property="og:image" content="https://vincenttnl.github.io/my-safe-place/icon-512.png"/>
 <meta property="og:image:width" content="512"/>
 <meta property="og:image:height" content="512"/>
@@ -28,8 +28,8 @@
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="MonParis — Tes spots parisiens"/>
-<meta name="twitter:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses parisiennes, à toi et à tes potes."/>
+<meta name="twitter:title" content="Spotane — Tes meilleurs spots"/>
+<meta name="twitter:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
 <meta name="twitter:image" content="https://vincenttnl.github.io/my-safe-place/icon-512.png"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -184,7 +184,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 <body>
 <div id="msp-splash" aria-hidden="true">
   <img src="icon-192.png" alt="" class="msp-splash-logo"/>
-  <h1 class="msp-splash-title">MonParis</h1>
+  <h1 class="msp-splash-title">Spotane</h1>
   <p class="msp-splash-sub">Tes spots préférés</p>
 </div>
 <div id="root"></div>
@@ -3220,6 +3220,7 @@ const CITIES = {
 };
 const CITY_ORDER = ["paris", "lyon", "marseille", "toulouse", "nice", "bordeaux"];
 const spotCity = s => s && s.tags && s.tags.city || "paris";
+const PARIS_RING = [[48.8542, 2.22412], [48.85004, 2.23956], [48.84773, 2.24247], [48.84557, 2.25254], [48.84286, 2.25122], [48.83891, 2.25165], [48.83481, 2.25515], [48.83458, 2.26795], [48.83301, 2.27003], [48.83156, 2.2673], [48.82785, 2.26781], [48.82793, 2.27274], [48.83245, 2.27905], [48.82714, 2.29222], [48.81821, 2.33237], [48.81703, 2.33174], [48.81558, 2.3445], [48.81853, 2.3524], [48.81597, 2.35592], [48.81606, 2.36341], [48.82965, 2.40249], [48.82505, 2.4108], [48.82357, 2.42975], [48.82169, 2.43289], [48.81928, 2.43418], [48.81936, 2.43697], [48.81822, 2.43735], [48.81701, 2.45863], [48.81903, 2.4628], [48.82733, 2.46618], [48.82763, 2.46461], [48.83115, 2.46523], [48.83556, 2.4697], [48.84011, 2.46638], [48.84237, 2.46273], [48.84592, 2.44077], [48.84435, 2.44051], [48.84457, 2.43794], [48.84089, 2.43719], [48.84177, 2.42476], [48.8445, 2.42211], [48.84249, 2.41942], [48.83581, 2.42218], [48.83376, 2.41611], [48.83387, 2.41123], [48.83788, 2.41351], [48.84879, 2.41644], [48.87638, 2.4125], [48.88028, 2.40929], [48.88149, 2.40372], [48.88382, 2.40009], [48.89459, 2.39776], [48.89826, 2.39553], [48.90098, 2.39069], [48.90216, 2.38443], [48.90076, 2.32036], [48.88657, 2.28566], [48.88295, 2.28099], [48.8787, 2.27996], [48.87796, 2.27749], [48.88028, 2.25889], [48.87408, 2.25481], [48.87636, 2.24562], [48.87189, 2.24046], [48.86951, 2.23208], [48.86514, 2.22824], [48.8542, 2.22412]];
 const MIGRATION_KEY = "myplace_schema_version";
 (function migrateLegacyKeys() {
   try {
@@ -5507,7 +5508,7 @@ function SpotFormModal({
         try {
           const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`, {
             headers: {
-              "User-Agent": "MonParis/1.0"
+              "User-Agent": "Spotane/1.0"
             }
           });
           const d = await r.json();
@@ -6906,7 +6907,7 @@ function OnboardingFlow({
       marginTop: 12,
       color: 'var(--ink-600)'
     }
-  }, "Bienvenue dans", React.createElement("br", null), "MonParis"), React.createElement("div", {
+  }, "Bienvenue dans", React.createElement("br", null), "Spotane"), React.createElement("div", {
     className: "anim-delay-2",
     style: {
       fontFamily: 'var(--font-body)',
@@ -8112,7 +8113,7 @@ function AuthCard({
         fontFamily: 'var(--font-body)',
         lineHeight: 1.4
       }
-    }, "Je veux recevoir les emails de la communaut\xE9 MonParis (nouveaut\xE9s, bons plans, newsletter).")), React.createElement("button", {
+    }, "Je veux recevoir les emails de la communaut\xE9 Spotane (nouveaut\xE9s, bons plans, newsletter).")), React.createElement("button", {
       onClick: saveProfile,
       disabled: busy,
       className: "btn-primary",
@@ -8517,7 +8518,7 @@ function AuthCard({
         fontFamily: 'var(--font-body)',
         marginBottom: 12
       }
-    }, "Choisis un pseudo \u2014 c'est lui qui te repr\xE9sentera dans la communaut\xE9 MonParis."), React.createElement("input", {
+    }, "Choisis un pseudo \u2014 c'est lui qui te repr\xE9sentera dans la communaut\xE9 Spotane."), React.createElement("input", {
       value: pseudo,
       onChange: e => setPseudo(e.target.value),
       placeholder: "Ton pseudo (ex : Vincent75)",
@@ -8587,7 +8588,7 @@ function AuthCard({
         fontFamily: 'var(--font-body)',
         lineHeight: 1.4
       }
-    }, "Je rejoins la communaut\xE9 MonParis et j'accepte de recevoir ses emails (nouveaut\xE9s, bons plans, newsletter). D\xE9sabonnable \xE0 tout moment.")), React.createElement("button", {
+    }, "Je rejoins la communaut\xE9 Spotane et j'accepte de recevoir ses emails (nouveaut\xE9s, bons plans, newsletter). D\xE9sabonnable \xE0 tout moment.")), React.createElement("button", {
       onClick: signup,
       disabled: busy,
       className: "btn-primary",
@@ -8634,7 +8635,7 @@ function AuthCard({
       fontSize: 15,
       marginBottom: 4
     }
-  }, "\u2601\uFE0F Rejoindre la communaut\xE9 MonParis"), React.createElement("div", {
+  }, "\u2601\uFE0F Rejoindre la communaut\xE9 Spotane"), React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: 'var(--ink-400)',
@@ -8772,7 +8773,7 @@ function RecoveryCard({
       color: 'var(--ink-400)',
       marginTop: 8
     }
-  }, "Choisis un nouveau mot de passe pour ton compte MonParis."), React.createElement(PwdInput, {
+  }, "Choisis un nouveau mot de passe pour ton compte Spotane."), React.createElement(PwdInput, {
     value: pw,
     onChange: e => setPw(e.target.value),
     placeholder: "Nouveau mot de passe",
@@ -9088,6 +9089,14 @@ function App() {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [peekSpot, setPeekSpot] = useState(null);
   const [mapCats, setMapCats] = useState(() => new Set(["resto", "cafe", "rooftop", "speakeasy", "club", "sortie"]));
+  const mapCount = useMemo(() => {
+    const pnow = openNow ? nowParis() : null;
+    const f = arr => arr.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, pnow) === true)).length;
+    return {
+      discover: f(catalog),
+      mine: f(spots)
+    };
+  }, [catalog, spots, mapCats, openNow]);
   const [metroJ, setMetroJ] = useState(null);
   const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -9484,6 +9493,7 @@ function App() {
   const wantRecenterRef = useRef(false);
   const didFitRef = useRef(false);
   const selMarkerRef = useRef(null);
+  const parisRingRef = useRef(null);
   useEffect(() => {
     try {
       localStorage.setItem(SK, JSON.stringify(allSpots));
@@ -9559,7 +9569,7 @@ function App() {
     }
     const url = buildShareURL(spot, myName);
     if (!url) return;
-    const text = `${spot.name} — ${spot.adresse || "Paris"}\n\nDécouvre ce spot sur MonParis 👇`;
+    const text = `${spot.name} — ${spot.adresse || "Paris"}\n\nDécouvre ce spot sur Spotane 👇`;
     if (navigator.share) navigator.share({
       title: spot.name,
       text,
@@ -9573,7 +9583,7 @@ function App() {
     setShowNamePrompt(false);
     if (pendingShareSpot) {
       const url = buildShareURL(pendingShareSpot, name);
-      const text = `${pendingShareSpot.name} — ${pendingShareSpot.adresse || "Paris"}\n\nDécouvre ce spot sur MonParis 👇`;
+      const text = `${pendingShareSpot.name} — ${pendingShareSpot.adresse || "Paris"}\n\nDécouvre ce spot sur Spotane 👇`;
       if (navigator.share) navigator.share({
         title: pendingShareSpot.name,
         text,
@@ -9936,7 +9946,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `my-safe-place-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `spotane-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -10082,6 +10092,28 @@ function App() {
       didFitRef.current = true;
     }
   }, [tab, mapSource, userPos, mapCats, openNow]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (parisRingRef.current) {
+      try {
+        map.removeLayer(parisRingRef.current);
+      } catch {}
+      parisRingRef.current = null;
+    }
+    if (tab === "map" && city === "paris") {
+      try {
+        parisRingRef.current = L.polygon(PARIS_RING, {
+          color: "#0A0A0A",
+          weight: 1.5,
+          opacity: 0.5,
+          dashArray: "5 5",
+          fill: false,
+          interactive: false
+        }).addTo(map);
+      } catch {}
+    }
+  }, [tab, city]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
@@ -10799,7 +10831,7 @@ function App() {
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "D\xE9couvrir \uD83D\uDD0D", catalog.length > 0 && React.createElement("span", {
+  }, "D\xE9couvrir \uD83D\uDD0D", catalogVisible.length > 0 && React.createElement("span", {
     style: {
       position: 'absolute',
       top: -8,
@@ -10818,7 +10850,7 @@ function App() {
       boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
       border: '2px solid var(--bg-cream)'
     }
-  }, catalog.length)), React.createElement("button", {
+  }, catalogVisible.length)), React.createElement("button", {
     onClick: () => {
       setSearchMode("local");
       setDiscoverResults([]);
@@ -10843,7 +10875,7 @@ function App() {
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "Mes spots \u2764\uFE0F", spots.length > 0 && React.createElement("span", {
+  }, "Mes spots \u2764\uFE0F", sortedVisible.length > 0 && React.createElement("span", {
     style: {
       position: 'absolute',
       top: -8,
@@ -10862,7 +10894,7 @@ function App() {
       boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
       border: '2px solid var(--bg-cream)'
     }
-  }, spots.length)), React.createElement("div", {
+  }, sortedVisible.length)), React.createElement("div", {
     style: {
       flex: 1
     }
@@ -11735,11 +11767,11 @@ function App() {
   }, [{
     k: 'discover',
     l: 'Découvrir 🔍',
-    n: catalog.length
+    n: mapCount.discover
   }, {
     k: 'mine',
     l: 'Mes spots ❤️',
-    n: spots.length
+    n: mapCount.mine
   }].map(o => {
     const on = mapMode === o.k;
     return React.createElement("button", {
@@ -11887,7 +11919,7 @@ function App() {
     },
     style: {
       position: 'absolute',
-      bottom: 72,
+      bottom: 52,
       right: 16,
       zIndex: 1000,
       background: 'var(--ink-900)',
@@ -12674,7 +12706,7 @@ function App() {
       lineHeight: 1.1,
       letterSpacing: '-0.015em'
     }
-  }, "Bienvenue", session && session.user && session.user.pseudo ? " " + session.user.pseudo : "", " dans la communaut\xE9 MonParis !"), React.createElement("div", {
+  }, "Bienvenue", session && session.user && session.user.pseudo ? " " + session.user.pseudo : "", " dans la communaut\xE9 Spotane !"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 14.5,

@@ -1,6 +1,6 @@
-// MonParis — Service Worker
+// Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'monparis-v39-2026-07-08';
+const CACHE_VERSION = 'spotane-v40-2026-07-08';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
