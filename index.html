@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T22:38:10.791Z -->
+<!-- built 2026-07-08T22:49:17.749Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -6763,7 +6763,29 @@ function OnboardingFlow({
 }) {
   const [step, setStep] = useState(0);
   const [selCity, setSelCity] = useState(initialCity || "paris");
+  const [seedSpots, setSeedSpots] = useState(null);
+  const [loadingSeed, setLoadingSeed] = useState(false);
   const TOTAL_STEPS = 4;
+  useEffect(() => {
+    if (step !== 3) return;
+    if (selCity === "paris") {
+      setSeedSpots(INITIAL_SPOTS);
+      setLoadingSeed(false);
+      return;
+    }
+    let alive = true;
+    setSeedSpots(null);
+    setLoadingSeed(true);
+    (async () => {
+      const remote = await fetchCitySpots(selCity);
+      if (!alive) return;
+      setSeedSpots(Array.isArray(remote) ? remote : []);
+      setLoadingSeed(false);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [step, selCity]);
   const pageStyle = {
     position: 'fixed',
     inset: 0,
@@ -7096,59 +7118,94 @@ function OnboardingFlow({
     className: "press",
     style: ctaStyle
   }, "Valider \u2192")))));
-  if (step === 3) return React.createElement("div", {
-    style: pageStyle
-  }, React.createElement(ProgressBar, null), React.createElement("div", {
-    style: contentStyle(true)
-  }, React.createElement("div", {
-    style: {
-      textAlign: 'center',
-      maxWidth: 360
-    }
-  }, React.createElement("div", {
-    className: "anim-delay-1",
-    style: {
-      fontSize: 64
-    }
-  }, "\uD83E\uDD0C"), React.createElement("div", {
-    className: "anim-delay-1",
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 32,
-      lineHeight: 1.1,
-      letterSpacing: '-0.02em',
-      marginTop: 16
-    }
-  }, "T'es pr\xEAt."), React.createElement("div", {
-    className: "anim-delay-2",
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 17,
-      marginTop: 16,
-      color: 'var(--ink-600)',
-      lineHeight: 1.5
-    }
-  }, "On t'a pr\xE9par\xE9 ", React.createElement("strong", {
-    style: {
-      color: 'var(--pop-pink)'
-    }
-  }, INITIAL_SPOTS.length, " spots"), " pour d\xE9marrer.", React.createElement("br", null), "Restos, bars, rooftops, clubs..."), React.createElement("div", {
-    className: "anim-delay-3",
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontStyle: 'italic',
-      fontSize: 18,
-      marginTop: 16,
-      color: 'var(--ink-400)'
-    }
-  }, "\xC0 toi de jouer."), React.createElement("div", {
-    className: "anim-delay-4"
-  }, React.createElement("button", {
-    onClick: () => saveAndFinish(INITIAL_SPOTS),
-    className: "press",
-    style: ctaStyle
-  }, "Let's go \uD83D\uDE80")))));
+  if (step === 3) {
+    const cityLabel = (CITIES[selCity] || CITIES.paris).label;
+    const count = seedSpots ? seedSpots.length : 0;
+    return React.createElement("div", {
+      style: pageStyle
+    }, React.createElement(ProgressBar, null), React.createElement("div", {
+      style: contentStyle(true)
+    }, React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        maxWidth: 360
+      }
+    }, React.createElement("div", {
+      className: "anim-delay-1",
+      style: {
+        fontSize: 64
+      }
+    }, "\uD83E\uDD0C"), React.createElement("div", {
+      className: "anim-delay-1",
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 32,
+        lineHeight: 1.1,
+        letterSpacing: '-0.02em',
+        marginTop: 16
+      }
+    }, "T'es pr\xEAt."), loadingSeed ? React.createElement("div", {
+      className: "anim-delay-2",
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 17,
+        marginTop: 16,
+        color: 'var(--ink-600)',
+        lineHeight: 1.5
+      }
+    }, "On pr\xE9pare les meilleurs spots de ", React.createElement("strong", {
+      style: {
+        color: 'var(--pop-pink)'
+      }
+    }, cityLabel), "\u2026") : count > 0 ? React.createElement("div", {
+      className: "anim-delay-2",
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 17,
+        marginTop: 16,
+        color: 'var(--ink-600)',
+        lineHeight: 1.5
+      }
+    }, "On t'a pr\xE9par\xE9 ", React.createElement("strong", {
+      style: {
+        color: 'var(--pop-pink)'
+      }
+    }, count, " spots"), " \xE0 ", cityLabel, " pour d\xE9marrer.", React.createElement("br", null), "Restos, bars, rooftops, clubs...") : React.createElement("div", {
+      className: "anim-delay-2",
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 17,
+        marginTop: 16,
+        color: 'var(--ink-600)',
+        lineHeight: 1.5
+      }
+    }, "Direction ", React.createElement("strong", {
+      style: {
+        color: 'var(--pop-pink)'
+      }
+    }, cityLabel), ".", React.createElement("br", null), "Ajoute tes premiers spots \u2014 l'onglet D\xE9couvrir te propose d\xE9j\xE0 les meilleurs du coin."), React.createElement("div", {
+      className: "anim-delay-3",
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontStyle: 'italic',
+        fontSize: 18,
+        marginTop: 16,
+        color: 'var(--ink-400)'
+      }
+    }, "\xC0 toi de jouer."), React.createElement("div", {
+      className: "anim-delay-4"
+    }, React.createElement("button", {
+      onClick: () => saveAndFinish(seedSpots || []),
+      disabled: loadingSeed,
+      className: "press",
+      style: {
+        ...ctaStyle,
+        opacity: loadingSeed ? 0.5 : 1,
+        cursor: loadingSeed ? 'wait' : 'pointer'
+      }
+    }, "Let's go \uD83D\uDE80")))));
+  }
   return null;
 }
 function EmptyState({
@@ -12747,7 +12804,13 @@ function App() {
     initialCity: city,
     onComplete: (selectedCity, selectedSpots) => {
       if (selectedCity) setCity(selectedCity);
-      if (selectedSpots) setSpots(selectedSpots);
+      if (selectedSpots) {
+        setSpots(selectedSpots);
+        setChallenge({
+          ids: pickChallenge(selectedSpots),
+          month: getMonthLabel()
+        });
+      }
       localStorage.setItem(OBK, "1");
       setOnboardingDone(true);
     }
