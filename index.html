@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T22:54:20.157Z -->
+<!-- built 2026-07-08T23:46:52.495Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -35,6 +35,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -6763,29 +6766,7 @@ function OnboardingFlow({
 }) {
   const [step, setStep] = useState(0);
   const [selCity, setSelCity] = useState(initialCity || "paris");
-  const [seedSpots, setSeedSpots] = useState(null);
-  const [loadingSeed, setLoadingSeed] = useState(false);
   const TOTAL_STEPS = 4;
-  useEffect(() => {
-    if (step !== 3) return;
-    if (selCity === "paris") {
-      setSeedSpots(INITIAL_SPOTS);
-      setLoadingSeed(false);
-      return;
-    }
-    let alive = true;
-    setSeedSpots(null);
-    setLoadingSeed(true);
-    (async () => {
-      const remote = await fetchCitySpots(selCity);
-      if (!alive) return;
-      setSeedSpots(Array.isArray(remote) ? remote : []);
-      setLoadingSeed(false);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [step, selCity]);
   const pageStyle = {
     position: 'fixed',
     inset: 0,
@@ -6832,8 +6813,8 @@ function OnboardingFlow({
     padding: 8,
     textDecoration: 'underline'
   };
-  const saveAndFinish = spotsArray => {
-    onComplete(selCity, spotsArray);
+  const saveAndFinish = () => {
+    onComplete(selCity);
   };
   const ProgressBar = () => React.createElement("div", {
     style: {
@@ -7120,7 +7101,6 @@ function OnboardingFlow({
   }, "Valider \u2192")))));
   if (step === 3) {
     const cityLabel = (CITIES[selCity] || CITIES.paris).label;
-    const count = seedSpots ? seedSpots.length : 0;
     return React.createElement("div", {
       style: pageStyle
     }, React.createElement(ProgressBar, null), React.createElement("div", {
@@ -7145,33 +7125,7 @@ function OnboardingFlow({
         letterSpacing: '-0.02em',
         marginTop: 16
       }
-    }, "T'es pr\xEAt."), loadingSeed ? React.createElement("div", {
-      className: "anim-delay-2",
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 17,
-        marginTop: 16,
-        color: 'var(--ink-600)',
-        lineHeight: 1.5
-      }
-    }, "On pr\xE9pare les meilleurs spots de ", React.createElement("strong", {
-      style: {
-        color: 'var(--pop-pink)'
-      }
-    }, cityLabel), "\u2026") : count > 0 ? React.createElement("div", {
-      className: "anim-delay-2",
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 17,
-        marginTop: 16,
-        color: 'var(--ink-600)',
-        lineHeight: 1.5
-      }
-    }, "On t'a pr\xE9par\xE9 ", React.createElement("strong", {
-      style: {
-        color: 'var(--pop-pink)'
-      }
-    }, count, " spots"), " \xE0 ", cityLabel, " pour d\xE9marrer.", React.createElement("br", null), "Restos, bars, rooftops, clubs...") : React.createElement("div", {
+    }, "T'es pr\xEAt."), React.createElement("div", {
       className: "anim-delay-2",
       style: {
         fontFamily: 'var(--font-body)',
@@ -7184,7 +7138,11 @@ function OnboardingFlow({
       style: {
         color: 'var(--pop-pink)'
       }
-    }, cityLabel), ".", React.createElement("br", null), "Ajoute tes premiers spots \u2014 l'onglet D\xE9couvrir te propose d\xE9j\xE0 les meilleurs du coin."), React.createElement("div", {
+    }, cityLabel), ". Ta carte perso est vierge \u2014 ", React.createElement("strong", {
+      style: {
+        color: 'var(--ink-900)'
+      }
+    }, "c'est \xE0 toi de la construire"), ".", React.createElement("br", null), "File dans ", React.createElement("strong", null, "D\xE9couvrir"), " : les meilleurs spots du coin t'attendent."), React.createElement("div", {
       className: "anim-delay-3",
       style: {
         fontFamily: 'var(--font-display)',
@@ -7196,14 +7154,9 @@ function OnboardingFlow({
     }, "\xC0 toi de jouer."), React.createElement("div", {
       className: "anim-delay-4"
     }, React.createElement("button", {
-      onClick: () => saveAndFinish(seedSpots || []),
-      disabled: loadingSeed,
+      onClick: () => saveAndFinish(),
       className: "press",
-      style: {
-        ...ctaStyle,
-        opacity: loadingSeed ? 0.5 : 1,
-        cursor: loadingSeed ? 'wait' : 'pointer'
-      }
+      style: ctaStyle
     }, "Let's go \uD83D\uDE80")))));
   }
   return null;
@@ -8815,7 +8768,7 @@ function App() {
   const [allSpots, setAllSpots] = useState(() => {
     try {
       const raw = localStorage.getItem(SK);
-      if (!raw) return INITIAL_SPOTS;
+      if (!raw) return [];
       const saved = JSON.parse(raw);
       const isParisUser = (localStorage.getItem(CITYK) || "paris") === "paris";
       const seedMax = parseInt(localStorage.getItem("myplace_seedmax_v1") || "52", 10);
@@ -8860,12 +8813,12 @@ function App() {
     try {
       const c = localStorage.getItem(CK);
       return c ? JSON.parse(c) : {
-        ids: pickChallenge(INITIAL_SPOTS),
+        ids: [],
         month: getMonthLabel()
       };
     } catch {
       return {
-        ids: pickChallenge(INITIAL_SPOTS),
+        ids: [],
         month: getMonthLabel()
       };
     }
@@ -9454,6 +9407,7 @@ function App() {
   const didFitRef = useRef(false);
   const selMarkerRef = useRef(null);
   const parisRingRef = useRef(null);
+  const clusterRef = useRef(null);
   useEffect(() => {
     try {
       localStorage.setItem(SK, JSON.stringify(allSpots));
@@ -9513,6 +9467,12 @@ function App() {
       month: m
     });
   }, []);
+  useEffect(() => {
+    if ((!challenge.ids || challenge.ids.length === 0) && spots.filter(s => !s.done && s.status !== "rejected").length >= 3) setChallenge({
+      ids: pickChallenge(spots),
+      month: getMonthLabel()
+    });
+  }, [spots]);
   useEffect(() => {
     try {
       if (myName) localStorage.setItem("myplace_username_v1", myName);
@@ -9948,6 +9908,27 @@ function App() {
       attribution: 'OSM, CARTO'
     }).addTo(map);
     mapRef.current = map;
+    try {
+      clusterRef.current = L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 50,
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        disableClusteringAtZoom: 15,
+        iconCreateFunction: cluster => {
+          const n = cluster.getChildCount();
+          const size = n < 10 ? 36 : n < 50 ? 44 : 52;
+          return L.divIcon({
+            html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:999px;background:rgba(255,61,139,0.94);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,sans-serif);font-weight:900;font-size:' + (n < 10 ? 14 : 16) + 'px;box-shadow:0 3px 12px rgba(0,0,0,0.28);border:2.5px solid #fff">' + n + '</div>',
+            className: '',
+            iconSize: [size, size]
+          });
+        }
+      });
+      map.addLayer(clusterRef.current);
+    } catch (e) {
+      clusterRef.current = null;
+    }
     didFitRef.current = false;
     userMarkerRef.current = null;
     selMarkerRef.current = null;
@@ -9965,6 +9946,7 @@ function App() {
       } catch {}
       mapRef.current = null;
       userMarkerRef.current = null;
+      clusterRef.current = null;
     };
   }, [tab]);
   useEffect(() => {
@@ -9989,7 +9971,8 @@ function App() {
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
-    map.eachLayer(l => {
+    const cluster = clusterRef.current;
+    if (cluster) cluster.clearLayers();else map.eachLayer(l => {
       if (l instanceof L.CircleMarker) map.removeLayer(l);
     });
     const bounds = [];
@@ -10006,13 +9989,14 @@ function App() {
         weight: 2,
         opacity: 1,
         fillOpacity: s.done ? 0.5 : 0.9
-      }).addTo(map);
+      });
       m.on("click", () => {
         setPeekSpot(s);
         try {
           map.panTo([s.lat, s.lng]);
         } catch {}
       });
+      if (cluster) cluster.addLayer(m);else m.addTo(map);
       bounds.push([s.lat, s.lng]);
     });
     if (userMarkerRef.current) {
@@ -10385,7 +10369,7 @@ function App() {
       }, c.label), React.createElement("div", {
         className: "cat-count"
       }, count));
-    }))), React.createElement("div", {
+    }))), challengeSpots.length > 0 && React.createElement("div", {
       style: {
         padding: '28px 20px 0'
       }
@@ -12283,33 +12267,21 @@ function App() {
       s: `${trash.length} spots · recup. 7 jours`,
       action: null
     }, {
-      i: '♻️',
-      t: 'Repartir de la sélection de base',
-      s: 'Remet les spots de base de ta ville',
-      action: async () => {
-        const isParis = city === "paris";
-        let base = INITIAL_SPOTS;
-        if (!isParis) {
-          window.mspToast?.("Chargement des spots de la ville…", "info");
-          const remote = await fetchCitySpots(city);
-          if (!remote || !remote.length) {
-            window.mspToast?.("Impossible de charger les spots de cette ville", "error");
-            return;
-          }
-          base = remote;
+      i: '🧹',
+      t: 'Vider Mes spots',
+      s: 'Repartir d\'une carte perso vierge',
+      action: () => {
+        if (spots.length === 0) {
+          window.mspToast?.("Mes spots est déjà vide", "info");
+          return;
         }
-        if (confirm(`Remplacer ta liste actuelle (${spots.length} spots) par la sélection de base (${base.length} spots) ?\n\nTes ajouts perso et favoris seront retirés de Mes Spots.`)) {
-          setSpots(base);
+        if (confirm(`Vider Mes spots (${spots.length} spots) ?\n\nTa liste perso repart à zéro. Les spots restent dans Découvrir, tu pourras les rajouter quand tu veux.`)) {
+          setSpots([]);
           setChallenge({
-            ids: pickChallenge(base),
+            ids: [],
             month: getMonthLabel()
           });
-          if (isParis) {
-            try {
-              localStorage.setItem("myplace_seedmax_v1", String(Math.max(...INITIAL_SPOTS.map(s => s.id))));
-            } catch {}
-          }
-          window.mspToast?.(`Liste remise à ${base.length} spots de base`, "success");
+          window.mspToast?.("Mes spots vidé", "success");
         }
       }
     }, {
@@ -12820,15 +12792,8 @@ function App() {
     }
   }, "C'est parti \uD83D\uDE80"))), !onboardingDone && React.createElement(OnboardingFlow, {
     initialCity: city,
-    onComplete: (selectedCity, selectedSpots) => {
+    onComplete: selectedCity => {
       if (selectedCity) setCity(selectedCity);
-      if (selectedSpots) {
-        setSpots(selectedSpots);
-        setChallenge({
-          ids: pickChallenge(selectedSpots),
-          month: getMonthLabel()
-        });
-      }
       localStorage.setItem(OBK, "1");
       setOnboardingDone(true);
     }
