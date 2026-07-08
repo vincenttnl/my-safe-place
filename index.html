@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-07T14:00:14.975Z -->
+<!-- built 2026-07-08T17:47:43.610Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -10680,28 +10680,40 @@ function App() {
     onClick: () => setSearchMode("discover"),
     className: "press",
     style: {
+      position: 'relative',
       display: 'flex',
       alignItems: 'center',
       gap: 6,
-      padding: '8px 15px',
+      padding: '9px 15px',
       borderRadius: 999,
-      background: searchMode === "discover" ? 'linear-gradient(135deg,#ff5c8a,#8b5cf6)' : '#fff',
-      color: searchMode === "discover" ? '#fff' : 'var(--ink-900)',
-      border: searchMode === "discover" ? 'none' : '1px solid var(--hairline)',
-      boxShadow: searchMode === "discover" ? '0 4px 14px rgba(139,92,246,0.35)' : 'none',
+      background: searchMode === "discover" ? 'var(--pop-pink)' : '#fff',
+      color: searchMode === "discover" ? '#fff' : 'var(--ink-600)',
+      border: searchMode === "discover" ? '1px solid transparent' : '1px solid var(--hairline)',
+      boxShadow: searchMode === "discover" ? 'var(--shadow-pop)' : 'none',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 13,
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "\uD83E\uDDED D\xE9couvrir", catalog.length > 0 && React.createElement("span", {
+  }, "D\xE9couvrir \uD83D\uDD0D", catalog.length > 0 && React.createElement("span", {
     style: {
-      background: searchMode === "discover" ? 'rgba(255,255,255,0.28)' : 'var(--bg-soft,#F3F1F6)',
-      borderRadius: 999,
-      padding: '1px 7px',
+      position: 'absolute',
+      top: -7,
+      right: -6,
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      minWidth: 19,
+      height: 19,
       fontSize: 11,
-      fontWeight: 800
+      fontWeight: 800,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 5px',
+      borderRadius: 999,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      border: '2px solid var(--bg-cream)'
     }
   }, catalog.length)), React.createElement("button", {
     onClick: () => {
@@ -10710,28 +10722,40 @@ function App() {
     },
     className: "press",
     style: {
+      position: 'relative',
       display: 'flex',
       alignItems: 'center',
       gap: 6,
-      padding: '8px 15px',
+      padding: '9px 15px',
       borderRadius: 999,
-      background: searchMode === "local" ? 'var(--ink-900)' : '#fff',
-      color: searchMode === "local" ? '#fff' : 'var(--ink-900)',
-      border: searchMode === "local" ? 'none' : '1px solid var(--hairline)',
-      boxShadow: searchMode === "local" ? '0 4px 12px rgba(0,0,0,0.18)' : 'none',
+      background: searchMode === "local" ? 'var(--pop-pink)' : '#fff',
+      color: searchMode === "local" ? '#fff' : 'var(--ink-600)',
+      border: searchMode === "local" ? '1px solid transparent' : '1px solid var(--hairline)',
+      boxShadow: searchMode === "local" ? 'var(--shadow-pop)' : 'none',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 13,
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "\uD83D\uDCDA Mes spots", spots.length > 0 && React.createElement("span", {
+  }, "Mes spots \u2764\uFE0F", spots.length > 0 && React.createElement("span", {
     style: {
-      background: searchMode === "local" ? 'rgba(255,255,255,0.22)' : 'var(--bg-soft,#F3F1F6)',
-      borderRadius: 999,
-      padding: '1px 7px',
+      position: 'absolute',
+      top: -7,
+      right: -6,
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      minWidth: 19,
+      height: 19,
       fontSize: 11,
-      fontWeight: 800
+      fontWeight: 800,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 5px',
+      borderRadius: 999,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      border: '2px solid var(--bg-cream)'
     }
   }, spots.length)), React.createElement("div", {
     style: {
@@ -11583,11 +11607,11 @@ function App() {
       marginBottom: 7
     }
   }, [{
-    k: 'mine',
-    l: 'Mes spots'
-  }, {
     k: 'discover',
-    l: 'Découvrir'
+    l: 'Découvrir 🔍'
+  }, {
+    k: 'mine',
+    l: 'Mes spots ❤️'
   }].map(o => {
     const on = mapMode === o.k;
     return React.createElement("button", {
@@ -11606,8 +11630,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 12.5,
-        background: on ? 'var(--ink-900)' : 'transparent',
+        background: on ? 'var(--pop-pink)' : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
+        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
         transition: 'all .15s var(--ease)'
       }
     }, o.l);
