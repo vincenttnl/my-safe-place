@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T18:23:23.291Z -->
+<!-- built 2026-07-08T18:38:54.525Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -11590,18 +11590,19 @@ function App() {
       right: 12,
       zIndex: 1000,
       display: "flex",
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
       alignItems: "flex-start",
       pointerEvents: "none"
     }
   }, React.createElement("div", {
     style: {
-      background: "rgba(255,255,255,0.92)",
+      background: "rgba(255,255,255,0.94)",
       backdropFilter: 'blur(12px)',
       borderRadius: 'var(--radius-md)',
-      padding: "9px 10px",
+      padding: 10,
       boxShadow: "var(--shadow-md)",
-      pointerEvents: "auto"
+      pointerEvents: "auto",
+      maxWidth: 272
     }
   }, React.createElement("div", {
     style: {
@@ -11609,15 +11610,17 @@ function App() {
       background: 'var(--bg-soft,#F3F1F6)',
       borderRadius: 999,
       padding: 3,
-      gap: 2,
-      marginBottom: 7
+      gap: 3,
+      marginBottom: 9
     }
   }, [{
     k: 'discover',
-    l: 'Découvrir 🔍'
+    l: 'Découvrir 🔍',
+    n: catalog.length
   }, {
     k: 'mine',
-    l: 'Mes spots ❤️'
+    l: 'Mes spots ❤️',
+    n: spots.length
   }].map(o => {
     const on = mapMode === o.k;
     return React.createElement("button", {
@@ -11629,6 +11632,7 @@ function App() {
       className: "press",
       "aria-pressed": on,
       style: {
+        position: 'relative',
         whiteSpace: 'nowrap',
         flexShrink: 0,
         border: 'none',
@@ -11643,48 +11647,31 @@ function App() {
         boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
         transition: 'all .15s var(--ease)'
       }
-    }, o.l);
+    }, o.l, o.n > 0 && React.createElement("span", {
+      style: {
+        position: 'absolute',
+        top: -8,
+        right: -4,
+        minWidth: 18,
+        height: 18,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 10,
+        fontWeight: 800,
+        borderRadius: 999,
+        padding: '0 4px',
+        background: 'var(--pop-violet)',
+        color: '#fff',
+        border: '2px solid var(--bg-cream)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+      }
+    }, o.n));
   })), React.createElement("div", {
-    className: "mono-label",
-    style: {
-      paddingLeft: 2
-    }
-  }, (CITIES[city] || CITIES.paris).emoji, " ", mapSource.filter(s => s.lat && mapCats.has(primaryCat(s))).length, " spots \xB7 tap pour ouvrir")), React.createElement("div", {
-    style: {
-      background: "rgba(255,255,255,0.94)",
-      backdropFilter: 'blur(12px)',
-      borderRadius: 'var(--radius-md)',
-      padding: "6px 7px",
-      boxShadow: "var(--shadow-md)",
-      display: "flex",
-      flexDirection: 'column',
-      gap: 1,
-      pointerEvents: "auto"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 5,
-      padding: "2px 5px 5px",
-      borderBottom: "1px solid var(--hairline)",
-      marginBottom: 3
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 12
-    }
-  }, "\uD83C\uDF9A\uFE0F"), React.createElement("span", {
-    className: "mono-label",
-    style: {
-      fontSize: 10
-    }
-  }, "Filtres \xB7 tap")), React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr",
-      columnGap: 4,
-      rowGap: 1
+      gap: 6
     }
   }, CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
@@ -11700,33 +11687,20 @@ function App() {
       style: {
         display: "flex",
         alignItems: "center",
-        gap: 7,
-        background: "none",
-        border: "none",
-        padding: "6px 6px",
-        borderRadius: 8,
+        gap: 6,
+        whiteSpace: "nowrap",
         cursor: "pointer",
-        opacity: on ? 1 : 0.4
-      }
-    }, React.createElement("span", {
-      style: {
-        width: 12,
-        height: 12,
         borderRadius: 999,
-        background: on ? CC[c.key] : "transparent",
-        border: `2px solid ${CC[c.key]}`,
-        flexShrink: 0
-      }
-    }), React.createElement("span", {
-      style: {
+        padding: '6px 10px',
         fontFamily: 'var(--font-body)',
-        fontSize: 11.5,
-        fontWeight: on ? 700 : 500,
-        color: 'var(--ink-900)',
-        textDecoration: on ? "none" : "line-through",
-        whiteSpace: "nowrap"
+        fontSize: 12,
+        fontWeight: 600,
+        background: on ? CC[c.key] : '#fff',
+        color: on ? '#fff' : 'var(--ink-600)',
+        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
+        transition: 'all .15s var(--ease)'
       }
-    }, c.label));
+    }, c.emoji, " ", c.label);
   })))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s))).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
