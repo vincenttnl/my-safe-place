@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T22:49:17.749Z -->
+<!-- built 2026-07-08T22:54:20.157Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8817,8 +8817,9 @@ function App() {
       const raw = localStorage.getItem(SK);
       if (!raw) return INITIAL_SPOTS;
       const saved = JSON.parse(raw);
+      const isParisUser = (localStorage.getItem(CITYK) || "paris") === "paris";
       const seedMax = parseInt(localStorage.getItem("myplace_seedmax_v1") || "52", 10);
-      const freshSeeds = INITIAL_SPOTS.filter(i => i.id > seedMax && !saved.some(s => s.id === i.id));
+      const freshSeeds = isParisUser ? INITIAL_SPOTS.filter(i => i.id > seedMax && !saved.some(s => s.id === i.id)) : [];
       try {
         localStorage.setItem("myplace_seedmax_v1", String(Math.max(...INITIAL_SPOTS.map(i => i.id))));
       } catch {}
@@ -12284,14 +12285,31 @@ function App() {
     }, {
       i: '♻️',
       t: 'Repartir de la sélection de base',
-      s: `Remet les ${INITIAL_SPOTS.length} spots de base`,
-      action: () => {
-        if (confirm(`Remplacer ta liste actuelle (${spots.length} spots) par la sélection de base (${INITIAL_SPOTS.length} spots) ?\n\nTes ajouts perso et favoris seront retirés de Mes Spots.`)) {
-          setSpots(INITIAL_SPOTS);
-          try {
-            localStorage.setItem("myplace_seedmax_v1", String(Math.max(...INITIAL_SPOTS.map(s => s.id))));
-          } catch {}
-          window.mspToast?.(`Liste remise à ${INITIAL_SPOTS.length} spots de base`, "success");
+      s: 'Remet les spots de base de ta ville',
+      action: async () => {
+        const isParis = city === "paris";
+        let base = INITIAL_SPOTS;
+        if (!isParis) {
+          window.mspToast?.("Chargement des spots de la ville…", "info");
+          const remote = await fetchCitySpots(city);
+          if (!remote || !remote.length) {
+            window.mspToast?.("Impossible de charger les spots de cette ville", "error");
+            return;
+          }
+          base = remote;
+        }
+        if (confirm(`Remplacer ta liste actuelle (${spots.length} spots) par la sélection de base (${base.length} spots) ?\n\nTes ajouts perso et favoris seront retirés de Mes Spots.`)) {
+          setSpots(base);
+          setChallenge({
+            ids: pickChallenge(base),
+            month: getMonthLabel()
+          });
+          if (isParis) {
+            try {
+              localStorage.setItem("myplace_seedmax_v1", String(Math.max(...INITIAL_SPOTS.map(s => s.id))));
+            } catch {}
+          }
+          window.mspToast?.(`Liste remise à ${base.length} spots de base`, "success");
         }
       }
     }, {
