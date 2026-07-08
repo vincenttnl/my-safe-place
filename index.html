@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T20:15:02.802Z -->
+<!-- built 2026-07-08T20:18:10.566Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>MonParis — Tes spots parisiens</title>
@@ -10023,9 +10023,11 @@ function App() {
       if (l instanceof L.CircleMarker) map.removeLayer(l);
     });
     const bounds = [];
+    const pnow = openNow ? nowParis() : null;
     mapSource.forEach(s => {
       if (!s.lat || !s.lng) return;
       if (!mapCats.has(primaryCat(s))) return;
+      if (openNow && isOpenNow(s.hours, pnow) !== true) return;
       const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
       const m = L.circleMarker([s.lat, s.lng], {
         radius: s.done ? 6 : 8,
@@ -10079,7 +10081,7 @@ function App() {
       });
       didFitRef.current = true;
     }
-  }, [tab, mapSource, userPos, mapCats]);
+  }, [tab, mapSource, userPos, mapCats, openNow]);
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
@@ -11818,7 +11820,25 @@ function App() {
         transition: 'all .15s var(--ease)'
       }
     }, c.emoji, " ", c.label);
-  })))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s))).length === 0 && React.createElement("div", {
+  })), React.createElement("button", {
+    onClick: () => setOpenNow(v => !v),
+    className: "press",
+    "aria-pressed": openNow,
+    style: {
+      width: '100%',
+      marginTop: 7,
+      border: 'none',
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '7px 12px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 12,
+      background: openNow ? '#16A34A' : 'var(--bg-soft,#F3F1F6)',
+      color: openNow ? '#fff' : 'var(--ink-600)',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83D\uDFE2 Ouvert maintenant"))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true)).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
       top: '50%',
@@ -11839,7 +11859,7 @@ function App() {
       fontSize: 34,
       marginBottom: 8
     }
-  }, "\uD83D\uDDFA\uFE0F"), React.createElement("div", {
+  }, openNow ? "⏰" : "🗺️"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -11847,14 +11867,14 @@ function App() {
       lineHeight: 1.15,
       marginBottom: 6
     }
-  }, mapMode === "discover" ? `Pas encore de spots à ${(CITIES[city] || CITIES.paris).label}` : "Ta carte est vide ici"), React.createElement("div", {
+  }, openNow ? "Rien d'ouvert maintenant" : mapMode === "discover" ? `Pas encore de spots à ${(CITIES[city] || CITIES.paris).label}` : "Ta carte est vide ici"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 13,
       color: 'var(--ink-400)',
       lineHeight: 1.45
     }
-  }, mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
+  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
     onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
