@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-08T23:46:52.495Z -->
+<!-- built 2026-07-09T00:12:45.863Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9911,10 +9911,10 @@ function App() {
     try {
       clusterRef.current = L.markerClusterGroup({
         chunkedLoading: true,
-        maxClusterRadius: 50,
+        maxClusterRadius: 32,
         showCoverageOnHover: false,
         spiderfyOnMaxZoom: true,
-        disableClusteringAtZoom: 15,
+        disableClusteringAtZoom: 14,
         iconCreateFunction: cluster => {
           const n = cluster.getChildCount();
           const size = n < 10 ? 36 : n < 50 ? 44 : 52;
