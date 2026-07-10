@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-09T14:22:43.576Z -->
+<!-- built 2026-07-10T21:09:33.934Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
-<meta name="description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
+<meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <link rel="manifest" href="manifest.json"/>
 <meta name="theme-color" content="#FF3D8B"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -19,7 +19,7 @@
 <meta property="og:type" content="website"/>
 <meta property="og:site_name" content="Spotane"/>
 <meta property="og:title" content="Spotane — Tes meilleurs spots"/>
-<meta property="og:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
+<meta property="og:description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <meta property="og:image" content="https://vincenttnl.github.io/my-safe-place/icon-512.png"/>
 <meta property="og:image:width" content="512"/>
 <meta property="og:image:height" content="512"/>
@@ -3319,6 +3319,48 @@ async function fetchCitySpots(city) {
   const r = await fetchSpotsFrom(filter);
   return r && r.length ? r : null;
 }
+const QFAP_BASE = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records";
+const QFAP_KEEP = new Set(["Concert", "Festival", "Expo", "Théâtre", "Danse", "Spectacle musical", "Nuit", "Photo", "Art contemporain", "Humour", "Cirque", "Street-art", "Gourmand", "LGBT", "Écrans", "Ecrans"]);
+const stripHtml = s => (s || "").replace(/<[^>]*>/g, "").trim();
+function eventDateLabel(e) {
+  if (e.dateDescription) return stripHtml(e.dateDescription);
+  const d = e.dateEnd ? new Date(e.dateEnd) : e.date ? new Date(e.date) : null;
+  if (!d || isNaN(d)) return "";
+  return "Jusqu'au " + d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short"
+  });
+}
+async function fetchQfapEvents({
+  lat,
+  lng,
+  radiusM = 1500,
+  limit = 40
+}) {
+  const where = `date_end >= now() AND within_distance(lat_lon, geom'POINT(${lng} ${lat})', ${radiusM}m)`;
+  const url = `${QFAP_BASE}?where=${encodeURIComponent(where)}&order_by=date_start&limit=${limit}`;
+  try {
+    const r = await fetch(url);
+    const j = await r.json();
+    return (j.results || []).filter(e => e.date_start && QFAP_KEEP.has((e.qfap_tags || "").trim())).map(e => ({
+      id: e.event_id,
+      title: e.title,
+      date: e.date_start,
+      dateEnd: e.date_end,
+      dateDescription: e.date_description,
+      cover: e.cover_url,
+      venue: e.address_name,
+      zip: e.address_zipcode,
+      lat: e.lat_lon && e.lat_lon.lat,
+      lng: e.lat_lon && e.lat_lon.lon,
+      price: (e.price_type || "").toLowerCase().includes("gratuit") ? "Gratuit" : e.price_detail || "",
+      tag: e.qfap_tags,
+      url: e.url
+    }));
+  } catch (e) {
+    return [];
+  }
+}
 async function supaSignIn(email, password) {
   const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
     method: "POST",
@@ -3838,11 +3880,8 @@ function encodeSpotForShare(spot, senderName) {
     return "";
   }
 }
-function decodeSpotFromURL() {
+function decodeSpotBlob(data) {
   try {
-    const params = new URLSearchParams(window.location.search);
-    const data = params.get("spot");
-    if (!data) return null;
     const json = JSON.parse(decodeURIComponent(escape(atob(data))));
     return {
       name: json.n,
@@ -3865,10 +3904,42 @@ function decodeSpotFromURL() {
     return null;
   }
 }
+function parseSharedSpot() {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const raw = q.get("spot");
+    if (!raw) return null;
+    return {
+      raw,
+      from: q.get("from") || "",
+      numeric: /^[0-9]+$/.test(raw)
+    };
+  } catch {
+    return null;
+  }
+}
+async function fetchSpotById(id) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&id=eq.${encodeURIComponent(id)}`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+      }
+    });
+    return (await r.json())[0] || null;
+  } catch {
+    return null;
+  }
+}
 function buildShareURL(spot, senderName) {
+  const BASE = APP_URL && APP_URL.indexOf("http") === 0 ? APP_URL : "https://vincenttnl.github.io/my-safe-place/";
+  const from = senderName ? `&from=${encodeURIComponent(senderName)}` : "";
+  if (Number.isInteger(spot.id) && spot.id > 0 && spot.id < 1e9) return `${BASE}?spot=${spot.id}${from}`;
   const encoded = encodeSpotForShare(spot, senderName);
-  if (!encoded) return "";
-  return `https://vincenttnl.github.io/my-safe-place/?spot=${encoded}`;
+  return encoded ? `${BASE}?spot=${encoded}${from}` : "";
+}
+function shareText(spot) {
+  return `${spot.name}. Crois-moi. 🤌\nLe spot t'attend sur Spotane 👇`;
 }
 function distKm(lat1, lng1, lat2, lng2) {
   const R = 6371;
@@ -3880,6 +3951,249 @@ function distKm(lat1, lng1, lat2, lng2) {
 function fmtKm(km) {
   if (km == null || isNaN(km)) return "";
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
+}
+function SharedSpotLanding({
+  shared,
+  onAdd,
+  onDismiss
+}) {
+  const decoded = shared.numeric ? null : decodeSpotBlob(shared.raw);
+  const [spot, setSpot] = useState(decoded);
+  const [state, setState] = useState(shared.numeric ? "loading" : decoded ? "ok" : "error");
+  useEffect(() => {
+    if (!shared.numeric) return;
+    fetchSpotById(shared.raw).then(s => {
+      if (s) {
+        setSpot(s);
+        setState("ok");
+      } else setState("error");
+    });
+  }, [shared.raw]);
+  const wrap = {
+    position: "fixed",
+    inset: 0,
+    zIndex: 4000,
+    fontFamily: "var(--font-body)"
+  };
+  if (state === "loading") return React.createElement("div", {
+    style: {
+      ...wrap,
+      background: "var(--bg-cream)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      color: "var(--ink-400)"
+    }
+  }, "Chargement du spot\u2026");
+  if (state === "error" || !spot) return React.createElement("div", {
+    style: {
+      ...wrap,
+      background: "var(--bg-cream)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 14,
+      padding: 24,
+      textAlign: "center"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 40
+    }
+  }, "\uD83D\uDE15"), React.createElement("div", {
+    style: {
+      color: "var(--ink-600)"
+    }
+  }, "Ce spot n'est plus disponible."), React.createElement("button", {
+    onClick: onDismiss,
+    className: "press",
+    style: {
+      background: "var(--ink-900)",
+      color: "#fff",
+      fontWeight: 700,
+      fontSize: 16,
+      padding: "14px 22px",
+      borderRadius: 999,
+      border: "none",
+      boxShadow: "var(--shadow-pop)"
+    }
+  }, "D\xE9couvrir Spotane"));
+  const photos = getPhotos(spot);
+  const cat = getCats(spot)[0] || "sortie";
+  const ci = CATS.find(c => c.key === cat) || {};
+  const meta = [spot.metro, spot.price, spot.hours].filter(Boolean);
+  const who = shared.from || spot.sharedBy || "";
+  return React.createElement("div", {
+    style: {
+      ...wrap,
+      background: "#fff",
+      overflowY: "auto",
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, React.createElement("div", {
+    style: {
+      background: "linear-gradient(135deg,var(--pop-pink),var(--pop-violet))",
+      color: "#fff",
+      padding: "16px 20px",
+      fontWeight: 700,
+      fontSize: 15,
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, React.createElement("span", {
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      background: "rgba(255,255,255,.25)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontWeight: 800,
+      flexShrink: 0
+    }
+  }, (who || "S")[0].toUpperCase()), "\uD83C\uDF81 ", who ? who + " t'a envoyé ce spot" : "On t'a envoyé ce spot"), React.createElement("div", {
+    style: {
+      height: 300,
+      background: "#ddd",
+      position: "relative",
+      flexShrink: 0
+    }
+  }, photos[0] && React.createElement("img", {
+    src: photos[0],
+    alt: "",
+    style: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover"
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  }), spot.vibe && React.createElement("span", {
+    style: {
+      position: "absolute",
+      left: 14,
+      bottom: 14,
+      background: "rgba(0,0,0,.55)",
+      color: "#fff",
+      fontSize: 13,
+      fontWeight: 600,
+      padding: "6px 12px",
+      borderRadius: 999,
+      backdropFilter: "blur(6px)"
+    }
+  }, spot.vibe)), React.createElement("div", {
+    style: {
+      padding: 20,
+      flex: 1
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: "var(--pop-pink)",
+      textTransform: "uppercase",
+      letterSpacing: ".05em"
+    }
+  }, ci.emoji, " ", ci.label || cat), React.createElement("h1", {
+    style: {
+      fontFamily: "var(--font-display)",
+      fontWeight: 900,
+      fontSize: 27,
+      lineHeight: 1.1,
+      margin: "6px 0 10px"
+    }
+  }, spot.name), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 8,
+      marginBottom: 14
+    }
+  }, spot.adresse && React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: "var(--ink-400)",
+      background: "var(--hairline)",
+      borderRadius: 8,
+      padding: "5px 10px"
+    }
+  }, "\uD83D\uDCCD ", spot.adresse), meta.map((m, i) => React.createElement("span", {
+    key: i,
+    style: {
+      fontSize: 12.5,
+      color: "var(--ink-400)",
+      background: "var(--hairline)",
+      borderRadius: 8,
+      padding: "5px 10px"
+    }
+  }, m))), spot.desc && React.createElement("div", {
+    style: {
+      fontSize: 15,
+      lineHeight: 1.55,
+      color: "var(--ink-600)",
+      marginBottom: 18
+    }
+  }, spot.desc), photos.length > 1 && React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      overflowX: "auto",
+      marginBottom: 10,
+      scrollbarWidth: "none"
+    }
+  }, photos.slice(1, 6).map((u, i) => React.createElement("img", {
+    key: i,
+    src: u,
+    alt: "",
+    style: {
+      height: 78,
+      width: 104,
+      objectFit: "cover",
+      borderRadius: 10,
+      flexShrink: 0
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  })))), React.createElement("div", {
+    style: {
+      position: "sticky",
+      bottom: 0,
+      background: "#fff",
+      padding: "14px 20px calc(22px + env(safe-area-inset-bottom,0px))",
+      borderTop: "1px solid var(--hairline)"
+    }
+  }, React.createElement("button", {
+    onClick: () => onAdd(spot),
+    className: "press",
+    style: {
+      width: "100%",
+      background: "var(--ink-900)",
+      color: "#fff",
+      fontWeight: 700,
+      fontSize: 17,
+      padding: 16,
+      borderRadius: 999,
+      border: "none",
+      boxShadow: "var(--shadow-pop)"
+    }
+  }, "Ajoute-le \xE0 ma carte \uD83D\uDCCD"), React.createElement("button", {
+    onClick: onDismiss,
+    style: {
+      width: "100%",
+      background: "none",
+      border: "none",
+      color: "var(--ink-400)",
+      fontSize: 13,
+      marginTop: 10,
+      cursor: "pointer"
+    }
+  }, "Juste d\xE9couvrir l'app")));
 }
 function CatPill({
   cat,
@@ -8935,7 +9249,10 @@ function App() {
       return "";
     }
   });
-  const [incomingSpot, setIncomingSpot] = useState(() => decodeSpotFromURL());
+  const [sharedRef, setSharedRef] = useState(() => parseSharedSpot());
+  const [pendingRecvSpot, setPendingRecvSpot] = useState(null);
+  const [qfapList, setQfapList] = useState([]);
+  const [qfapLoading, setQfapLoading] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [pendingShareSpot, setPendingShareSpot] = useState(null);
   useEffect(() => {
@@ -9487,8 +9804,23 @@ function App() {
     } catch {}
   }, [myName]);
   useEffect(() => {
-    if (incomingSpot && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname);
+    if (sharedRef && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname);
   }, []);
+  useEffect(() => {
+    if (tab !== "events") return;
+    if (city !== "paris") {
+      setQfapList([]);
+      return;
+    }
+    const cc = CITIES[city] || CITIES.paris;
+    setQfapLoading(true);
+    fetchQfapEvents({
+      lat: cc.center[0],
+      lng: cc.center[1],
+      radiusM: 6000,
+      limit: 90
+    }).then(list => setQfapList(list.slice(0, 30))).finally(() => setQfapLoading(false));
+  }, [tab, city]);
   const shareSpot = spot => {
     if (!myName) {
       setPendingShareSpot(spot);
@@ -9497,7 +9829,7 @@ function App() {
     }
     const url = buildShareURL(spot, myName);
     if (!url) return;
-    const text = `${spot.name} — ${spot.adresse || "Paris"}\n\nDécouvre ce spot sur Spotane 👇`;
+    const text = shareText(spot);
     if (navigator.share) navigator.share({
       title: spot.name,
       text,
@@ -9511,7 +9843,7 @@ function App() {
     setShowNamePrompt(false);
     if (pendingShareSpot) {
       const url = buildShareURL(pendingShareSpot, name);
-      const text = `${pendingShareSpot.name} — ${pendingShareSpot.adresse || "Paris"}\n\nDécouvre ce spot sur Spotane 👇`;
+      const text = shareText(pendingShareSpot);
       if (navigator.share) navigator.share({
         title: pendingShareSpot.name,
         text,
@@ -9522,10 +9854,8 @@ function App() {
       setPendingShareSpot(null);
     }
   };
-  const acceptSharedSpot = () => {
-    if (!incomingSpot) return;
-    const newSpot = {
-      id: Date.now(),
+  const addSharedSpot = spot => {
+    const base = {
       done: false,
       fav: false,
       note: "",
@@ -9533,11 +9863,19 @@ function App() {
       addedAt: Date.now(),
       status: "wishlist",
       contacts: [],
-      ...incomingSpot,
-      vibe: incomingSpot.vibe || "📩 Reçu"
+      ...spot,
+      id: spot.id || Date.now(),
+      vibe: spot.vibe || "📩 Reçu"
     };
-    setSpots(s => [...s, newSpot]);
-    setIncomingSpot(null);
+    if (onboardingDone) {
+      setSpots(s => s.some(x => x.id === base.id) ? s : [...s, base]);
+      window.mspHaptic?.(20);
+      window.mspPopEmoji?.("📍");
+      window.mspToast?.("Ajouté à Mes spots !", "success");
+    } else {
+      setPendingRecvSpot(base);
+    }
+    setSharedRef(null);
   };
   const markDone = id => {
     const spot = spots.find(s => s.id === id);
@@ -11387,6 +11725,115 @@ function App() {
     }
   }, "Ca vient,", React.createElement("br", null), "prepare-toi \uD83C\uDF89")), React.createElement("div", {
     style: {
+      padding: "14px 20px 4px"
+    }
+  }, React.createElement("div", {
+    className: "mono-label",
+    style: {
+      marginBottom: 8
+    }
+  }, "\uD83D\uDD25 Ce qui se passe \xE0 ", (CITIES[city] || CITIES.paris).label), city !== "paris" ? React.createElement("div", {
+    style: {
+      background: "#fff",
+      border: "1px solid var(--hairline)",
+      borderRadius: 14,
+      padding: 16,
+      fontSize: 14,
+      color: "var(--ink-400)"
+    }
+  }, "Les events en direct arrivent bient\xF4t \xE0 ", (CITIES[city] || CITIES.paris).label, " \u2728 (dispo \xE0 Paris pour l'instant)") : qfapLoading ? React.createElement("div", {
+    style: {
+      color: "var(--ink-400)",
+      fontSize: 14,
+      padding: "10px 0"
+    }
+  }, "Chargement des events\u2026") : qfapList.length === 0 ? React.createElement("div", {
+    style: {
+      color: "var(--ink-400)",
+      fontSize: 14,
+      padding: "10px 0"
+    }
+  }, "Rien de neuf dans le coin pour l'instant.") : React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 12,
+      overflowX: "auto",
+      paddingBottom: 6,
+      scrollbarWidth: "none"
+    }
+  }, qfapList.map((e, i) => {
+    const free = e.price === "Gratuit";
+    return React.createElement("a", {
+      key: e.id || i,
+      href: e.url,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "press",
+      style: {
+        width: 220,
+        flexShrink: 0,
+        background: "#fff",
+        border: "1px solid var(--hairline)",
+        borderRadius: "var(--radius-lg)",
+        overflow: "hidden",
+        textDecoration: "none",
+        color: "inherit",
+        boxShadow: "var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))"
+      }
+    }, e.cover && React.createElement("div", {
+      style: {
+        aspectRatio: "16/9",
+        background: "#eee"
+      }
+    }, React.createElement("img", {
+      src: e.cover,
+      alt: "",
+      loading: "lazy",
+      style: {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover"
+      },
+      onError: ev => {
+        ev.target.style.display = 'none';
+      }
+    })), React.createElement("div", {
+      style: {
+        padding: 12
+      }
+    }, React.createElement("span", {
+      style: {
+        display: "inline-block",
+        background: free ? "var(--pop-lime)" : "var(--pop-violet)",
+        color: free ? "var(--ink-900)" : "#fff",
+        fontSize: 11,
+        fontWeight: 700,
+        borderRadius: 999,
+        padding: "3px 9px",
+        marginBottom: 7
+      }
+    }, free ? "GRATUIT" : e.tag || "Event"), React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-display)",
+        fontWeight: 800,
+        fontSize: 15,
+        lineHeight: 1.15,
+        marginBottom: 4
+      }
+    }, (e.title || "").slice(0, 60)), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--ink-400)"
+      }
+    }, "\uD83D\uDCC5 ", eventDateLabel(e)), e.venue && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: "var(--ink-400)",
+        marginTop: 2
+      }
+    }, "\uD83D\uDCCD ", e.venue)));
+  }))), React.createElement("div", {
+    style: {
       padding: '16px 20px',
       display: 'flex',
       justifyContent: 'flex-end'
@@ -12804,6 +13251,11 @@ function App() {
       if (selectedCity) setCity(selectedCity);
       localStorage.setItem(OBK, "1");
       setOnboardingDone(true);
+      if (pendingRecvSpot) {
+        setSpots(s => s.some(x => x.id === pendingRecvSpot.id) ? s : [...s, pendingRecvSpot]);
+        setPendingRecvSpot(null);
+        window.mspToast?.("Ton spot t'attend dans Mes spots 📍", "success");
+      }
     }
   }), showZones && React.createElement(ZonesModal, {
     zones: zones || {
@@ -13250,138 +13702,11 @@ function App() {
         fontWeight: 700
       }
     }, "\u203A")));
-  })(), incomingSpot && onboardingDone && React.createElement("div", {
-    className: "modal-center",
-    role: "dialog",
-    "aria-modal": "true"
-  }, React.createElement("div", {
-    className: "modal-box slide-up",
-    style: {
-      textAlign: 'center'
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 48,
-      marginBottom: 12
-    }
-  }, "\uD83E\uDD0C"), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 28,
-      lineHeight: 1.1,
-      letterSpacing: '-0.015em'
-    }
-  }, incomingSpot.sharedBy, " t'envoie un spot"), React.createElement("div", {
-    style: {
-      marginTop: 20,
-      background: 'var(--bg-cream)',
-      borderRadius: 'var(--radius-lg)',
-      padding: 16,
-      textAlign: 'left'
-    }
-  }, firstPhoto(incomingSpot) && React.createElement("img", {
-    src: firstPhoto(incomingSpot),
-    alt: "",
-    style: {
-      width: '100%',
-      height: 160,
-      objectFit: 'cover',
-      borderRadius: 'var(--radius-md)',
-      marginBottom: 12
-    },
-    onError: e => {
-      e.target.style.display = 'none';
-    }
-  }), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6,
-      marginBottom: 8
-    }
-  }, getCats(incomingSpot).map(c => {
-    const ci = CATS.find(x => x.key === c);
-    return ci && React.createElement("span", {
-      key: c,
-      className: "chip",
-      style: {
-        background: CB[c],
-        color: CC[c],
-        border: `1px solid ${CC[c]}33`
-      }
-    }, ci.emoji, " ", ci.label);
-  })), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 22,
-      letterSpacing: '-0.01em'
-    }
-  }, incomingSpot.name), incomingSpot.adresse && React.createElement("div", {
-    style: {
-      fontSize: 13,
-      color: 'var(--ink-400)',
-      marginTop: 4
-    }
-  }, "\uD83D\uDCCD ", incomingSpot.adresse), incomingSpot.desc && React.createElement("div", {
-    style: {
-      fontSize: 14,
-      color: 'var(--ink-600)',
-      marginTop: 8,
-      lineHeight: 1.5
-    }
-  }, incomingSpot.desc), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      flexWrap: 'wrap',
-      marginTop: 10
-    }
-  }, incomingSpot.metro && React.createElement("span", {
-    className: "stat-pill",
-    style: {
-      fontSize: 12
-    }
-  }, "\uD83D\uDE87 ", incomingSpot.metro), incomingSpot.price && React.createElement("span", {
-    className: "stat-pill",
-    style: {
-      fontSize: 12
-    }
-  }, "\uD83D\uDCB8 ", incomingSpot.price))), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 10,
-      marginTop: 20
-    }
-  }, React.createElement("button", {
-    onClick: acceptSharedSpot,
-    className: "press",
-    style: {
-      flex: 1,
-      padding: 16,
-      borderRadius: 'var(--radius-pill)',
-      border: 'none',
-      background: 'var(--ink-900)',
-      color: '#fff',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 16,
-      cursor: 'pointer',
-      boxShadow: 'var(--shadow-pop)'
-    }
-  }, "Ajouter \xE0 mes spots \uD83C\uDF89")), React.createElement("button", {
-    onClick: () => setIncomingSpot(null),
-    style: {
-      marginTop: 12,
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      color: 'var(--ink-400)',
-      textDecoration: 'underline'
-    }
-  }, "Non merci"))), showNamePrompt && React.createElement("div", {
+  })(), sharedRef && React.createElement(SharedSpotLanding, {
+    shared: sharedRef,
+    onAdd: addSharedSpot,
+    onDismiss: () => setSharedRef(null)
+  }), showNamePrompt && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
     "aria-modal": "true"
