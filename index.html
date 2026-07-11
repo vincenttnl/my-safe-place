@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T15:35:42.441Z -->
+<!-- built 2026-07-11T15:42:23.863Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -6502,6 +6502,7 @@ function PhotoCarousel({
 function SpotFormModal({
   editingId,
   gApiKey,
+  cityLabel,
   onSave,
   onClose,
   initialData
@@ -6528,90 +6529,8 @@ function SpotFormModal({
     grating: s.grating,
     gratingCount: s.gratingCount || 0
   } : null);
-  const runEnrich = async () => {
-    if (!nName.trim() && !nWebsite.trim()) return;
-    setEnriching(true);
-    const found = {};
-    const failed = [];
-    try {
-      if (nName) {
-        const q = nName + (nAddr ? " " + nAddr : "") + " Paris";
-        try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`, {
-            headers: {
-              "User-Agent": "Spotane/1.0"
-            }
-          });
-          const d = await r.json();
-          if (d.length > 0) {
-            const x = d[0];
-            const extra = x.extratags || {};
-            found.lat = x.lat;
-            found.lng = x.lon;
-            if (extra.opening_hours) found.hours = extra.opening_hours;
-            if (extra.website || extra["contact:website"]) found.website = extra.website || extra["contact:website"];
-            found.addr = x.display_name.split(",").slice(0, 3).join(",").trim();
-          }
-        } catch {
-          failed.push("Nominatim");
-        }
-      }
-      const useLat = nLat || found.lat;
-      const useLng = nLng || found.lng;
-      if (useLat && useLng) {
-        try {
-          const opQ = `[out:json][timeout:10];(node(around:100,${useLat},${useLng})["name"];way(around:100,${useLat},${useLng})["name"];);out tags 15;`;
-          const r = await fetch("https://overpass-api.de/api/interpreter", {
-            method: "POST",
-            body: "data=" + encodeURIComponent(opQ)
-          });
-          const d = await r.json();
-          const els = (d.elements || []).filter(e => e.tags?.name);
-          const nameNorm = (nName || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          let best = els.find(e => (e.tags.name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === nameNorm);
-          if (!best) best = els.find(e => {
-            const n = (e.tags.name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            return n.includes(nameNorm) || nameNorm.includes(n);
-          });
-          if (!best) best = els.find(e => e.tags.opening_hours) || els[0];
-          if (best) {
-            const t = best.tags || {};
-            if (t.opening_hours && !found.hours) found.hours = t.opening_hours;
-            if (t.cuisine) found.cuisine = t.cuisine;
-            if (t.website || t["contact:website"]) found.website = found.website || t.website || t["contact:website"];
-            if (t.internet_access === "wlan" || t.internet_access === "yes") found.wifi = true;
-            const ap = [t["addr:housenumber"], t["addr:street"]].filter(Boolean);
-            const af = [ap.join(" "), [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", ");
-            if (af && !found.addr) found.addr = af;
-          }
-        } catch {
-          failed.push("Overpass");
-        }
-      }
-      if (gApiKey || window.spotaneProxy) {
-        try {
-          const g = await googleEnrich(nName, nAddr || found.addr, gApiKey, 4);
-          if ((g.photos || []).length) {
-            if (!found.photo) found.photo = g.photos[0];
-            found.photos = g.photos;
-          } else {
-            failed.push("Google Places (aucune photo)");
-          }
-          if (g.rating) gMetaRef.current = {
-            grating: g.rating,
-            gratingCount: g.ratingCount || 0
-          };
-          if (g.desc && !found.desc) found.desc = g.desc;
-          if (g.website) found.website = found.website || g.website;
-          if (g.price) found.price = g.price;
-          if (g.hours && !found.hours) found.hours = g.hours;
-        } catch {
-          failed.push("Google Places");
-        }
-      }
-    } catch {
-      failed.push("Auto-enrichissement");
-    }
+  const [enrichSteps, setEnrichSteps] = useState(null);
+  const applyFound = found => {
     if (found.lat) setNLat(p => p || String(found.lat));
     if (found.lng) setNLng(p => p || String(found.lng));
     if (found.hours) setNHours(p => p || found.hours);
@@ -6631,8 +6550,106 @@ function SpotFormModal({
       }).filter(Boolean);
       if (mapped.length) setNCuisine(p => p.length ? p : mapped);
     }
-    const gotSomething = Object.keys(found).length > 0;
-    if (gotSomething && failed.length === 0) window.mspToast?.("Enrichissement OK", "success");else if (gotSomething && failed.length > 0) window.mspToast?.(`Enrichissement partiel \u2014 ${failed.join(", ")} indispo`, "warn");else if (failed.length > 0) window.mspToast?.(`Enrichissement \u00e9chou\u00e9 \u2014 ${failed.join(", ")}`, "error");else window.mspToast?.("Rien trouv\u00e9 pour ce nom", "warn");
+  };
+  const stepGeo = async found => {
+    const q = nName + (nAddr ? " " + nAddr : "") + " " + (cityLabel || "Paris");
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&extratags=1&limit=5&accept-language=fr`, {
+      headers: {
+        "User-Agent": "Spotane/1.0"
+      }
+    });
+    const d = await r.json();
+    if (d.length > 0) {
+      const x = d[0];
+      const extra = x.extratags || {};
+      found.lat = x.lat;
+      found.lng = x.lon;
+      if (extra.opening_hours) found.hours = extra.opening_hours;
+      if (extra.website || extra["contact:website"]) found.website = extra.website || extra["contact:website"];
+      found.addr = x.display_name.split(",").slice(0, 3).join(",").trim();
+    }
+  };
+  const stepPoi = async (found, useLat, useLng) => {
+    const opQ = `[out:json][timeout:10];(node(around:100,${useLat},${useLng})["name"];way(around:100,${useLat},${useLng})["name"];);out tags 15;`;
+    const r = await fetch("https://overpass-api.de/api/interpreter", {
+      method: "POST",
+      body: "data=" + encodeURIComponent(opQ)
+    });
+    const d = await r.json();
+    const els = (d.elements || []).filter(e => e.tags?.name);
+    const nameNorm = (nName || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    let best = els.find(e => (e.tags.name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === nameNorm);
+    if (!best) best = els.find(e => {
+      const n = (e.tags.name || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      return n.includes(nameNorm) || nameNorm.includes(n);
+    });
+    if (!best) best = els.find(e => e.tags.opening_hours) || els[0];
+    if (best) {
+      const t = best.tags || {};
+      if (t.opening_hours && !found.hours) found.hours = t.opening_hours;
+      if (t.cuisine) found.cuisine = t.cuisine;
+      if (t.website || t["contact:website"]) found.website = found.website || t.website || t["contact:website"];
+      if (t.internet_access === "wlan" || t.internet_access === "yes") found.wifi = true;
+      const ap = [t["addr:housenumber"], t["addr:street"]].filter(Boolean);
+      const af = [ap.join(" "), [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+      if (af && !found.addr) found.addr = af;
+    }
+  };
+  const stepGoogle = async found => {
+    const g = await googleEnrich(nName, nAddr || found.addr, gApiKey, 4);
+    if (g.rating) gMetaRef.current = {
+      grating: g.rating,
+      gratingCount: g.ratingCount || 0
+    };
+    if (g.desc && !found.desc) found.desc = g.desc;
+    if (g.website) found.website = found.website || g.website;
+    if (g.price) found.price = g.price;
+    if (g.hours && !found.hours) found.hours = g.hours;
+    if ((g.photos || []).length) {
+      if (!found.photo) found.photo = g.photos[0];
+      found.photos = g.photos;
+      return true;
+    }
+    return false;
+  };
+  const runEnrich = async only => {
+    if (!nName.trim() && !nWebsite.trim()) return;
+    setEnriching(true);
+    const found = {};
+    const st = {
+      ...(enrichSteps || {})
+    };
+    const want = typeof only === "string" ? [only] : ["geo", "poi", "google"];
+    for (const k of want) {
+      try {
+        if (k === "geo") {
+          if (nName) {
+            await stepGeo(found);
+            st.geo = found.lat || found.addr ? "ok" : "warn";
+          } else st.geo = "skip";
+        } else if (k === "poi") {
+          const la = nLat || found.lat,
+            ln = nLng || found.lng;
+          if (la && ln) {
+            await stepPoi(found, la, ln);
+            st.poi = "ok";
+          } else st.poi = "skip";
+        } else if (k === "google") {
+          if (gApiKey || window.spotaneProxy) {
+            const ok = await stepGoogle(found);
+            st.google = ok ? "ok" : "warn";
+          } else st.google = "skip";
+        }
+      } catch (e) {
+        st[k] = "ko";
+      }
+    }
+    applyFound(found);
+    setEnrichSteps({
+      ...st
+    });
+    const vals = Object.values(st);
+    if (vals.length && vals.every(v => v === "ok" || v === "skip")) window.mspToast?.("Enrichissement OK", "success");else window.mspToast?.("Enrichissement partiel \u2014 tu peux relancer chaque \u00e9tape \u26a0\ufe0f", "warn");
     setEnriching(false);
   };
   const handleSave = () => {
@@ -6714,7 +6731,7 @@ function SpotFormModal({
       flex: 1
     }
   }), React.createElement("button", {
-    onClick: runEnrich,
+    onClick: () => runEnrich(),
     disabled: enriching || !nName.trim() && !nWebsite.trim(),
     className: "press",
     style: {
@@ -6727,7 +6744,61 @@ function SpotFormModal({
       fontSize: 12,
       whiteSpace: "nowrap"
     }
-  }, enriching ? "⏳" : "🔍 Auto")), React.createElement("div", {
+  }, enriching ? "⏳" : "🔍 Auto")), enrichSteps && React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      margin: '0 0 10px'
+    }
+  }, [["geo", "📍 Géoloc"], ["poi", "🧭 Détails"], ["google", "📸 Photos & note"]].map(([k, l]) => {
+    const st = enrichSteps[k];
+    if (!st) return null;
+    const icon = st === "ok" ? "✅" : st === "warn" ? "⚠️" : st === "ko" ? "❌" : "⏭️";
+    const colors = st === "ok" ? {
+      bg: "#DCFCE7",
+      fg: "#166534"
+    } : st === "skip" ? {
+      bg: "var(--bg-soft,#F3F1F6)",
+      fg: "var(--ink-400)"
+    } : {
+      bg: "#FEF3C7",
+      fg: "#92400E"
+    };
+    return React.createElement("span", {
+      key: k,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        fontSize: 11.5,
+        fontWeight: 700,
+        fontFamily: 'var(--font-body)',
+        background: colors.bg,
+        color: colors.fg,
+        borderRadius: 999,
+        padding: '4px 6px 4px 11px'
+      }
+    }, icon, " ", l, st === "ko" || st === "warn" ? React.createElement("button", {
+      onClick: () => runEnrich(k),
+      disabled: enriching,
+      style: {
+        border: 'none',
+        background: '#fff',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        cursor: 'pointer',
+        color: 'inherit'
+      }
+    }, "\u21BB r\xE9essayer") : React.createElement("span", {
+      style: {
+        width: 5
+      }
+    }));
+  })), React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -16447,6 +16518,7 @@ function App() {
   }), showForm && React.createElement(SpotFormModal, {
     editingId: editingId,
     gApiKey: gApiKey,
+    cityLabel: (CITIES[city] || CITIES.paris).label,
     onSave: data => {
       if (data._editId != null) {
         setSpots(s => s.map(x => x.id === data._editId ? {
