@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T16:43:09.873Z -->
+<!-- built 2026-07-11T20:28:43.316Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8742,6 +8742,645 @@ function PremiumModal({
     }
   }, "Plus tard"))));
 }
+const WRAP_MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+function WrapWall({
+  photos
+}) {
+  if (!photos || !photos.length) return null;
+  const ph = photos.slice(0, 6);
+  return React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      display: "grid",
+      gridTemplateColumns: ph.length > 1 ? "1fr 1fr" : "1fr",
+      gridTemplateRows: `repeat(${Math.max(1, Math.ceil(ph.length / 2))},1fr)`
+    }
+  }, ph.map((p, i) => React.createElement("img", {
+    key: i,
+    src: p,
+    alt: "",
+    style: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover"
+    },
+    onError: e => {
+      e.target.style.visibility = 'hidden';
+    }
+  })));
+}
+function WrappedModal({
+  spots,
+  lists,
+  myName,
+  onClose,
+  onPremium
+}) {
+  const year = new Date().getFullYear();
+  const [idx, setIdx] = useState(0);
+  const st = useMemo(() => {
+    const inYear = t => {
+      if (!t) return false;
+      const d = new Date(t);
+      return d.getFullYear() === year;
+    };
+    const added = spots.filter(s => inYear(s.addedAt));
+    const done = spots.filter(s => s.done);
+    const reacts = {};
+    done.forEach(s => {
+      if (s.reaction) reacts[s.reaction] = (reacts[s.reaction] || 0) + 1;
+    });
+    const topReact = Object.entries(reacts).sort((a, b) => b[1] - a[1])[0] || null;
+    const catCount = {};
+    spots.forEach(s => getCats(s).forEach(c => {
+      catCount[c] = (catCount[c] || 0) + 1;
+    }));
+    const tc = Object.entries(catCount).sort((a, b) => b[1] - a[1])[0];
+    const topCat = tc ? {
+      ...(CATS.find(c => c.key === tc[0]) || {
+        emoji: "✨",
+        label: tc[0],
+        color: "#6C63FF"
+      }),
+      n: tc[1]
+    } : null;
+    const VBL = {
+      chic: ["✨", "Chic"],
+      decontracte: ["😎", "Décontracté"],
+      festif: ["🎉", "Festif"],
+      intime: ["🕯️", "Tranquille"],
+      depaysant: ["🌍", "Dépaysant"]
+    };
+    const vibeCount = {};
+    spots.forEach(s => (s.tags && s.tags.vibe || []).forEach(v => {
+      vibeCount[v] = (vibeCount[v] || 0) + 1;
+    }));
+    const tv = Object.entries(vibeCount).sort((a, b) => b[1] - a[1])[0];
+    const topVibe = tv && VBL[tv[0]] ? {
+      e: VBL[tv[0]][0],
+      l: VBL[tv[0]][1]
+    } : null;
+    const mCount = Array(12).fill(0);
+    spots.forEach(s => {
+      if (inYear(s.addedAt)) mCount[new Date(s.addedAt).getMonth()]++;
+      if (inYear(s.lastVisitedAt)) mCount[new Date(s.lastVisitedAt).getMonth()]++;
+    });
+    const mMax = Math.max(...mCount);
+    const topMonth = mMax > 1 ? {
+      name: WRAP_MONTHS[mCount.indexOf(mMax)],
+      n: mMax
+    } : null;
+    const score = s => (s.fav ? 2 : 0) + (s.reaction === "🔥" ? 2 : s.reaction === "👍" ? 1 : 0) + (s.done ? 1 : 0) + (firstPhoto(s) ? 0.5 : 0);
+    const ranked = [...spots].sort((a, b) => score(b) - score(a));
+    const top3 = ranked.filter(s => score(s) >= 1).slice(0, 3);
+    const codes = new Set();
+    spots.forEach(s => {
+      const m = /\b(\d{5})\b/.exec(s.adresse || "");
+      if (m) codes.add(m[1]);
+    });
+    const wallOf = list => list.map(firstPhoto).filter(Boolean).slice(0, 6);
+    const wAdded = wallOf([...added].reverse());
+    const wDone = wallOf(done);
+    const catKey = tc ? tc[0] : null;
+    const wCat = catKey ? wallOf(spots.filter(s => getCats(s).includes(catKey))) : [];
+    const vibeKey = tv ? tv[0] : null;
+    const wVibe = vibeKey ? wallOf(spots.filter(s => (s.tags && s.tags.vibe || []).includes(vibeKey))) : [];
+    const n = spots.length || 1;
+    const share = k => (catCount[k] || 0) / n;
+    const night = share("club") + share("speakeasy");
+    const food = share("resto") + share("cafe");
+    const doneRatio = done.length / n;
+    let persona;
+    if (night >= 0.45) persona = {
+      e: "🦉",
+      l: "Noctambule",
+      why: `${Math.round(night * 100)} % de ta carte, c'est des bars et des clubs. La nuit te connaît.`
+    };else if (share("rooftop") >= 0.3) persona = {
+      e: "🌇",
+      l: "Accro aux hauteurs",
+      why: "Toujours plus haut : ta carte est pleine de rooftops et de vues."
+    };else if (food >= 0.5) persona = {
+      e: "🍽️",
+      l: "Fine bouche",
+      why: `${Math.round(food * 100)} % de ta carte, c'est des tables et des cafés. On sait qui appeler pour manger.`
+    };else if (codes.size >= 8) persona = {
+      e: "🧭",
+      l: "Boussole humaine",
+      why: `${codes.size} coins différents explorés. Ta ville n'a plus de secrets.`
+    };else if (doneRatio >= 0.4) persona = {
+      e: "⚡",
+      l: "Zéro liste d'attente",
+      why: `${Math.round(doneRatio * 100)} % de tes spots déjà testés. Chez toi, une envie ne reste jamais une envie.`
+    };else persona = {
+      e: "✨",
+      l: "Radar à pépites",
+      why: "Tu repères, tu gardes, tu curates. Tes amis savent à qui demander."
+    };
+    return {
+      nAdded: added.length,
+      nDone: done.length,
+      topReact,
+      topCat,
+      topVibe,
+      topMonth,
+      top3,
+      nCodes: codes.size,
+      nLists: lists.length,
+      wAdded,
+      wDone,
+      wCat,
+      wVibe,
+      persona
+    };
+  }, [spots, lists]);
+  const slides = [];
+  slides.push({
+    bg: "linear-gradient(160deg,#17162B,#2A2740)",
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, "\u2728"), React.createElement("div", {
+      style: sKick
+    }, "Spotane Wrapped"), React.createElement("div", {
+      style: sBig
+    }, year), React.createElement("div", {
+      style: sLbl
+    }, myName ? `${myName}, ton année en spots.` : "Ton année en spots."), React.createElement("div", {
+      style: sSub
+    }, "Tape \xE0 droite pour avancer \u2192"))
+  });
+  if (st.nAdded > 0) slides.push({
+    bg: "linear-gradient(135deg,#FF2D9E,#7C3AED)",
+    wall: st.wAdded,
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, "\uD83D\uDCCD"), React.createElement("div", {
+      style: sKick
+    }, "Ta carte s'est remplie"), React.createElement("div", {
+      style: sBig
+    }, st.nAdded), React.createElement("div", {
+      style: sLbl
+    }, st.nAdded > 1 ? "spots ajoutés en " + year : "spot ajouté en " + year), React.createElement("div", {
+      style: sSub
+    }, st.nLists > 0 ? `Rangés dans ${st.nLists} liste${st.nLists > 1 ? "s" : ""} 📁` : "Et ce n'est que le début."))
+  });
+  if (st.nDone > 0) slides.push({
+    bg: "linear-gradient(135deg,#2ED8A7,#2D7DFF)",
+    wall: st.wDone,
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, st.topReact ? st.topReact[0] : "✅"), React.createElement("div", {
+      style: sKick
+    }, "Pass\xE9 de l'envie au r\xE9el"), React.createElement("div", {
+      style: sBig
+    }, st.nDone), React.createElement("div", {
+      style: sLbl
+    }, st.nDone > 1 ? "spots testés" : "spot testé"), React.createElement("div", {
+      style: sSub
+    }, st.topReact ? `Ton verdict le plus donné : ${st.topReact[0]} ×${st.topReact[1]}` : "Il est temps de donner ton verdict 🔥👍😐"))
+  });
+  if (st.topCat) slides.push({
+    bg: `linear-gradient(160deg,${st.topCat.color},#17162B)`,
+    wall: st.wCat,
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, st.topCat.emoji), React.createElement("div", {
+      style: sKick
+    }, "Ta grande passion"), React.createElement("div", {
+      style: {
+        ...sBig,
+        fontSize: 44
+      }
+    }, st.topCat.label), React.createElement("div", {
+      style: sLbl
+    }, st.topCat.n, " spots \u2014 ta cat\xE9gorie n\xB01"), React.createElement("div", {
+      style: sSub
+    }, "On ne se refait pas."))
+  });
+  if (st.topVibe) slides.push({
+    bg: "linear-gradient(135deg,#7C3AED,#2D7DFF)",
+    wall: st.wVibe,
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, st.topVibe.e), React.createElement("div", {
+      style: sKick
+    }, "Ton mood de l'ann\xE9e"), React.createElement("div", {
+      style: {
+        ...sBig,
+        fontSize: 44
+      }
+    }, st.topVibe.l), React.createElement("div", {
+      style: sLbl
+    }, "l'ambiance qui revient le plus sur ta carte"))
+  });
+  if (st.topMonth) slides.push({
+    bg: "linear-gradient(135deg,#F59E0B,#FF2D9E)",
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, "\uD83D\uDE80"), React.createElement("div", {
+      style: sKick
+    }, "Ton mois le plus chaud"), React.createElement("div", {
+      style: {
+        ...sBig,
+        fontSize: 44,
+        textTransform: "capitalize"
+      }
+    }, st.topMonth.name), React.createElement("div", {
+      style: sLbl
+    }, st.topMonth.n, " spots ajout\xE9s ou test\xE9s ce mois-l\xE0"))
+  });
+  if (st.top3.length > 0) slides.push({
+    bg: "#17162B",
+    photo: firstPhoto(st.top3[0]),
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, st.top3[0].reaction || "❤️"), React.createElement("div", {
+      style: sKick
+    }, st.top3.length > 1 ? "Ton podium de l'année" : "Ton coup de cœur"), React.createElement("div", {
+      style: {
+        ...sBig,
+        fontSize: 38
+      }
+    }, st.top3[0].name), st.top3[0].note ? React.createElement("div", {
+      style: {
+        ...sSub,
+        fontStyle: "italic",
+        marginTop: 8
+      }
+    }, "\xAB ", st.top3[0].note.slice(0, 80), st.top3[0].note.length > 80 ? "…" : "", " \xBB") : st.top3[0].adresse && React.createElement("div", {
+      style: sLbl
+    }, "\uD83D\uDCCD ", st.top3[0].adresse), st.top3.length > 1 && React.createElement("div", {
+      style: {
+        marginTop: 22,
+        width: "100%",
+        maxWidth: 330,
+        display: "flex",
+        flexDirection: "column",
+        gap: 9
+      }
+    }, st.top3.slice(1).map((s, i) => React.createElement("div", {
+      key: s.id,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 11,
+        background: "rgba(255,255,255,.12)",
+        backdropFilter: "blur(6px)",
+        borderRadius: 14,
+        padding: "9px 12px",
+        textAlign: "left"
+      }
+    }, React.createElement("span", {
+      style: {
+        fontFamily: "var(--font-display)",
+        fontWeight: 900,
+        fontSize: 17,
+        opacity: .7,
+        flexShrink: 0
+      }
+    }, i + 2), firstPhoto(s) ? React.createElement("img", {
+      src: firstPhoto(s),
+      alt: "",
+      style: {
+        width: 38,
+        height: 38,
+        borderRadius: 10,
+        objectFit: "cover",
+        flexShrink: 0
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }) : React.createElement("span", {
+      style: {
+        fontSize: 22,
+        flexShrink: 0
+      }
+    }, (CATS.find(c => c.key === getCats(s)[0]) || {}).emoji || "✨"), React.createElement("span", {
+      style: {
+        fontWeight: 700,
+        fontSize: 14,
+        minWidth: 0,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap"
+      }
+    }, s.name), s.reaction && React.createElement("span", {
+      style: {
+        marginLeft: "auto",
+        fontSize: 16,
+        flexShrink: 0
+      }
+    }, s.reaction)))))
+  });
+  if (st.nCodes > 1) slides.push({
+    bg: "linear-gradient(160deg,#0EA5E9,#17162B)",
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 56
+      }
+    }, "\uD83E\uDDED"), React.createElement("div", {
+      style: sKick
+    }, "\xC2me d'explorateur"), React.createElement("div", {
+      style: sBig
+    }, st.nCodes), React.createElement("div", {
+      style: sLbl
+    }, "coins diff\xE9rents sur ta carte"), React.createElement("div", {
+      style: sSub
+    }, "Ta ville n'a presque plus de secrets."))
+  });
+  slides.push({
+    bg: "linear-gradient(150deg,#FF2D9E 0%,#7C3AED 55%,#17162B 100%)",
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: sKick
+    }, "Ton profil Spotane ", year), React.createElement("div", {
+      style: {
+        fontSize: 74,
+        marginTop: 14
+      }
+    }, st.persona.e), React.createElement("div", {
+      style: {
+        ...sBig,
+        fontSize: 42
+      }
+    }, st.persona.l), React.createElement("div", {
+      style: {
+        ...sSub,
+        fontSize: 15,
+        maxWidth: 300,
+        opacity: .9
+      }
+    }, st.persona.why), React.createElement("div", {
+      style: {
+        marginTop: 18,
+        fontSize: 11.5,
+        fontFamily: "var(--font-mono)",
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+        opacity: .5
+      }
+    }, "Et toi, t'es quoi ? \xB7 Spotane"))
+  });
+  slides.push({
+    bg: "linear-gradient(160deg,#17162B,#3B1A5C)",
+    final: true,
+    r: () => React.createElement(React.Fragment, null, React.createElement("div", {
+      style: {
+        fontSize: 44
+      }
+    }, "\uD83D\uDCCA"), React.createElement("div", {
+      style: sKick
+    }, "Ton ann\xE9e ", year, " en bref"), React.createElement("div", {
+      style: {
+        marginTop: 12,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+        background: "rgba(255,255,255,.14)",
+        borderRadius: 999,
+        padding: "8px 16px",
+        fontWeight: 800,
+        fontSize: 14
+      }
+    }, st.persona.e, " ", st.persona.l), React.createElement("div", {
+      style: {
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 10,
+        width: "100%",
+        maxWidth: 340,
+        margin: "16px 0"
+      }
+    }, [["📍", st.nAdded, "ajoutés"], ["✅", st.nDone, "testés"], [st.topCat ? st.topCat.emoji : "✨", st.topCat ? st.topCat.label : "—", "top catégorie"], ["🧭", st.nCodes, "coins explorés"]].map(([e, v, l], i) => React.createElement("div", {
+      key: i,
+      style: {
+        background: "rgba(255,255,255,.1)",
+        borderRadius: 16,
+        padding: "14px 10px",
+        textAlign: "center"
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 22
+      }
+    }, e), React.createElement("div", {
+      style: {
+        fontFamily: "var(--font-display)",
+        fontWeight: 900,
+        fontSize: 22,
+        marginTop: 2
+      }
+    }, v), React.createElement("div", {
+      style: {
+        fontSize: 11,
+        opacity: .7,
+        marginTop: 1
+      }
+    }, l)))), React.createElement("button", {
+      onClick: e => {
+        e.stopPropagation();
+        shareWrapped();
+      },
+      className: "press",
+      style: {
+        width: "100%",
+        maxWidth: 340,
+        padding: 15,
+        borderRadius: 999,
+        border: "none",
+        background: "#fff",
+        color: "#17162B",
+        fontFamily: "var(--font-body)",
+        fontWeight: 800,
+        fontSize: 16,
+        cursor: "pointer"
+      }
+    }, "\uD83D\uDCE4 Partager mon ann\xE9e"), React.createElement("button", {
+      onClick: e => {
+        e.stopPropagation();
+        onClose();
+        onPremium && onPremium();
+      },
+      className: "press",
+      style: {
+        marginTop: 10,
+        width: "100%",
+        maxWidth: 340,
+        padding: 13,
+        borderRadius: 999,
+        border: "1.5px solid rgba(255,255,255,.35)",
+        background: "none",
+        color: "#fff",
+        fontFamily: "var(--font-body)",
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: "pointer"
+      }
+    }, "\uD83D\uDC8E Encore plus de stats avec Spotane+"))
+  });
+  const last = slides.length - 1;
+  const cur = slides[Math.min(idx, last)];
+  const shareWrapped = () => {
+    const bits = [`${st.nAdded || spots.length} spots sur ma carte`, st.nDone ? `${st.nDone} testés` : "", st.topCat ? `team ${st.topCat.label} ${st.topCat.emoji}` : ""].filter(Boolean).join(" · ");
+    const text = `Mon année ${year} en spots : ${bits}\nMon profil : ${st.persona.e} ${st.persona.l}\nEt toi, t'es quoi ? Fais ton Wrapped sur Spotane 👇`;
+    if (navigator.share) navigator.share({
+      title: "Mon année en spots",
+      text,
+      url: APP_URL
+    }).catch(() => {});else {
+      try {
+        navigator.clipboard.writeText(text + "\n" + APP_URL);
+        window.mspToast?.("Récap copié ! Colle-le où tu veux 📋", "success");
+      } catch {}
+    }
+  };
+  const nav = e => {
+    const w = e.currentTarget.clientWidth || 1;
+    const x = e.clientX - e.currentTarget.getBoundingClientRect().left;
+    window.mspHaptic?.(8);
+    if (x < w * 0.35) setIdx(i => Math.max(0, i - 1));else if (idx < last) setIdx(i => Math.min(last, i + 1));
+  };
+  const sKick = {
+    fontFamily: "var(--font-mono)",
+    fontSize: 11,
+    letterSpacing: "0.18em",
+    textTransform: "uppercase",
+    opacity: .65,
+    marginTop: 14
+  };
+  const sBig = {
+    fontFamily: "var(--font-display)",
+    fontWeight: 900,
+    fontSize: 76,
+    lineHeight: 1.02,
+    letterSpacing: "-0.02em",
+    marginTop: 6
+  };
+  const sLbl = {
+    fontFamily: "var(--font-body)",
+    fontWeight: 700,
+    fontSize: 17,
+    marginTop: 8,
+    lineHeight: 1.3
+  };
+  const sSub = {
+    fontFamily: "var(--font-body)",
+    fontSize: 14,
+    opacity: .75,
+    marginTop: 12,
+    lineHeight: 1.4
+  };
+  return React.createElement("div", {
+    onClick: nav,
+    style: {
+      position: "fixed",
+      inset: 0,
+      zIndex: 4000,
+      background: "#17162B",
+      color: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+      cursor: "pointer",
+      fontFamily: "var(--font-body)"
+    }
+  }, React.createElement(WrapWall, {
+    photos: cur.wall
+  }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: cur.bg,
+      opacity: cur.wall && cur.wall.length ? 0.86 : 1,
+      transition: "background .4s var(--ease)"
+    }
+  }), cur.photo && React.createElement("img", {
+    src: cur.photo,
+    alt: "",
+    style: {
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      opacity: .35
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  }), React.createElement("div", {
+    style: {
+      position: "relative",
+      display: "flex",
+      gap: 4,
+      padding: "14px 14px 0",
+      maxWidth: 600,
+      width: "100%",
+      margin: "0 auto",
+      boxSizing: "border-box"
+    }
+  }, slides.map((_, i) => React.createElement("div", {
+    key: i,
+    style: {
+      flex: 1,
+      height: 3,
+      borderRadius: 2,
+      background: i <= idx ? "#fff" : "rgba(255,255,255,.28)",
+      transition: "background .25s"
+    }
+  }))), React.createElement("button", {
+    onClick: e => {
+      e.stopPropagation();
+      onClose();
+    },
+    "aria-label": "Fermer",
+    style: {
+      position: "absolute",
+      top: 26,
+      right: 14,
+      zIndex: 2,
+      width: 36,
+      height: 36,
+      borderRadius: 999,
+      border: "none",
+      background: "rgba(0,0,0,.3)",
+      color: "#fff",
+      fontSize: 16,
+      cursor: "pointer"
+    }
+  }, "\u2715"), React.createElement("div", {
+    key: idx,
+    className: "slide-up",
+    style: {
+      position: "relative",
+      flex: 1,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      textAlign: "center",
+      padding: "20px 28px 46px",
+      maxWidth: 600,
+      width: "100%",
+      margin: "0 auto",
+      boxSizing: "border-box"
+    }
+  }, cur.r()));
+}
 const LIST_EMOJIS = ["📁", "❤️", "🍸", "🍽️", "🌙", "☀️", "🎉", "💎", "🏙️", "🔥", "🎯", "🧺"];
 function ListFormModal({
   onCreate,
@@ -11146,6 +11785,7 @@ function App() {
   const [raLoading, setRaLoading] = useState(false);
   const [showCollectifSearch, setShowCollectifSearch] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
+  const [showWrapped, setShowWrapped] = useState(false);
   const [lists, setLists] = useState(() => {
     try {
       const raw = localStorage.getItem(LSTK);
@@ -16474,7 +17114,66 @@ function App() {
       avatar: avatar,
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount
-    }), !isPremium && React.createElement("button", {
+    }), spots.length >= 3 && React.createElement("button", {
+      onClick: () => {
+        window.mspHaptic?.(12);
+        setShowWrapped(true);
+      },
+      className: "press",
+      style: {
+        marginTop: 14,
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 13,
+        background: 'linear-gradient(160deg,var(--ink-900),#3B1A5C)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 18px',
+        cursor: 'pointer',
+        boxShadow: '0 8px 22px rgba(23,22,43,.35)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 28,
+        flexShrink: 0
+      }
+    }, "\uD83D\uDCCA"), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        lineHeight: 1.1
+      }
+    }, "Ton ann\xE9e en spots"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .85,
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, "Ton Wrapped ", new Date().getFullYear(), " est pr\xEAt \u2014 stats, coups de c\u0153ur \u2728")), React.createElement("span", {
+      style: {
+        background: 'rgba(255,255,255,.18)',
+        borderRadius: 999,
+        padding: '7px 13px',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Voir \u2192")), !isPremium && React.createElement("button", {
       onClick: () => setShowPremium(true),
       className: "press",
       style: {
@@ -17519,6 +18218,12 @@ function App() {
     friendsWith: friendSpotMap.get(selectedSpot.id) || []
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
+  }), showWrapped && React.createElement(WrappedModal, {
+    spots: spots,
+    lists: lists,
+    myName: myName,
+    onClose: () => setShowWrapped(false),
+    onPremium: () => setShowPremium(true)
   }), friendInvite && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
