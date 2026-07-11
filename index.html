@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T22:16:39.454Z -->
+<!-- built 2026-07-11T22:24:14.921Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3428,6 +3428,80 @@ const REACTIONS = [{
   emoji: "😐",
   label: "Bof"
 }];
+const I18N = {
+  fr: {
+    nav_home: "Accueil",
+    nav_spots: "Spots",
+    nav_map: "Carte",
+    nav_events: "Events",
+    nav_profile: "Profil",
+    seg_discover: "Découvrir 🔍",
+    seg_mine: "Mes spots ❤️",
+    seg_lists: "Listes 📁",
+    profile_city: "🌍 Ta ville",
+    profile_friends: "👥 Mes amis",
+    profile_join: "☁️ Rejoindre la communauté Spotane",
+    wrapped_teaser_title: "Ton année en spots",
+    wrapped_teaser_sub: "Ton Wrapped {year} est prêt — stats, coups de cœur ✨",
+    btn_invite: "🤝 Inviter",
+    btn_see: "Voir →"
+  },
+  en: {
+    nav_home: "Home",
+    nav_spots: "Spots",
+    nav_map: "Map",
+    nav_events: "Events",
+    nav_profile: "Profile",
+    seg_discover: "Discover 🔍",
+    seg_mine: "My spots ❤️",
+    seg_lists: "Lists 📁",
+    profile_city: "🌍 Your city",
+    profile_friends: "👥 My friends",
+    profile_join: "☁️ Join the Spotane community",
+    wrapped_teaser_title: "Your year in spots",
+    wrapped_teaser_sub: "Your {year} Wrapped is ready — stats & highlights ✨",
+    btn_invite: "🤝 Invite",
+    btn_see: "See →"
+  },
+  es: {
+    nav_home: "Inicio",
+    nav_spots: "Spots",
+    nav_map: "Mapa",
+    nav_events: "Eventos",
+    nav_profile: "Perfil",
+    seg_discover: "Descubrir 🔍",
+    seg_mine: "Mis spots ❤️",
+    seg_lists: "Listas 📁",
+    profile_city: "🌍 Tu ciudad",
+    profile_friends: "👥 Mis amigos",
+    profile_join: "☁️ Únete a la comunidad Spotane",
+    wrapped_teaser_title: "Tu año en spots",
+    wrapped_teaser_sub: "Tu Wrapped {year} está listo — stats y favoritos ✨",
+    btn_invite: "🤝 Invitar",
+    btn_see: "Ver →"
+  }
+};
+const LANGK = "myplace_lang_v1";
+let __lang = (() => {
+  try {
+    const l = localStorage.getItem(LANGK);
+    return I18N[l] ? l : "fr";
+  } catch {
+    return "fr";
+  }
+})();
+function tr(key, vars) {
+  let s = (I18N[__lang] && I18N[__lang][key]) ?? I18N.fr[key] ?? key;
+  if (vars) for (const k in vars) s = s.replace("{" + k + "}", vars[k]);
+  return s;
+}
+try {
+  window.mspSetLang = l => {
+    if (!I18N[l]) return;
+    localStorage.setItem(LANGK, l);
+    location.reload();
+  };
+} catch {}
 const SK = "myplace_spots_v3";
 const CK = "myplace_challenge_v3";
 const TRK = "myplace_trash_v1";
@@ -11476,7 +11550,7 @@ function AuthCard({
       fontSize: 15,
       marginBottom: 4
     }
-  }, "\u2601\uFE0F Rejoindre la communaut\xE9 Spotane"), React.createElement("div", {
+  }, tr("profile_join")), React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: 'var(--ink-400)',
@@ -15148,7 +15222,7 @@ function App() {
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "D\xE9couvrir \uD83D\uDD0D", catalogVisible.length > 0 && React.createElement("span", {
+  }, tr("seg_discover"), catalogVisible.length > 0 && React.createElement("span", {
     style: {
       position: 'absolute',
       top: -8,
@@ -15192,7 +15266,7 @@ function App() {
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "Mes spots \u2764\uFE0F", sortedVisible.length > 0 && React.createElement("span", {
+  }, tr("seg_mine"), sortedVisible.length > 0 && React.createElement("span", {
     style: {
       position: 'absolute',
       top: -8,
@@ -15236,7 +15310,7 @@ function App() {
       cursor: 'pointer',
       transition: 'all .18s var(--ease)'
     }
-  }, "Listes \uD83D\uDCC1", lists.length > 0 && React.createElement("span", {
+  }, tr("seg_lists"), lists.length > 0 && React.createElement("span", {
     style: {
       position: 'absolute',
       top: -8,
@@ -16891,11 +16965,11 @@ function App() {
     }
   }, [{
     k: 'discover',
-    l: 'Découvrir 🔍',
+    l: tr("seg_discover"),
     n: mapCount.discover
   }, {
     k: 'mine',
-    l: 'Mes spots ❤️',
+    l: tr("seg_mine"),
     n: mapCount.mine
   }].map(o => {
     const on = mapMode === o.k;
@@ -17171,7 +17245,7 @@ function App() {
         fontSize: 15,
         marginBottom: 4
       }
-    }, "\uD83C\uDF0D Ta ville"), React.createElement("div", {
+    }, tr("profile_city")), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
@@ -17267,7 +17341,7 @@ function App() {
         fontSize: 17,
         lineHeight: 1.1
       }
-    }, "Ton ann\xE9e en spots"), React.createElement("div", {
+    }, tr("wrapped_teaser_title")), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 12.5,
@@ -17277,7 +17351,9 @@ function App() {
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, "Ton Wrapped ", new Date().getFullYear(), " est pr\xEAt \u2014 stats, coups de c\u0153ur \u2728")), React.createElement("span", {
+    }, tr("wrapped_teaser_sub", {
+      year: new Date().getFullYear()
+    }))), React.createElement("span", {
       style: {
         background: 'rgba(255,255,255,.18)',
         borderRadius: 999,
@@ -17288,7 +17364,7 @@ function App() {
         flexShrink: 0,
         fontFamily: 'var(--font-body)'
       }
-    }, "Voir \u2192")), !isPremium && React.createElement("button", {
+    }, tr("btn_see"))), !isPremium && React.createElement("button", {
       onClick: () => setShowPremium(true),
       className: "press",
       style: {
@@ -17365,7 +17441,7 @@ function App() {
         fontWeight: 900,
         fontSize: 18
       }
-    }, "\uD83D\uDC65 Mes amis", friends.length ? ` · ${friends.length}` : ''), React.createElement("div", {
+    }, tr("profile_friends"), friends.length ? ` · ${friends.length}` : ''), React.createElement("div", {
       style: {
         flex: 1
       }
@@ -17383,7 +17459,7 @@ function App() {
         fontFamily: 'var(--font-body)',
         cursor: 'pointer'
       }
-    }, "\uD83E\uDD1D Inviter")), friendsLoading && React.createElement("div", {
+    }, tr("btn_invite"))), friendsLoading && React.createElement("div", {
       style: {
         fontSize: 13,
         color: 'var(--ink-400)'
@@ -19002,33 +19078,33 @@ function App() {
   }, [{
     key: "home",
     icon: "🏠",
-    label: "Accueil"
+    label: tr("nav_home")
   }, {
     key: "spots",
     icon: "📍",
-    label: "Spots"
+    label: tr("nav_spots")
   }, {
     key: "map",
     icon: "🗺️",
-    label: "Carte"
+    label: tr("nav_map")
   }, {
     key: "events",
     icon: "🎫",
-    label: "Events"
+    label: tr("nav_events")
   }, {
     key: "profile",
     icon: "⚙️",
-    label: "Profil"
-  }].map(t => React.createElement("button", {
-    key: t.key,
-    className: tab === t.key ? "active" : "",
-    onClick: () => setTab(t.key),
-    "aria-label": t.label,
-    "aria-current": tab === t.key ? "page" : undefined
+    label: tr("nav_profile")
+  }].map(it => React.createElement("button", {
+    key: it.key,
+    className: tab === it.key ? "active" : "",
+    onClick: () => setTab(it.key),
+    "aria-label": it.label,
+    "aria-current": tab === it.key ? "page" : undefined
   }, React.createElement("span", {
     className: "nav-icon",
     "aria-hidden": "true"
-  }, t.icon), t.label))), React.createElement(ToastStack, null));
+  }, it.icon), it.label))), React.createElement(ToastStack, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 requestAnimationFrame(() => {
