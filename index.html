@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T16:37:35.617Z -->
+<!-- built 2026-07-11T16:43:09.873Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -12879,11 +12879,12 @@ function App() {
       if (!mapCats.has(primaryCat(s))) return;
       if (openNow && isOpenNow(s.hours, pnow) !== true) return;
       const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
+      const fw = friendSpotMap.has(s.id);
       const m = L.circleMarker([s.lat, s.lng], {
-        radius: s.done ? 6 : 8,
+        radius: fw ? 9 : s.done ? 6 : 8,
         fillColor: col,
-        color: "#fff",
-        weight: 2,
+        color: fw ? "#7C3AED" : "#fff",
+        weight: fw ? 3 : 2,
         opacity: 1,
         fillOpacity: s.done ? 0.5 : 0.9
       });
@@ -12932,7 +12933,7 @@ function App() {
       });
       didFitRef.current = true;
     }
-  }, [tab, mapSource, userPos, mapCats, openNow]);
+  }, [tab, mapSource, userPos, mapCats, openNow, friendSpotMap]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -17735,7 +17736,17 @@ function App() {
         color: 'var(--pop-pink)',
         fontSize: 14
       }
-    }, "\u2665")), React.createElement("div", {
+    }, "\u2665"), friendSpotMap.has(peekSpot.id) && React.createElement("span", {
+      style: {
+        background: '#F3EEFF',
+        border: '1px solid #E4D9FF',
+        color: '#7C3AED',
+        fontSize: 11,
+        fontWeight: 700,
+        borderRadius: 999,
+        padding: '3px 9px'
+      }
+    }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`)), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
