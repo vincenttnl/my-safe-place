@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T11:44:04.079Z -->
+<!-- built 2026-07-11T12:41:26.741Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3184,6 +3184,7 @@ const AVK = "myplace_avatar_v1";
 const OBK = "myplace_onboarding_done_v1";
 const CITYK = "myplace_city_v1";
 const LSTK = "myplace_lists_v1";
+const COLK = "myplace_collectifs_v1";
 const FREE_LISTS_MAX = Infinity;
 const CITIES = {
   paris: {
@@ -3322,7 +3323,16 @@ async function fetchCitySpots(city) {
   return r && r.length ? r : null;
 }
 const QFAP_BASE = "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records";
-const QFAP_KEEP = new Set(["Concert", "Festival", "Expo", "Théâtre", "Danse", "Spectacle musical", "Nuit", "Photo", "Art contemporain", "Humour", "Cirque", "Street-art", "Gourmand", "LGBT", "Écrans", "Ecrans"]);
+const QFAP_KEEP = new Set(["Nuit", "Concert", "Festival", "LGBT", "Humour", "Street-art", "Gourmand"]);
+const QFAP_RANK = {
+  "Nuit": 0,
+  "Concert": 1,
+  "Festival": 2,
+  "LGBT": 3,
+  "Humour": 4,
+  "Street-art": 5,
+  "Gourmand": 6
+};
 const stripHtml = s => (s || "").replace(/<[^>]*>/g, "").trim();
 function eventDateLabel(e) {
   if (e.dateDescription) return stripHtml(e.dateDescription);
@@ -3350,6 +3360,7 @@ async function fetchQfapEvents({
       date: e.date_start,
       dateEnd: e.date_end,
       dateDescription: e.date_description,
+      desc: stripHtml(e.lead_text || ""),
       cover: e.cover_url,
       venue: e.address_name,
       zip: e.address_zipcode,
@@ -3358,7 +3369,7 @@ async function fetchQfapEvents({
       price: (e.price_type || "").toLowerCase().includes("gratuit") ? "Gratuit" : e.price_detail || "",
       tag: e.qfap_tags,
       url: e.url
-    }));
+    })).sort((a, b) => (QFAP_RANK[(a.tag || "").trim()] ?? 9) - (QFAP_RANK[(b.tag || "").trim()] ?? 9) || String(a.dateEnd || a.date).localeCompare(String(b.dateEnd || b.date)));
   } catch (e) {
     return [];
   }
@@ -8258,6 +8269,334 @@ function ListPickerModal({
     }
   }, "C'est bon \u2713")));
 }
+function CollectifRow({
+  p,
+  followed,
+  onFollow,
+  sub
+}) {
+  return React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: '10px 12px',
+      border: '1px solid var(--hairline)',
+      borderRadius: 12,
+      background: '#fff'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 18
+    }
+  }, "\uD83C\uDF9B\uFE0F"), React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 14.5,
+      fontFamily: 'var(--font-body)',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, p.name), sub && React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: 'var(--ink-400)'
+    }
+  }, sub)), React.createElement("button", {
+    onClick: () => onFollow(p),
+    disabled: followed,
+    className: "press",
+    style: {
+      padding: '7px 13px',
+      borderRadius: 999,
+      border: 'none',
+      background: followed ? 'var(--hairline)' : 'var(--pop-pink)',
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 12.5,
+      cursor: followed ? 'default' : 'pointer',
+      flexShrink: 0
+    }
+  }, followed ? "Suivi ✓" : "+ Suivre"));
+}
+function CollectifSearchModal({
+  onSearch,
+  followedIds,
+  onFollow,
+  onFollowManual,
+  onClose,
+  suggestions,
+  sugLoading,
+  countFor
+}) {
+  const [q, setQ] = useState("");
+  const [results, setResults] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const timerRef = useRef(null);
+  const run = async term => {
+    const t = String(term != null ? term : q).trim();
+    if (!t) {
+      setResults(null);
+      return;
+    }
+    setBusy(true);
+    setErr("");
+    try {
+      const d = await onSearch(t);
+      setResults(d && d.promoters || []);
+    } catch (e) {
+      setErr(e && e.message ? e.message : "Recherche impossible");
+      setResults([]);
+    }
+    setBusy(false);
+  };
+  const onType = v => {
+    setQ(v);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (v.trim().length >= 3) timerRef.current = setTimeout(() => run(v), 450);else setResults(null);
+  };
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    onClick: onClose
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 22,
+      marginBottom: 2
+    }
+  }, "Collectifs \uD83C\uDF9B\uFE0F"), React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginBottom: 12
+    }
+  }, "Suis tes collectifs et clubs \u2014 leurs prochaines soir\xE9es arrivent direct dans Events."), React.createElement("input", {
+    value: q,
+    onChange: e => onType(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter") run();
+    },
+    placeholder: "\uD83D\uDD0D Mamacita, Jetlag, Rex Club\u2026",
+    className: "input-v2",
+    autoFocus: true,
+    style: {
+      fontSize: 15
+    }
+  }), busy && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginTop: 8
+    }
+  }, "Recherche\u2026"), err && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: '#B91C1C',
+      background: '#FEE2E2',
+      borderRadius: 10,
+      padding: '9px 12px',
+      marginTop: 8
+    }
+  }, "\u26A0\uFE0F ", err), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      marginTop: 10,
+      maxHeight: '44vh',
+      overflowY: 'auto'
+    }
+  }, results && results.length === 0 && !busy && !err && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      background: 'var(--bg-cream)',
+      borderRadius: 10,
+      padding: '10px 12px',
+      lineHeight: 1.45
+    }
+  }, "Introuvable ici \uD83D\uDE15 V\xE9rifie l'orthographe \u2014 et sache que la base (Resident Advisor) couvre surtout la sc\xE8ne \xE9lectro/club. Les collectifs 100 % Shotgun/Insta arrivent dans une prochaine version."), (results || []).map(p => ({
+    ...p,
+    nParis: countFor ? countFor(p.id) : 0
+  })).sort((a, b) => b.nParis - a.nParis || (b.followers || 0) - (a.followers || 0)).map(p => React.createElement(CollectifRow, {
+    key: p.id,
+    p: p,
+    followed: followedIds.has(p.id),
+    onFollow: onFollow,
+    sub: [p.area ? `📍 ${p.area}${p.country && p.country !== "France" ? ` (${p.country})` : ""}` : null, p.nParis ? `🔥 ${p.nParis} soirée${p.nParis > 1 ? "s" : ""} à venir à Paris` : null, p.followers ? `${p.followers} followers` : null].filter(Boolean).join(" · ") || "peu actif en ce moment"
+  })), (!results || results.length === 0) && React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "mono-label",
+    style: {
+      marginTop: 6
+    }
+  }, "\uD83D\uDD25 Actifs en ce moment \xE0 Paris"), sugLoading && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)'
+    }
+  }, "Chargement\u2026"), (suggestions || []).map(p => React.createElement(CollectifRow, {
+    key: p.id,
+    p: p,
+    followed: followedIds.has(p.id),
+    onFollow: onFollow,
+    sub: `${p.n} soirée${p.n > 1 ? "s" : ""} à venir`
+  })))), React.createElement("div", {
+    style: {
+      marginTop: 12,
+      paddingTop: 12,
+      borderTop: '1px dashed var(--hairline)',
+      fontSize: 12.5,
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)',
+      lineHeight: 1.5
+    }
+  }, "Ton collectif n'est pas l\xE0 ? Certains (hip-hop, latino\u2026) ne publient que sur Shotgun/Insta.", React.createElement("button", {
+    onClick: () => {
+      const nm = q.trim() || window.prompt("Nom du collectif ?") || "";
+      if (!nm.trim()) return;
+      const url = window.prompt(`Colle le lien des soirées de ${nm.trim()} (page Shotgun, Instagram…)`) || "";
+      if (!url.trim()) return;
+      onFollowManual(nm.trim(), url.trim());
+    },
+    className: "press",
+    style: {
+      display: 'block',
+      marginTop: 8,
+      padding: '8px 14px',
+      borderRadius: 999,
+      border: '1px solid var(--hairline)',
+      background: '#fff',
+      color: 'var(--ink-900)',
+      fontWeight: 700,
+      fontSize: 12.5,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)'
+    }
+  }, "\u2795 Le suivre quand m\xEAme avec un lien")), React.createElement("button", {
+    onClick: onClose,
+    style: {
+      marginTop: 12,
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)'
+    }
+  }, "Fermer")));
+}
+function BigEventCard({
+  cover,
+  badge,
+  badgeBg,
+  badgeColor,
+  title,
+  desc,
+  meta,
+  onClick
+}) {
+  return React.createElement("button", {
+    onClick: onClick,
+    className: "press",
+    style: {
+      width: '100%',
+      textAlign: 'left',
+      padding: 0,
+      cursor: 'pointer',
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 'var(--radius-lg)',
+      overflow: 'hidden',
+      color: 'inherit',
+      boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))'
+    }
+  }, React.createElement("div", {
+    style: {
+      aspectRatio: '16/9',
+      background: 'linear-gradient(135deg,#2A2350,#4A3A8A)',
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
+  }, cover ? React.createElement("img", {
+    src: cover,
+    alt: "",
+    loading: "lazy",
+    decoding: "async",
+    style: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    },
+    onError: ev => {
+      ev.target.style.display = 'none';
+    }
+  }) : React.createElement("span", {
+    style: {
+      fontSize: 44
+    }
+  }, "\uD83C\uDFAB"), React.createElement("span", {
+    style: {
+      position: 'absolute',
+      top: 12,
+      left: 12,
+      background: badgeBg || 'var(--pop-violet)',
+      color: badgeColor || '#fff',
+      fontSize: 11,
+      fontWeight: 800,
+      borderRadius: 999,
+      padding: '4px 11px',
+      letterSpacing: '.02em'
+    }
+  }, badge)), React.createElement("div", {
+    style: {
+      padding: '13px 15px 15px'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 19,
+      lineHeight: 1.12,
+      letterSpacing: '-0.01em'
+    }
+  }, title), desc && React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: 'var(--ink-600)',
+      lineHeight: 1.45,
+      marginTop: 6,
+      display: '-webkit-box',
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden'
+    }
+  }, desc), meta && React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--ink-400)',
+      marginTop: 8,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, meta)));
+}
 function EmptyState({
   icon,
   title,
@@ -10033,6 +10372,17 @@ function App() {
   const [qfapList, setQfapList] = useState([]);
   const [qfapLoading, setQfapLoading] = useState(false);
   const [qfapPeek, setQfapPeek] = useState(null);
+  const [collectifs, setCollectifs] = useState(() => {
+    try {
+      const raw = localStorage.getItem(COLK);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [raEvents, setRaEvents] = useState([]);
+  const [raLoading, setRaLoading] = useState(false);
+  const [showCollectifSearch, setShowCollectifSearch] = useState(false);
   const [lists, setLists] = useState(() => {
     try {
       const raw = localStorage.getItem(LSTK);
@@ -10235,7 +10585,19 @@ function App() {
   useEffect(() => {
     if (session) {
       window.spotaneProxy = async (action, payload) => {
-        const tok = await validToken(sessionRef.current);
+        let tok = null;
+        try {
+          tok = await validToken(sessionRef.current);
+        } catch (e) {
+          const err = new Error("Session expirée — reconnecte-toi dans Profil ✨");
+          err.code = "auth";
+          throw err;
+        }
+        if (!tok) {
+          const err = new Error("Connecte-toi pour utiliser cette fonction ✨");
+          err.code = "auth";
+          throw err;
+        }
         const r = await fetch(`${SUPABASE_URL}/functions/v1/proxy`, {
           method: "POST",
           headers: {
@@ -10698,6 +11060,33 @@ function App() {
       limit: 90
     }).then(list => setQfapList(list.slice(0, 30))).finally(() => setQfapLoading(false));
   }, [tab, city]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(COLK, JSON.stringify(collectifs));
+    } catch {}
+  }, [collectifs]);
+  useEffect(() => {
+    const need = collectifs.length > 0 || showCollectifSearch;
+    if (tab !== "events" || city !== "paris" || !need) return;
+    if (!window.spotaneProxy || raEvents.length) return;
+    setRaLoading(true);
+    window.spotaneProxy("raEvents", {}).then(d => setRaEvents(d && d.events || [])).catch(e => {
+      window.mspToast?.(e && e.message ? e.message : "Soirées indisponibles", "error");
+    }).finally(() => setRaLoading(false));
+  }, [tab, city, collectifs.length, session, showCollectifSearch]);
+  const raSuggestions = useMemo(() => {
+    const count = {},
+      names = {};
+    raEvents.forEach(e => (e.promoters || []).forEach(p => {
+      count[p.id] = (count[p.id] || 0) + 1;
+      names[p.id] = p.name;
+    }));
+    return Object.keys(count).sort((a, b) => count[b] - count[a]).slice(0, 15).map(id => ({
+      id,
+      name: names[id],
+      n: count[id]
+    }));
+  }, [raEvents]);
   const shareSpot = spot => {
     if (!myName) {
       setPendingShareSpot(spot);
@@ -13368,6 +13757,207 @@ function App() {
       padding: "14px 20px 4px"
     }
   }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: 10
+    }
+  }, React.createElement("div", {
+    className: "mono-label"
+  }, "\uD83C\uDF9B\uFE0F Tes collectifs", collectifs.length ? ` · ${collectifs.length}` : ''), React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), React.createElement("button", {
+    onClick: () => {
+      if (!sessionRef.current) {
+        window.mspToast?.("Connecte-toi pour suivre tes collectifs ✨", "warn");
+        return;
+      }
+      setShowCollectifSearch(true);
+    },
+    className: "press",
+    style: {
+      padding: '7px 14px',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 12.5,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer'
+    }
+  }, "\uD83D\uDD0D Rechercher un collectif")), collectifs.length > 0 && React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      flexWrap: 'wrap',
+      marginBottom: 12
+    }
+  }, collectifs.map(c => React.createElement("span", {
+    key: c.id,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '5px 6px 5px 12px',
+      fontSize: 12.5,
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)'
+    }
+  }, c.name, React.createElement("button", {
+    onClick: () => setCollectifs(cs => cs.filter(x => x.id !== c.id)),
+    "aria-label": `Ne plus suivre ${c.name}`,
+    style: {
+      border: 'none',
+      background: 'var(--hairline)',
+      borderRadius: 999,
+      width: 18,
+      height: 18,
+      fontSize: 10,
+      cursor: 'pointer',
+      color: 'var(--ink-600)',
+      lineHeight: 1
+    }
+  }, "\u2715")))), collectifs.length === 0 ? React.createElement("div", {
+    style: {
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 14,
+      padding: 16,
+      fontFamily: 'var(--font-body)'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: 'var(--ink-400)'
+    }
+  }, "Suis tes collectifs et clubs pr\xE9f\xE9r\xE9s \u2014 leurs prochaines soir\xE9es atterrissent ici, direct \uD83D\uDD25"), React.createElement("button", {
+    onClick: () => {
+      if (!sessionRef.current) {
+        window.mspToast?.("Connecte-toi pour suivre tes collectifs ✨", "warn");
+        return;
+      }
+      setShowCollectifSearch(true);
+    },
+    className: "press",
+    style: {
+      marginTop: 11,
+      padding: '9px 15px',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 13,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer'
+    }
+  }, "\uD83D\uDD25 D\xE9couvrir les collectifs actifs")) : (() => {
+    if (!collectifs.some(c => !c.manual)) return null;
+    if (raLoading) return React.createElement("div", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 14,
+        padding: '8px 0'
+      }
+    }, "Chargement des soir\xE9es\u2026");
+    const followedIds = new Set(collectifs.map(c => c.id));
+    const evs = raEvents.filter(e => (e.promoters || []).some(p => followedIds.has(p.id))).sort((a, b) => String(a.date).localeCompare(String(b.date))).slice(0, 20);
+    if (!evs.length) return React.createElement("div", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 14,
+        padding: '8px 0'
+      }
+    }, city !== "paris" ? "Les soirées collectifs arrivent bientôt hors Paris ✨" : "Pas de soirée annoncée pour tes collectifs — reviens bientôt 👀");
+    return React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14
+      }
+    }, evs.map(e => React.createElement(BigEventCard, {
+      key: e.id,
+      onClick: () => setQfapPeek({
+        title: e.title,
+        date: e.date,
+        dateDescription: new Date(e.date).toLocaleDateString('fr-FR', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        }),
+        venue: e.venue,
+        cover: e.image,
+        tag: ((e.promoters || [])[0] || {}).name || "Soirée",
+        price: "",
+        url: e.url
+      }),
+      cover: e.image,
+      badge: ((e.promoters || [])[0] || {}).name || "Soirée",
+      badgeBg: "var(--pop-pink)",
+      title: e.title,
+      desc: (e.promoters || []).map(p => p.name).join(" × "),
+      meta: `📅 ${new Date(e.date).toLocaleDateString('fr-FR', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      })}${e.venue ? ` · 📍 ${e.venue}` : ''}`
+    })));
+  })(), collectifs.filter(c => c.manual).length > 0 && React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      marginTop: 10
+    }
+  }, collectifs.filter(c => c.manual).map(c => React.createElement("a", {
+    key: c.id,
+    href: c.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "press",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 12,
+      padding: '11px 14px',
+      textDecoration: 'none',
+      color: 'inherit'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, "\uD83D\uDD17"), React.createElement("span", {
+    style: {
+      flex: 1,
+      fontWeight: 700,
+      fontSize: 14,
+      fontFamily: 'var(--font-body)',
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, c.name), React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: 'var(--ink-400)',
+      flexShrink: 0
+    }
+  }, "voir ses soir\xE9es \u2197"))))), React.createElement("div", {
+    style: {
+      padding: "14px 20px 4px"
+    }
+  }, React.createElement("div", {
     className: "mono-label",
     style: {
       marginBottom: 8
@@ -13397,95 +13987,21 @@ function App() {
     style: {
       display: "flex",
       flexDirection: "column",
-      gap: 10
+      gap: 14
     }
   }, qfapList.map((e, i) => {
     const free = e.price === "Gratuit";
-    return React.createElement("button", {
+    return React.createElement(BigEventCard, {
       key: e.id || i,
       onClick: () => setQfapPeek(e),
-      className: "press",
-      style: {
-        display: 'flex',
-        gap: 12,
-        alignItems: 'center',
-        textAlign: 'left',
-        padding: 10,
-        cursor: 'pointer',
-        background: "#fff",
-        border: "1px solid var(--hairline)",
-        borderRadius: "var(--radius-lg)",
-        overflow: "hidden",
-        color: "inherit",
-        boxShadow: "var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))"
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 72,
-        height: 72,
-        borderRadius: 12,
-        overflow: 'hidden',
-        background: "#eee",
-        flexShrink: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 24
-      }
-    }, e.cover ? React.createElement("img", {
-      src: e.cover,
-      alt: "",
-      loading: "lazy",
-      style: {
-        width: "100%",
-        height: "100%",
-        objectFit: "cover"
-      },
-      onError: ev => {
-        ev.target.style.display = 'none';
-      }
-    }) : "🎫"), React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, React.createElement("span", {
-      style: {
-        display: "inline-block",
-        background: free ? "var(--pop-lime)" : "var(--pop-violet)",
-        color: free ? "var(--ink-900)" : "#fff",
-        fontSize: 10.5,
-        fontWeight: 700,
-        borderRadius: 999,
-        padding: "2px 8px",
-        marginBottom: 4
-      }
-    }, free ? "GRATUIT" : e.tag || "Event"), React.createElement("div", {
-      style: {
-        fontFamily: "var(--font-display)",
-        fontWeight: 800,
-        fontSize: 14.5,
-        lineHeight: 1.15,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, e.title || ""), React.createElement("div", {
-      style: {
-        fontSize: 11.5,
-        color: "var(--ink-400)",
-        marginTop: 2,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, "\uD83D\uDCC5 ", eventDateLabel(e), e.venue ? ` · 📍 ${e.venue}` : '')), React.createElement("span", {
-      style: {
-        color: 'var(--ink-400)',
-        fontSize: 17,
-        flexShrink: 0
-      }
-    }, "\u203A"));
+      cover: e.cover,
+      badge: free ? "GRATUIT" : e.tag || "Event",
+      badgeBg: free ? "var(--pop-lime)" : "var(--pop-violet)",
+      badgeColor: free ? "var(--ink-900)" : "#fff",
+      title: e.title || "",
+      desc: e.desc,
+      meta: `📅 ${eventDateLabel(e)}${e.venue ? ` · 📍 ${e.venue}` : ''}`
+    });
   }))), qfapPeek && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
@@ -15173,6 +15689,33 @@ function App() {
     onNote: saveNote,
     onShare: shareSpot,
     onRevisit: revisitSpot
+  }), showCollectifSearch && React.createElement(CollectifSearchModal, {
+    onSearch: q => window.spotaneProxy ? window.spotaneProxy("raSearch", {
+      q
+    }) : Promise.reject(new Error("Connecte-toi d'abord ✨")),
+    followedIds: new Set(collectifs.map(c => c.id)),
+    onFollow: p => {
+      setCollectifs(cs => cs.some(x => x.id === p.id) ? cs : [...cs, {
+        id: p.id,
+        name: p.name
+      }]);
+      window.mspToast?.(`Tu suis ${p.name} 🎛️`, "success");
+    },
+    onFollowManual: (name, url) => {
+      const u = url.startsWith("http") ? url : "https://" + url;
+      setCollectifs(cs => [...cs, {
+        id: "m" + Date.now(),
+        name,
+        url: u,
+        manual: true
+      }]);
+      window.mspToast?.(`Tu suis ${name} 🔗`, "success");
+      setShowCollectifSearch(false);
+    },
+    onClose: () => setShowCollectifSearch(false),
+    suggestions: raSuggestions,
+    sugLoading: raLoading,
+    countFor: id => raEvents.filter(e => (e.promoters || []).some(p => p.id === id)).length
   }), showListForm && React.createElement(ListFormModal, {
     onCreate: (name, emoji) => {
       const id = createList(name, emoji);
