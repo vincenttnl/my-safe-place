@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T12:59:20.824Z -->
+<!-- built 2026-07-11T13:26:06.218Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3571,6 +3571,33 @@ async function supaDeleteAccount(token) {
     throw new Error("Suppression impossible (" + r.status + ")" + (t ? " " + t.slice(0, 80) : ""));
   }
   return true;
+}
+async function supaPullUserData(token) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/user_data?select=key,data,updated_at`, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`
+    }
+  });
+  if (!r.ok) throw new Error("pull data " + r.status);
+  return r.json();
+}
+async function supaPushUserData(token, key, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/user_data?on_conflict=user_id,key`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal"
+    },
+    body: JSON.stringify([{
+      key,
+      data,
+      updated_at: new Date().toISOString()
+    }])
+  });
+  if (!r.ok) throw new Error("push data " + r.status);
 }
 async function supaPullUserSpots(token) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/user_spots?select=spot_id,data,deleted,updated_at`, {
@@ -10732,6 +10759,80 @@ function App() {
       window.spotaneProxy = null;
     };
   }, [session]);
+  const dsMetaRef = useRef((() => {
+    try {
+      return JSON.parse(localStorage.getItem("myplace_datasync_meta_v1") || "{}");
+    } catch {
+      return {};
+    }
+  })());
+  const dsSaveMeta = () => {
+    try {
+      localStorage.setItem("myplace_datasync_meta_v1", JSON.stringify(dsMetaRef.current));
+    } catch {}
+  };
+  const dsTimersRef = useRef({});
+  const dsReadyRef = useRef(false);
+  const dsPush = (key, value) => {
+    if (!dsReadyRef.current) return;
+    const m = dsMetaRef.current;
+    m[key] = {
+      ...(m[key] || {}),
+      mod: Date.now()
+    };
+    dsSaveMeta();
+    if (!sessionRef.current) return;
+    clearTimeout(dsTimersRef.current[key]);
+    dsTimersRef.current[key] = setTimeout(async () => {
+      try {
+        const tok = await validToken(sessionRef.current);
+        await supaPushUserData(tok, key, value);
+        m[key].push = Date.now();
+        dsSaveMeta();
+      } catch (e) {}
+    }, 1800);
+  };
+  const dsPull = async sess => {
+    if (!sess) return;
+    try {
+      const tok = await validToken(sess);
+      const rows = await supaPullUserData(tok);
+      const apply = {
+        lists: setLists,
+        collectifs: setCollectifs,
+        events: setEvents,
+        contacts: setContacts
+      };
+      const m = dsMetaRef.current;
+      rows.forEach(r => {
+        const remoteTs = Date.parse(r.updated_at) || 0;
+        const localMod = (m[r.key] || {}).mod || 0;
+        if (remoteTs > localMod && apply[r.key] && Array.isArray(r.data)) {
+          apply[r.key](r.data);
+          m[r.key] = {
+            mod: remoteTs,
+            push: remoteTs
+          };
+        }
+      });
+      dsSaveMeta();
+    } catch (e) {}
+  };
+  useEffect(() => {
+    dsPush("lists", lists);
+  }, [lists]);
+  useEffect(() => {
+    dsPush("collectifs", collectifs);
+  }, [collectifs]);
+  useEffect(() => {
+    dsPush("events", events);
+  }, [events]);
+  useEffect(() => {
+    dsPush("contacts", contacts);
+  }, [contacts]);
+  useEffect(() => {
+    dsReadyRef.current = true;
+  }, []);
   const fullSync = async sess => {
     if (!sess) return;
     setSyncState("syncing");
@@ -10869,6 +10970,7 @@ function App() {
     sessionRef.current = sess;
     syncProfile(sess);
     await fullSync(sess);
+    dsPull(sess);
     window.mspToast?.("Connecté — synchro activée ✓", "success");
   };
   const syncProfile = async sess => {
@@ -11023,6 +11125,7 @@ function App() {
         if (s) syncSnapRef.current = JSON.parse(s);
       } catch {}
       fullSync(session);
+      dsPull(session);
     }
   }, []);
   useEffect(() => {
