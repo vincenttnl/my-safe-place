@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T12:41:26.741Z -->
+<!-- built 2026-07-11T12:59:20.824Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3144,6 +3144,47 @@ const CC = {
   club: "#DB2777",
   sortie: "#EA580C"
 };
+const MUSIC = [{
+  k: "techno",
+  l: "Techno",
+  e: "🔊"
+}, {
+  k: "house",
+  l: "House",
+  e: "🏠"
+}, {
+  k: "hardtech",
+  l: "Hard techno",
+  e: "⚡"
+}, {
+  k: "hiphop",
+  l: "Hip-hop",
+  e: "🎤"
+}, {
+  k: "reggaeton",
+  l: "Reggaeton",
+  e: "🔥"
+}, {
+  k: "afro",
+  l: "Afro",
+  e: "🪘"
+}, {
+  k: "disco",
+  l: "Disco/Funk",
+  e: "🪩"
+}, {
+  k: "rock",
+  l: "Rock",
+  e: "🎸"
+}, {
+  k: "jazz",
+  l: "Jazz",
+  e: "🎷"
+}, {
+  k: "live",
+  l: "Live",
+  e: "🎶"
+}];
 const CB = {
   resto: "#D6F5E0",
   cafe: "#EAE0D6",
@@ -6243,6 +6284,7 @@ function SpotFormModal({
   const [nCuisine, setNCuisine] = useState(Array.isArray(s?.tags?.cuisine) ? s.tags.cuisine : []);
   const [nWork, setNWork] = useState(!!s?.tags?.work);
   const [nVibe, setNVibe] = useState(Array.isArray(s?.tags?.vibe) ? s.tags.vibe : []);
+  const [nMusic, setNMusic] = useState(Array.isArray(s?.tags?.music) ? s.tags.music : []);
   const [enriching, setEnriching] = useState(false);
   const gMetaRef = useRef(s && s.grating ? {
     grating: s.grating,
@@ -6377,7 +6419,8 @@ function SpotFormModal({
         ...(s?.tags || {}),
         cuisine: nCuisine,
         work: nWork,
-        vibe: nVibe
+        vibe: nVibe,
+        music: nMusic
       }
     };
     if (gMetaRef.current) Object.assign(data, gMetaRef.current);
@@ -6632,6 +6675,35 @@ function SpotFormModal({
         color: '#fff'
       } : {}
     }, v.l);
+  }))), React.createElement("div", {
+    style: {
+      marginBottom: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      fontWeight: 700,
+      marginBottom: 6
+    }
+  }, "\uD83C\uDFB5 Musique"), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexWrap: "wrap",
+      gap: 6
+    }
+  }, MUSIC.map(m => {
+    const on = nMusic.includes(m.k);
+    return React.createElement("button", {
+      key: m.k,
+      onClick: () => setNMusic(n => on ? n.filter(x => x !== m.k) : [...n, m.k]),
+      className: `pill-btn${on ? " active" : ""}`,
+      style: on ? {
+        borderColor: '#0EA5E9',
+        background: '#0EA5E9',
+        color: '#fff'
+      } : {}
+    }, m.e, " ", m.l);
   }))), React.createElement("button", {
     onClick: () => setNWork(w => !w),
     className: `pill-btn${nWork ? " active" : ""}`,
@@ -6837,7 +6909,29 @@ function SpotDetail({
       gap: 6,
       alignItems: 'center'
     }
-  }, m))), spot.desc && React.createElement("p", {
+  }, m))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      flexWrap: "wrap",
+      marginTop: 10
+    }
+  }, spot.tags.music.map(k => {
+    const m = MUSIC.find(x => x.k === k);
+    return m && React.createElement("span", {
+      key: k,
+      style: {
+        background: '#E0F2FE',
+        color: '#0369A1',
+        border: '1px solid #7DD3FC',
+        padding: '5px 11px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        fontWeight: 700
+      }
+    }, m.e, " ", m.l);
+  })), spot.desc && React.createElement("p", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 15.5,
@@ -8285,7 +8379,20 @@ function CollectifRow({
       borderRadius: 12,
       background: '#fff'
     }
-  }, React.createElement("span", {
+  }, p.img ? React.createElement("img", {
+    src: p.img,
+    alt: "",
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      objectFit: 'cover',
+      flexShrink: 0
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  }) : React.createElement("span", {
     style: {
       fontSize: 18
     }
@@ -10461,6 +10568,7 @@ function App() {
   const [filter, setFilter] = useState("all");
   const [budgetF, setBudgetF] = useState([]);
   const [vibeF, setVibeF] = useState([]);
+  const [musicF, setMusicF] = useState([]);
   const [openNow, setOpenNow] = useState(false);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
@@ -11087,6 +11195,16 @@ function App() {
       n: count[id]
     }));
   }, [raEvents]);
+  const collectifImg = c => {
+    if (c.img) return c.img;
+    const n = (c.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!n) return "";
+    const sp = catalog.find(s => {
+      const sn = (s.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return sn && sn.length > 3 && (sn.includes(n) || n.includes(sn));
+    });
+    return sp ? firstPhoto(sp) : "";
+  };
   const shareSpot = spot => {
     if (!myName) {
       setPendingShareSpot(spot);
@@ -11805,15 +11923,16 @@ function App() {
       const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
       const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
+      const muOk = !musicF.length || musicF.some(m => s.tags?.music?.includes(m));
       let zOk = true;
       if (zones) {
         const type = CAT_TYPE[primaryCat(s)] || "sortie";
         const zList = type === "resto" ? zones.resto : zones.sortie;
         zOk = matchesZones(s, zList);
       }
-      return catOk && fOk && sOk && bOk && vbOk && zOk;
+      return catOk && fOk && sOk && bOk && vbOk && muOk && zOk;
     });
-  }, [spots, cat, filter, search, budgetF, vibeF, zones, openNow]);
+  }, [spots, cat, filter, search, budgetF, vibeF, musicF, zones, openNow]);
   const sortedVisible = useMemo(() => {
     const arr = [...visible];
     const extractPrice = p => {
@@ -11835,9 +11954,10 @@ function App() {
       const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
       const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
-      return catOk && sOk && bOk && vbOk;
+      const muOk = !musicF.length || musicF.some(m => s.tags?.music?.includes(m));
+      return catOk && sOk && bOk && vbOk && muOk;
     });
-  }, [catalog, cat, search, budgetF, vibeF, openNow]);
+  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -13310,6 +13430,51 @@ function App() {
         flexShrink: 0
       }
     }, v.l);
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      overflowX: 'auto',
+      padding: '0 20px 14px',
+      scrollbarWidth: 'none'
+    }
+  }, (() => {
+    const active = musicF.length === 0;
+    return React.createElement("button", {
+      onClick: () => setMusicF([]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
+        background: active ? '#0EA5E9' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, "\uD83C\uDFB5 Tout");
+  })(), MUSIC.map(m => {
+    const active = musicF.includes(m.k);
+    return React.createElement("button", {
+      key: m.k,
+      onClick: () => setMusicF(p => active ? p.filter(x => x !== m.k) : [...p, m.k]),
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 12,
+        border: '1px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
+        background: active ? '#0EA5E9' : 'transparent',
+        color: active ? '#fff' : 'var(--ink-600)',
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, m.e, " ", m.l);
   }))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
     style: {
       padding: '20px 20px 0'
@@ -13804,12 +13969,29 @@ function App() {
       background: '#fff',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
-      padding: '5px 6px 5px 12px',
+      padding: '4px 6px 4px 5px',
       fontSize: 12.5,
       fontWeight: 600,
       fontFamily: 'var(--font-body)'
     }
-  }, c.name, React.createElement("button", {
+  }, collectifImg(c) ? React.createElement("img", {
+    src: collectifImg(c),
+    alt: "",
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: 999,
+      objectFit: 'cover'
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  }) : React.createElement("span", {
+    style: {
+      fontSize: 13,
+      paddingLeft: 4
+    }
+  }, "\uD83C\uDF9B\uFE0F"), c.name, React.createElement("button", {
     onClick: () => setCollectifs(cs => cs.filter(x => x.id !== c.id)),
     "aria-label": `Ne plus suivre ${c.name}`,
     style: {
@@ -13823,7 +14005,67 @@ function App() {
       color: 'var(--ink-600)',
       lineHeight: 1
     }
-  }, "\u2715")))), collectifs.length === 0 ? React.createElement("div", {
+  }, "\u2715")))), collectifs.filter(c => c.manual).length > 0 && React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      marginBottom: 12
+    }
+  }, collectifs.filter(c => c.manual).map(c => React.createElement("a", {
+    key: c.id,
+    href: c.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    className: "press",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 12,
+      padding: '10px 14px',
+      textDecoration: 'none',
+      color: 'inherit',
+      boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
+    }
+  }, collectifImg(c) ? React.createElement("img", {
+    src: collectifImg(c),
+    alt: "",
+    style: {
+      width: 38,
+      height: 38,
+      borderRadius: 10,
+      objectFit: 'cover',
+      flexShrink: 0
+    },
+    onError: e => {
+      e.target.style.display = 'none';
+    }
+  }) : React.createElement("span", {
+    style: {
+      fontSize: 17
+    }
+  }, "\uD83C\uDF9F\uFE0F"), React.createElement("span", {
+    style: {
+      flex: 1,
+      fontWeight: 700,
+      fontSize: 14.5,
+      fontFamily: 'var(--font-body)',
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
+    }
+  }, c.name), React.createElement("span", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--pop-pink)',
+      fontWeight: 700,
+      flexShrink: 0
+    }
+  }, "ses soir\xE9es \u2197")))), collectifs.length === 0 ? React.createElement("div", {
     style: {
       background: '#fff',
       border: '1px solid var(--hairline)',
@@ -13908,52 +14150,7 @@ function App() {
         month: 'short'
       })}${e.venue ? ` · 📍 ${e.venue}` : ''}`
     })));
-  })(), collectifs.filter(c => c.manual).length > 0 && React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 8,
-      marginTop: 10
-    }
-  }, collectifs.filter(c => c.manual).map(c => React.createElement("a", {
-    key: c.id,
-    href: c.url,
-    target: "_blank",
-    rel: "noopener noreferrer",
-    className: "press",
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10,
-      background: '#fff',
-      border: '1px solid var(--hairline)',
-      borderRadius: 12,
-      padding: '11px 14px',
-      textDecoration: 'none',
-      color: 'inherit'
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 16
-    }
-  }, "\uD83D\uDD17"), React.createElement("span", {
-    style: {
-      flex: 1,
-      fontWeight: 700,
-      fontSize: 14,
-      fontFamily: 'var(--font-body)',
-      minWidth: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, c.name), React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: 'var(--ink-400)',
-      flexShrink: 0
-    }
-  }, "voir ses soir\xE9es \u2197"))))), React.createElement("div", {
+  })()), React.createElement("div", {
     style: {
       padding: "14px 20px 4px"
     }
@@ -15697,7 +15894,8 @@ function App() {
     onFollow: p => {
       setCollectifs(cs => cs.some(x => x.id === p.id) ? cs : [...cs, {
         id: p.id,
-        name: p.name
+        name: p.name,
+        img: p.img || ""
       }]);
       window.mspToast?.(`Tu suis ${p.name} 🎛️`, "success");
     },
