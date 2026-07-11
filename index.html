@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T15:52:03.652Z -->
+<!-- built 2026-07-11T16:05:33.509Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8428,6 +8428,130 @@ function OnboardingFlow({
   }
   return null;
 }
+function PremiumModal({
+  onClose
+}) {
+  const PERKS = [["🚇", "Itinéraires métro/RER intégrés", "le trajet vers chaque spot, sans quitter l'app"], ["🧠", "Recherche avancée", "« rooftop tranquille pour un date » — comprise à tous les coups"], ["📁", "Listes collaboratives", "construis « Notre été » à plusieurs"], ["✈️", "Mode hors-ligne", "tes spots et cartes, même sans réseau"], ["⚡", "Accès anticipé", "les nouveautés avant tout le monde"]];
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    onClick: onClose
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    onClick: e => e.stopPropagation(),
+    style: {
+      padding: 0,
+      overflow: 'hidden'
+    }
+  }, React.createElement("div", {
+    style: {
+      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+      color: '#fff',
+      padding: '26px 20px 22px',
+      textAlign: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 40,
+      lineHeight: 1
+    }
+  }, "\uD83D\uDC8E"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 30,
+      letterSpacing: '-0.02em',
+      marginTop: 8
+    }
+  }, "Spotane+"), React.createElement("div", {
+    style: {
+      fontSize: 14,
+      opacity: .9,
+      marginTop: 4,
+      fontFamily: 'var(--font-body)'
+    }
+  }, "3,99 \u20AC / mois \xB7 sans engagement")), React.createElement("div", {
+    style: {
+      padding: '18px 20px 20px'
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 13
+    }
+  }, PERKS.map(([e, t, d]) => React.createElement("div", {
+    key: t,
+    style: {
+      display: 'flex',
+      gap: 12,
+      alignItems: 'flex-start'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 20,
+      flexShrink: 0,
+      marginTop: 1
+    }
+  }, e), React.createElement("div", null, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 14.5
+    }
+  }, t), React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--ink-400)',
+      marginTop: 1,
+      lineHeight: 1.4
+    }
+  }, d))))), React.createElement("div", {
+    style: {
+      marginTop: 16,
+      background: 'var(--bg-cream)',
+      borderRadius: 12,
+      padding: '11px 14px',
+      fontSize: 12.5,
+      color: 'var(--ink-600)',
+      lineHeight: 1.5,
+      fontFamily: 'var(--font-body)'
+    }
+  }, "\uD83E\uDD1D Et le gratuit reste g\xE9n\xE9reux : spots illimit\xE9s, partage illimit\xE9, photos, toutes les villes, sync multi-appareils. ", React.createElement("strong", null, "Le c\u0153ur de Spotane ne sera jamais payant.")), React.createElement("button", {
+    onClick: () => {
+      window.mspToast?.("Spotane+ arrive en septembre — tu seras dans les premiers 😏", "success");
+      onClose();
+    },
+    className: "press",
+    style: {
+      marginTop: 16,
+      width: '100%',
+      padding: 16,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 16,
+      cursor: 'pointer',
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "\uD83D\uDC8E Je veux Spotane+"), React.createElement("button", {
+    onClick: onClose,
+    style: {
+      marginTop: 10,
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)'
+    }
+  }, "Plus tard"))));
+}
 const LIST_EMOJIS = ["📁", "❤️", "🍸", "🍽️", "🌙", "☀️", "🎉", "💎", "🏙️", "🔥", "🎯", "🧺"];
 function ListFormModal({
   onCreate,
@@ -10831,6 +10955,7 @@ function App() {
   const [raEvents, setRaEvents] = useState([]);
   const [raLoading, setRaLoading] = useState(false);
   const [showCollectifSearch, setShowCollectifSearch] = useState(false);
+  const [showPremium, setShowPremium] = useState(false);
   const [lists, setLists] = useState(() => {
     try {
       const raw = localStorage.getItem(LSTK);
@@ -15992,7 +16117,63 @@ function App() {
       avatar: avatar,
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount
-    }), session && React.createElement("div", {
+    }), !isPremium && React.createElement("button", {
+      onClick: () => setShowPremium(true),
+      className: "press",
+      style: {
+        marginTop: 14,
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 13,
+        background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 18px',
+        cursor: 'pointer',
+        boxShadow: '0 8px 22px rgba(124,58,237,.35)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 28,
+        flexShrink: 0
+      }
+    }, "\uD83D\uDC8E"), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        lineHeight: 1.1
+      }
+    }, "Spotane+"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .85,
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, "Itin\xE9raires m\xE9tro \xB7 recherche avanc\xE9e \xB7 hors-ligne")), React.createElement("span", {
+      style: {
+        background: 'rgba(255,255,255,.22)',
+        borderRadius: 999,
+        padding: '7px 13px',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "3,99 \u20AC/mois")), session && React.createElement("div", {
       style: {
         marginTop: 14,
         background: '#fff',
@@ -16978,6 +17159,8 @@ function App() {
     onShare: shareSpot,
     onRevisit: revisitSpot,
     onSecret: toggleSecret
+  }), showPremium && React.createElement(PremiumModal, {
+    onClose: () => setShowPremium(false)
   }), friendInvite && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
