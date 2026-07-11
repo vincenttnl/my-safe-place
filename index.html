@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-10T23:21:12.557Z -->
+<!-- built 2026-07-11T00:58:58.402Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3183,6 +3183,8 @@ const SNAPK = "myplace_sync_snap_v1";
 const AVK = "myplace_avatar_v1";
 const OBK = "myplace_onboarding_done_v1";
 const CITYK = "myplace_city_v1";
+const LSTK = "myplace_lists_v1";
+const FREE_LISTS_MAX = Infinity;
 const CITIES = {
   paris: {
     label: "Paris",
@@ -6232,6 +6234,7 @@ function SpotDetail({
   onRemove,
   onEdit,
   onContactPicker,
+  onListPicker,
   onNote,
   onShare,
   preview,
@@ -6698,7 +6701,26 @@ function SpotDetail({
     style: {
       fontSize: 18
     }
-  }, b.i), React.createElement("span", null, b.t)))), React.createElement("div", {
+  }, b.i), React.createElement("span", null, b.t)))), React.createElement("button", {
+    onClick: () => onListPicker(spot),
+    className: "press",
+    style: {
+      marginTop: 10,
+      width: '100%',
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      padding: '13px',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13.5,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8
+    }
+  }, "\uD83D\uDCC1 Ajouter \xE0 une liste"), React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -7482,6 +7504,270 @@ function OnboardingFlow({
     }, "Let's go \uD83D\uDE80")))));
   }
   return null;
+}
+const LIST_EMOJIS = ["📁", "❤️", "🍸", "🍽️", "🌙", "☀️", "🎉", "💎", "🏙️", "🔥", "🎯", "🧺"];
+function ListFormModal({
+  onCreate,
+  onClose
+}) {
+  const [name, setName] = useState("");
+  const [emoji, setEmoji] = useState("📁");
+  const submit = () => {
+    if (!name.trim()) return;
+    onCreate(name, emoji);
+  };
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    onClick: onClose
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 24,
+      lineHeight: 1.1,
+      marginBottom: 4
+    }
+  }, "Nouvelle liste \uD83D\uDCC1"), React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: 'var(--ink-400)',
+      marginBottom: 14
+    }
+  }, "Comme une playlist : range tes spots par envie, moment ou occasion."), React.createElement("input", {
+    value: name,
+    onChange: e => setName(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter") submit();
+    },
+    placeholder: "Date parfait, Resto du midi\u2026",
+    className: "input-v2",
+    autoFocus: true,
+    maxLength: 40,
+    style: {
+      fontSize: 16,
+      fontWeight: 600
+    }
+  }), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      flexWrap: 'wrap',
+      margin: '14px 0 4px'
+    }
+  }, LIST_EMOJIS.map(em => React.createElement("button", {
+    key: em,
+    onClick: () => setEmoji(em),
+    style: {
+      width: 42,
+      height: 42,
+      fontSize: 20,
+      borderRadius: 12,
+      cursor: 'pointer',
+      border: '2px solid ' + (emoji === em ? 'var(--pop-pink)' : 'var(--hairline)'),
+      background: emoji === em ? '#FFF0F6' : '#fff'
+    }
+  }, em))), React.createElement("button", {
+    onClick: submit,
+    disabled: !name.trim(),
+    className: "press",
+    style: {
+      marginTop: 14,
+      width: '100%',
+      padding: 15,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: name.trim() ? 'var(--ink-900)' : 'var(--hairline)',
+      color: name.trim() ? '#fff' : 'var(--ink-400)',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 16,
+      cursor: name.trim() ? 'pointer' : 'default',
+      boxShadow: name.trim() ? 'var(--shadow-pop)' : 'none'
+    }
+  }, "Cr\xE9er la liste"), React.createElement("button", {
+    onClick: onClose,
+    style: {
+      marginTop: 10,
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)'
+    }
+  }, "Annuler")));
+}
+function ListPickerModal({
+  spot,
+  lists,
+  onToggle,
+  onCreate,
+  canCreate,
+  onClose
+}) {
+  const [newName, setNewName] = useState("");
+  return React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    onClick: onClose
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    onClick: e => e.stopPropagation()
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 22,
+      lineHeight: 1.15,
+      marginBottom: 2
+    }
+  }, "Ajouter \xE0 une liste"), React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginBottom: 14,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, spot.name), lists.length === 0 && React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: 'var(--ink-400)',
+      background: 'var(--bg-cream)',
+      borderRadius: 12,
+      padding: '12px 14px',
+      marginBottom: 12
+    }
+  }, "Pas encore de liste \u2014 cr\xE9e la premi\xE8re juste en dessous \uD83D\uDC47"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      maxHeight: '38vh',
+      overflowY: 'auto'
+    }
+  }, lists.map(l => {
+    const inside = l.spotIds.includes(spot.id);
+    return React.createElement("button", {
+      key: l.id,
+      onClick: () => onToggle(l.id),
+      className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        textAlign: 'left',
+        padding: '11px 13px',
+        borderRadius: 14,
+        cursor: 'pointer',
+        border: '2px solid ' + (inside ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: inside ? '#FFF0F6' : '#fff'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 22
+      }
+    }, l.emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, l.name), React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-400)'
+      }
+    }, l.spotIds.length, " spot", l.spotIds.length > 1 ? 's' : '')), React.createElement("span", {
+      style: {
+        width: 24,
+        height: 24,
+        borderRadius: 999,
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 13,
+        fontWeight: 800,
+        background: inside ? 'var(--pop-pink)' : 'var(--hairline)',
+        color: '#fff'
+      }
+    }, inside ? "✓" : "+"));
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 12
+    }
+  }, React.createElement("input", {
+    value: newName,
+    onChange: e => setNewName(e.target.value),
+    onKeyDown: e => {
+      if (e.key === "Enter" && newName.trim() && canCreate) {
+        onCreate(newName);
+        setNewName("");
+      }
+    },
+    placeholder: canCreate ? "+ Nouvelle liste…" : "Spotane+ pour plus de listes ✨",
+    disabled: !canCreate,
+    className: "input-v2",
+    style: {
+      flex: 1,
+      fontSize: 14
+    }
+  }), React.createElement("button", {
+    onClick: () => {
+      if (newName.trim() && canCreate) {
+        onCreate(newName);
+        setNewName("");
+      }
+    },
+    disabled: !newName.trim() || !canCreate,
+    className: "press",
+    style: {
+      padding: '0 16px',
+      borderRadius: 12,
+      border: 'none',
+      background: newName.trim() && canCreate ? 'var(--ink-900)' : 'var(--hairline)',
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 14,
+      cursor: 'pointer'
+    }
+  }, "OK")), React.createElement("button", {
+    onClick: onClose,
+    className: "press",
+    style: {
+      marginTop: 14,
+      width: '100%',
+      padding: 14,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 15,
+      cursor: 'pointer',
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "C'est bon \u2713")));
 }
 function EmptyState({
   icon,
@@ -9253,6 +9539,17 @@ function App() {
   const [pendingRecvSpot, setPendingRecvSpot] = useState(null);
   const [qfapList, setQfapList] = useState([]);
   const [qfapLoading, setQfapLoading] = useState(false);
+  const [lists, setLists] = useState(() => {
+    try {
+      const raw = localStorage.getItem(LSTK);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [openListId, setOpenListId] = useState(null);
+  const [listPickerFor, setListPickerFor] = useState(null);
+  const [showListForm, setShowListForm] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [pendingShareSpot, setPendingShareSpot] = useState(null);
   useEffect(() => {
@@ -9803,6 +10100,48 @@ function App() {
       if (myName) localStorage.setItem("myplace_username_v1", myName);
     } catch {}
   }, [myName]);
+  useEffect(() => {
+    try {
+      localStorage.setItem(LSTK, JSON.stringify(lists));
+    } catch {}
+  }, [lists]);
+  const createList = (name, emoji) => {
+    if (!name || !name.trim()) return null;
+    if (!isPremium && lists.length >= FREE_LISTS_MAX) {
+      window.mspToast?.(`${FREE_LISTS_MAX} listes en gratuit — Spotane+ arrive bientôt pour en créer plus ✨`, "error");
+      return null;
+    }
+    const l = {
+      id: Date.now(),
+      name: name.trim().slice(0, 40),
+      emoji: emoji || "📁",
+      spotIds: [],
+      visibility: "private",
+      pinned: false,
+      createdAt: Date.now()
+    };
+    setLists(ls => [...ls, l]);
+    window.mspHaptic?.(15);
+    window.mspToast?.(`Liste « ${l.name} » créée !`, "success");
+    return l.id;
+  };
+  const deleteList = id => {
+    setLists(ls => ls.filter(l => l.id !== id));
+    setOpenListId(null);
+    window.mspToast?.("Liste supprimée", "success");
+  };
+  const updateList = (id, patch) => setLists(ls => ls.map(l => l.id === id ? {
+    ...l,
+    ...patch
+  } : l));
+  const toggleSpotInList = (listId, spotId) => setLists(ls => ls.map(l => {
+    if (l.id !== listId) return l;
+    const has = l.spotIds.includes(spotId);
+    return {
+      ...l,
+      spotIds: has ? l.spotIds.filter(x => x !== spotId) : [...l.spotIds, spotId]
+    };
+  }));
   useEffect(() => {
     if (sharedRef && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname);
   }, []);
@@ -11000,6 +11339,352 @@ function App() {
       userPos: userPos
     }))))));
   };
+  const ListsView = () => {
+    const pnow = nowParis();
+    const smart = [{
+      key: "smart:fav",
+      emoji: "❤️",
+      name: "Favoris",
+      spots: spots.filter(s => s.fav && s.status !== "rejected")
+    }, {
+      key: "smart:open",
+      emoji: "🟢",
+      name: "Ouvert maintenant",
+      spots: spots.filter(s => s.status !== "rejected" && isOpenNow(s.hours, pnow) === true)
+    }];
+    const manual = [...lists].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || a.createdAt - b.createdAt);
+    if (openListId) {
+      const isSmart = String(openListId).startsWith("smart:");
+      const sm = smart.find(x => x.key === openListId);
+      const li = lists.find(l => l.id === openListId);
+      if (!isSmart && !li) {
+        setOpenListId(null);
+        return null;
+      }
+      const items = isSmart ? sm ? sm.spots : [] : li.spotIds.map(id => spots.find(s => s.id === id)).filter(Boolean);
+      return React.createElement("div", {
+        style: {
+          padding: '16px 20px 0'
+        }
+      }, React.createElement("button", {
+        onClick: () => setOpenListId(null),
+        style: {
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 600,
+          fontSize: 14,
+          color: 'var(--ink-400)',
+          padding: '4px 0',
+          marginBottom: 6
+        }
+      }, "\u2190 Listes"), React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 4
+        }
+      }, React.createElement("span", {
+        style: {
+          fontSize: 34
+        }
+      }, isSmart ? sm.emoji : li.emoji), React.createElement("div", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-display)',
+          fontWeight: 900,
+          fontSize: 26,
+          letterSpacing: '-0.015em',
+          lineHeight: 1.05
+        }
+      }, isSmart ? sm.name : li.name), React.createElement("div", {
+        style: {
+          fontSize: 12.5,
+          color: 'var(--ink-400)',
+          marginTop: 2
+        }
+      }, items.length, " spot", items.length > 1 ? 's' : '', isSmart ? ' · mise à jour automatique' : '')), !isSmart && React.createElement("button", {
+        onClick: () => updateList(li.id, {
+          pinned: !li.pinned
+        }),
+        className: "press",
+        title: "\xC9pingler",
+        style: {
+          background: li.pinned ? 'var(--pop-pink)' : '#fff',
+          border: '1px solid ' + (li.pinned ? 'transparent' : 'var(--hairline)'),
+          borderRadius: 999,
+          width: 38,
+          height: 38,
+          cursor: 'pointer',
+          fontSize: 16,
+          flexShrink: 0
+        }
+      }, "\uD83D\uDCCC")), !isSmart && React.createElement("div", {
+        style: {
+          display: 'flex',
+          gap: 6,
+          flexWrap: 'wrap',
+          margin: '10px 0 4px'
+        }
+      }, [["private", "🔒 Privée"], ["friends", "👥 Amis"], ["link", "🔗 Lien"]].map(([k, l]) => React.createElement("button", {
+        key: k,
+        onClick: () => {
+          updateList(li.id, {
+            visibility: k
+          });
+          if (k !== "private") window.mspToast?.("Le partage de listes arrive bientôt — réglage enregistré ✨", "success");
+        },
+        style: {
+          padding: '6px 12px',
+          borderRadius: 999,
+          fontFamily: 'var(--font-body)',
+          fontWeight: 600,
+          fontSize: 12,
+          border: '1px solid ' + (li.visibility === k ? 'var(--pop-violet)' : 'var(--hairline)'),
+          background: li.visibility === k ? 'var(--pop-violet)' : 'transparent',
+          color: li.visibility === k ? '#fff' : 'var(--ink-600)',
+          cursor: 'pointer'
+        }
+      }, l)), React.createElement("div", {
+        style: {
+          flex: 1
+        }
+      }), React.createElement("button", {
+        onClick: () => {
+          if (window.confirm(`Supprimer la liste « ${li.name} » ? (les spots restent dans Mes spots)`)) deleteList(li.id);
+        },
+        style: {
+          padding: '6px 12px',
+          borderRadius: 999,
+          fontFamily: 'var(--font-body)',
+          fontWeight: 600,
+          fontSize: 12,
+          border: '1px solid var(--hairline)',
+          background: 'transparent',
+          color: '#B91C1C',
+          cursor: 'pointer'
+        }
+      }, "\uD83D\uDDD1 Supprimer")), React.createElement("div", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 14,
+          paddingTop: 14
+        }
+      }, items.length === 0 && React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '34vh'
+        }
+      }, React.createElement(EmptyState, {
+        icon: isSmart ? sm.emoji : "📁",
+        title: isSmart ? openListId === "smart:fav" ? "Aucun favori pour l'instant" : "Rien d'ouvert là, tout de suite" : "Cette liste est vide",
+        hint: isSmart ? openListId === "smart:fav" ? "Tape ♥ sur un spot pour le retrouver ici." : "Les spots avec horaires connus apparaissent ici quand ils sont ouverts." : "Ouvre un spot et tape « Ajouter à une liste » pour la remplir."
+      })), items.map(s => React.createElement("div", {
+        key: s.id,
+        style: {
+          position: 'relative'
+        }
+      }, React.createElement(CleanSpotCard, {
+        s: s,
+        onOpen: () => setSelectedSpot(s),
+        userPos: userPos
+      }), !isSmart && React.createElement("button", {
+        onClick: e => {
+          e.stopPropagation();
+          toggleSpotInList(li.id, s.id);
+        },
+        title: "Retirer de la liste",
+        style: {
+          position: 'absolute',
+          top: 10,
+          right: 10,
+          width: 30,
+          height: 30,
+          borderRadius: 999,
+          border: 'none',
+          background: 'rgba(23,23,38,.72)',
+          color: '#fff',
+          fontSize: 14,
+          cursor: 'pointer',
+          zIndex: 3,
+          backdropFilter: 'blur(4px)'
+        }
+      }, "\u2715")))));
+    }
+    return React.createElement("div", {
+      style: {
+        padding: '18px 20px 0'
+      }
+    }, React.createElement("div", {
+      className: "mono-label",
+      style: {
+        marginBottom: 12
+      }
+    }, "\u26A1 Listes intelligentes"), React.createElement("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 12,
+        marginBottom: 24
+      }
+    }, smart.map(sl => React.createElement("button", {
+      key: sl.key,
+      onClick: () => setOpenListId(sl.key),
+      className: "press",
+      style: {
+        textAlign: 'left',
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '14px 14px 12px',
+        cursor: 'pointer',
+        boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 26,
+        marginBottom: 6
+      }
+    }, sl.emoji), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 800,
+        fontSize: 16,
+        lineHeight: 1.1
+      }
+    }, sl.name), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 3
+      }
+    }, sl.spots.length, " spot", sl.spots.length > 1 ? 's' : '', " \xB7 auto")))), React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      className: "mono-label"
+    }, "\uD83D\uDCC1 Mes listes", lists.length > 0 ? ` · ${lists.length}` : ''), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("button", {
+      onClick: () => {
+        if (!isPremium && lists.length >= FREE_LISTS_MAX) {
+          window.mspToast?.(`${FREE_LISTS_MAX} listes en gratuit — Spotane+ arrive bientôt ✨`, "error");
+          return;
+        }
+        setShowListForm(true);
+      },
+      className: "press",
+      style: {
+        padding: '7px 14px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 12.5,
+        fontFamily: 'var(--font-body)',
+        cursor: 'pointer'
+      }
+    }, "+ Nouvelle liste")), manual.length === 0 && React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '30vh'
+      }
+    }, React.createElement(EmptyState, {
+      icon: "\uD83D\uDCC1",
+      title: "Tes listes, comme des playlists",
+      hint: "Date parfait, resto du midi, \xE0 tester ce mois-ci\u2026 Cr\xE9e ta premi\xE8re liste et range tes spots \xE0 ta fa\xE7on.",
+      cta: "+ Cr\xE9er ma premi\xE8re liste",
+      onCta: () => setShowListForm(true)
+    })), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        paddingBottom: 8
+      }
+    }, manual.map(l => {
+      const vis = l.visibility === "friends" ? "👥" : l.visibility === "link" ? "🔗" : "🔒";
+      const preview = l.spotIds.map(id => spots.find(s => s.id === id)).filter(Boolean).slice(0, 3);
+      return React.createElement("button", {
+        key: l.id,
+        onClick: () => setOpenListId(l.id),
+        className: "press",
+        style: {
+          textAlign: 'left',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 13,
+          background: '#fff',
+          border: '1px solid var(--hairline)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '13px 15px',
+          cursor: 'pointer',
+          boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
+        }
+      }, React.createElement("span", {
+        style: {
+          fontSize: 28,
+          flexShrink: 0
+        }
+      }, l.emoji), React.createElement("div", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6
+        }
+      }, React.createElement("span", {
+        style: {
+          fontFamily: 'var(--font-display)',
+          fontWeight: 800,
+          fontSize: 16.5,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, l.name), l.pinned && React.createElement("span", {
+        style: {
+          fontSize: 12
+        }
+      }, "\uD83D\uDCCC")), React.createElement("div", {
+        style: {
+          fontSize: 12,
+          color: 'var(--ink-400)',
+          marginTop: 2,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, vis, " \xB7 ", l.spotIds.length, " spot", l.spotIds.length > 1 ? 's' : '', preview.length > 0 ? ` · ${preview.map(s => s.name).join(", ")}` : '')), React.createElement("span", {
+        style: {
+          color: 'var(--ink-400)',
+          fontSize: 18,
+          flexShrink: 0
+        }
+      }, "\u203A"));
+    })));
+  };
   const SpotsTab = () => React.createElement("div", {
     style: {
       paddingBottom: 100
@@ -11184,7 +11869,51 @@ function App() {
       boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
       border: '2px solid var(--bg-cream)'
     }
-  }, sortedVisible.length)), React.createElement("div", {
+  }, sortedVisible.length)), React.createElement("button", {
+    onClick: () => {
+      setSearchMode("lists");
+      setOpenListId(null);
+    },
+    className: "press",
+    style: {
+      position: 'relative',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      padding: '9px 15px',
+      borderRadius: 999,
+      background: searchMode === "lists" ? 'var(--pop-pink)' : '#fff',
+      color: searchMode === "lists" ? '#fff' : 'var(--ink-600)',
+      border: searchMode === "lists" ? '1px solid transparent' : '1px solid var(--hairline)',
+      boxShadow: searchMode === "lists" ? 'var(--shadow-pop)' : 'none',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      cursor: 'pointer',
+      transition: 'all .18s var(--ease)'
+    }
+  }, "Listes \uD83D\uDCC1", lists.length > 0 && React.createElement("span", {
+    style: {
+      position: 'absolute',
+      top: -8,
+      right: -4,
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      minWidth: 19,
+      height: 19,
+      fontSize: 11,
+      fontWeight: 800,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 5px',
+      borderRadius: 999,
+      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+      border: '2px solid var(--bg-cream)'
+    }
+  }, lists.length)), React.createElement("div", {
     style: {
       flex: 1
     }
@@ -11207,7 +11936,7 @@ function App() {
       fontFamily: 'var(--font-body)',
       cursor: 'pointer'
     }
-  }, "+ Ajouter")), React.createElement("div", {
+  }, "+ Ajouter")), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
       padding: '14px 0 4px',
@@ -11377,7 +12106,7 @@ function App() {
         flexShrink: 0
       }
     }, v.l);
-  }))), searchMode === "local" ? React.createElement("div", {
+  }))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
     style: {
       padding: '20px 20px 0'
     }
@@ -13347,8 +14076,31 @@ function App() {
       setSelectedSpot(null);
       setContactPickerFor(id);
     },
+    onListPicker: sp => {
+      setSelectedSpot(null);
+      setListPickerFor(sp);
+    },
     onNote: saveNote,
     onShare: shareSpot
+  }), showListForm && React.createElement(ListFormModal, {
+    onCreate: (name, emoji) => {
+      const id = createList(name, emoji);
+      if (id != null) setShowListForm(false);
+    },
+    onClose: () => setShowListForm(false)
+  }), listPickerFor && React.createElement(ListPickerModal, {
+    spot: listPickerFor,
+    lists: lists,
+    canCreate: isPremium || lists.length < FREE_LISTS_MAX,
+    onToggle: lid => toggleSpotInList(lid, listPickerFor.id),
+    onCreate: name => {
+      const id = createList(name, "📁");
+      if (id != null) setLists(ls => ls.map(l => l.id === id ? {
+        ...l,
+        spotIds: [listPickerFor.id]
+      } : l));
+    },
+    onClose: () => setListPickerFor(null)
   }), tab === "map" && peekSpot && (() => {
     const navList = mapSource;
     const idx = navList.findIndex(s => s.id === peekSpot.id);
