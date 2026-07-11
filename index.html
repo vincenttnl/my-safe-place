@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T14:43:33.740Z -->
+<!-- built 2026-07-11T14:55:38.186Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -10865,6 +10865,60 @@ function App() {
       d: dist(s)
     }));
   }, [tab, spots, catalog, userPos]);
+  const homeResume = useMemo(() => {
+    if (tab !== "home") return null;
+    const now = Date.now();
+    const soon = [...events].filter(ev => {
+      const d = new Date(ev.date) - new Date(new Date().toDateString());
+      return d >= 0 && d <= 2 * 864e5;
+    }).sort((a, b) => new Date(a.date) - new Date(b.date))[0];
+    if (soon) return {
+      emoji: "📅",
+      title: `${soon.name}, c'est ${formatRelDate(soon.date).toLowerCase()} !`,
+      sub: soon.lieu ? `📍 ${soon.lieu}` : "Prépare ton plan",
+      cta: "Voir",
+      go: () => setTab("events")
+    };
+    const pnow = nowParis();
+    const envie = spots.find(s => s.status === "wishlist" && !s.done && s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
+    if (envie) return {
+      emoji: "🔥",
+      title: `Tu voulais tester ${envie.name}…`,
+      sub: "Et c'est ouvert, là, maintenant 👀",
+      cta: "La fiche",
+      go: () => setSelectedSpot(envie)
+    };
+    const noReact = spots.find(s => s.done && !s.reaction && s.lastVisitedAt && now - s.lastVisitedAt < 4 * 864e5);
+    if (noReact) return {
+      emoji: "💬",
+      title: `Alors, c'était comment ${noReact.name} ?`,
+      sub: "Mets ta réaction pour t'en souvenir",
+      cta: "Noter",
+      go: () => setReactionSpot(noReact)
+    };
+    const weekAdds = spots.filter(s => s.addedAt && now - s.addedAt < 7 * 864e5 && s.status !== "rejected").length;
+    if (weekAdds >= 2) return {
+      emoji: "✨",
+      title: `${weekAdds} spots ajoutés cette semaine`,
+      sub: "Ta carte grandit — planifie ta prochaine sortie",
+      cta: "Les voir",
+      go: () => {
+        setSort("recent");
+        setFilter("all");
+        setSearchMode("local");
+        setTab("spots");
+      }
+    };
+    const fav = spots.find(s => s.fav && !s.done && s.status !== "rejected");
+    if (fav) return {
+      emoji: "❤️",
+      title: `${fav.name} t'attend toujours`,
+      sub: "Ton coup de cœur, jamais coché",
+      cta: "On y va ?",
+      go: () => setSelectedSpot(fav)
+    };
+    return null;
+  }, [tab, spots, events]);
   const [geoLoading, setGeoLoading] = useState(false);
   const requestGeo = () => {
     if (!navigator.geolocation) {
@@ -12575,7 +12629,63 @@ function App() {
       }, c.label), React.createElement("div", {
         className: "cat-count"
       }, count));
-    }))), React.createElement("div", {
+    }))), homeResume && React.createElement("div", {
+      style: {
+        padding: '22px 20px 0'
+      }
+    }, React.createElement("button", {
+      onClick: homeResume.go,
+      className: "press",
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 14,
+        background: 'linear-gradient(135deg,var(--ink-900),#33324A)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 18px',
+        cursor: 'pointer',
+        boxShadow: 'var(--shadow-pop)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 30,
+        flexShrink: 0
+      }
+    }, homeResume.emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        lineHeight: 1.15
+      }
+    }, homeResume.title), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .75,
+        marginTop: 3
+      }
+    }, homeResume.sub)), React.createElement("span", {
+      style: {
+        background: 'var(--pop-pink)',
+        borderRadius: 999,
+        padding: '8px 14px',
+        fontSize: 12.5,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        fontFamily: 'var(--font-body)'
+      }
+    }, homeResume.cta))), React.createElement("div", {
       style: {
         padding: '28px 0 0'
       }
