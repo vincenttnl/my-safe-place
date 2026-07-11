@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T16:20:49.871Z -->
+<!-- built 2026-07-11T16:37:35.617Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -7230,7 +7230,8 @@ function SpotDetail({
   onRevisit,
   onSecret,
   preview,
-  onAddPreview
+  onAddPreview,
+  friendsWith
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -7373,14 +7374,28 @@ function SpotDetail({
       color: 'var(--ink-400)',
       marginTop: 8
     }
-  }, "\uD83D\uDCCD ", spot.adresse), meta.length > 0 && React.createElement("div", {
+  }, "\uD83D\uDCCD ", spot.adresse), (meta.length > 0 || friendsWith && friendsWith.length > 0) && React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
       flexWrap: "wrap",
       marginTop: 14
     }
-  }, meta.map((m, i) => React.createElement("div", {
+  }, friendsWith && friendsWith.length > 0 && React.createElement("div", {
+    style: {
+      background: '#F3EEFF',
+      border: '1px solid #E4D9FF',
+      color: '#7C3AED',
+      padding: '8px 12px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      fontWeight: 700,
+      display: 'flex',
+      gap: 6,
+      alignItems: 'center'
+    }
+  }, "\uD83D\uDC65 ", friendsWith.length === 1 ? `${friendsWith[0]} l'a dans ses listes` : `${friendsWith.length} amis l'ont dans leurs listes`), meta.map((m, i) => React.createElement("div", {
     key: i,
     style: {
       background: 'var(--bg-cream)',
@@ -11687,10 +11702,14 @@ function App() {
     }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien d'invitation copié !", "success")).catch(() => window.mspToast?.("Impossible de copier", "error"));
   };
   useEffect(() => {
-    if (session && searchMode === "lists" && !friends.length && !friendsLoading) fetchFriends();
-  }, [session, searchMode]);
+    if (!session) return;
+    const t = setTimeout(() => {
+      if (!friendsLoading) fetchFriends();
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [session]);
   useEffect(() => {
-    if (!session || searchMode !== "lists" || !friends.length) return;
+    if (!session || !friends.length) return;
     let alive = true;
     (async () => {
       try {
@@ -11729,7 +11748,7 @@ function App() {
     return () => {
       alive = false;
     };
-  }, [session, searchMode, friends]);
+  }, [session, friends]);
   const importFriendList = (fl, items) => {
     const now = Date.now();
     const prepared = items.map(s => ({
@@ -11761,6 +11780,15 @@ function App() {
     window.mspPopEmoji?.("🎁");
     window.mspToast?.(`Liste « ${fl.name} » ajoutée chez toi !`, "success");
   };
+  const friendSpotMap = useMemo(() => {
+    const m = new Map();
+    friendLists.forEach(fl => fl.ids.forEach(id => {
+      const a = m.get(id) || [];
+      if (!a.includes(fl.by)) a.push(fl.by);
+      m.set(id, a);
+    }));
+    return m;
+  }, [friendLists]);
   const fullSync = async sess => {
     if (!sess) return;
     setSyncState("syncing");
@@ -15089,7 +15117,12 @@ function App() {
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
+    }, friendSpotMap.has(s.id) && React.createElement("span", {
+      style: {
+        color: '#7C3AED',
+        fontWeight: 700
+      }
+    }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
       title: "D\xE9j\xE0 dans Mes spots",
       style: {
         fontSize: 20,
@@ -17481,7 +17514,8 @@ function App() {
     onNote: saveNote,
     onShare: shareSpot,
     onRevisit: revisitSpot,
-    onSecret: toggleSecret
+    onSecret: toggleSecret,
+    friendsWith: friendSpotMap.get(selectedSpot.id) || []
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), friendInvite && React.createElement("div", {
