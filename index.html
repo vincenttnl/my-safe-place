@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T22:35:32.812Z -->
+<!-- built 2026-07-11T23:27:38.232Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3447,6 +3447,8 @@ const I18N = {
     btn_see: "Voir →",
     btn_cancel: "Annuler",
     btn_later: "Plus tard",
+    lang_title: "🌍 Langue",
+    lang_auto: "🪄 langue du téléphone",
     months: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
     w_tap: "Tape à droite pour avancer →",
     w_intro_name: "{name}, ton année en spots.",
@@ -3522,6 +3524,8 @@ const I18N = {
     btn_see: "See →",
     btn_cancel: "Cancel",
     btn_later: "Later",
+    lang_title: "🌍 Language",
+    lang_auto: "🪄 phone language",
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     w_tap: "Tap right to move on →",
     w_intro_name: "{name}, your year in spots.",
@@ -3597,6 +3601,8 @@ const I18N = {
     btn_see: "Ver →",
     btn_cancel: "Cancelar",
     btn_later: "Más tarde",
+    lang_title: "🌍 Idioma",
+    lang_auto: "🪄 idioma del teléfono",
     months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
     w_tap: "Toca a la derecha para avanzar →",
     w_intro_name: "{name}, tu año en spots.",
@@ -3659,9 +3665,18 @@ const LANGK = "myplace_lang_v1";
 let __lang = (() => {
   try {
     const l = localStorage.getItem(LANGK);
-    return I18N[l] ? l : "fr";
+    if (I18N[l]) return l;
+    const nav = (navigator.language || "fr").slice(0, 2).toLowerCase();
+    return I18N[nav] ? nav : "fr";
   } catch {
     return "fr";
+  }
+})();
+const LANG_EXPLICIT = (() => {
+  try {
+    return !!localStorage.getItem(LANGK);
+  } catch {
+    return false;
   }
 })();
 function tr(key, vars) {
@@ -17501,7 +17516,72 @@ function App() {
           textAlign: 'center'
         }
       }, c.emoji, " ", c.label);
-    })))), React.createElement("div", {
+    }))), React.createElement("div", {
+      style: {
+        marginTop: 14,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15
+      }
+    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("lang_auto"))), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8
+      }
+    }, [["fr", "🇫🇷", "Français"], ["en", "🇬🇧", "English"], ["es", "🇪🇸", "Español"]].map(([k, f, n]) => React.createElement("button", {
+      key: k,
+      onClick: () => {
+        if (__lang !== k) {
+          window.mspHaptic?.(12);
+          window.mspSetLang(k);
+        }
+      },
+      className: "press",
+      style: {
+        flex: 1,
+        padding: '10px 4px',
+        borderRadius: 13,
+        cursor: 'pointer',
+        border: '1.5px solid ' + (__lang === k ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: __lang === k ? '#FFF0F6' : '#fff'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 19
+      }
+    }, f), React.createElement("div", {
+      style: {
+        fontSize: 10.5,
+        fontWeight: 700,
+        marginTop: 3,
+        fontFamily: 'var(--font-body)',
+        color: 'var(--ink-900)'
+      }
+    }, n)))))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
