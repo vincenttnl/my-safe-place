@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T13:26:06.218Z -->
+<!-- built 2026-07-11T13:40:57.479Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3185,6 +3185,217 @@ const MUSIC = [{
   l: "Live",
   e: "🎶"
 }];
+const NLP_RULES = [{
+  f: "cats",
+  v: "speakeasy",
+  re: /\b(bars?|pubs?|bieres?|cocktails?|pintes?|speakeasy)\b/
+}, {
+  f: "cats",
+  v: "club",
+  re: /\b(clubs?|boites?|discotheques?|clubbing|danser)\b/
+}, {
+  f: "cats",
+  v: "rooftop",
+  re: /\b(rooftops?|toits?)\b/
+}, {
+  f: "cats",
+  v: "resto",
+  re: /\b(restos?|restaurants?|manger|diner|dejeuner|table)\b/
+}, {
+  f: "cats",
+  v: "cafe",
+  re: /\b(cafes?|coffee|salon de the)\b/
+}, {
+  f: "cats",
+  v: "sortie",
+  re: /\b(sorties?|activites?|expos?|musees?|cine(ma)?|bowling|karaoke|escape ?game)\b/
+}, {
+  f: "cuisine",
+  v: "asiat",
+  re: /\b(japs?|japonais\w*|sushis?|ramen|chinois|thai\w*|coreen\w*|viet\w*|asiat\w*)\b/
+}, {
+  f: "cuisine",
+  v: "italien",
+  re: /\b(italiens?|pates|pasta)\b/
+}, {
+  f: "cuisine",
+  v: "pizza",
+  re: /\bpizz\w+\b/
+}, {
+  f: "cuisine",
+  v: "burger",
+  re: /\bburgers?\b/
+}, {
+  f: "cuisine",
+  v: "brunch",
+  re: /\bbrunch\w*\b/
+}, {
+  f: "cuisine",
+  v: "healthy",
+  re: /\b(healthy|vegan|vege|veggie|salades?)\b/
+}, {
+  f: "cuisine",
+  v: "gastro",
+  re: /\b(gastro\w*|etoile\w*)\b/
+}, {
+  f: "cuisine",
+  v: "francais",
+  re: /\b(francais\w*|bistrots?|brasseries?)\b/
+}, {
+  f: "vibe",
+  v: "intime",
+  re: /\b(tranquilles?|calmes?|chill|cosy|intimes?|poses?)\b/
+}, {
+  f: "vibe",
+  v: "chic",
+  re: /\b(chics?|classe|elegants?|fancy|huppes?)\b/
+}, {
+  f: "vibe",
+  v: "festif",
+  re: /\b(festifs?|fete|ambiance de fou)\b/
+}, {
+  f: "vibe",
+  v: "decontracte",
+  re: /\b(decontractes?|sans chichis?)\b/
+}, {
+  f: "vibe",
+  v: "depaysant",
+  re: /\b(depaysants?|exotiques?|voyage)\b/
+}, {
+  f: "who",
+  v: "date",
+  re: /\b(dates?|rencard|romantiques?|amoureux|couple|seduire)\b/
+}, {
+  f: "who",
+  v: "potes",
+  re: /\b(potes?|amis?|groupes?|bandes?)\b/
+}, {
+  f: "who",
+  v: "famille",
+  re: /\b(familles?|enfants?|parents)\b/
+}, {
+  f: "who",
+  v: "collegues",
+  re: /\b(collegues?|afterwork|boulot)\b/
+}, {
+  f: "who",
+  v: "solo",
+  re: /\b(solo|seule?)\b/
+}, {
+  f: "when",
+  v: "apero",
+  re: /\b(apero\w*|afterwork|happy hour)\b/
+}, {
+  f: "when",
+  v: "soiree",
+  re: /\b(ce soir|soirees?|nuit)\b/
+}, {
+  f: "when",
+  v: "after",
+  re: /\b(after|petit matin)\b/
+}, {
+  f: "when",
+  v: "journee",
+  re: /\b(journee|midi|dej)\b/
+}, {
+  f: "music",
+  v: "hardtech",
+  re: /\b(hard ?tech\w*|hardcore|acidcore)\b/
+}, {
+  f: "music",
+  v: "techno",
+  re: /\btechno\b/
+}, {
+  f: "music",
+  v: "house",
+  re: /\bhouse\b/
+}, {
+  f: "music",
+  v: "hiphop",
+  re: /\b(hip ?hop|rap|rnb)\b/
+}, {
+  f: "music",
+  v: "reggaeton",
+  re: /\b(reggaeton|latino|perreo|salsa)\b/
+}, {
+  f: "music",
+  v: "afro",
+  re: /\b(afro\w*|amapiano)\b/
+}, {
+  f: "music",
+  v: "disco",
+  re: /\b(disco|funk)\b/
+}, {
+  f: "music",
+  v: "rock",
+  re: /\b(rock|punk|metal)\b/
+}, {
+  f: "music",
+  v: "jazz",
+  re: /\b(jazz|blues)\b/
+}, {
+  f: "music",
+  v: "live",
+  re: /\b(concerts?|live)\b/
+}, {
+  f: "budget",
+  v: "free",
+  re: /\bgratuits?\b/
+}, {
+  f: "budget",
+  v: "€",
+  re: /\b(pas chers?|abordables?|cheap|petit budget|eco\w*)\b/
+}, {
+  f: "budget",
+  v: "€€€",
+  re: /\b(luxe|haut de gamme|premium)\b/
+}];
+const NLP_STOP = new Set(["pour", "avec", "dans", "chez", "les", "des", "une", "un", "de", "du", "le", "la", "et", "ou", "en", "sur", "mon", "ma", "mes", "ton", "ta", "tes", "qui", "que", "est", "tres", "tout", "bon", "bonne", "top", "truc", "endroit", "lieu", "spot", "sympa", "cool", "bien"]);
+function parseNLQuery(raw) {
+  const out = {
+    cats: [],
+    cuisine: [],
+    vibe: [],
+    who: [],
+    when: [],
+    music: [],
+    budget: [],
+    openNow: false,
+    nearMe: false,
+    place: "",
+    terms: [],
+    active: false
+  };
+  let q = " " + (raw || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[«»"']/g, " ") + " ";
+  if (q.trim().length < 3) return out;
+  if (/\b(pres de moi|autour de moi|proche de moi|a cote de moi|near me|vers moi|ouvert pres)\b/.test(q)) {
+    out.nearMe = true;
+    q = q.replace(/\b(pres de moi|autour de moi|proche de moi|a cote de moi|near me|vers moi)\b/g, " ");
+  }
+  if (/\b(ouverts?( maintenant| la)?|open now)\b/.test(q)) {
+    out.openNow = true;
+    q = q.replace(/\b(ouverts?( maintenant| la)?|open now)\b/g, " ");
+  }
+  const pm = q.match(/(?:vers|proche de|pres de|autour de|quartier|dans le)\s+([a-z0-9][a-z0-9' -]{2,28}?)\s*$/);
+  if (pm) {
+    out.place = pm[1].trim();
+    q = q.replace(pm[0], " ");
+  }
+  const am = q.match(/\b(\d{1,2})\s*(?:e|eme)\b/);
+  if (am && !out.place) {
+    out.place = am[1] + "e arrondissement";
+    q = q.replace(am[0], " ");
+  }
+  NLP_RULES.forEach(r => {
+    if (r.re.test(q)) {
+      if (!out[r.f].includes(r.v)) out[r.f].push(r.v);
+      q = q.replace(new RegExp(r.re.source, "g"), " ");
+    }
+  });
+  out.terms = q.split(/[^a-z0-9]+/).filter(w => w.length > 2 && !NLP_STOP.has(w));
+  out.active = !!(out.cats.length || out.cuisine.length || out.vibe.length || out.who.length || out.when.length || out.music.length || out.budget.length || out.openNow || out.nearMe || out.place);
+  return out;
+}
 const CB = {
   resto: "#D6F5E0",
   cafe: "#EAE0D6",
@@ -12047,20 +12258,76 @@ function App() {
     if (sort === "recent") arr.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "fav") arr.sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "alpha") arr.sort((a, b) => a.name.localeCompare(b.name, "fr"));else if (sort === "price-asc") arr.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));else if (sort === "price-desc") arr.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));else if (sort === "distance" && userPos) arr.sort((a, b) => distKm(userPos.lat, userPos.lng, a.lat, a.lng) - distKm(userPos.lat, userPos.lng, b.lat, b.lng));
     return arr;
   }, [visible, sort, userPos]);
+  const nlp = useMemo(() => parseNLQuery(search), [search]);
+  const [nlpPlace, setNlpPlace] = useState(null);
+  useEffect(() => {
+    if (searchMode !== "discover" || !nlp.place) {
+      setNlpPlace(null);
+      return;
+    }
+    const cc = CITIES[city] || CITIES.paris;
+    const t = setTimeout(() => {
+      fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(nlp.place + " " + cc.label)}&limit=1&lat=${cc.center[0]}&lon=${cc.center[1]}&lang=fr`).then(r => r.json()).then(d => {
+        const f = (d.features || [])[0];
+        if (f && f.geometry) setNlpPlace({
+          lng: f.geometry.coordinates[0],
+          lat: f.geometry.coordinates[1],
+          label: f.properties && f.properties.name || nlp.place
+        });else setNlpPlace(null);
+      }).catch(() => setNlpPlace(null));
+    }, 500);
+    return () => clearTimeout(t);
+  }, [nlp.place, searchMode, city]);
+  useEffect(() => {
+    if (searchMode === "discover" && nlp.nearMe && !userPos) requestGeo();
+  }, [nlp.nearMe, searchMode]);
   const ownedIds = useMemo(() => new Set(allSpots.map(s => s.id)), [allSpots]);
   const catalogVisible = useMemo(() => {
+    const useNlp = searchMode === "discover" && nlp.active;
     const q = search.trim().toLowerCase();
-    const pnow = openNow ? nowParis() : null;
-    return catalog.filter(s => {
-      if (openNow && isOpenNow(s.hours, pnow) !== true) return false;
-      const catOk = cat === "all" || hasCat(s, cat);
-      const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
-      const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
+    const wantOpen = openNow || useNlp && nlp.openNow;
+    const pnow = wantOpen ? nowParis() : null;
+    const filtered = catalog.filter(s => {
+      if (wantOpen && isOpenNow(s.hours, pnow) !== true) return false;
+      const catOk = (cat === "all" || hasCat(s, cat)) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
+      let sOk = true;
+      if (useNlp) {
+        const hay = (s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+        sOk = nlp.terms.every(t => hay.includes(t));
+      } else if (q) {
+        sOk = s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
+      }
+      const bOk = (!budgetF.length || budgetF.includes(priceBucket(s.price))) && (!useNlp || !nlp.budget.length || nlp.budget.includes(priceBucket(s.price)));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
-      const muOk = !musicF.length || musicF.some(m => s.tags?.music?.includes(m));
-      return catOk && sOk && bOk && vbOk && muOk;
+      const muOk = (!musicF.length || musicF.some(m => s.tags?.music?.includes(m))) && (!useNlp || !nlp.music.length || nlp.music.some(m => s.tags?.music?.includes(m)));
+      const cuOk = !useNlp || !nlp.cuisine.length || nlp.cuisine.some(c => s.tags?.cuisine?.includes(c));
+      return catOk && sOk && bOk && vbOk && muOk && cuOk;
     });
-  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow]);
+    if (!useNlp) return filtered;
+    const softScore = s => {
+      let sc = 0;
+      const t = s.tags || {};
+      nlp.vibe.forEach(v => {
+        if (t.vibe && t.vibe.includes(v)) sc++;
+      });
+      nlp.who.forEach(v => {
+        if (t.who && t.who.includes(v)) sc++;
+      });
+      nlp.when.forEach(v => {
+        if (t.when && t.when.includes(v)) sc++;
+      });
+      return sc;
+    };
+    const target = nlpPlace || (nlp.nearMe && userPos ? userPos : null);
+    return [...filtered].sort((a, b) => {
+      if (target) {
+        const da = (a.lat ? distKm(target.lat, target.lng, a.lat, a.lng) : 99) - softScore(a) * 0.4;
+        const db = (b.lat ? distKm(target.lat, target.lng, b.lat, b.lng) : 99) - softScore(b) * 0.4;
+        return da - db;
+      }
+      return softScore(b) - softScore(a) || (gRating(b) || 0) - (gRating(a) || 0);
+    });
+  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, searchMode, nlp, nlpPlace, userPos]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -13740,7 +14007,89 @@ function App() {
     style: {
       marginBottom: 12
     }
-  }, (CITIES[city] || CITIES.paris).emoji, " Le meilleur de ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), catalog.length === 0 ? React.createElement("div", {
+  }, (CITIES[city] || CITIES.paris).emoji, " Le meilleur de ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), nlp.active && (() => {
+    const P = (k, t) => React.createElement("span", {
+      key: k,
+      style: {
+        background: '#EEF2FF',
+        color: '#4338CA',
+        border: '1px solid #C7D2FE',
+        padding: '4px 10px',
+        borderRadius: 999,
+        fontSize: 11.5,
+        fontWeight: 700,
+        fontFamily: 'var(--font-body)'
+      }
+    }, t);
+    const CU = {
+      asiat: "🍜 Asiat",
+      italien: "🍝 Italien",
+      pizza: "🍕 Pizza",
+      burger: "🍔 Burger",
+      brunch: "🥞 Brunch",
+      healthy: "🥗 Healthy",
+      gastro: "⭐ Gastro",
+      francais: "🥖 Français"
+    };
+    const WHO = {
+      date: "💕 Date",
+      potes: "🫂 Potes",
+      solo: "🧘 Solo",
+      collegues: "💼 Collègues",
+      famille: "👨‍👩‍👧 Famille"
+    };
+    const WHEN = {
+      apero: "🍹 Apéro",
+      soiree: "🌙 Soirée",
+      after: "🌅 After",
+      journee: "☀️ Journée"
+    };
+    const VB = {
+      chic: "✨ Chic",
+      decontracte: "😎 Décontracté",
+      festif: "🎉 Festif",
+      intime: "🕯️ Tranquille",
+      depaysant: "🌍 Dépaysant"
+    };
+    const BU = {
+      free: "🆓 Gratuit",
+      "€": "💸 Pas cher",
+      "€€€": "💎 Haut de gamme"
+    };
+    const pills = [];
+    nlp.cats.forEach(c => {
+      const ci = CATS.find(x => x.key === c);
+      if (ci) pills.push(P("c" + c, ci.emoji + " " + ci.label));
+    });
+    nlp.cuisine.forEach(c => CU[c] && pills.push(P("k" + c, CU[c])));
+    nlp.music.forEach(m => {
+      const mi = MUSIC.find(x => x.k === m);
+      if (mi) pills.push(P("m" + m, mi.e + " " + mi.l));
+    });
+    nlp.vibe.forEach(v => VB[v] && pills.push(P("v" + v, VB[v])));
+    nlp.who.forEach(w => WHO[w] && pills.push(P("w" + w, WHO[w])));
+    nlp.when.forEach(w => WHEN[w] && pills.push(P("t" + w, WHEN[w])));
+    nlp.budget.forEach(b => BU[b] && pills.push(P("b" + b, BU[b])));
+    if (nlp.openNow) pills.push(P("o", "🟢 Ouvert maintenant"));
+    if (nlp.nearMe) pills.push(P("n", "📍 Près de toi"));
+    if (nlp.place) pills.push(P("p", "📍 Vers " + (nlpPlace ? nlpPlace.label : nlp.place)));
+    if (!pills.length) return null;
+    return React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        marginBottom: 12
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)'
+      }
+    }, "\uD83E\uDDE0 J'ai compris :"), pills);
+  })(), catalog.length === 0 ? React.createElement("div", {
     style: {
       marginBottom: 26
     }
