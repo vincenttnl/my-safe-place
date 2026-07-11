@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T16:05:33.509Z -->
+<!-- built 2026-07-11T16:16:44.365Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4368,6 +4368,181 @@ async function fetchSpotsByIds(ids) {
   } catch {
     return [];
   }
+}
+function FriendListDetail({
+  fl,
+  onBack,
+  onOpenSpot,
+  onImport
+}) {
+  const [items, setItems] = useState(null);
+  useEffect(() => {
+    let ok = true;
+    fetchSpotsByIds(fl.ids).then(r => {
+      if (ok) setItems(r);
+    });
+    return () => {
+      ok = false;
+    };
+  }, [fl]);
+  return React.createElement("div", {
+    style: {
+      padding: '18px 20px 0'
+    }
+  }, React.createElement("button", {
+    onClick: onBack,
+    style: {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 14,
+      color: 'var(--ink-400)',
+      padding: '4px 0',
+      marginBottom: 6
+    }
+  }, "\u2190 Listes"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      marginBottom: 4
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 34,
+      flexShrink: 0
+    }
+  }, fl.emoji), React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 24,
+      lineHeight: 1.05
+    }
+  }, fl.name), React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: 'var(--ink-400)',
+      marginTop: 3
+    }
+  }, "\uD83D\uDC65 partag\xE9e par ", fl.by, " \xB7 ", fl.ids.length, " spot", fl.ids.length > 1 ? 's' : ''))), React.createElement("button", {
+    onClick: () => {
+      if (items && items.length) onImport(fl, items);
+    },
+    className: "press",
+    style: {
+      width: '100%',
+      margin: '12px 0 16px',
+      padding: '13px 0',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontWeight: 800,
+      fontSize: 14.5,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer',
+      opacity: items && items.length ? 1 : .5
+    }
+  }, "\uD83D\uDCE5 Ajouter cette liste chez moi"), items === null && React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      color: 'var(--ink-400)',
+      padding: '30px 0',
+      fontSize: 14
+    }
+  }, "Chargement\u2026"), items && items.length === 0 && React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      color: 'var(--ink-400)',
+      padding: '30px 0',
+      fontSize: 14
+    }
+  }, "Cette liste est vide pour le moment."), items && items.length > 0 && React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+      paddingBottom: 8
+    }
+  }, items.map(s => {
+    const ph = firstPhoto(s);
+    return React.createElement("button", {
+      key: s.id,
+      onClick: () => onOpenSpot(s),
+      className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 10,
+        cursor: 'pointer',
+        textAlign: 'left',
+        boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
+      }
+    }, ph ? React.createElement("img", {
+      src: ph,
+      alt: "",
+      style: {
+        width: 54,
+        height: 54,
+        borderRadius: 12,
+        objectFit: 'cover',
+        flexShrink: 0
+      }
+    }) : React.createElement("div", {
+      style: {
+        width: 54,
+        height: 54,
+        borderRadius: 12,
+        background: 'var(--bg-cream)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 22,
+        flexShrink: 0
+      }
+    }, "\uD83D\uDCCD"), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 800,
+        fontSize: 15.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.name), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.vibe || s.adresse || "")), React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 18,
+        flexShrink: 0
+      }
+    }, "\u203A"));
+  })));
 }
 function listShareText(name, count) {
   return `${count} spot${count > 1 ? "s" : ""} à tester : « ${name} » 🔥\nRécupère la liste sur Spotane 👇`;
@@ -10965,6 +11140,8 @@ function App() {
     }
   });
   const [openListId, setOpenListId] = useState(null);
+  const [friendLists, setFriendLists] = useState([]);
+  const [friendListOpen, setFriendListOpen] = useState(null);
   const [listPickerFor, setListPickerFor] = useState(null);
   const [showListForm, setShowListForm] = useState(false);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
@@ -11508,6 +11685,81 @@ function App() {
       text,
       url
     }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien d'invitation copié !", "success")).catch(() => window.mspToast?.("Impossible de copier", "error"));
+  };
+  useEffect(() => {
+    if (session && searchMode === "lists" && !friends.length && !friendsLoading) fetchFriends();
+  }, [session, searchMode]);
+  useEffect(() => {
+    if (!session || searchMode !== "lists" || !friends.length) return;
+    let alive = true;
+    (async () => {
+      try {
+        const tok = await validToken(sessionRef.current);
+        const out = [];
+        for (const f of friends) {
+          try {
+            const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/friend_shared_lists`, {
+              method: "POST",
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: `Bearer ${tok}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                p_friend: f.id
+              })
+            });
+            if (!r.ok) continue;
+            const d = await r.json();
+            (Array.isArray(d) ? d : []).forEach(l => {
+              if (l && Array.isArray(l.spotIds) && l.spotIds.length) out.push({
+                key: `${f.id}_${l.id}`,
+                by: f.name,
+                avatar: f.avatar,
+                name: l.name || "Une liste",
+                emoji: l.emoji || "📁",
+                ids: l.spotIds
+              });
+            });
+          } catch {}
+        }
+        if (alive) setFriendLists(out);
+      } catch {}
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [session, searchMode, friends]);
+  const importFriendList = (fl, items) => {
+    const now = Date.now();
+    const prepared = items.map(s => ({
+      done: false,
+      fav: false,
+      note: "",
+      reaction: null,
+      addedAt: now,
+      status: "wishlist",
+      contacts: [],
+      ...s,
+      vibe: s.vibe || `👥 De ${fl.by}`
+    }));
+    setSpots(prev => {
+      const have = new Set(prev.map(x => x.id));
+      return [...prev, ...prepared.filter(s => !have.has(s.id))];
+    });
+    setLists(ls => [...ls, {
+      id: now,
+      name: fl.name,
+      emoji: fl.emoji,
+      spotIds: prepared.map(s => s.id),
+      visibility: "private",
+      pinned: false,
+      createdAt: now
+    }]);
+    setFriendListOpen(null);
+    window.mspHaptic?.(20);
+    window.mspPopEmoji?.("🎁");
+    window.mspToast?.(`Liste « ${fl.name} » ajoutée chez toi !`, "success");
   };
   const fullSync = async sess => {
     if (!sess) return;
@@ -13555,6 +13807,15 @@ function App() {
     }))))));
   };
   const ListsView = () => {
+    if (friendListOpen) return React.createElement(FriendListDetail, {
+      fl: friendListOpen,
+      onBack: () => setFriendListOpen(null),
+      onOpenSpot: s => {
+        const owned = allSpots.find(x => x.id === s.id);
+        setSelectedSpot(owned || s);
+      },
+      onImport: importFriendList
+    });
     const pnow = nowParis();
     const smart = [{
       key: "smart:fav",
@@ -13925,7 +14186,69 @@ function App() {
           flexShrink: 0
         }
       }, "\u203A"));
-    })));
+    })), session && friendLists.length > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+      className: "mono-label",
+      style: {
+        margin: '22px 0 12px'
+      }
+    }, "\uD83D\uDC65 Les listes de tes amis"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        paddingBottom: 8
+      }
+    }, friendLists.map(fl => React.createElement("button", {
+      key: fl.key,
+      onClick: () => setFriendListOpen(fl),
+      className: "press",
+      style: {
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 13,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '13px 15px',
+        cursor: 'pointer',
+        boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 28,
+        flexShrink: 0
+      }
+    }, fl.emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 800,
+        fontSize: 16.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, fl.name), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, fl.avatar || "👤", " par ", fl.by, " \xB7 ", fl.ids.length, " spot", fl.ids.length > 1 ? 's' : '')), React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 18,
+        flexShrink: 0
+      }
+    }, "\u203A"))))));
   };
   const SpotsTab = () => React.createElement("div", {
     style: {
