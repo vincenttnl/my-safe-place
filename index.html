@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T01:59:03.559Z -->
+<!-- built 2026-07-11T02:27:18.972Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3899,6 +3899,12 @@ function firstPhoto(s) {
   const p = getPhotos(s);
   return p[0] || "";
 }
+function gRating(s) {
+  return s.grating || s.tags && s.tags.grating || null;
+}
+function gRatingCount(s) {
+  return s.gratingCount || s.tags && s.tags.gratingCount || 0;
+}
 function encodeSpotForShare(spot, senderName) {
   const mini = {
     n: spot.name,
@@ -4157,7 +4163,7 @@ function SharedSpotLanding({
   const photos = getPhotos(spot);
   const cat = getCats(spot)[0] || "sortie";
   const ci = CATS.find(c => c.key === cat) || {};
-  const meta = [spot.metro, spot.price, spot.hours].filter(Boolean);
+  const meta = [gRating(spot) ? `⭐ ${gRating(spot)}${gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ""} · Google` : "", spot.metro, spot.price, spot.hours].filter(Boolean);
   const who = shared.from || spot.sharedBy || "";
   return React.createElement("div", {
     style: {
@@ -4514,7 +4520,11 @@ function SharedListLanding({
         fontWeight: 700,
         color: "var(--pop-pink)"
       }
-    }, ci.emoji, " ", ci.label || cat), React.createElement("div", {
+    }, ci.emoji, " ", ci.label || cat, gRating(s) ? React.createElement("span", {
+      style: {
+        color: "#B45309"
+      }
+    }, " \xB7 \u2B50 ", gRating(s)) : null), React.createElement("div", {
       style: {
         fontFamily: "var(--font-display)",
         fontWeight: 800,
@@ -7491,7 +7501,12 @@ function CleanSpotCard({
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap'
     }
-  }, "\uD83D\uDCCD ", s.metro || s.adresse || '', " \xB7 ", s.price || '', dist != null ? React.createElement("span", {
+  }, gRating(s) ? React.createElement("span", {
+    style: {
+      color: '#B45309',
+      fontWeight: 700
+    }
+  }, "\u2B50 ", gRating(s), " \xB7 ") : null, "\uD83D\uDCCD ", s.metro || s.adresse || '', " \xB7 ", s.price || '', dist != null ? React.createElement("span", {
     style: {
       color: 'var(--pop-pink)',
       fontWeight: 600
@@ -12890,7 +12905,7 @@ function App() {
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, [s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
+    }, [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
       title: "D\xE9j\xE0 dans Mes spots",
       style: {
         fontSize: 20,
