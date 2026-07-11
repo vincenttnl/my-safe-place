@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T11:18:01.306Z -->
+<!-- built 2026-07-11T11:44:04.079Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4093,6 +4093,22 @@ function fmtKm(km) {
   if (km == null || isNaN(km)) return "";
   return km < 1 ? `${Math.round(km * 1000)} m` : `${km < 10 ? km.toFixed(1) : Math.round(km)} km`;
 }
+function gcalUrl(ev) {
+  if (!ev || !ev.date) return null;
+  const d = String(ev.date).replace(/-/g, "");
+  const nd = new Date(ev.date);
+  if (isNaN(nd)) return null;
+  nd.setDate(nd.getDate() + 1);
+  const d2 = nd.toISOString().slice(0, 10).replace(/-/g, "");
+  const p = new URLSearchParams({
+    action: "TEMPLATE",
+    text: ev.name || "Event",
+    dates: `${d}/${d2}`,
+    details: [ev.desc || "", ev.link || ""].filter(Boolean).join("\n"),
+    location: ev.lieu || ""
+  });
+  return "https://calendar.google.com/calendar/render?" + p.toString();
+}
 function SharedSpotLanding({
   shared,
   onAdd,
@@ -6644,6 +6660,7 @@ function SpotDetail({
   onListPicker,
   onNote,
   onShare,
+  onRevisit,
   preview,
   onAddPreview
 }) {
@@ -6817,7 +6834,14 @@ function SpotDetail({
       color: 'var(--ink-600)',
       margin: '18px 0 0'
     }
-  }, spot.desc), spot.website && React.createElement("a", {
+  }, spot.desc), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 14,
+      flexWrap: 'wrap',
+      alignItems: 'center'
+    }
+  }, spot.website && React.createElement("a", {
     href: spot.website.startsWith("http") ? spot.website : "https://" + spot.website,
     target: "_blank",
     rel: "noopener noreferrer",
@@ -6830,7 +6854,47 @@ function SpotDetail({
       fontWeight: 600,
       fontFamily: 'var(--font-body)'
     }
-  }, "\uD83C\uDF10 ", spot.website.replace(/^https?:\/\//, "").slice(0, 40)), (spot.tags?.work || spot.tags?.cuisine && spot.tags.cuisine.length > 0) && React.createElement("div", {
+  }, "\uD83C\uDF10 Site / R\xE9server"), React.createElement("a", {
+    href: `https://www.google.com/search?q=${encodeURIComponent((spot.name || "") + " " + ((spot.adresse || "").split(",").pop() || "") + " instagram")}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "inline-block",
+      marginTop: 12,
+      fontSize: 14,
+      color: "var(--pop-violet)",
+      textDecoration: "none",
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)'
+    }
+  }, "\uD83D\uDCF8 Insta")), !preview && spot.done && React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 10,
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)'
+    }
+  }, React.createElement("span", null, "\uD83D\uDCC5 Derni\xE8re visite", spot.lastVisitedAt ? ` : ${new Date(spot.lastVisitedAt).toLocaleDateString('fr-FR', {
+    day: 'numeric',
+    month: 'long'
+  })}` : '', spot.reaction ? ` · ${spot.reaction}` : ''), React.createElement("button", {
+    onClick: () => onRevisit(spot.id),
+    className: "press",
+    style: {
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '4px 11px',
+      fontSize: 11.5,
+      fontWeight: 700,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      color: 'var(--ink-600)'
+    }
+  }, "\u21BB J'y suis retourn\xE9")), (spot.tags?.work || spot.tags?.cuisine && spot.tags.cuisine.length > 0) && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -7511,7 +7575,18 @@ function CleanSpotCard({
       color: 'var(--pop-pink)',
       fontWeight: 600
     }
-  }, " \xB7 \uD83D\uDCCF ", fmtKm(dist)) : '')), s.reaction && React.createElement("div", {
+  }, " \xB7 \uD83D\uDCCF ", fmtKm(dist)) : ''), s.note && React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 12,
+      color: 'var(--ink-600)',
+      marginTop: 3,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap',
+      fontStyle: 'italic'
+    }
+  }, "\uD83D\uDCDD ", s.note)), s.reaction && React.createElement("div", {
     style: {
       fontSize: 22,
       marginRight: 4
@@ -9957,6 +10032,7 @@ function App() {
   const [selIds, setSelIds] = useState(() => new Set());
   const [qfapList, setQfapList] = useState([]);
   const [qfapLoading, setQfapLoading] = useState(false);
+  const [qfapPeek, setQfapPeek] = useState(null);
   const [lists, setLists] = useState(() => {
     try {
       const raw = localStorage.getItem(LSTK);
@@ -10050,20 +10126,6 @@ function App() {
       mine: f(spots)
     };
   }, [catalog, spots, mapCats, openNow]);
-  const openNearby = useMemo(() => {
-    if (tab !== "home") return [];
-    const pnow = nowParis();
-    const ownedIds = new Set(spots.map(s => s.id));
-    const mine = spots.filter(s => s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
-    const extra = catalog.filter(s => !ownedIds.has(s.id) && isOpenNow(s.hours, pnow) === true);
-    const dist = s => userPos && s.lat && s.lng ? distKm(userPos.lat, userPos.lng, s.lat, s.lng) : null;
-    const srt = arr => userPos ? [...arr].sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => (gRating(b) || 0) - (gRating(a) || 0));
-    return [...srt(mine), ...srt(extra)].slice(0, 12).map(s => ({
-      s,
-      mine: ownedIds.has(s.id),
-      d: dist(s)
-    }));
-  }, [tab, spots, catalog, userPos]);
   const [metroJ, setMetroJ] = useState(null);
   const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -10088,6 +10150,20 @@ function App() {
   const [discoverLoading, setDiscoverLoading] = useState(false);
   const [discoverAdded, setDiscoverAdded] = useState(new Set());
   const [userPos, setUserPos] = useState(null);
+  const openNearby = useMemo(() => {
+    if (tab !== "home") return [];
+    const pnow = nowParis();
+    const ownedIds = new Set(spots.map(s => s.id));
+    const mine = spots.filter(s => s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
+    const extra = catalog.filter(s => !ownedIds.has(s.id) && isOpenNow(s.hours, pnow) === true);
+    const dist = s => userPos && s.lat && s.lng ? distKm(userPos.lat, userPos.lng, s.lat, s.lng) : null;
+    const srt = arr => userPos ? [...arr].sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => (gRating(b) || 0) - (gRating(a) || 0));
+    return [...srt(mine), ...srt(extra)].slice(0, 12).map(s => ({
+      s,
+      mine: ownedIds.has(s.id),
+      d: dist(s)
+    }));
+  }, [tab, spots, catalog, userPos]);
   const [geoLoading, setGeoLoading] = useState(false);
   const requestGeo = () => {
     if (!navigator.geolocation) {
@@ -10773,7 +10849,8 @@ function App() {
       window.mspPopEmoji?.("✨");
       setSpots(s => s.map(x => x.id === id ? {
         ...x,
-        done: true
+        done: true,
+        lastVisitedAt: Date.now()
       } : x));
       setReactionSpot(spot);
     } else setSpots(s => s.map(x => x.id === id ? {
@@ -10781,6 +10858,16 @@ function App() {
       done: false,
       reaction: null
     } : x));
+  };
+  const revisitSpot = id => {
+    const spot = spots.find(s => s.id === id);
+    if (!spot) return;
+    window.mspHaptic?.(15);
+    setSpots(s => s.map(x => x.id === id ? {
+      ...x,
+      lastVisitedAt: Date.now()
+    } : x));
+    setReactionSpot(spot);
   };
   const saveReaction = (id, emoji, note) => {
     setSpots(s => s.map(x => x.id === id ? {
@@ -13309,36 +13396,43 @@ function App() {
   }, "Rien de neuf dans le coin pour l'instant.") : React.createElement("div", {
     style: {
       display: "flex",
-      gap: 12,
-      overflowX: "auto",
-      paddingBottom: 6,
-      scrollbarWidth: "none"
+      flexDirection: "column",
+      gap: 10
     }
   }, qfapList.map((e, i) => {
     const free = e.price === "Gratuit";
-    return React.createElement("a", {
+    return React.createElement("button", {
       key: e.id || i,
-      href: e.url,
-      target: "_blank",
-      rel: "noopener noreferrer",
+      onClick: () => setQfapPeek(e),
       className: "press",
       style: {
-        width: 220,
-        flexShrink: 0,
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
+        textAlign: 'left',
+        padding: 10,
+        cursor: 'pointer',
         background: "#fff",
         border: "1px solid var(--hairline)",
         borderRadius: "var(--radius-lg)",
         overflow: "hidden",
-        textDecoration: "none",
         color: "inherit",
         boxShadow: "var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))"
       }
-    }, e.cover && React.createElement("div", {
+    }, React.createElement("div", {
       style: {
-        aspectRatio: "16/9",
-        background: "#eee"
+        width: 72,
+        height: 72,
+        borderRadius: 12,
+        overflow: 'hidden',
+        background: "#eee",
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 24
       }
-    }, React.createElement("img", {
+    }, e.cover ? React.createElement("img", {
       src: e.cover,
       alt: "",
       loading: "lazy",
@@ -13350,42 +13444,189 @@ function App() {
       onError: ev => {
         ev.target.style.display = 'none';
       }
-    })), React.createElement("div", {
+    }) : "🎫"), React.createElement("div", {
       style: {
-        padding: 12
+        flex: 1,
+        minWidth: 0
       }
     }, React.createElement("span", {
       style: {
         display: "inline-block",
         background: free ? "var(--pop-lime)" : "var(--pop-violet)",
         color: free ? "var(--ink-900)" : "#fff",
-        fontSize: 11,
+        fontSize: 10.5,
         fontWeight: 700,
         borderRadius: 999,
-        padding: "3px 9px",
-        marginBottom: 7
+        padding: "2px 8px",
+        marginBottom: 4
       }
     }, free ? "GRATUIT" : e.tag || "Event"), React.createElement("div", {
       style: {
         fontFamily: "var(--font-display)",
         fontWeight: 800,
-        fontSize: 15,
+        fontSize: 14.5,
         lineHeight: 1.15,
-        marginBottom: 4
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
-    }, (e.title || "").slice(0, 60)), React.createElement("div", {
+    }, e.title || ""), React.createElement("div", {
       style: {
-        fontSize: 12,
-        color: "var(--ink-400)"
-      }
-    }, "\uD83D\uDCC5 ", eventDateLabel(e)), e.venue && React.createElement("div", {
-      style: {
-        fontSize: 12,
+        fontSize: 11.5,
         color: "var(--ink-400)",
-        marginTop: 2
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
-    }, "\uD83D\uDCCD ", e.venue)));
-  }))), React.createElement("div", {
+    }, "\uD83D\uDCC5 ", eventDateLabel(e), e.venue ? ` · 📍 ${e.venue}` : '')), React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 17,
+        flexShrink: 0
+      }
+    }, "\u203A"));
+  }))), qfapPeek && React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true",
+    onClick: () => setQfapPeek(null)
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    onClick: ev => ev.stopPropagation(),
+    style: {
+      padding: 0,
+      overflow: 'hidden'
+    }
+  }, qfapPeek.cover && React.createElement("div", {
+    style: {
+      aspectRatio: '16/9',
+      background: '#eee'
+    }
+  }, React.createElement("img", {
+    src: qfapPeek.cover,
+    alt: "",
+    style: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    },
+    onError: ev => {
+      ev.target.style.display = 'none';
+    }
+  })), React.createElement("div", {
+    style: {
+      padding: '16px 18px 18px'
+    }
+  }, React.createElement("span", {
+    style: {
+      display: 'inline-block',
+      background: qfapPeek.price === "Gratuit" ? 'var(--pop-lime)' : 'var(--pop-violet)',
+      color: qfapPeek.price === "Gratuit" ? 'var(--ink-900)' : '#fff',
+      fontSize: 11,
+      fontWeight: 700,
+      borderRadius: 999,
+      padding: '3px 9px',
+      marginBottom: 8
+    }
+  }, qfapPeek.price === "Gratuit" ? "GRATUIT" : qfapPeek.tag || "Event"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 21,
+      lineHeight: 1.15
+    }
+  }, qfapPeek.title), React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginTop: 6
+    }
+  }, "\uD83D\uDCC5 ", eventDateLabel(qfapPeek)), qfapPeek.venue && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginTop: 2
+    }
+  }, "\uD83D\uDCCD ", qfapPeek.venue, qfapPeek.zip ? ` · ${qfapPeek.zip}` : ''), qfapPeek.price && qfapPeek.price !== "Gratuit" && React.createElement("div", {
+    style: {
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      marginTop: 2
+    }
+  }, "\uD83D\uDCB8 ", stripHtml(qfapPeek.price)), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 16,
+      flexWrap: 'wrap'
+    }
+  }, (() => {
+    const g = gcalUrl({
+      name: qfapPeek.title,
+      date: (qfapPeek.date || "").slice(0, 10),
+      desc: qfapPeek.tag || "",
+      link: qfapPeek.url || "",
+      lieu: qfapPeek.venue || ""
+    });
+    return g && React.createElement("a", {
+      href: g,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        background: 'var(--ink-900)',
+        color: '#fff',
+        padding: '10px 16px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13,
+        textDecoration: 'none'
+      }
+    }, "\uD83D\uDCC5 Agenda");
+  })(), qfapPeek.url && React.createElement("a", {
+    href: qfapPeek.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      background: '#fff',
+      color: 'var(--ink-900)',
+      border: '1px solid var(--hairline)',
+      padding: '10px 16px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13,
+      textDecoration: 'none'
+    }
+  }, "\uD83D\uDD17 Voir le site"), qfapPeek.venue && React.createElement("a", {
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(qfapPeek.venue + " Paris")}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      background: '#fff',
+      color: 'var(--ink-900)',
+      border: '1px solid var(--hairline)',
+      padding: '10px 16px',
+      borderRadius: 999,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13,
+      textDecoration: 'none'
+    }
+  }, "\uD83D\uDDFA\uFE0F Maps")), React.createElement("button", {
+    onClick: () => setQfapPeek(null),
+    style: {
+      marginTop: 14,
+      width: '100%',
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)'
+    }
+  }, "Fermer")))), React.createElement("div", {
     style: {
       padding: '16px 20px',
       display: 'flex',
@@ -13566,7 +13807,23 @@ function App() {
         fontSize: 13,
         textDecoration: 'none'
       }
-    }, "\uD83D\uDDFA\uFE0F Maps"), React.createElement("button", {
+    }, "\uD83D\uDDFA\uFE0F Maps"), gcalUrl(ev) && React.createElement("a", {
+      href: gcalUrl(ev),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        background: '#fff',
+        color: 'var(--ink-900)',
+        border: '1px solid var(--hairline)',
+        cursor: 'pointer',
+        padding: '8px 14px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 13,
+        textDecoration: 'none'
+      }
+    }, "\uD83D\uDCC5 Agenda"), React.createElement("button", {
       onClick: () => startEditEvent(ev),
       "aria-label": `Modifier ${ev.name}`,
       className: "press",
@@ -14914,7 +15171,8 @@ function App() {
       setListPickerFor(sp);
     },
     onNote: saveNote,
-    onShare: shareSpot
+    onShare: shareSpot,
+    onRevisit: revisitSpot
   }), showListForm && React.createElement(ListFormModal, {
     onCreate: (name, emoji) => {
       const id = createList(name, emoji);
