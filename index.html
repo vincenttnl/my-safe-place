@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T01:17:47.435Z -->
+<!-- built 2026-07-11T01:59:03.559Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3781,16 +3781,27 @@ function scoreOPResult(el) {
   if (t["addr:street"]) s += 1;
   return s;
 }
-async function googlePlacePhotos(name, address, apiKey, count = 4) {
-  if (!apiKey) return [];
+async function googleEnrich(name, address, apiKey, count = 4) {
+  const q = (name + " " + (address || "Paris")).trim();
+  if (window.spotaneProxy) {
+    try {
+      const d = await window.spotaneProxy("enrich", {
+        query: q,
+        count
+      });
+      if (d && Array.isArray(d.photos) && d.photos.length) return d;
+    } catch (e) {}
+  }
+  if (!apiKey) return {
+    photos: []
+  };
   try {
-    const q = (name + " " + (address || "Paris")).trim();
     const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.photos,places.displayName"
+        "X-Goog-FieldMask": "places.photos,places.displayName,places.rating,places.userRatingCount"
       },
       body: JSON.stringify({
         textQuery: q,
@@ -3798,35 +3809,64 @@ async function googlePlacePhotos(name, address, apiKey, count = 4) {
         maxResultCount: 1
       })
     });
-    if (!r.ok) return [];
+    if (!r.ok) return {
+      photos: []
+    };
     const d = await r.json();
     const place = d.places?.[0];
-    if (!place?.photos?.length) return [];
-    return place.photos.slice(0, count).map(p => `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`);
+    if (!place?.photos?.length) return {
+      photos: [],
+      rating: place?.rating || null,
+      ratingCount: place?.userRatingCount || null
+    };
+    return {
+      photos: place.photos.slice(0, count).map(p => `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`),
+      rating: place.rating || null,
+      ratingCount: place.userRatingCount || null
+    };
   } catch {
-    return [];
+    return {
+      photos: []
+    };
   }
 }
+async function googlePlacePhotos(name, address, apiKey, count = 4) {
+  const d = await googleEnrich(name, address, apiKey, count);
+  return d.photos || [];
+}
 async function idfmJourney(from, to, apiKey) {
-  const key = (apiKey || "").trim();
-  if (!key) throw new Error("no-key");
-  const url = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/journeys?from=${from.lng};${from.lat}&to=${to.lng};${to.lat}&max_nb_journeys=3`;
-  const r = await fetch(url, {
-    headers: {
-      apikey: key
-    }
-  });
-  if (!r.ok) {
-    let detail = "";
+  let data = null;
+  if (window.spotaneProxy) {
     try {
-      const b = await r.text();
-      const j = JSON.parse(b);
-      detail = j.message || j.error || j.description || b.slice(0, 120);
-    } catch {}
-    if (r.status === 401 || r.status === 403) throw new Error(`Accès refusé (${r.status})${detail ? " — " + detail : " — jeton non abonné à l'API Calculateur ?"}`);
-    throw new Error(`IDFM ${r.status}${detail ? " — " + detail : ""}`);
+      data = await window.spotaneProxy("journey", {
+        from,
+        to
+      });
+    } catch (e) {
+      if (!(apiKey || "").trim()) throw new Error(e && e.message ? e.message : "proxy");
+    }
   }
-  const data = await r.json();
+  if (!data) {
+    const key = (apiKey || "").trim();
+    if (!key) throw new Error("no-key");
+    const url = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/journeys?from=${from.lng};${from.lat}&to=${to.lng};${to.lat}&max_nb_journeys=3`;
+    const r = await fetch(url, {
+      headers: {
+        apikey: key
+      }
+    });
+    if (!r.ok) {
+      let detail = "";
+      try {
+        const b = await r.text();
+        const j = JSON.parse(b);
+        detail = j.message || j.error || j.description || b.slice(0, 120);
+      } catch {}
+      if (r.status === 401 || r.status === 403) throw new Error(`Accès refusé (${r.status})${detail ? " — " + detail : " — jeton non abonné à l'API Calculateur ?"}`);
+      throw new Error(`IDFM ${r.status}${detail ? " — " + detail : ""}`);
+    }
+    data = await r.json();
+  }
   const js = (data.journeys || []).filter(j => j.duration);
   if (!js.length) throw new Error("Aucun trajet trouvé");
   const best = js.reduce((a, b) => b.duration < a.duration ? b : a, js[0]);
@@ -6167,6 +6207,10 @@ function SpotFormModal({
   const [nWork, setNWork] = useState(!!s?.tags?.work);
   const [nVibe, setNVibe] = useState(Array.isArray(s?.tags?.vibe) ? s.tags.vibe : []);
   const [enriching, setEnriching] = useState(false);
+  const gMetaRef = useRef(s && s.grating ? {
+    grating: s.grating,
+    gratingCount: s.gratingCount || 0
+  } : null);
   const runEnrich = async () => {
     if (!nName.trim() && !nWebsite.trim()) return;
     setEnriching(true);
@@ -6227,15 +6271,23 @@ function SpotFormModal({
           failed.push("Overpass");
         }
       }
-      if (gApiKey) {
+      if (gApiKey || window.spotaneProxy) {
         try {
-          const gPhotos = await googlePlacePhotos(nName, nAddr || found.addr, gApiKey, 4);
-          if (gPhotos.length) {
-            if (!found.photo) found.photo = gPhotos[0];
-            found.photos = gPhotos;
+          const g = await googleEnrich(nName, nAddr || found.addr, gApiKey, 4);
+          if ((g.photos || []).length) {
+            if (!found.photo) found.photo = g.photos[0];
+            found.photos = g.photos;
           } else {
             failed.push("Google Places (aucune photo)");
           }
+          if (g.rating) gMetaRef.current = {
+            grating: g.rating,
+            gratingCount: g.ratingCount || 0
+          };
+          if (g.desc && !found.desc) found.desc = g.desc;
+          if (g.website) found.website = found.website || g.website;
+          if (g.price) found.price = g.price;
+          if (g.hours && !found.hours) found.hours = g.hours;
         } catch {
           failed.push("Google Places");
         }
@@ -6252,6 +6304,7 @@ function SpotFormModal({
     if (found.desc) setNDesc(p => p || found.desc);
     if (found.website) setNWebsite(p => p || found.website);
     if (found.wifi) setNWork(true);
+    if (found.price) setNPrice(p => p || found.price);
     if (found.cuisine) {
       const mapped = found.cuisine.split(/[;,]/).map(c => c.trim().toLowerCase()).filter(Boolean).map(c => {
         for (const [k, v] of Object.entries(DC)) {
@@ -6290,6 +6343,7 @@ function SpotFormModal({
         vibe: nVibe
       }
     };
+    if (gMetaRef.current) Object.assign(data, gMetaRef.current);
     if (editingId != null) data._editId = editingId;
     onSave(data);
   };
@@ -6587,7 +6641,9 @@ function SpotDetail({
   const [noteText, setNoteText] = useState(spot.note || "");
   const gmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name + " " + (spot.adresse || "")).trim())}`;
   const spotContacts = (spot.contacts || []).map(id => contacts.find(c => c.id === id)).filter(Boolean);
-  const meta = [spot.metro ? `🚇 ${spot.metro}` : "", spot.price ? `💸 ${spot.price}` : "", spot.hours ? `🕐 ${spot.hours}` : ""].filter(Boolean);
+  const gr = spot.grating || spot.tags && spot.tags.grating || null;
+  const grc = spot.gratingCount || spot.tags && spot.tags.gratingCount || 0;
+  const meta = [gr ? `⭐ ${gr}${grc ? ` (${grc})` : ""} · Google` : "", spot.metro ? `🚇 ${spot.metro}` : "", spot.price ? `💸 ${spot.price}` : "", spot.hours ? `🕐 ${spot.hours}` : ""].filter(Boolean);
   const photos = getPhotos(spot);
   const cat = CATS.find(c => c.key === primaryCat(spot));
   const isNight = getCats(spot).some(c => ["club", "speakeasy", "rooftop", "sortie"].includes(c));
@@ -10071,6 +10127,36 @@ function App() {
     }
     return sess.access_token;
   };
+  useEffect(() => {
+    if (session) {
+      window.spotaneProxy = async (action, payload) => {
+        const tok = await validToken(sessionRef.current);
+        const r = await fetch(`${SUPABASE_URL}/functions/v1/proxy`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${tok}`
+          },
+          body: JSON.stringify({
+            action,
+            ...payload
+          })
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) {
+          const err = new Error(d.error || "proxy " + r.status);
+          err.code = d.code;
+          if (d.code === "quota") window.mspToast?.(d.error, "warn");
+          throw err;
+        }
+        return d;
+      };
+    } else window.spotaneProxy = null;
+    return () => {
+      window.spotaneProxy = null;
+    };
+  }, [session]);
   const fullSync = async sess => {
     if (!sess) return;
     setSyncState("syncing");
