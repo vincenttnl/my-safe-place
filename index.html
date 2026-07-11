@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T20:28:43.316Z -->
+<!-- built 2026-07-11T20:36:13.563Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9305,8 +9305,14 @@ function WrappedModal({
       position: "absolute",
       inset: 0,
       background: cur.bg,
-      opacity: cur.wall && cur.wall.length ? 0.86 : 1,
+      opacity: cur.wall && cur.wall.length ? 0.38 : 1,
       transition: "background .4s var(--ease)"
+    }
+  }), cur.wall && cur.wall.length > 0 && React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: "radial-gradient(ellipse 90% 55% at 50% 50%,rgba(10,9,20,.66) 0%,rgba(10,9,20,.34) 62%,rgba(10,9,20,.12) 100%)"
     }
   }), cur.photo && React.createElement("img", {
     src: cur.photo,
@@ -9377,7 +9383,8 @@ function WrappedModal({
       maxWidth: 600,
       width: "100%",
       margin: "0 auto",
-      boxSizing: "border-box"
+      boxSizing: "border-box",
+      textShadow: "0 1px 14px rgba(0,0,0,.5)"
     }
   }, cur.r()));
 }
