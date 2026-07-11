@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T14:19:28.978Z -->
+<!-- built 2026-07-11T14:43:33.740Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -10794,7 +10794,12 @@ function App() {
     })();
   }, [city]);
   const [mapMode, setMapMode] = useState("discover");
-  const mapSource = useMemo(() => mapMode === "discover" ? catalog : spots, [mapMode, catalog, spots]);
+  const [mapFilter, setMapFilter] = useState(null);
+  const [zoneFilter, setZoneFilter] = useState(null);
+  const mapSource = useMemo(() => {
+    const base = mapMode === "discover" ? catalog : spots;
+    return mapFilter ? base.filter(s => mapFilter.ids.has(s.id)) : base;
+  }, [mapMode, catalog, spots, mapFilter]);
   const [remoteProposals, setRemoteProposals] = useState(null);
   useEffect(() => {
     (async () => {
@@ -12288,6 +12293,7 @@ function App() {
     const wantOpen = openNow || useNlp && nlp.openNow;
     const pnow = wantOpen ? nowParis() : null;
     const filtered = catalog.filter(s => {
+      if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
       if (wantOpen && isOpenNow(s.hours, pnow) !== true) return false;
       const catOk = (cat === "all" || hasCat(s, cat)) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
       let sOk = true;
@@ -12327,7 +12333,7 @@ function App() {
       }
       return softScore(b) - softScore(a) || (gRating(b) || 0) - (gRating(a) || 0);
     });
-  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, searchMode, nlp, nlpPlace, userPos]);
+  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -14006,11 +14012,62 @@ function App() {
       padding: '20px 20px 0'
     }
   }, React.createElement("div", {
-    className: "mono-label",
     style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
       marginBottom: 12
     }
-  }, (CITIES[city] || CITIES.paris).emoji, " Le meilleur de ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), nlp.active && (() => {
+  }, React.createElement("div", {
+    className: "mono-label"
+  }, (CITIES[city] || CITIES.paris).emoji, " Le meilleur de ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), catalogVisible.length > 0 && catalogVisible.length < 400 && React.createElement("button", {
+    onClick: () => {
+      setMapMode("discover");
+      setMapFilter({
+        ids: new Set(catalogVisible.map(s => s.id)),
+        label: search.trim() || "ta sélection",
+        n: catalogVisible.length
+      });
+      didFitRef.current = false;
+      setTab("map");
+    },
+    className: "press",
+    style: {
+      padding: '6px 13px',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontWeight: 700,
+      fontSize: 11.5,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDDFA\uFE0F Voir sur la carte")), zoneFilter && React.createElement("button", {
+    onClick: () => setZoneFilter(null),
+    className: "press",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      marginBottom: 12,
+      padding: '6px 12px',
+      borderRadius: 999,
+      border: '1px solid var(--pop-pink)',
+      background: '#FFF0F6',
+      color: 'var(--pop-pink)',
+      fontWeight: 700,
+      fontSize: 12,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer'
+    }
+  }, "\uD83D\uDCCD Zone de la carte \xB7 \u2715"), nlp.active && (() => {
     const P = (k, t) => React.createElement("span", {
       key: k,
       style: {
@@ -16716,7 +16773,24 @@ function App() {
         fontSize: 14,
         cursor: 'pointer'
       }
-    }, "Voir la fiche \u2192"), React.createElement("button", {
+    }, "Voir la fiche \u2192"), !spots.some(s => s.id === peekSpot.id) && React.createElement("button", {
+      onClick: () => addCatalogSpot(peekSpot),
+      "aria-label": "Ajouter \xE0 mes spots",
+      className: "press",
+      style: {
+        width: 46,
+        flexShrink: 0,
+        background: 'var(--ink-900)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 999,
+        padding: '12px 0',
+        cursor: 'pointer',
+        fontSize: 18,
+        fontWeight: 700,
+        lineHeight: 1
+      }
+    }, "+"), React.createElement("button", {
       onClick: () => go(1),
       "aria-label": "Spot suivant",
       className: "press",
@@ -16732,7 +16806,99 @@ function App() {
         fontWeight: 700
       }
     }, "\u203A")));
-  })(), sharedRef && React.createElement(SharedSpotLanding, {
+  })(), tab === "map" && mapFilter && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 'calc(14px + env(safe-area-inset-top,0px))',
+      left: 0,
+      right: 0,
+      display: 'flex',
+      justifyContent: 'center',
+      zIndex: 1200,
+      pointerEvents: 'none'
+    }
+  }, React.createElement("button", {
+    onClick: () => {
+      setMapFilter(null);
+      didFitRef.current = false;
+    },
+    className: "press",
+    style: {
+      pointerEvents: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      background: 'var(--ink-900)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: 999,
+      padding: '9px 16px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      cursor: 'pointer',
+      boxShadow: '0 8px 24px rgba(0,0,0,.28)',
+      maxWidth: '86vw'
+    }
+  }, React.createElement("span", {
+    style: {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, "\uD83D\uDD0E ", mapFilter.label, " \xB7 ", mapFilter.n), React.createElement("span", {
+    style: {
+      background: 'rgba(255,255,255,.22)',
+      borderRadius: 999,
+      width: 20,
+      height: 20,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 11,
+      flexShrink: 0
+    }
+  }, "\u2715"))), tab === "map" && mapMode === "discover" && !peekSpot && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      left: 0,
+      right: 0,
+      bottom: 'calc(84px + env(safe-area-inset-bottom,0px))',
+      display: 'flex',
+      justifyContent: 'center',
+      zIndex: 1100,
+      pointerEvents: 'none'
+    }
+  }, React.createElement("button", {
+    onClick: () => {
+      const m = mapRef.current;
+      if (!m) return;
+      const b = m.getBounds();
+      setZoneFilter({
+        s: b.getSouth(),
+        w: b.getWest(),
+        n: b.getNorth(),
+        e: b.getEast()
+      });
+      setSearchMode("discover");
+      setTab("spots");
+      window.mspToast?.("Découvrir filtré sur la zone de la carte 📍", "success");
+    },
+    className: "press",
+    style: {
+      pointerEvents: 'auto',
+      background: '#fff',
+      color: 'var(--ink-900)',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '10px 18px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      cursor: 'pointer',
+      boxShadow: '0 6px 20px rgba(0,0,0,.15)'
+    }
+  }, "\uD83D\uDCCB Lister cette zone")), sharedRef && React.createElement(SharedSpotLanding, {
     shared: sharedRef,
     onAdd: addSharedSpot,
     onDismiss: () => setSharedRef(null)
