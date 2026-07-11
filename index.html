@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T13:40:57.479Z -->
+<!-- built 2026-07-11T14:05:46.210Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -14204,89 +14204,83 @@ function App() {
     style: {
       marginBottom: 10
     }
-  }, "\uD83D\uDD0E Chercher un autre lieu"), React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      marginBottom: 10
-    }
-  }, React.createElement("input", {
-    value: discoverQ,
-    onChange: e => setDiscoverQ(e.target.value),
-    onKeyDown: e => {
-      if (e.key === "Enter") discoverSearch();
-    },
-    placeholder: `Ex : resto italien ${(CITIES[city] || CITIES.paris).label}, brunch...`,
-    className: "input-v2",
-    style: {
-      flex: 1
-    }
-  }), React.createElement("button", {
-    onClick: () => discoverSearch(),
-    disabled: discoverLoading,
-    className: "press",
-    style: {
-      padding: "12px 18px",
-      borderRadius: 'var(--radius-md)',
-      border: "none",
-      background: "var(--ink-900)",
-      color: "#fff",
-      fontWeight: 700,
-      fontSize: 14
-    }
-  }, discoverLoading ? "⏳" : "🔍")), React.createElement("div", {
+  }, "\uD83C\uDF0D Pas trouv\xE9 ? Cherche plus loin"), !search.trim() && React.createElement("div", {
     className: "h-scroll",
     style: {
       marginBottom: 12
     }
-  }, (cv => [["🍽️ Resto italien", "resto italien " + cv], ["🍜 Japonais", "japonais " + cv], ["☕ Brunch", "brunch " + cv], ["🍸 Cocktails", "bar cocktails " + cv], ["🎵 Club", "club " + cv], ["🍔 Burger", "resto burger " + cv], ["🍕 Pizza", "pizzeria " + cv], ["🥗 Vegan", "resto vegan " + cv]])((CITIES[city] || CITIES.paris).label).map(([label, q]) => React.createElement("button", {
+  }, ["resto italien", "japonais", "brunch", "bar à cocktails", "club techno", "rooftop pour un date", "burger pas cher", "vegan"].map(q => React.createElement("button", {
     key: q,
-    onClick: () => {
-      setDiscoverQ(q);
-      discoverSearch(q);
-    },
+    onClick: () => setSearch(q),
     className: "pill-btn",
     style: {
       whiteSpace: "nowrap"
     }
-  }, label))), discoverLoading && React.createElement("div", {
+  }, q))), search.trim() && !discoverLoading && React.createElement("button", {
+    onClick: () => discoverSearch(search),
+    className: "press",
+    style: {
+      width: '100%',
+      marginBottom: 12,
+      padding: '13px',
+      borderRadius: 999,
+      border: '1px solid var(--hairline)',
+      background: '#fff',
+      color: 'var(--ink-900)',
+      fontWeight: 700,
+      fontSize: 13.5,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer'
+    }
+  }, "\uD83C\uDF0D Chercher \xAB ", search.trim().slice(0, 32), " \xBB sur la carte du monde"), discoverLoading && React.createElement("div", {
     style: {
       textAlign: "center",
-      padding: 24,
+      padding: 20,
       color: "var(--ink-400)",
       fontFamily: 'var(--font-body)'
     }
-  }, "\u23F3 Recherche OpenStreetMap..."), discoverResults.length > 0 && React.createElement("div", {
+  }, "\uD83C\uDF0D Recherche des lieux\u2026"), discoverResults.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: "column",
-      gap: 8
+      gap: 10
     }
   }, React.createElement("div", {
     className: "mono-label"
-  }, discoverResults.length, " resultats"), discoverResults.map((el, i) => {
+  }, "\uD83C\uDF0D ", discoverResults.length, " lieux trouv\xE9s ailleurs"), discoverResults.map((el, i) => {
     const t = el.tags || {};
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
     const loc = [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ");
+    const am = t.amenity || "";
+    const gcat = ["bar", "pub"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : am === "cafe" ? "cafe" : ["restaurant", "fast_food"].includes(am) ? "resto" : "sortie";
+    const ci = CATS.find(c => c.key === gcat);
     const already = discoverAdded.has(t.name) || allSpots.some(s => s.name === t.name);
     return React.createElement("div", {
       key: el.id || i,
       className: "fade-in",
       style: {
+        display: 'flex',
+        gap: 12,
+        alignItems: 'center',
         background: "#fff",
-        borderRadius: 'var(--radius-md)',
-        padding: "12px 14px",
+        borderRadius: 'var(--radius-lg)',
+        padding: 10,
         border: "1px solid var(--hairline)",
-        borderLeft: `4px solid ${already ? "var(--ink-400)" : "var(--pop-pink)"}`
+        boxShadow: 'var(--shadow-sm,0 1px 3px rgba(0,0,0,.05))'
       }
     }, React.createElement("div", {
       style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "flex-start",
-        gap: 8
+        width: 54,
+        height: 54,
+        borderRadius: 12,
+        flexShrink: 0,
+        background: CB[gcat],
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 24
       }
-    }, React.createElement("div", {
+    }, ci && ci.emoji), React.createElement("div", {
       style: {
         flex: 1,
         minWidth: 0
@@ -14295,56 +14289,53 @@ function App() {
       style: {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 14
+        fontSize: 14.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
     }, t.name), React.createElement("div", {
       style: {
         fontSize: 12,
         color: "var(--ink-400)",
-        marginTop: 2
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
-    }, [addr, loc].filter(Boolean).join(", ") || "Adresse non precisee"), React.createElement("div", {
+    }, [addr, loc].filter(Boolean).join(", ") || ci && ci.label), t.cuisine && React.createElement("div", {
       style: {
-        display: "flex",
-        gap: 4,
-        flexWrap: "wrap",
-        marginTop: 4
+        fontSize: 11.5,
+        color: '#B45309',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
-    }, t.cuisine && React.createElement("span", {
-      className: "chip",
+    }, "\uD83C\uDF74 ", t.cuisine.replace(/;/g, ", ").replace(/_/g, " "))), already ? React.createElement("span", {
+      title: "D\xE9j\xE0 dans Mes spots",
       style: {
-        background: "#fff7e6",
-        color: "#b45309"
-      }
-    }, "\uD83C\uDF74 ", t.cuisine.replace(/;/g, ", ")), t.opening_hours && React.createElement("span", {
-      className: "chip",
-      style: {
-        background: "var(--bg-soft)",
-        color: "var(--ink-400)"
-      }
-    }, "\uD83D\uDD50"), React.createElement("span", {
-      className: "chip",
-      style: {
-        background: "var(--bg-soft)",
-        color: "var(--ink-400)"
-      }
-    }, AMENITY_LABELS[t.amenity] || "📍"))), already ? React.createElement("span", {
-      style: {
-        fontSize: 16
+        fontSize: 20,
+        flexShrink: 0,
+        paddingRight: 6
       }
     }, "\u2705") : React.createElement("button", {
       onClick: () => addFromDiscover(el),
       className: "press",
+      "aria-label": "Ajouter",
       style: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+        width: 38,
+        height: 38,
+        borderRadius: 12,
         border: "none",
         background: "var(--pop-pink)",
         color: "#fff",
-        fontSize: 18
+        fontSize: 22,
+        lineHeight: 1,
+        flexShrink: 0,
+        cursor: 'pointer'
       }
-    }, "+")));
+    }, "+"));
   }))));
   const EventsTab = () => React.createElement("div", {
     style: {
