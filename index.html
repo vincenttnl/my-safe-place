@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T16:16:44.365Z -->
+<!-- built 2026-07-11T16:20:49.871Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18184,9 +18184,35 @@ requestAnimationFrame(() => {
 </script>
 
 <script>
+// 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
+// version s'active pendant que la page est ouverte → controllerchange → bannière « Mettre à jour »
+// (un reload suffit, le HTML est network-first). reg.update() est forcé à chaque retour au premier
+// plan car iOS PWA ne vérifie presque jamais tout seul — fini les 2 force-quits.
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').then((reg) => {
+      let last = 0;
+      const check = () => { const now = Date.now(); if (now - last > 60000) { last = now; reg.update().catch(() => {}); } };
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') check(); });
+      window.addEventListener('focus', check);
+      setInterval(check, 30 * 60000);
+    }).catch(() => {});
+    let hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController) { hadController = true; return; } // toute première installation : rien à recharger
+      if (document.getElementById('msp-update-banner')) return;
+      const b = document.createElement('div');
+      b.id = 'msp-update-banner';
+      b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom,0px));z-index:9000;display:flex;align-items:center;gap:12px;background:#171726;color:#fff;padding:10px 12px 10px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-family:system-ui,-apple-system,sans-serif;font-size:14px;font-weight:600;max-width:92vw;white-space:nowrap;';
+      const label = document.createElement('span');
+      label.textContent = '✨ Nouvelle version dispo';
+      const btn = document.createElement('button');
+      btn.textContent = 'Mettre à jour';
+      btn.style.cssText = 'border:none;border-radius:999px;padding:9px 15px;background:linear-gradient(135deg,#FF2D9E,#7C3AED);color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;';
+      btn.onclick = () => { b.remove(); location.reload(); };
+      b.appendChild(label); b.appendChild(btn);
+      document.body.appendChild(b);
+    });
   });
 }
 </script>
