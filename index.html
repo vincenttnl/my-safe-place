@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T20:36:13.563Z -->
+<!-- built 2026-07-11T22:00:59.023Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -88,6 +88,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .slide-up{animation:slideUp .35s var(--ease) both}
 .press{transition:transform .12s ease;cursor:pointer}
 .press:active{transform:scale(.96)}
+
+/* ✕ rouge « Cerise bordée » (choix Vincent 11/07) — croix de fermeture unifiée */
+.msp-x{background:linear-gradient(180deg,#FF6259,#D91E18);border:2px solid #fff;box-shadow:0 4px 14px rgba(217,30,24,.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
+.msp-x svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.msp-x:active{transform:scale(.82)}
+@media(hover:hover){.msp-x:hover svg{transform:rotate(90deg)}.msp-x:hover{box-shadow:0 6px 18px rgba(217,30,24,.6)}}
 
 /* Bottom nav - Partiful style */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
@@ -5099,34 +5105,54 @@ function CatPill({
     }
   }, c.emoji), " ", c.label);
 }
+function RedX({
+  onClick,
+  size = 34,
+  style
+}) {
+  return React.createElement("button", {
+    onClick: onClick,
+    "aria-label": "Fermer",
+    className: "msp-x",
+    style: {
+      width: size,
+      height: size,
+      borderRadius: 999,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      flexShrink: 0,
+      ...style
+    }
+  }, React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    style: {
+      width: Math.round(size * 0.42),
+      height: Math.round(size * 0.42),
+      stroke: '#fff',
+      strokeWidth: 2.8,
+      strokeLinecap: 'round',
+      fill: 'none'
+    }
+  }, React.createElement("path", {
+    d: "M6 6 L18 18 M18 6 L6 18"
+  })));
+}
 function SheetClose({
   onClose
 }) {
   if (!onClose) return null;
-  return React.createElement("button", {
+  return React.createElement(RedX, {
     onClick: onClose,
-    "aria-label": "Fermer",
-    className: "press",
     style: {
       position: 'absolute',
       top: 6,
       right: 6,
-      width: 34,
-      height: 34,
-      borderRadius: 999,
-      background: 'rgba(0,0,0,0.06)',
-      border: '1px solid var(--hairline)',
-      color: 'var(--ink-600)',
-      cursor: 'pointer',
-      fontSize: 15,
-      fontWeight: 700,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 20,
-      lineHeight: 1
+      zIndex: 20
     }
-  }, "\u2715");
+  });
 }
 function ReactionModal({
   spot,
@@ -7292,24 +7318,16 @@ function SpotDetail({
       background: 'rgba(255,255,255,0.7)',
       zIndex: 2
     }
-  }), React.createElement("button", {
+  }), React.createElement(RedX, {
     onClick: onClose,
-    "aria-label": "Fermer",
+    size: 36,
     style: {
       position: 'absolute',
       top: 14,
       right: 14,
-      width: 36,
-      height: 36,
-      borderRadius: 999,
-      background: 'rgba(255,255,255,0.95)',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: 18,
-      fontWeight: 600,
       zIndex: 2
     }
-  }, "x"), React.createElement("div", {
+  }), React.createElement("div", {
     style: {
       padding: '22px 22px 24px'
     }
@@ -9348,27 +9366,19 @@ function WrappedModal({
       background: i <= idx ? "#fff" : "rgba(255,255,255,.28)",
       transition: "background .25s"
     }
-  }))), React.createElement("button", {
+  }))), React.createElement(RedX, {
     onClick: e => {
       e.stopPropagation();
       onClose();
     },
-    "aria-label": "Fermer",
+    size: 36,
     style: {
       position: "absolute",
       top: 26,
       right: 14,
-      zIndex: 2,
-      width: 36,
-      height: 36,
-      borderRadius: 999,
-      border: "none",
-      background: "rgba(0,0,0,.3)",
-      color: "#fff",
-      fontSize: 16,
-      cursor: "pointer"
+      zIndex: 2
     }
-  }, "\u2715"), React.createElement("div", {
+  }), React.createElement("div", {
     key: idx,
     className: "slide-up",
     style: {
@@ -16258,9 +16268,19 @@ function App() {
     onClick: ev => ev.stopPropagation(),
     style: {
       padding: 0,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      position: 'relative'
     }
-  }, qfapPeek.cover && React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: () => setQfapPeek(null),
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+      zIndex: 3
+    }
+  }), qfapPeek.cover && React.createElement("div", {
     style: {
       aspectRatio: '16/9',
       background: '#eee'
@@ -18381,25 +18401,16 @@ function App() {
         borderRadius: 999,
         background: 'var(--hairline)'
       }
-    })), React.createElement("button", {
+    })), React.createElement(RedX, {
       onClick: () => setPeekSpot(null),
-      "aria-label": "Fermer",
+      size: 32,
       style: {
         position: 'absolute',
         top: 12,
         right: 12,
-        width: 32,
-        height: 32,
-        borderRadius: 999,
-        background: 'rgba(0,0,0,0.06)',
-        border: '1px solid var(--hairline)',
-        cursor: 'pointer',
-        fontSize: 14,
-        fontWeight: 700,
-        color: 'var(--ink-600)',
         zIndex: 2
       }
-    }, "\u2715"), React.createElement("div", {
+    }), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 12,
