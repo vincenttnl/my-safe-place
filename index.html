@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T15:42:23.863Z -->
+<!-- built 2026-07-11T15:52:03.652Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -7053,6 +7053,7 @@ function SpotDetail({
   onNote,
   onShare,
   onRevisit,
+  onSecret,
   preview,
   onAddPreview
 }) {
@@ -7692,11 +7693,30 @@ function SpotDetail({
       textDecoration: 'none',
       textAlign: 'center'
     }
-  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es"), React.createElement("button", {
+  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 8,
+      marginTop: 8
+    }
+  }, React.createElement("button", {
+    onClick: () => onSecret(spot.id),
+    style: {
+      flex: 1,
+      background: spot.secret ? "var(--ink-900)" : "transparent",
+      border: '1px solid var(--hairline)',
+      padding: '12px',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 500,
+      fontSize: 13,
+      color: spot.secret ? "#fff" : "var(--ink-400)"
+    }
+  }, "\uD83D\uDE48 ", spot.secret ? "Spot secret ✓" : "Rendre secret"), React.createElement("button", {
     onClick: () => onStatus(spot.id, "rejected"),
     style: {
-      marginTop: 8,
-      width: '100%',
+      flex: 1,
       background: spot.status === "rejected" ? "#fee2e2" : "transparent",
       border: '1px solid var(--hairline)',
       padding: '12px',
@@ -7707,7 +7727,7 @@ function SpotDetail({
       fontSize: 13,
       color: spot.status === "rejected" ? "#991b1b" : "var(--ink-400)"
     }
-  }, "\uD83D\uDEAB ", spot.status === "rejected" ? "Annuler refus" : "Refuser")))));
+  }, "\uD83D\uDEAB ", spot.status === "rejected" ? "Annuler refus" : "Refuser"))))));
 }
 function PosterSpotCard({
   spot,
@@ -10782,6 +10802,18 @@ function App() {
   const [sharedRef, setSharedRef] = useState(() => parseSharedSpot());
   const [pendingRecvSpot, setPendingRecvSpot] = useState(null);
   const [sharedListRef, setSharedListRef] = useState(() => parseSharedList());
+  const [friendInvite, setFriendInvite] = useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const f = q.get("friend");
+      return f ? {
+        id: f,
+        name: q.get("fname") || ""
+      } : null;
+    } catch {
+      return null;
+    }
+  });
   const [pendingRecvList, setPendingRecvList] = useState(null);
   const [selectMode, setSelectMode] = useState(false);
   const [selIds, setSelIds] = useState(() => new Set());
@@ -11177,8 +11209,181 @@ function App() {
     dsPush("contacts", contacts);
   }, [contacts]);
   useEffect(() => {
+    const shared = lists.filter(l => l.visibility === "friends" || l.visibility === "link").map(l => ({
+      id: l.id,
+      name: l.name,
+      emoji: l.emoji,
+      visibility: l.visibility,
+      spotIds: (l.spotIds || []).filter(id => {
+        const sp = spots.find(x => x.id === id);
+        return isCatalogId(id) && !(sp && sp.secret);
+      })
+    }));
+    dsPush("lists_shared", shared);
+  }, [lists, spots]);
+  const [discreet, setDiscreet] = useState(() => {
+    try {
+      return !!JSON.parse(localStorage.getItem("myplace_settings_v1") || "{}").discreet;
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    try {
+      localStorage.setItem("myplace_settings_v1", JSON.stringify({
+        discreet
+      }));
+    } catch {}
+    dsPush("settings", {
+      discreet
+    });
+  }, [discreet]);
+  useEffect(() => {
     dsReadyRef.current = true;
   }, []);
+  const [friends, setFriends] = useState([]);
+  const [friendReqs, setFriendReqs] = useState([]);
+  const [friendOut, setFriendOut] = useState([]);
+  const [friendsLoading, setFriendsLoading] = useState(false);
+  const fetchFriends = async () => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    setFriendsLoading(true);
+    try {
+      const tok = await validToken(sess);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/friendships?select=id,requester,addressee,status`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`
+        }
+      });
+      const rows = await r.json();
+      const me = sess.user.id;
+      const peek = async uid => {
+        try {
+          const p = await fetch(`${SUPABASE_URL}/rest/v1/rpc/peek_profile`, {
+            method: "POST",
+            headers: {
+              apikey: SUPABASE_ANON_KEY,
+              Authorization: `Bearer ${tok}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              p_id: uid
+            })
+          });
+          const d = await p.json();
+          return Array.isArray(d) && d[0] || {};
+        } catch {
+          return {};
+        }
+      };
+      const acc = [],
+        inn = [],
+        out = [];
+      for (const f of Array.isArray(rows) ? rows : []) {
+        const other = f.requester === me ? f.addressee : f.requester;
+        const p = await peek(other);
+        const item = {
+          fid: f.id,
+          id: other,
+          name: p.display_name || "Ami mystère",
+          avatar: p.avatar || ""
+        };
+        if (f.status === "accepted") acc.push(item);else if (f.addressee === me) inn.push(item);else out.push(item);
+      }
+      setFriends(acc);
+      setFriendReqs(inn);
+      setFriendOut(out);
+    } catch (e) {}
+    setFriendsLoading(false);
+  };
+  useEffect(() => {
+    if (session && tab === "profile") fetchFriends();
+  }, [session, tab]);
+  const sendFriendRequest = async uid => {
+    const sess = sessionRef.current;
+    if (!sess) {
+      window.mspToast?.("Connecte-toi dans Profil, puis retape le lien d'invitation ✨", "warn");
+      return false;
+    }
+    if (uid === sess.user.id) {
+      window.mspToast?.("C'est ton propre lien 😄", "warn");
+      return false;
+    }
+    try {
+      const tok = await validToken(sess);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/friendships`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          addressee: uid
+        })
+      });
+      if (r.status === 409) {
+        window.mspToast?.("Demande déjà envoyée 👍", "info");
+        return true;
+      }
+      if (!r.ok) throw new Error("req " + r.status);
+      window.mspToast?.("Demande d'ami envoyée ! 🤝", "success");
+      fetchFriends();
+      return true;
+    } catch (e) {
+      window.mspToast?.("Impossible d'envoyer la demande", "error");
+      return false;
+    }
+  };
+  const respondFriend = async (fid, accept) => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    try {
+      const tok = await validToken(sess);
+      if (accept) await fetch(`${SUPABASE_URL}/rest/v1/friendships?id=eq.${fid}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          status: "accepted"
+        })
+      });else await fetch(`${SUPABASE_URL}/rest/v1/friendships?id=eq.${fid}`, {
+        method: "DELETE",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`
+        }
+      });
+      if (accept) window.mspToast?.("Vous êtes amis ! 🎉", "success");
+      fetchFriends();
+    } catch (e) {}
+  };
+  const inviteFriend = () => {
+    const sess = sessionRef.current;
+    if (!sess) {
+      window.mspToast?.("Connecte-toi pour inviter tes amis ✨", "warn");
+      return;
+    }
+    const BASE = APP_URL && APP_URL.indexOf("http") === 0 ? APP_URL : "https://vincenttnl.github.io/my-safe-place/";
+    const p = new URLSearchParams({
+      friend: sess.user.id
+    });
+    if (sess.user.pseudo) p.set("fname", sess.user.pseudo);
+    const url = BASE + "?" + p.toString();
+    const text = "Deviens mon ami sur Spotane 🤝 nos meilleures adresses restent entre nous 👇";
+    if (navigator.share) navigator.share({
+      title: "Spotane",
+      text,
+      url
+    }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien d'invitation copié !", "success")).catch(() => window.mspToast?.("Impossible de copier", "error"));
+  };
   const fullSync = async sess => {
     if (!sess) return;
     setSyncState("syncing");
@@ -11600,7 +11805,7 @@ function App() {
     };
   }));
   useEffect(() => {
-    if ((sharedRef || sharedListRef) && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname);
+    if ((sharedRef || sharedListRef || friendInvite) && window.history.replaceState) window.history.replaceState({}, "", window.location.pathname);
   }, []);
   useEffect(() => {
     if (tab !== "events") return;
@@ -11769,9 +11974,10 @@ function App() {
     }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien de la liste copié !", "success")).catch(() => window.mspToast?.("Impossible de copier le lien", "error"));
   };
   const [pendingShareList, setPendingShareList] = useState(null);
-  const shareList = (meta, spotObjs) => {
+  const shareList = (meta, spotObjsRaw) => {
+    const spotObjs = spotObjsRaw.filter(s => !s.secret);
     if (!spotObjs.length) {
-      window.mspToast?.("Cette liste est vide", "error");
+      window.mspToast?.("Cette liste est vide (ou 100 % secrète 🙈)", "error");
       return;
     }
     if (!myName) {
@@ -11824,6 +12030,15 @@ function App() {
       lastVisitedAt: Date.now()
     } : x));
     setReactionSpot(spot);
+  };
+  const toggleSecret = id => {
+    const sp = spots.find(s => s.id === id);
+    if (!sp) return;
+    setSpots(s => s.map(x => x.id === id ? {
+      ...x,
+      secret: !x.secret
+    } : x));
+    window.mspToast?.(sp.secret ? "Le spot redevient partageable" : "🙈 Spot secret — il ne sortira jamais de chez toi", "success");
   };
   const saveReaction = (id, emoji, note) => {
     setSpots(s => s.map(x => x.id === id ? {
@@ -15777,7 +15992,177 @@ function App() {
       avatar: avatar,
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount
-    })), React.createElement("div", {
+    }), session && React.createElement("div", {
+      style: {
+        marginTop: 14,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 18
+      }
+    }, "\uD83D\uDC65 Mes amis", friends.length ? ` · ${friends.length}` : ''), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("button", {
+      onClick: inviteFriend,
+      className: "press",
+      style: {
+        padding: '8px 14px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 12.5,
+        fontFamily: 'var(--font-body)',
+        cursor: 'pointer'
+      }
+    }, "\uD83E\uDD1D Inviter")), friendsLoading && React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: 'var(--ink-400)'
+      }
+    }, "Chargement\u2026"), friendReqs.length > 0 && React.createElement("div", {
+      style: {
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      className: "mono-label",
+      style: {
+        marginBottom: 8
+      }
+    }, "\uD83D\uDCE8 Demandes re\xE7ues"), friendReqs.map(f => React.createElement("div", {
+      key: f.fid,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 0'
+      }
+    }, React.createElement(Avatar, {
+      src: f.avatar,
+      name: f.name,
+      size: 36
+    }), React.createElement("span", {
+      style: {
+        flex: 1,
+        fontWeight: 700,
+        fontSize: 14,
+        fontFamily: 'var(--font-body)',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, f.name), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, true),
+      className: "press",
+      style: {
+        padding: '7px 13px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: 'pointer'
+      }
+    }, "Accepter"), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, false),
+      className: "press",
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        cursor: 'pointer',
+        fontSize: 12,
+        color: 'var(--ink-400)'
+      }
+    }, "\u2715")))), friends.length === 0 && !friendsLoading && friendReqs.length === 0 && React.createElement("div", {
+      style: {
+        fontSize: 13.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.5
+      }
+    }, "Invite tes potes avec ton lien \uD83E\uDD1D Vous pourrez partager vos listes de spots \u2014 et uniquement ce que chacun d\xE9cide."), friends.map(f => React.createElement("div", {
+      key: f.fid,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 0'
+      }
+    }, React.createElement(Avatar, {
+      src: f.avatar,
+      name: f.name,
+      size: 36
+    }), React.createElement("span", {
+      style: {
+        flex: 1,
+        fontWeight: 700,
+        fontSize: 14,
+        fontFamily: 'var(--font-body)',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, f.name), React.createElement("button", {
+      onClick: () => {
+        if (confirm(`Retirer ${f.name} de tes amis ?`)) respondFriend(f.fid, false);
+      },
+      className: "press",
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        cursor: 'pointer',
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Retirer"))), friendOut.length > 0 && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 8,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "\u23F3 En attente : ", friendOut.map(f => f.name).join(", ")), React.createElement("button", {
+      onClick: () => setDiscreet(d => !d),
+      className: "press",
+      style: {
+        marginTop: 14,
+        width: '100%',
+        padding: '12px',
+        borderRadius: 999,
+        border: '1px solid ' + (discreet ? 'transparent' : 'var(--hairline)'),
+        background: discreet ? 'var(--ink-900)' : '#fff',
+        color: discreet ? '#fff' : 'var(--ink-600)',
+        fontWeight: 700,
+        fontSize: 13,
+        fontFamily: 'var(--font-body)',
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDC7B Mode discret ", discreet ? "activé — tes listes sont invisibles" : "désactivé"))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -16591,8 +16976,68 @@ function App() {
     },
     onNote: saveNote,
     onShare: shareSpot,
-    onRevisit: revisitSpot
-  }), showCollectifSearch && React.createElement(CollectifSearchModal, {
+    onRevisit: revisitSpot,
+    onSecret: toggleSecret
+  }), friendInvite && React.createElement("div", {
+    className: "modal-center",
+    role: "dialog",
+    "aria-modal": "true"
+  }, React.createElement("div", {
+    className: "modal-box slide-up",
+    style: {
+      textAlign: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 44,
+      marginBottom: 10
+    }
+  }, "\uD83E\uDD1D"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 24,
+      lineHeight: 1.15
+    }
+  }, friendInvite.name || "Quelqu'un", " t'invite \xE0 devenir ami sur Spotane"), React.createElement("div", {
+    style: {
+      fontSize: 13.5,
+      color: 'var(--ink-400)',
+      marginTop: 10,
+      lineHeight: 1.5
+    }
+  }, "Les amis voient uniquement les listes que chacun choisit de partager. Rien d'autre \u2014 tes spots restent \xE0 toi. \uD83D\uDD12"), React.createElement("button", {
+    onClick: async () => {
+      const ok = await sendFriendRequest(friendInvite.id);
+      if (ok) setFriendInvite(null);
+    },
+    className: "press",
+    style: {
+      marginTop: 18,
+      width: '100%',
+      padding: 16,
+      borderRadius: 'var(--radius-pill)',
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 16,
+      cursor: 'pointer',
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "\uD83E\uDD1D Devenir amis"), React.createElement("button", {
+    onClick: () => setFriendInvite(null),
+    style: {
+      marginTop: 10,
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontSize: 14,
+      color: 'var(--ink-400)'
+    }
+  }, "Plus tard"))), showCollectifSearch && React.createElement(CollectifSearchModal, {
     onSearch: q => window.spotaneProxy ? window.spotaneProxy("raSearch", {
       q
     }) : Promise.reject(new Error("Connecte-toi d'abord ✨")),
