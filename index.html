@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T14:55:38.186Z -->
+<!-- built 2026-07-11T15:35:42.441Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -10874,6 +10874,7 @@ function App() {
     }).sort((a, b) => new Date(a.date) - new Date(b.date))[0];
     if (soon) return {
       emoji: "📅",
+      img: soon.photo || "",
       title: `${soon.name}, c'est ${formatRelDate(soon.date).toLowerCase()} !`,
       sub: soon.lieu ? `📍 ${soon.lieu}` : "Prépare ton plan",
       cta: "Voir",
@@ -10883,6 +10884,7 @@ function App() {
     const envie = spots.find(s => s.status === "wishlist" && !s.done && s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
     if (envie) return {
       emoji: "🔥",
+      img: firstPhoto(envie),
       title: `Tu voulais tester ${envie.name}…`,
       sub: "Et c'est ouvert, là, maintenant 👀",
       cta: "La fiche",
@@ -10891,6 +10893,7 @@ function App() {
     const noReact = spots.find(s => s.done && !s.reaction && s.lastVisitedAt && now - s.lastVisitedAt < 4 * 864e5);
     if (noReact) return {
       emoji: "💬",
+      img: firstPhoto(noReact),
       title: `Alors, c'était comment ${noReact.name} ?`,
       sub: "Mets ta réaction pour t'en souvenir",
       cta: "Noter",
@@ -10899,6 +10902,7 @@ function App() {
     const weekAdds = spots.filter(s => s.addedAt && now - s.addedAt < 7 * 864e5 && s.status !== "rejected").length;
     if (weekAdds >= 2) return {
       emoji: "✨",
+      img: "",
       title: `${weekAdds} spots ajoutés cette semaine`,
       sub: "Ta carte grandit — planifie ta prochaine sortie",
       cta: "Les voir",
@@ -10912,6 +10916,7 @@ function App() {
     const fav = spots.find(s => s.fav && !s.done && s.status !== "rejected");
     if (fav) return {
       emoji: "❤️",
+      img: firstPhoto(fav),
       title: `${fav.name} t'attend toujours`,
       sub: "Ton coup de cœur, jamais coché",
       cta: "On y va ?",
@@ -12641,16 +12646,29 @@ function App() {
         textAlign: 'left',
         display: 'flex',
         alignItems: 'center',
-        gap: 14,
-        background: 'linear-gradient(135deg,var(--ink-900),#33324A)',
+        gap: 13,
+        background: 'linear-gradient(135deg,#2ED8A7,#2D7DFF)',
         color: '#fff',
         border: 'none',
         borderRadius: 'var(--radius-lg)',
-        padding: '16px 18px',
+        padding: '14px 16px',
         cursor: 'pointer',
-        boxShadow: 'var(--shadow-pop)'
+        boxShadow: '0 8px 22px rgba(45,125,255,.35)'
       }
-    }, React.createElement("span", {
+    }, homeResume.img ? React.createElement("img", {
+      src: homeResume.img,
+      alt: "",
+      style: {
+        width: 54,
+        height: 54,
+        borderRadius: 12,
+        objectFit: 'cover',
+        flexShrink: 0
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }) : React.createElement("span", {
       style: {
         fontSize: 30,
         flexShrink: 0
@@ -12664,22 +12682,25 @@ function App() {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 17,
+        fontSize: 16.5,
         lineHeight: 1.15
       }
-    }, homeResume.title), React.createElement("div", {
+    }, homeResume.img ? homeResume.emoji + " " : "", homeResume.title), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 12.5,
-        opacity: .75,
-        marginTop: 3
+        opacity: .78,
+        marginTop: 3,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
     }, homeResume.sub)), React.createElement("span", {
       style: {
         background: 'var(--pop-pink)',
         borderRadius: 999,
-        padding: '8px 14px',
-        fontSize: 12.5,
+        padding: '8px 13px',
+        fontSize: 12,
         fontWeight: 700,
         whiteSpace: 'nowrap',
         flexShrink: 0,
