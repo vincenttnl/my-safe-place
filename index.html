@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T00:29:21.152Z -->
+<!-- built 2026-07-12T00:31:39.122Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2908,6 +2908,22 @@ const I18N = {
     vb_cozy: "Tranquille",
     vb_intime: "Intime",
     vb_exotic: "Dépaysant",
+    auth_sub: "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils.",
+    auth_login: "Se connecter",
+    auth_signup: "✨ Créer un compte",
+    auth_forgot: "Mot de passe oublié ?",
+    pm_price: "3,99 € / mois · sans engagement",
+    pm_cta: "💎 Je veux Spotane+",
+    pm_p1t: "Itinéraires métro/RER intégrés",
+    pm_p1d: "le trajet vers chaque spot, sans quitter l'app",
+    pm_p2t: "Recherche avancée",
+    pm_p2d: "« rooftop tranquille pour un date » — comprise à tous les coups",
+    pm_p3t: "Listes collaboratives",
+    pm_p3d: "construis « Notre été » à plusieurs",
+    pm_p4t: "Mode hors-ligne",
+    pm_p4d: "tes spots et cartes, même sans réseau",
+    pm_p5t: "Accès anticipé",
+    pm_p5d: "les nouveautés avant tout le monde",
     ob_hi: "Salut 👋",
     ob_welcome: "Bienvenue dans",
     ob_tag1: "Tes meilleurs spots au même endroit.",
@@ -3088,6 +3104,22 @@ const I18N = {
     vb_cozy: "Cozy",
     vb_intime: "Intimate",
     vb_exotic: "Exotic",
+    auth_sub: "Sign in to find your spots, favorites and notes on all your devices.",
+    auth_login: "Sign in",
+    auth_signup: "✨ Create an account",
+    auth_forgot: "Forgot password?",
+    pm_price: "€3.99 / month · no commitment",
+    pm_cta: "💎 I want Spotane+",
+    pm_p1t: "Built-in metro/RER routes",
+    pm_p1d: "the way to each spot, without leaving the app",
+    pm_p2t: "Advanced search",
+    pm_p2d: "“quiet rooftop for a date” — understood every time",
+    pm_p3t: "Collaborative lists",
+    pm_p3d: "build “Our summer” together",
+    pm_p4t: "Offline mode",
+    pm_p4d: "your spots and maps, even without signal",
+    pm_p5t: "Early access",
+    pm_p5d: "new features before everyone else",
     ob_hi: "Hey 👋",
     ob_welcome: "Welcome to",
     ob_tag1: "Your best spots in one place.",
@@ -3268,6 +3300,22 @@ const I18N = {
     vb_cozy: "Tranquilo",
     vb_intime: "Íntimo",
     vb_exotic: "Exótico",
+    auth_sub: "Conéctate para encontrar tus spots, favoritos y notas en todos tus dispositivos.",
+    auth_login: "Iniciar sesión",
+    auth_signup: "✨ Crear una cuenta",
+    auth_forgot: "¿Olvidaste la contraseña?",
+    pm_price: "3,99 € / mes · sin compromiso",
+    pm_cta: "💎 Quiero Spotane+",
+    pm_p1t: "Rutas de metro integradas",
+    pm_p1d: "el camino a cada spot, sin salir de la app",
+    pm_p2t: "Búsqueda avanzada",
+    pm_p2d: "«rooftop tranquilo para una cita» — entendida siempre",
+    pm_p3t: "Listas colaborativas",
+    pm_p3d: "construye «Nuestro verano» entre varios",
+    pm_p4t: "Modo sin conexión",
+    pm_p4d: "tus spots y mapas, incluso sin señal",
+    pm_p5t: "Acceso anticipado",
+    pm_p5d: "las novedades antes que nadie",
     ob_hi: "Hola 👋",
     ob_welcome: "Bienvenido a",
     ob_tag1: "Tus mejores spots en un solo lugar.",
@@ -9211,7 +9259,7 @@ function OnboardingFlow({
 function PremiumModal({
   onClose
 }) {
-  const PERKS = [["🚇", "Itinéraires métro/RER intégrés", "le trajet vers chaque spot, sans quitter l'app"], ["🧠", "Recherche avancée", "« rooftop tranquille pour un date » — comprise à tous les coups"], ["📁", "Listes collaboratives", "construis « Notre été » à plusieurs"], ["✈️", "Mode hors-ligne", "tes spots et cartes, même sans réseau"], ["⚡", "Accès anticipé", "les nouveautés avant tout le monde"]];
+  const PERKS = [["🚇", tr("pm_p1t"), tr("pm_p1d")], ["🧠", tr("pm_p2t"), tr("pm_p2d")], ["📁", tr("pm_p3t"), tr("pm_p3d")], ["✈️", tr("pm_p4t"), tr("pm_p4d")], ["⚡", tr("pm_p5t"), tr("pm_p5d")]];
   return React.createElement("div", {
     className: "modal-center",
     role: "dialog",
@@ -9251,7 +9299,7 @@ function PremiumModal({
       marginTop: 4,
       fontFamily: 'var(--font-body)'
     }
-  }, "3,99 \u20AC / mois \xB7 sans engagement")), React.createElement("div", {
+  }, tr("pm_price"))), React.createElement("div", {
     style: {
       padding: '18px 20px 20px'
     }
@@ -9318,7 +9366,7 @@ function PremiumModal({
       cursor: 'pointer',
       boxShadow: 'var(--shadow-pop)'
     }
-  }, "\uD83D\uDC8E Je veux Spotane+"), React.createElement("button", {
+  }, tr("pm_cta")), React.createElement("button", {
     onClick: onClose,
     style: {
       marginTop: 10,
@@ -12093,7 +12141,7 @@ function AuthCard({
       fontFamily: 'var(--font-body)',
       marginBottom: 12
     }
-  }, "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils."), React.createElement("input", {
+  }, tr("auth_sub")), React.createElement("input", {
     value: email,
     onChange: e => setEmail(e.target.value),
     placeholder: "ton@email.fr",
@@ -12121,7 +12169,7 @@ function AuthCard({
     style: {
       fontSize: 14
     }
-  }, busy ? "⏳ Connexion…" : "Se connecter"), React.createElement("button", {
+  }, busy ? "⏳…" : tr("auth_login")), React.createElement("button", {
     onClick: () => swap("signup"),
     disabled: busy,
     className: "press",
@@ -12137,7 +12185,7 @@ function AuthCard({
       fontSize: 13,
       cursor: 'pointer'
     }
-  }, "\u2728 Cr\xE9er un compte"), React.createElement("button", {
+  }, tr("auth_signup")), React.createElement("button", {
     onClick: () => swap("forgot"),
     style: {
       marginTop: 10,
@@ -12149,7 +12197,7 @@ function AuthCard({
       fontSize: 13,
       color: 'var(--ink-400)'
     }
-  }, "Mot de passe oubli\xE9 ?"), info && React.createElement("div", {
+  }, tr("auth_forgot")), info && React.createElement("div", {
     style: {
       fontSize: 12.5,
       color: '#2ECC71',
