@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T16:32:36.713Z -->
+<!-- built 2026-07-12T17:19:13.214Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2909,7 +2909,7 @@ const I18N = {
     cat_rooftop: "Rooftops",
     cat_speakeasy: "Bars",
     cat_club: "Clubs",
-    cat_sortie: "Sorties",
+    cat_sortie: "Activités",
     react_fire: "Incroyable",
     react_ok: "Bien",
     react_meh: "Bof",
@@ -3195,7 +3195,7 @@ const I18N = {
     cat_rooftop: "Rooftops",
     cat_speakeasy: "Bars",
     cat_club: "Clubs",
-    cat_sortie: "Outings",
+    cat_sortie: "Activities",
     react_fire: "Amazing",
     react_ok: "Good",
     react_meh: "Meh",
@@ -3481,7 +3481,7 @@ const I18N = {
     cat_rooftop: "Rooftops",
     cat_speakeasy: "Bares",
     cat_club: "Clubs",
-    cat_sortie: "Planes",
+    cat_sortie: "Actividades",
     react_fire: "Increíble",
     react_ok: "Bien",
     react_meh: "Bah",
@@ -3925,10 +3925,16 @@ function _daysRange(a, b) {
   }
   return o;
 }
+function _normHours(raw) {
+  let h = raw.toLowerCase().replace(/é/g, "e").replace(/è/g, "e").replace(/&/g, " , ").replace(/\s+/g, " ").trim();
+  h = h.replace(/minuit/g, "24h").replace(/\bmidi\b/g, "12h");
+  h = h.replace(/\bmo\b/g, "lun").replace(/\btu\b/g, "mar").replace(/\bwe\b/g, "mer").replace(/\bth\b/g, "jeu").replace(/\bfr\b/g, "ven").replace(/\bsa\b/g, "sam").replace(/\bsu\b/g, "dim");
+  h = h.replace(/(\d{1,2}):(\d{2})/g, "$1h$2").replace(/;/g, ",");
+  return h;
+}
 function isOpenNow(hoursRaw, now) {
   if (!hoursRaw || !hoursRaw.trim()) return null;
-  let h = hoursRaw.toLowerCase().replace(/é/g, "e").replace(/è/g, "e").replace(/&/g, " , ").replace(/\s+/g, " ").trim();
-  h = h.replace(/minuit/g, "24h").replace(/\bmidi\b/g, "12h");
+  let h = _normHours(hoursRaw);
   const closed = new Set();
   const fmRe = /ferm[ee]s?\s+(?:le\s+)?((?:lun|mar|mer|jeu|ven|sam|dim)[a-z]*(?:\s*[,-]\s*(?:lun|mar|mer|jeu|ven|sam|dim)[a-z]*)*)/g;
   let fm;
@@ -3962,16 +3968,32 @@ function isOpenNow(hoursRaw, now) {
       slots.push([+m[1] * 60 + +(m[2] || 0), +m[3] * 60 + +(m[4] || 0)]);
       sawSlot = true;
     }
-    if (!days.has(now.day)) continue;
+    const today = days.has(now.day),
+      yesterday = days.has((now.day + 6) % 7);
     for (const [st, en] of slots) {
       if (en >= st) {
-        if (now.min >= st && now.min <= en) return true;
+        if (today && now.min >= st && now.min <= en) return true;
       } else {
-        if (now.min >= st || now.min <= en) return true;
+        if (today && now.min >= st) return true;
+        if (yesterday && now.min <= en) return true;
       }
     }
   }
   return sawSlot ? false : null;
+}
+function opensLate(hoursRaw) {
+  if (!hoursRaw || !hoursRaw.trim()) return false;
+  const h = _normHours(hoursRaw);
+  if (/24\s*h\s*\/\s*24|24\s*\/\s*7/.test(h)) return true;
+  const re = /(\d{1,2})\s*h\s*(\d{0,2})\s*(?:-|a|jusqu)?\s*(\d{1,2})?\s*h?\s*(\d{0,2})?/g;
+  let m;
+  while (m = re.exec(h)) {
+    if (m[3] == null) continue;
+    const st = +m[1] * 60 + +(m[2] || 0),
+      en = +m[3] * 60 + +(m[4] || 0);
+    if (en < st && en >= 300) return true;
+  }
+  return false;
 }
 const DEPTS = [{
   k: "75",
@@ -12928,6 +12950,7 @@ function App() {
   const [vibeF, setVibeF] = useState([]);
   const [musicF, setMusicF] = useState([]);
   const [openNow, setOpenNow] = useState(false);
+  const [lateNight, setLateNight] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filtPanelH, setFiltPanelH] = useState(190);
   const filtPanelRef = useRef(null);
@@ -12983,9 +13006,10 @@ function App() {
     t.addEventListener("pointerup", up);
     t.addEventListener("pointercancel", up);
   };
-  const nActiveFilters = (openNow ? 1 : 0) + (filter !== "all" ? 1 : 0) + budgetF.length + vibeF.length + musicF.length;
+  const nActiveFilters = (openNow ? 1 : 0) + (lateNight ? 1 : 0) + (filter !== "all" ? 1 : 0) + budgetF.length + vibeF.length + musicF.length;
   const resetFilters = () => {
     setOpenNow(false);
+    setLateNight(false);
     setFilter("all");
     setBudgetF([]);
     setVibeF([]);
@@ -12999,13 +13023,13 @@ function App() {
   const [mapReduced, setMapReduced] = useState(false);
   const mapCount = useMemo(() => {
     const pnow = openNow ? nowParis() : null;
-    const f = arr => arr.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, pnow) === true)).length;
+    const f = arr => arr.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, pnow) === true) && (!lateNight || opensLate(s.hours))).length;
     return {
       discover: f(catalog),
       mine: f(spots),
       friends: f(catalog.filter(s => friendSpotMap.has(s.id)))
     };
-  }, [catalog, spots, mapCats, openNow, friendSpotMap]);
+  }, [catalog, spots, mapCats, openNow, lateNight, friendSpotMap]);
   const [metroJ, setMetroJ] = useState(null);
   const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -14628,6 +14652,7 @@ function App() {
       if (!s.lat || !s.lng) return;
       if (!mapCats.has(primaryCat(s))) return;
       if (openNow && isOpenNow(s.hours, pnow) !== true) return;
+      if (lateNight && !opensLate(s.hours)) return;
       const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
       const fw = friendSpotMap.has(s.id);
       const m = L.circleMarker([s.lat, s.lng], {
@@ -14683,7 +14708,7 @@ function App() {
       });
       didFitRef.current = true;
     }
-  }, [tab, mapSource, userPos, mapCats, openNow, friendSpotMap]);
+  }, [tab, mapSource, userPos, mapCats, openNow, lateNight, friendSpotMap]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -14732,10 +14757,12 @@ function App() {
       }).addTo(map);
     }
   }, [tab, peekSpot]);
+  const lateCount = useMemo(() => (searchMode === "local" ? spots : catalog).filter(s => opensLate(s.hours)).length, [spots, catalog, searchMode]);
   const visible = useMemo(() => {
     const pnow = openNow ? nowParis() : null;
     return spots.filter(s => {
       if (openNow && isOpenNow(s.hours, pnow) !== true) return false;
+      if (lateNight && !opensLate(s.hours)) return false;
       const catOk = cat === "all" || hasCat(s, cat);
       let fOk = true;
       if (filter === "all") fOk = s.status !== "rejected";else if (filter === "todo") fOk = !s.done && s.status !== "rejected";else if (filter === "done") fOk = s.done;else if (filter === "fav") fOk = s.fav;else if (filter === "wishlist") fOk = s.status === "wishlist";else if (filter === "rejected") fOk = s.status === "rejected";else if (filter === "work") fOk = s.tags?.work === true;
@@ -14752,7 +14779,7 @@ function App() {
       }
       return catOk && fOk && sOk && bOk && vbOk && muOk && zOk;
     });
-  }, [spots, cat, filter, search, budgetF, vibeF, musicF, zones, openNow]);
+  }, [spots, cat, filter, search, budgetF, vibeF, musicF, zones, openNow, lateNight]);
   const sortedVisible = useMemo(() => {
     const arr = [...visible];
     const extractPrice = p => {
@@ -14796,6 +14823,7 @@ function App() {
     const filtered = catalog.filter(s => {
       if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
       if (wantOpen && isOpenNow(s.hours, pnow) !== true) return false;
+      if (lateNight && !opensLate(s.hours)) return false;
       const catOk = (cat === "all" || hasCat(s, cat)) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
       let sOk = true;
       if (useNlp) {
@@ -14834,7 +14862,7 @@ function App() {
       }
       return softScore(b) - softScore(a) || (gRating(b) || 0) - (gRating(a) || 0);
     });
-  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
+  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, lateNight, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -16425,18 +16453,36 @@ function App() {
       borderRadius: 999,
       whiteSpace: 'nowrap',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
+      fontWeight: openNow ? 700 : 600,
       fontSize: 12,
-      border: '1px solid ' + (openNow ? '#16A34A' : 'var(--hairline)'),
-      background: openNow ? '#16A34A' : 'transparent',
-      color: openNow ? '#fff' : 'var(--ink-600)',
+      border: '1.5px solid ' + (openNow ? '#16A34A' : 'var(--hairline)'),
+      background: openNow ? '#fff' : 'transparent',
+      color: openNow ? '#16A34A' : 'var(--ink-600)',
       cursor: 'pointer',
       flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
       gap: 5
     }
-  }, tr("chip_open")), [["all", tr("f_all")], ["todo", tr("f_todo")], ["wishlist", tr("f_wish")], ["done", tr("f_done")], ["fav", tr("f_fav")], ["work", "Workfriendly"]].map(([k, l]) => {
+  }, tr("chip_open")), React.createElement("button", {
+    onClick: () => setLateNight(v => !v),
+    style: {
+      padding: '6px 12px',
+      borderRadius: 999,
+      whiteSpace: 'nowrap',
+      fontFamily: 'var(--font-body)',
+      fontWeight: lateNight ? 700 : 600,
+      fontSize: 12,
+      border: '1.5px solid ' + (lateNight ? '#1E1B4B' : 'var(--hairline)'),
+      background: lateNight ? '#fff' : 'transparent',
+      color: lateNight ? '#1E1B4B' : 'var(--ink-600)',
+      cursor: 'pointer',
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5
+    }
+  }, "\uD83C\uDF19 +5h", lateCount ? ` · ${lateCount}` : ''), [["all", tr("f_all")], ["todo", tr("f_todo")], ["wishlist", tr("f_wish")], ["done", tr("f_done")], ["fav", tr("f_fav")], ["work", "Workfriendly"]].map(([k, l]) => {
     const active = filter === k;
     return React.createElement("button", {
       key: k,
@@ -16448,9 +16494,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-pink)' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? 'var(--pop-pink)' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16480,9 +16526,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-orange)' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? 'var(--pop-orange)' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16499,9 +16545,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-orange)' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? 'var(--pop-orange)' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? 'var(--pop-orange)' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16531,9 +16577,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-violet)' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? 'var(--pop-violet)' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16550,9 +16596,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-violet)' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? 'var(--pop-violet)' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? 'var(--pop-violet)' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16582,9 +16628,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
-        background: active ? '#0EA5E9' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? '#0EA5E9' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16601,9 +16647,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 500,
         fontSize: 12,
-        border: '1px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
-        background: active ? '#0EA5E9' : 'transparent',
-        color: active ? '#fff' : 'var(--ink-600)',
+        border: '1.5px solid ' + (active ? '#0EA5E9' : 'var(--hairline)'),
+        background: active ? '#fff' : 'transparent',
+        color: active ? '#0EA5E9' : 'var(--ink-600)',
         cursor: 'pointer',
         flexShrink: 0
       }
