@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T05:06:10.339Z -->
+<!-- built 2026-07-12T15:11:08.441Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -107,6 +107,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .section-title{font-family:var(--font-display);font-weight:900;font-size:28px;letter-spacing:-0.015em;color:var(--ink-900);line-height:1.05}
 .section-sub{font-family:var(--font-body);font-size:13px;color:var(--ink-400);margin-top:4px}
 .mono-label{font-family:var(--font-mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-400)}
+/* DA v10.39 — en-têtes dynamiques : pastille dégradée (remplace le mono-label gris des heros) + titres 1 ligne */
+.grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,61,139,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grad-lbl{font-family:var(--font-body);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:800;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px)}
+.msp-totop{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:89;width:48px;height:48px;border-radius:999px;border:none;cursor:pointer;background:var(--ink-900);color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px rgba(0,0,0,0.32);animation:totopIn .25s var(--ease) both}
+@keyframes totopIn{from{opacity:0;transform:translateY(14px) scale(.85)}to{opacity:1;transform:none}}
 
 /* Category grid - Partiful */
 .cat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -2887,6 +2893,16 @@ const I18N = {
     btn_later: "Plus tard",
     lang_title: "🌍 Langue",
     lang_auto: "🪄 langue du téléphone",
+    flt_btn: "Filtres",
+    flt_reset: "Réinitialiser",
+    flt_status: "Statut",
+    flt_budget: "Budget",
+    flt_vibe: "Ambiance",
+    flt_music: "Musique",
+    spots_title: "Mes spots à {city} 🎆",
+    spots_pill: "★ {n} spots",
+    home_title: "Où on va ce soir ? 🍸",
+    prof_title: "C'est ton safe place 🏠",
     cat_all: "Tout",
     cat_resto: "Restos",
     cat_cafe: "Cafés",
@@ -3163,6 +3179,16 @@ const I18N = {
     btn_later: "Later",
     lang_title: "🌍 Language",
     lang_auto: "🪄 phone language",
+    flt_btn: "Filters",
+    flt_reset: "Reset",
+    flt_status: "Status",
+    flt_budget: "Budget",
+    flt_vibe: "Vibe",
+    flt_music: "Music",
+    spots_title: "My spots in {city} 🎆",
+    spots_pill: "★ {n} spots",
+    home_title: "Where to tonight? 🍸",
+    prof_title: "Your safe place 🏠",
     cat_all: "All",
     cat_resto: "Restaurants",
     cat_cafe: "Cafés",
@@ -3439,6 +3465,16 @@ const I18N = {
     btn_later: "Más tarde",
     lang_title: "🌍 Idioma",
     lang_auto: "🪄 idioma del teléfono",
+    flt_btn: "Filtros",
+    flt_reset: "Restablecer",
+    flt_status: "Estado",
+    flt_budget: "Presupuesto",
+    flt_vibe: "Ambiente",
+    flt_music: "Música",
+    spots_title: "Mis spots en {city} 🎆",
+    spots_pill: "★ {n} spots",
+    home_title: "¿Salimos esta noche? 🍸",
+    prof_title: "Tu safe place 🏠",
     cat_all: "Todo",
     cat_resto: "Restos",
     cat_cafe: "Cafés",
@@ -3969,18 +4005,8 @@ const PARIS_ARR = Array.from({
 const CATS = [{
   key: "all",
   label: tr("cat_all"),
-  emoji: "🌟",
+  emoji: "📍",
   color: "#6C63FF"
-}, {
-  key: "resto",
-  label: tr("cat_resto"),
-  emoji: "🍽️",
-  color: "#16A34A"
-}, {
-  key: "cafe",
-  label: tr("cat_cafe"),
-  emoji: "☕",
-  color: "#6F4E37"
 }, {
   key: "rooftop",
   label: tr("cat_rooftop"),
@@ -4001,6 +4027,16 @@ const CATS = [{
   label: tr("cat_sortie"),
   emoji: "✨",
   color: "#EA580C"
+}, {
+  key: "cafe",
+  label: tr("cat_cafe"),
+  emoji: "☕",
+  color: "#6F4E37"
+}, {
+  key: "resto",
+  label: tr("cat_resto"),
+  emoji: "🍽️",
+  color: "#16A34A"
 }];
 const CC = {
   resto: "#16A34A",
@@ -12892,6 +12928,64 @@ function App() {
   const [vibeF, setVibeF] = useState([]);
   const [musicF, setMusicF] = useState([]);
   const [openNow, setOpenNow] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filtPanelH, setFiltPanelH] = useState(190);
+  const filtPanelRef = useRef(null);
+  const spotsHdrRef = useRef(null);
+  const [hdrStuck, setHdrStuck] = useState(false);
+  const [showToTop, setShowToTop] = useState(false);
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const el = spotsHdrRef.current;
+        setHdrStuck(!!el && el.getBoundingClientRect().top <= 0.5);
+        setShowToTop(window.scrollY > 350);
+      });
+    };
+    window.addEventListener("scroll", onScroll, {
+      passive: true
+    });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+  const startFiltDrag = e => {
+    const el = filtPanelRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const t = e.currentTarget,
+      y0 = e.clientY,
+      h0 = el.offsetHeight;
+    el.style.transition = "none";
+    try {
+      t.setPointerCapture(e.pointerId);
+    } catch {}
+    const mv = ev => {
+      el.style.height = Math.min(440, Math.max(96, h0 + (ev.clientY - y0))) + "px";
+    };
+    const up = () => {
+      el.style.transition = "";
+      setFiltPanelH(el.offsetHeight);
+      t.removeEventListener("pointermove", mv);
+      t.removeEventListener("pointerup", up);
+      t.removeEventListener("pointercancel", up);
+    };
+    t.addEventListener("pointermove", mv);
+    t.addEventListener("pointerup", up);
+    t.addEventListener("pointercancel", up);
+  };
+  const nActiveFilters = (openNow ? 1 : 0) + (filter !== "all" ? 1 : 0) + budgetF.length + vibeF.length + musicF.length;
+  const resetFilters = () => {
+    setOpenNow(false);
+    setFilter("all");
+    setBudgetF([]);
+    setVibeF([]);
+    setMusicF([]);
+  };
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
@@ -14757,18 +14851,18 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        padding: 'calc(28px + env(safe-area-inset-top,0px)) 20px 24px',
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 16px',
         background: 'var(--bg-cream)'
       }
     }, React.createElement("div", {
       style: {
         display: 'flex',
-        alignItems: 'flex-start',
+        alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12
       }
     }, React.createElement("div", {
-      className: "mono-label"
+      className: "grad-pill"
     }, "\u263C Salut", who ? " " + who : "", " \xB7 ", dayLabel), session && React.createElement("button", {
       onClick: () => setTab("profile"),
       className: "press",
@@ -14785,19 +14879,15 @@ function App() {
       size: 38,
       ring: true
     }))), React.createElement("h1", {
+      className: "hero-line",
       style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 48,
-        lineHeight: 0.95,
-        letterSpacing: '-0.02em',
-        margin: '8px 0 0'
+        marginTop: 8
       }
-    }, "Ou on va", React.createElement("br", null), "ce soir ? \uD83C\uDF78"), React.createElement("div", {
+    }, tr("home_title")), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 10,
-        marginTop: 22
+        marginTop: 14
       }
     }, React.createElement("button", {
       onClick: () => setShowPropositions(true),
@@ -14835,7 +14925,7 @@ function App() {
       }
     }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
       style: {
-        padding: '24px 20px 4px'
+        padding: '16px 20px 4px'
       }
     }, React.createElement("div", {
       style: {
@@ -15936,26 +16026,36 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(28px + env(safe-area-inset-top,0px)) 20px 14px',
+      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px calc(4px + env(safe-area-inset-top,0px))',
       background: 'var(--bg-cream)'
     }
   }, React.createElement("div", {
-    className: "mono-label",
+    className: "grad-pill"
+  }, tr("spots_pill", {
+    n: spots.length
+  })), React.createElement("h1", {
+    className: "hero-line",
     style: {
-      marginBottom: 6
+      marginTop: 6
     }
-  }, "\u2605 Mes spots \xB7 ", spots.length), React.createElement("h1", {
+  }, tr("spots_title", {
+    city: (CITIES[city] || CITIES.paris).label
+  }))), React.createElement("div", {
+    ref: spotsHdrRef,
     style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 48,
-      lineHeight: 0.95,
-      letterSpacing: '-0.025em',
-      margin: 0
+      position: 'sticky',
+      top: 0,
+      zIndex: 5,
+      background: 'var(--bg-cream)',
+      paddingTop: 'env(safe-area-inset-top,0px)',
+      marginTop: 'calc(-1 * env(safe-area-inset-top,0px))',
+      boxShadow: hdrStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
+      borderBottom: '1px solid ' + (hdrStuck ? 'var(--hairline)' : 'transparent'),
+      transition: 'box-shadow .25s,border-color .25s'
     }
-  }, "Mes spots", React.createElement("br", null), "a Paris \u2728")), React.createElement("div", {
+  }, React.createElement("div", {
     style: {
-      padding: '16px 20px 0',
+      padding: '6px 20px 0',
       background: 'var(--bg-cream)'
     }
   }, React.createElement("div", {
@@ -16023,7 +16123,7 @@ function App() {
     value: "distance"
   }, "\uD83D\uDCCD Distance")))), React.createElement("div", {
     style: {
-      padding: '14px 20px 0',
+      padding: '8px 20px 0',
       background: 'var(--bg-cream)',
       display: 'flex',
       gap: 10,
@@ -16187,10 +16287,7 @@ function App() {
   }, "+ Ajouter")), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
-      padding: '14px 0 4px',
-      position: 'sticky',
-      top: 0,
-      zIndex: 5
+      padding: '8px 0 0'
     }
   }, React.createElement("div", {
     style: {
@@ -16222,9 +16319,89 @@ function App() {
   })), React.createElement("div", {
     style: {
       display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      padding: '8px 20px 8px'
+    }
+  }, React.createElement("button", {
+    onClick: () => setShowFilters(v => !v),
+    className: "press",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 7,
+      border: '1px solid var(--hairline)',
+      background: '#fff',
+      borderRadius: 999,
+      padding: '8px 14px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      color: 'var(--ink-900)',
+      cursor: 'pointer'
+    }
+  }, "\u2699\uFE0F ", tr("flt_btn"), nActiveFilters > 0 && React.createElement("span", {
+    style: {
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      minWidth: 19,
+      height: 19,
+      borderRadius: 999,
+      fontSize: 11,
+      fontWeight: 800,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 5px'
+    }
+  }, nActiveFilters), React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: 'var(--ink-400)',
+      display: 'inline-block',
+      transform: showFilters ? 'rotate(180deg)' : 'none',
+      transition: 'transform .25s var(--ease)'
+    }
+  }, "\u25BC")), nActiveFilters > 0 && React.createElement("button", {
+    onClick: resetFilters,
+    style: {
+      border: 'none',
+      background: 'transparent',
+      color: 'var(--pop-pink)',
+      fontWeight: 700,
+      fontSize: 12.5,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer'
+    }
+  }, tr("flt_reset"))), React.createElement("div", {
+    ref: filtPanelRef,
+    style: {
+      height: showFilters ? filtPanelH : 0,
+      overflow: 'hidden',
+      transition: 'height .3s var(--ease)',
+      display: 'flex',
+      flexDirection: 'column',
+      borderTop: showFilters ? '1px solid var(--hairline)' : 'none'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      paddingTop: 10
+    }
+  }, React.createElement("div", {
+    className: "grad-lbl",
+    style: {
+      padding: '0 20px',
+      marginBottom: 6
+    }
+  }, tr("flt_status")), React.createElement("div", {
+    style: {
+      display: 'flex',
       gap: 6,
       overflowX: 'auto',
-      padding: '10px 20px 6px',
+      padding: '0 20px 10px',
       scrollbarWidth: 'none'
     }
   }, React.createElement("button", {
@@ -16265,11 +16442,17 @@ function App() {
       }
     }, l);
   })), React.createElement("div", {
+    className: "grad-lbl",
+    style: {
+      padding: '0 20px',
+      marginBottom: 6
+    }
+  }, tr("flt_budget")), React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6,
       overflowX: 'auto',
-      padding: '0 20px 6px',
+      padding: '0 20px 10px',
       scrollbarWidth: 'none'
     }
   }, (() => {
@@ -16310,11 +16493,17 @@ function App() {
       }
     }, b.l);
   })), React.createElement("div", {
+    className: "grad-lbl",
+    style: {
+      padding: '0 20px',
+      marginBottom: 6
+    }
+  }, tr("flt_vibe")), React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6,
       overflowX: 'auto',
-      padding: '0 20px 14px',
+      padding: '0 20px 10px',
       scrollbarWidth: 'none'
     }
   }, (() => {
@@ -16355,11 +16544,17 @@ function App() {
       }
     }, v.l);
   })), React.createElement("div", {
+    className: "grad-lbl",
+    style: {
+      padding: '0 20px',
+      marginBottom: 6
+    }
+  }, tr("flt_music")), React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6,
       overflowX: 'auto',
-      padding: '0 20px 14px',
+      padding: '0 20px 8px',
       scrollbarWidth: 'none'
     }
   }, (() => {
@@ -16399,7 +16594,25 @@ function App() {
         flexShrink: 0
       }
     }, m.e, " ", m.l);
-  }))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
+  }))), showFilters && React.createElement("div", {
+    onPointerDown: startFiltDrag,
+    style: {
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '6px 0 8px',
+      cursor: 'ns-resize',
+      touchAction: 'none'
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 44,
+      height: 5,
+      borderRadius: 999,
+      background: 'var(--hairline)'
+    }
+  }))))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
     style: {
       padding: '20px 20px 0'
     }
@@ -16953,24 +17166,17 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(28px + env(safe-area-inset-top,0px)) 20px 14px',
+      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 10px',
       background: 'var(--bg-cream)'
     }
   }, React.createElement("div", {
-    className: "mono-label",
-    style: {
-      marginBottom: 6
-    }
+    className: "grad-pill"
   }, tr("ev_mine"), " \xB7 ", sortedEvents.length, " ", tr("ev_upcoming")), React.createElement("h1", {
+    className: "hero-line",
     style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 48,
-      lineHeight: 0.95,
-      letterSpacing: '-0.025em',
-      margin: 0
+      marginTop: 6
     }
-  }, tr("ev_title1"), React.createElement("br", null), tr("ev_title2"))), React.createElement("div", {
+  }, tr("ev_title1"), " ", tr("ev_title2"))), React.createElement("div", {
     style: {
       padding: "14px 20px 4px"
     }
@@ -18045,24 +18251,17 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        padding: 'calc(28px + env(safe-area-inset-top,0px)) 20px 24px',
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 14px',
         background: 'var(--bg-cream)'
       }
     }, React.createElement("div", {
-      className: "mono-label",
-      style: {
-        marginBottom: 6
-      }
+      className: "grad-pill"
     }, "\u263B Profil \xB7 v3"), React.createElement("h1", {
+      className: "hero-line",
       style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 48,
-        lineHeight: 0.95,
-        letterSpacing: '-0.025em',
-        margin: 0
+        marginTop: 6
       }
-    }, "C'est ton", React.createElement("br", null), "safe place \uD83C\uDFE0")), React.createElement("div", {
+    }, tr("prof_title"))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -19972,7 +20171,14 @@ function App() {
     style: {
       paddingBottom: 20
     }
-  }, tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), React.createElement("nav", {
+  }, tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), showToTop && tab !== "map" && React.createElement("button", {
+    className: "msp-totop press",
+    "aria-label": "Retour en haut",
+    onClick: () => window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }, "\u2191"), React.createElement("nav", {
     className: "bottom-nav",
     "aria-label": "Navigation principale"
   }, [{
