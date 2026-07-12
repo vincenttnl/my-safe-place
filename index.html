@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T15:11:08.441Z -->
+<!-- built 2026-07-12T16:32:36.713Z -->
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
 <meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <link rel="manifest" href="manifest.json"/>
@@ -57,7 +57,7 @@
 
 
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:80px;overflow-x:clip;max-width:100vw}
+body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:80px;overflow-x:clip;max-width:100vw;touch-action:manipulation}
 textarea,input,select{font-family:var(--font-body);background:var(--input);color:var(--ink-900);border-color:var(--hairline)}
 
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -3792,14 +3792,14 @@ const Q_WHEN = [{
   l: "🌞 " + tr("when_day")
 }];
 const Q_VIBE = [{
+  k: "festif",
+  l: "🔥 " + tr("vb_party")
+}, {
   k: "chic",
   l: "✨ " + tr("vb_chic")
 }, {
   k: "decontracte",
   l: "😎 " + tr("vb_casual")
-}, {
-  k: "festif",
-  l: "🔥 " + tr("vb_party")
 }, {
   k: "intime",
   l: "🤫 " + tr("vb_intime")
@@ -4051,6 +4051,14 @@ const MUSIC = [{
   l: "Techno",
   e: "🔊"
 }, {
+  k: "reggaeton",
+  l: "Reggaeton",
+  e: "🔥"
+}, {
+  k: "hiphop",
+  l: "Hip-hop",
+  e: "🎤"
+}, {
   k: "house",
   l: "House",
   e: "🏠"
@@ -4058,14 +4066,6 @@ const MUSIC = [{
   k: "hardtech",
   l: "Hard techno",
   e: "⚡"
-}, {
-  k: "hiphop",
-  l: "Hip-hop",
-  e: "🎤"
-}, {
-  k: "reggaeton",
-  l: "Reggaeton",
-  e: "🔥"
 }, {
   k: "afro",
   l: "Afro",
@@ -12941,7 +12941,12 @@ function App() {
       raf = requestAnimationFrame(() => {
         raf = 0;
         const el = spotsHdrRef.current;
-        setHdrStuck(!!el && el.getBoundingClientRect().top <= 0.5);
+        let stuck = false;
+        if (el) {
+          const t = parseFloat(getComputedStyle(el).top) || 0;
+          stuck = el.getBoundingClientRect().top <= t + 0.5;
+        }
+        setHdrStuck(stuck);
         setShowToTop(window.scrollY > 350);
       });
     };
@@ -16026,7 +16031,7 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px calc(4px + env(safe-area-inset-top,0px))',
+      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 4px',
       background: 'var(--bg-cream)'
     }
   }, React.createElement("div", {
@@ -16041,14 +16046,23 @@ function App() {
   }, tr("spots_title", {
     city: (CITIES[city] || CITIES.paris).label
   }))), React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 'env(safe-area-inset-top,0px)',
+      background: 'var(--bg-cream)',
+      zIndex: 6,
+      pointerEvents: 'none'
+    }
+  }), React.createElement("div", {
     ref: spotsHdrRef,
     style: {
       position: 'sticky',
-      top: 0,
+      top: 'env(safe-area-inset-top,0px)',
       zIndex: 5,
       background: 'var(--bg-cream)',
-      paddingTop: 'env(safe-area-inset-top,0px)',
-      marginTop: 'calc(-1 * env(safe-area-inset-top,0px))',
       boxShadow: hdrStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
       borderBottom: '1px solid ' + (hdrStuck ? 'var(--hairline)' : 'transparent'),
       transition: 'box-shadow .25s,border-color .25s'
@@ -17187,7 +17201,7 @@ function App() {
       marginBottom: 10
     }
   }, React.createElement("div", {
-    className: "mono-label"
+    className: "grad-lbl"
   }, tr("ev_coll"), collectifs.length ? ` · ${collectifs.length}` : ''), React.createElement("div", {
     style: {
       flex: 1
@@ -17335,7 +17349,8 @@ function App() {
   }, React.createElement("div", {
     style: {
       fontSize: 13.5,
-      color: 'var(--ink-400)'
+      color: 'var(--ink-600)',
+      fontWeight: 600
     }
   }, tr("ev_follow_hint")), React.createElement("button", {
     onClick: () => {
@@ -17414,7 +17429,7 @@ function App() {
       padding: "14px 20px 4px"
     }
   }, React.createElement("div", {
-    className: "mono-label",
+    className: "grad-lbl",
     style: {
       marginBottom: 8
     }
