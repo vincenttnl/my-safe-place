@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T17:19:13.214Z -->
+<!-- built 2026-07-12T17:34:27.955Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -90,10 +90,11 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .press:active{transform:scale(.96)}
 
 /* ✕ rouge « Cerise bordée » (choix Vincent 11/07) — croix de fermeture unifiée */
-.msp-x{background:linear-gradient(180deg,#FF6259,#D91E18);border:2px solid #fff;box-shadow:0 4px 14px rgba(217,30,24,.5);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
+/* Pastille retour v10.42 (choix Vincent B3 v2 №8) : cercle blanc bordure rose, flèche rose */
+.msp-x{background:#fff;border:2px solid var(--pop-pink);box-shadow:0 4px 12px rgba(255,61,139,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
 .msp-x svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
 .msp-x:active{transform:scale(.82)}
-@media(hover:hover){.msp-x:hover svg{transform:rotate(90deg)}.msp-x:hover{box-shadow:0 6px 18px rgba(217,30,24,.6)}}
+@media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,61,139,.35)}}
 
 /* Bottom nav - Partiful style */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
@@ -4047,7 +4048,7 @@ const CATS = [{
 }, {
   key: "sortie",
   label: tr("cat_sortie"),
-  emoji: "✨",
+  emoji: "🎭",
   color: "#EA580C"
 }, {
   key: "cafe",
@@ -6037,7 +6038,7 @@ function RedX({
 }) {
   return React.createElement("button", {
     onClick: onClick,
-    "aria-label": "Fermer",
+    "aria-label": "Retour",
     className: "msp-x",
     style: {
       width: size,
@@ -6054,15 +6055,16 @@ function RedX({
   }, React.createElement("svg", {
     viewBox: "0 0 24 24",
     style: {
-      width: Math.round(size * 0.42),
-      height: Math.round(size * 0.42),
-      stroke: '#fff',
-      strokeWidth: 2.8,
+      width: Math.round(size * 0.5),
+      height: Math.round(size * 0.5),
+      stroke: 'var(--pop-pink)',
+      strokeWidth: 3.2,
       strokeLinecap: 'round',
+      strokeLinejoin: 'round',
       fill: 'none'
     }
   }, React.createElement("path", {
-    d: "M6 6 L18 18 M18 6 L6 18"
+    d: "M15 5l-7 7 7 7"
   })));
 }
 function SheetClose({
