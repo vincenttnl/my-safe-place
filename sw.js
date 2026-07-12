@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v80-2026-07-12';
+const CACHE_VERSION = 'spotane-v81-2026-07-12';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -130,3 +130,24 @@ async function staleWhileRevalidate(req, cacheName) {
   }).catch(() => null);
   return cached || (await network) || Response.error();
 }
+
+// ── 🔔 Push (socle pré-codé v10.31 — inerte tant que rien ne s'abonne, cf _explorations/plan-notifications.md) ──
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch (e) {}
+  const title = data.title || 'Spotane';
+  event.waitUntil(self.registration.showNotification(title, {
+    body: data.body || '',
+    icon: './icon-192.png',
+    badge: './icon-192.png',
+    data: { url: data.url || './' },
+  }));
+});
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || './';
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    for (const c of list) { if ('focus' in c) { c.navigate(url); return c.focus(); } }
+    return clients.openWindow(url);
+  }));
+});
