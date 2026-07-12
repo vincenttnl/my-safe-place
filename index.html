@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T05:00:09.549Z -->
+<!-- built 2026-07-12T05:06:10.339Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18159,38 +18159,37 @@ function App() {
     }, tr("lang_auto"))), React.createElement("div", {
       style: {
         display: 'flex',
-        gap: 8
+        gap: 6,
+        flexWrap: 'wrap'
       }
-    }, [["fr", "🇫🇷", "Français"], ["en", "🇬🇧", "English"], ["es", "🇪🇸", "Español"]].map(([k, f, n]) => React.createElement("button", {
-      key: k,
-      onClick: () => {
-        if (__lang !== k) {
+    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
+      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          if (on) return;
           window.mspHaptic?.(12);
-          window.mspSetLang(k);
+          if (k === "auto") {
+            try {
+              localStorage.removeItem(LANGK);
+            } catch {}
+            location.reload();
+          } else window.mspSetLang(k);
+        },
+        className: "press",
+        style: {
+          padding: '8px 13px',
+          borderRadius: 999,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 12.5,
+          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
+          background: on ? 'var(--pop-pink)' : '#fff',
+          color: on ? '#fff' : 'var(--ink-900)'
         }
-      },
-      className: "press",
-      style: {
-        flex: 1,
-        padding: '10px 4px',
-        borderRadius: 13,
-        cursor: 'pointer',
-        border: '1.5px solid ' + (__lang === k ? 'var(--pop-pink)' : 'var(--hairline)'),
-        background: __lang === k ? '#FFF0F6' : '#fff'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontSize: 19
-      }
-    }, f), React.createElement("div", {
-      style: {
-        fontSize: 10.5,
-        fontWeight: 700,
-        marginTop: 3,
-        fontFamily: 'var(--font-body)',
-        color: 'var(--ink-900)'
-      }
-    }, n)))))), React.createElement("div", {
+      }, f, " ", n);
+    })))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
