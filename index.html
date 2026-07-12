@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T00:31:39.122Z -->
+<!-- built 2026-07-12T01:31:05.569Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2908,6 +2908,73 @@ const I18N = {
     vb_cozy: "Tranquille",
     vb_intime: "Intime",
     vb_exotic: "Dépaysant",
+    t_1: "Impossible de copier le lien",
+    t_2: "Lien copié !",
+    t_3: "Connecte-toi pour suivre tes collectifs ✨",
+    t_4: "Vous êtes amis ! 🎉",
+    t_5: "Tous les spots ont déjà leurs photos !",
+    t_6: "Ton spot t'attend dans Mes spots 📍",
+    t_7: "Ta liste t'attend dans Spots → Listes 📁",
+    t_8: "Synchro échouée : ",
+    t_9: "Spotane+ arrive en septembre — tu seras dans les premiers 😏",
+    t_10: "Spot modifié",
+    t_11: "Récap copié ! Colle-le où tu veux 📋",
+    t_12: "Profil mis à jour ✓",
+    t_13: "Profil enregistré sur cet appareil — synchro à réessayer",
+    t_14: "Position trouvée — distances activées 📍",
+    t_15: "Photo enregistrée sur cet appareil (lance 07-avatar.sql pour la synchroniser)",
+    t_16: "Mot de passe mis à jour ✓",
+    t_17: "Mes spots vidé",
+    t_18: "Mes spots est déjà vide",
+    t_19: "Localisation refusée : autorise-la pour trier par distance",
+    t_20: "Liste supprimée",
+    t_21: "Lien expiré ou invalide — refais une demande",
+    t_22: "Lien de la liste copié !",
+    t_23: "Lien d'invitation copié !",
+    t_24: "Le partage de listes arrive bientôt — réglage enregistré ✨",
+    t_25: "Impossible de créer le lien",
+    t_26: "Impossible de copier",
+    t_27: "Impossible d'envoyer la demande",
+    t_28: "Import échoué : ",
+    t_29: "Géolocalisation non disponible sur cet appareil",
+    t_31: "Enrichissement OK",
+    t_32: "Demande déjà envoyée 👍",
+    t_33: "Demande d'ami envoyée ! 🤝",
+    t_34: "Découvrir filtré sur la zone de la carte 📍",
+    t_35: "Déconnecté — tes spots restent sur cet appareil",
+    t_36: "Connecte-toi pour inviter tes amis ✨",
+    t_37: "Connecte-toi dans Profil, puis retape le lien d'invitation ✨",
+    t_38: "Connecté — synchro activée ✓",
+    t_39: "Compte supprimé — tes spots restent sur cet appareil",
+    t_40: "Compte activé — reconnecte-toi pour synchroniser",
+    t_41: "Cette liste est vide (ou 100 % secrète 🙈)",
+    t_42: "C'est ton propre lien 😄",
+    t_43: "Ajoute ta clé IDFM dans Profil d'abord",
+    t_44: "Ajoute ta clé Google API dans Profil d'abord",
+    t_45: "Ajouté à Mes spots !",
+    t_46: "Active ta position pour calculer le trajet",
+    t_enrich_part: "Enrichissement partiel — tu peux relancer chaque étape ⚠️",
+    ev_mine: "📫 Tes events",
+    ev_upcoming: "a venir",
+    ev_title1: "Ca vient,",
+    ev_title2: "prepare-toi 🎉",
+    ev_search: "🔍 Rechercher un collectif",
+    ev_follow_hint: "Suis tes collectifs et clubs préférés — leurs prochaines soirées atterrissent ici, direct 🔥",
+    ev_follow_hint2: "Suis tes collectifs et clubs — leurs prochaines soirées arrivent direct dans Events.",
+    ev_discover: "🔥 Découvrir les collectifs actifs",
+    fo_name: "Nom du lieu *",
+    fo_addr: "📍 Adresse",
+    fo_desc: "Description",
+    fo_metro: "🚇 Métro",
+    fo_price: "💶 Prix",
+    fo_hours: "🕐 Horaires",
+    fo_photo: "📷 URL photo",
+    fo_site: "🌐 Site web",
+    fo_cats: "Catégories",
+    fo_cuisine: "Cuisine",
+    fo_vibe: "Ambiance",
+    ev_coll: "🎛️ Tes collectifs",
+    ev_whatson: "🔥 Ce qui se passe à",
     auth_sub: "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils.",
     auth_login: "Se connecter",
     auth_signup: "✨ Créer un compte",
@@ -3104,6 +3171,73 @@ const I18N = {
     vb_cozy: "Cozy",
     vb_intime: "Intimate",
     vb_exotic: "Exotic",
+    t_1: "Couldn't copy the link",
+    t_2: "Link copied!",
+    t_3: "Sign in to follow your collectives ✨",
+    t_4: "You're friends now! 🎉",
+    t_5: "All spots already have their photos!",
+    t_6: "Your spot is waiting in My spots 📍",
+    t_7: "Your list is waiting in Spots → Lists 📁",
+    t_8: "Sync failed: ",
+    t_9: "Spotane+ arrives in September — you'll be among the first 😏",
+    t_10: "Spot updated",
+    t_11: "Recap copied! Paste it anywhere 📋",
+    t_12: "Profile updated ✓",
+    t_13: "Profile saved on this device — retry sync later",
+    t_14: "Location found — distances enabled 📍",
+    t_15: "Photo saved on this device (run 07-avatar.sql to sync it)",
+    t_16: "Password updated ✓",
+    t_17: "My spots cleared",
+    t_18: "My spots is already empty",
+    t_19: "Location denied: allow it to sort by distance",
+    t_20: "List deleted",
+    t_21: "Link expired or invalid — request a new one",
+    t_22: "List link copied!",
+    t_23: "Invite link copied!",
+    t_24: "List sharing is coming soon — setting saved ✨",
+    t_25: "Couldn't create the link",
+    t_26: "Couldn't copy",
+    t_27: "Couldn't send the request",
+    t_28: "Import failed: ",
+    t_29: "Geolocation unavailable on this device",
+    t_31: "Enrichment OK",
+    t_32: "Request already sent 👍",
+    t_33: "Friend request sent! 🤝",
+    t_34: "Discover filtered to the map area 📍",
+    t_35: "Signed out — your spots stay on this device",
+    t_36: "Sign in to invite your friends ✨",
+    t_37: "Sign in from Profile, then open the invite link again ✨",
+    t_38: "Signed in — sync enabled ✓",
+    t_39: "Account deleted — your spots stay on this device",
+    t_40: "Account activated — sign in again to sync",
+    t_41: "This list is empty (or 100% secret 🙈)",
+    t_42: "That's your own link 😄",
+    t_43: "Add your IDFM key in Profile first",
+    t_44: "Add your Google API key in Profile first",
+    t_45: "Added to My spots!",
+    t_46: "Enable your location to compute the route",
+    t_enrich_part: "Partial enrichment — you can retry each step ⚠️",
+    ev_mine: "📫 Your events",
+    ev_upcoming: "upcoming",
+    ev_title1: "It's coming,",
+    ev_title2: "get ready 🎉",
+    ev_search: "🔍 Search a collective",
+    ev_follow_hint: "Follow your favorite collectives and clubs — their next parties land right here 🔥",
+    ev_follow_hint2: "Follow your collectives and clubs — their next parties arrive straight in Events.",
+    ev_discover: "🔥 Discover active collectives",
+    fo_name: "Place name *",
+    fo_addr: "📍 Address",
+    fo_desc: "Description",
+    fo_metro: "🚇 Metro",
+    fo_price: "💶 Price",
+    fo_hours: "🕐 Hours",
+    fo_photo: "📷 Photo URL",
+    fo_site: "🌐 Website",
+    fo_cats: "Categories",
+    fo_cuisine: "Cuisine",
+    fo_vibe: "Vibe",
+    ev_coll: "🎛️ Your collectives",
+    ev_whatson: "🔥 What's on in",
     auth_sub: "Sign in to find your spots, favorites and notes on all your devices.",
     auth_login: "Sign in",
     auth_signup: "✨ Create an account",
@@ -3300,6 +3434,73 @@ const I18N = {
     vb_cozy: "Tranquilo",
     vb_intime: "Íntimo",
     vb_exotic: "Exótico",
+    t_1: "No se pudo copiar el enlace",
+    t_2: "¡Enlace copiado!",
+    t_3: "Conéctate para seguir tus colectivos ✨",
+    t_4: "¡Ya sois amigos! 🎉",
+    t_5: "¡Todos los spots ya tienen sus fotos!",
+    t_6: "Tu spot te espera en Mis spots 📍",
+    t_7: "Tu lista te espera en Spots → Listas 📁",
+    t_8: "Error de sincro: ",
+    t_9: "Spotane+ llega en septiembre — estarás entre los primeros 😏",
+    t_10: "Spot modificado",
+    t_11: "¡Resumen copiado! Pégalo donde quieras 📋",
+    t_12: "Perfil actualizado ✓",
+    t_13: "Perfil guardado en este dispositivo — reintenta la sincro",
+    t_14: "Ubicación encontrada — distancias activadas 📍",
+    t_15: "Foto guardada en este dispositivo (ejecuta 07-avatar.sql para sincronizar)",
+    t_16: "Contraseña actualizada ✓",
+    t_17: "Mis spots vaciado",
+    t_18: "Mis spots ya está vacío",
+    t_19: "Ubicación denegada: permítela para ordenar por distancia",
+    t_20: "Lista eliminada",
+    t_21: "Enlace caducado o inválido — pide otro",
+    t_22: "¡Enlace de la lista copiado!",
+    t_23: "¡Enlace de invitación copiado!",
+    t_24: "Compartir listas llega pronto — ajuste guardado ✨",
+    t_25: "No se pudo crear el enlace",
+    t_26: "No se pudo copiar",
+    t_27: "No se pudo enviar la solicitud",
+    t_28: "Error de importación: ",
+    t_29: "Geolocalización no disponible en este dispositivo",
+    t_31: "Enriquecimiento OK",
+    t_32: "Solicitud ya enviada 👍",
+    t_33: "¡Solicitud de amistad enviada! 🤝",
+    t_34: "Descubrir filtrado a la zona del mapa 📍",
+    t_35: "Sesión cerrada — tus spots se quedan en este dispositivo",
+    t_36: "Conéctate para invitar a tus amigos ✨",
+    t_37: "Conéctate en Perfil y vuelve a abrir el enlace ✨",
+    t_38: "Conectado — sincro activada ✓",
+    t_39: "Cuenta eliminada — tus spots se quedan en este dispositivo",
+    t_40: "Cuenta activada — vuelve a conectarte para sincronizar",
+    t_41: "Esta lista está vacía (o 100 % secreta 🙈)",
+    t_42: "Es tu propio enlace 😄",
+    t_43: "Añade tu clave IDFM en Perfil primero",
+    t_44: "Añade tu clave Google API en Perfil primero",
+    t_45: "¡Añadido a Mis spots!",
+    t_46: "Activa tu ubicación para calcular la ruta",
+    t_enrich_part: "Enriquecimiento parcial — puedes reintentar cada paso ⚠️",
+    ev_mine: "📫 Tus eventos",
+    ev_upcoming: "próximos",
+    ev_title1: "Ya viene,",
+    ev_title2: "prepárate 🎉",
+    ev_search: "🔍 Buscar un colectivo",
+    ev_follow_hint: "Sigue tus colectivos y clubs favoritos — sus próximas fiestas aterrizan aquí 🔥",
+    ev_follow_hint2: "Sigue tus colectivos y clubs — sus próximas fiestas llegan directo a Eventos.",
+    ev_discover: "🔥 Descubrir colectivos activos",
+    fo_name: "Nombre del lugar *",
+    fo_addr: "📍 Dirección",
+    fo_desc: "Descripción",
+    fo_metro: "🚇 Metro",
+    fo_price: "💶 Precio",
+    fo_hours: "🕐 Horarios",
+    fo_photo: "📷 URL de foto",
+    fo_site: "🌐 Sitio web",
+    fo_cats: "Categorías",
+    fo_cuisine: "Cocina",
+    fo_vibe: "Ambiente",
+    ev_coll: "🎛️ Tus colectivos",
+    ev_whatson: "🔥 Qué se cuece en",
     auth_sub: "Conéctate para encontrar tus spots, favoritos y notas en todos tus dispositivos.",
     auth_login: "Iniciar sesión",
     auth_signup: "✨ Crear una cuenta",
@@ -7470,7 +7671,7 @@ function SpotFormModal({
       ...st
     });
     const vals = Object.values(st);
-    if (vals.length && vals.every(v => v === "ok" || v === "skip")) window.mspToast?.("Enrichissement OK", "success");else window.mspToast?.("Enrichissement partiel \u2014 tu peux relancer chaque \u00e9tape \u26a0\ufe0f", "warn");
+    if (vals.length && vals.every(v => v === "ok" || v === "skip")) window.mspToast?.(tr("t_31"), "success");else window.mspToast?.(tr("t_enrich_part"), "warn");
     setEnriching(false);
   };
   const handleSave = () => {
@@ -7531,7 +7732,7 @@ function SpotFormModal({
   }, editingId != null ? "Modifier le spot" : "Nouveau spot"), React.createElement("input", {
     value: nName,
     onChange: e => setNName(e.target.value),
-    placeholder: "Nom du lieu *",
+    placeholder: tr("fo_name"),
     className: "input-v2",
     style: {
       marginBottom: 8
@@ -7546,7 +7747,7 @@ function SpotFormModal({
   }, React.createElement("input", {
     value: nWebsite,
     onChange: e => setNWebsite(e.target.value),
-    placeholder: "\uD83C\uDF10 Site web",
+    placeholder: tr("fo_site"),
     className: "input-v2",
     style: {
       flex: 1
@@ -7629,7 +7830,7 @@ function SpotFormModal({
   }, React.createElement("input", {
     value: nPhoto,
     onChange: e => setNPhoto(e.target.value),
-    placeholder: "\uD83D\uDCF7 URL photo",
+    placeholder: tr("fo_photo"),
     className: "input-v2",
     style: {
       flex: 1
@@ -7654,11 +7855,11 @@ function SpotFormModal({
       setNLat(String(o.lat));
       setNLng(String(o.lng));
     },
-    placeholder: "\uD83D\uDCCD Adresse"
+    placeholder: tr("fo_addr")
   }), React.createElement("textarea", {
     value: nDesc,
     onChange: e => setNDesc(e.target.value),
-    placeholder: "Description",
+    placeholder: tr("fo_desc"),
     className: "input-v2",
     style: {
       resize: "vertical",
@@ -7675,7 +7876,7 @@ function SpotFormModal({
   }, React.createElement("input", {
     value: nMetro,
     onChange: e => setNMetro(e.target.value),
-    placeholder: "\uD83D\uDE87 M\xE9tro",
+    placeholder: tr("fo_metro"),
     className: "input-v2",
     style: {
       flex: 2
@@ -7683,7 +7884,7 @@ function SpotFormModal({
   }), React.createElement("input", {
     value: nPrice,
     onChange: e => setNPrice(e.target.value),
-    placeholder: "\uD83D\uDCB6 Prix",
+    placeholder: tr("fo_price"),
     className: "input-v2",
     style: {
       flex: 1
@@ -7691,7 +7892,7 @@ function SpotFormModal({
   })), React.createElement("input", {
     value: nHours,
     onChange: e => setNHours(e.target.value),
-    placeholder: "\uD83D\uDD50 Horaires",
+    placeholder: tr("fo_hours"),
     className: "input-v2",
     style: {
       marginBottom: 8
@@ -7729,7 +7930,7 @@ function SpotFormModal({
       fontWeight: 700,
       marginBottom: 6
     }
-  }, "Cat\xE9gories"), React.createElement("div", {
+  }, tr("fo_cats")), React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
@@ -7758,7 +7959,7 @@ function SpotFormModal({
       fontWeight: 700,
       marginBottom: 6
     }
-  }, "Cuisine"), React.createElement("div", {
+  }, tr("fo_cuisine")), React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
@@ -7787,7 +7988,7 @@ function SpotFormModal({
       fontWeight: 700,
       marginBottom: 6
     }
-  }, "Ambiance"), React.createElement("div", {
+  }, tr("fo_vibe")), React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
@@ -9348,7 +9549,7 @@ function PremiumModal({
     }
   }, "\uD83E\uDD1D Et le gratuit reste g\xE9n\xE9reux : spots illimit\xE9s, partage illimit\xE9, photos, toutes les villes, sync multi-appareils. ", React.createElement("strong", null, "Le c\u0153ur de Spotane ne sera jamais payant.")), React.createElement("button", {
     onClick: () => {
-      window.mspToast?.("Spotane+ arrive en septembre — tu seras dans les premiers 😏", "success");
+      window.mspToast?.(tr("t_9"), "success");
       onClose();
     },
     className: "press",
@@ -10008,7 +10209,7 @@ function WrappedModal({
     }).catch(() => {});else {
       try {
         navigator.clipboard.writeText(text);
-        window.mspToast?.("Récap copié ! Colle-le où tu veux 📋", "success");
+        window.mspToast?.(tr("t_11"), "success");
       } catch {}
     }
   };
@@ -10535,7 +10736,7 @@ function CollectifSearchModal({
       color: 'var(--ink-400)',
       marginBottom: 12
     }
-  }, "Suis tes collectifs et clubs \u2014 leurs prochaines soir\xE9es arrivent direct dans Events."), React.createElement("input", {
+  }, tr("ev_follow_hint2")), React.createElement("input", {
     value: q,
     onChange: e => onType(e.target.value),
     onKeyDown: e => {
@@ -11387,7 +11588,7 @@ function AuthCard({
       });
       setInfo("Profil mis à jour ✓");
     } catch (e) {
-      window.mspToast?.("Profil enregistré sur cet appareil — synchro à réessayer", "warn");
+      window.mspToast?.(tr("t_13"), "warn");
     }
     setBusy(false);
     setAcct("status");
@@ -12760,7 +12961,7 @@ function App() {
   const [geoLoading, setGeoLoading] = useState(false);
   const requestGeo = () => {
     if (!navigator.geolocation) {
-      window.mspToast?.("Géolocalisation non disponible sur cet appareil", "warn");
+      window.mspToast?.(tr("t_29"), "warn");
       return;
     }
     setGeoLoading(true);
@@ -12770,10 +12971,10 @@ function App() {
         lng: pos.coords.longitude
       });
       setGeoLoading(false);
-      window.mspToast?.("Position trouvée — distances activées 📍", "success");
+      window.mspToast?.(tr("t_14"), "success");
     }, () => {
       setGeoLoading(false);
-      window.mspToast?.("Localisation refusée : autorise-la pour trier par distance", "warn");
+      window.mspToast?.(tr("t_19"), "warn");
     }, {
       enableHighAccuracy: true,
       timeout: 8000
@@ -12781,12 +12982,12 @@ function App() {
   };
   const calcMetro = async spot => {
     if (!idfmKey) {
-      window.mspToast?.("Ajoute ta clé IDFM dans Profil d'abord", "warn");
+      window.mspToast?.(tr("t_43"), "warn");
       return;
     }
     if (!userPos) {
       requestGeo();
-      window.mspToast?.("Active ta position pour calculer le trajet", "warn");
+      window.mspToast?.(tr("t_46"), "warn");
       return;
     }
     setMetroLoading(true);
@@ -13034,11 +13235,11 @@ function App() {
   const sendFriendRequest = async uid => {
     const sess = sessionRef.current;
     if (!sess) {
-      window.mspToast?.("Connecte-toi dans Profil, puis retape le lien d'invitation ✨", "warn");
+      window.mspToast?.(tr("t_37"), "warn");
       return false;
     }
     if (uid === sess.user.id) {
-      window.mspToast?.("C'est ton propre lien 😄", "warn");
+      window.mspToast?.(tr("t_42"), "warn");
       return false;
     }
     try {
@@ -13056,15 +13257,15 @@ function App() {
         })
       });
       if (r.status === 409) {
-        window.mspToast?.("Demande déjà envoyée 👍", "info");
+        window.mspToast?.(tr("t_32"), "info");
         return true;
       }
       if (!r.ok) throw new Error("req " + r.status);
-      window.mspToast?.("Demande d'ami envoyée ! 🤝", "success");
+      window.mspToast?.(tr("t_33"), "success");
       fetchFriends();
       return true;
     } catch (e) {
-      window.mspToast?.("Impossible d'envoyer la demande", "error");
+      window.mspToast?.(tr("t_27"), "error");
       return false;
     }
   };
@@ -13091,14 +13292,14 @@ function App() {
           Authorization: `Bearer ${tok}`
         }
       });
-      if (accept) window.mspToast?.("Vous êtes amis ! 🎉", "success");
+      if (accept) window.mspToast?.(tr("t_4"), "success");
       fetchFriends();
     } catch (e) {}
   };
   const inviteFriend = () => {
     const sess = sessionRef.current;
     if (!sess) {
-      window.mspToast?.("Connecte-toi pour inviter tes amis ✨", "warn");
+      window.mspToast?.(tr("t_36"), "warn");
       return;
     }
     const BASE = APP_URL && APP_URL.indexOf("http") === 0 ? APP_URL : "https://vincenttnl.github.io/my-safe-place/";
@@ -13112,7 +13313,7 @@ function App() {
       title: "Spotane",
       text,
       url
-    }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien d'invitation copié !", "success")).catch(() => window.mspToast?.("Impossible de copier", "error"));
+    }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_23"), "success")).catch(() => window.mspToast?.(tr("t_26"), "error"));
   };
   useEffect(() => {
     if (!session) return;
@@ -13255,7 +13456,7 @@ function App() {
       setSyncState("synced");
     } catch (e) {
       setSyncState("error");
-      window.mspToast?.("Synchro échouée : " + e.message, "warn");
+      window.mspToast?.(tr("t_8") + e.message, "warn");
     }
   };
   const pushChanges = async () => {
@@ -13331,7 +13532,7 @@ function App() {
     syncProfile(sess);
     await fullSync(sess);
     dsPull(sess);
-    window.mspToast?.("Connecté — synchro activée ✓", "success");
+    window.mspToast?.(tr("t_38"), "success");
   };
   const syncProfile = async sess => {
     if (!sess || !sess.user || !sess.user.id) return;
@@ -13392,11 +13593,11 @@ function App() {
       if (row.avatar !== undefined) {
         delete row.avatar;
         p = await withTimeout(supaUpsertProfile(token, row));
-        window.mspToast?.("Photo enregistrée sur cet appareil (lance 07-avatar.sql pour la synchroniser)", "info");
+        window.mspToast?.(tr("t_15"), "info");
       } else throw e;
     }
     setProfile(p || (await withTimeout(supaGetProfile(token, sess.user.id))));
-    window.mspToast?.("Profil mis à jour ✓", "success");
+    window.mspToast?.(tr("t_12"), "success");
   };
   const deleteAccount = async () => {
     const sess = sessionRef.current;
@@ -13412,7 +13613,7 @@ function App() {
       localStorage.removeItem(SNAPK);
     } catch {}
     setSyncState("idle");
-    window.mspToast?.("Compte supprimé — tes spots restent sur cet appareil", "info");
+    window.mspToast?.(tr("t_39"), "info");
   };
   const signOut = async () => {
     const sess = sessionRef.current;
@@ -13434,7 +13635,7 @@ function App() {
       localStorage.removeItem(SNAPK);
     } catch {}
     setSyncState("idle");
-    window.mspToast?.("Déconnecté — tes spots restent sur cet appareil", "info");
+    window.mspToast?.(tr("t_35"), "info");
   };
   const applyRecovery = async newPwd => {
     const ev = authEvent;
@@ -13447,7 +13648,7 @@ function App() {
       expires_at: ev.expires_at,
       user: user
     });
-    window.mspToast?.("Mot de passe mis à jour ✓", "success");
+    window.mspToast?.(tr("t_16"), "success");
   };
   useEffect(() => {
     if (!authEvent || authEvent.kind !== "confirmed") return;
@@ -13462,14 +13663,14 @@ function App() {
         });
         setShowWelcome(true);
       } catch (e) {
-        window.mspToast?.("Compte activé — reconnecte-toi pour synchroniser", "info");
+        window.mspToast?.(tr("t_40"), "info");
       }
       setAuthEvent(null);
     })();
   }, []);
   useEffect(() => {
     if (authEvent && authEvent.kind === "error") {
-      window.mspToast?.("Lien expiré ou invalide — refais une demande", "warn");
+      window.mspToast?.(tr("t_21"), "warn");
       setAuthEvent(null);
     }
   }, []);
@@ -13599,7 +13800,7 @@ function App() {
   const deleteList = id => {
     setLists(ls => ls.filter(l => l.id !== id));
     setOpenListId(null);
-    window.mspToast?.("Liste supprimée", "success");
+    window.mspToast?.(tr("t_20"), "success");
   };
   const updateList = (id, patch) => setLists(ls => ls.map(l => l.id === id ? {
     ...l,
@@ -13682,7 +13883,7 @@ function App() {
       text,
       url
     }).catch(() => {});else {
-      navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien copié !", "success")).catch(() => window.mspToast?.("Impossible de copier le lien", "error"));
+      navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_2"), "success")).catch(() => window.mspToast?.(tr("t_1"), "error"));
     }
   };
   const finishNameAndShare = name => {
@@ -13696,7 +13897,7 @@ function App() {
         text,
         url
       }).catch(() => {});else {
-        navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien copié !", "success")).catch(() => window.mspToast?.("Impossible de copier le lien", "error"));
+        navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_2"), "success")).catch(() => window.mspToast?.(tr("t_1"), "error"));
       }
       setPendingShareSpot(null);
     }
@@ -13722,7 +13923,7 @@ function App() {
       setSpots(s => s.some(x => x.id === base.id) ? s : [...s, base]);
       window.mspHaptic?.(20);
       window.mspPopEmoji?.("📍");
-      window.mspToast?.("Ajouté à Mes spots !", "success");
+      window.mspToast?.(tr("t_45"), "success");
     } else {
       setPendingRecvSpot(base);
     }
@@ -13772,7 +13973,7 @@ function App() {
   const doShareList = (meta, spotObjs, name) => {
     const url = buildListShareURL(meta, spotObjs, name);
     if (!url) {
-      window.mspToast?.("Impossible de créer le lien", "error");
+      window.mspToast?.(tr("t_25"), "error");
       return;
     }
     const text = listShareText(meta.name, spotObjs.length);
@@ -13780,13 +13981,13 @@ function App() {
       title: meta.name,
       text,
       url
-    }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.("Lien de la liste copié !", "success")).catch(() => window.mspToast?.("Impossible de copier le lien", "error"));
+    }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_22"), "success")).catch(() => window.mspToast?.(tr("t_1"), "error"));
   };
   const [pendingShareList, setPendingShareList] = useState(null);
   const shareList = (meta, spotObjsRaw) => {
     const spotObjs = spotObjsRaw.filter(s => !s.secret);
     if (!spotObjs.length) {
-      window.mspToast?.("Cette liste est vide (ou 100 % secrète 🙈)", "error");
+      window.mspToast?.(tr("t_41"), "error");
       return;
     }
     if (!myName) {
@@ -14104,14 +14305,14 @@ function App() {
   };
   const fetchAllPhotos = async () => {
     if (!gApiKey) {
-      window.mspToast?.("Ajoute ta clé Google API dans Profil d'abord", "warn");
+      window.mspToast?.(tr("t_44"), "warn");
       return;
     }
     const missingPerso = spots.filter(s => getPhotos(s).length < 4);
     const missingStock = STOCK_SPOTS.filter(s => !stockPhotoCache[s.id]);
     const totalMissing = missingPerso.length + missingStock.length;
     if (totalMissing === 0) {
-      window.mspToast?.("Tous les spots ont déjà leurs photos !", "info");
+      window.mspToast?.(tr("t_5"), "info");
       return;
     }
     const msg = [];
@@ -14189,7 +14390,7 @@ function App() {
           window.mspToast?.(`${newOnes.length} nouveaux spots ajoutés`, "success");
         }
       } catch (err) {
-        window.mspToast?.("Import échoué : " + err.message, "error");
+        window.mspToast?.(tr("t_28") + err.message, "error");
       }
     };
     r.readAsText(file);
@@ -15374,7 +15575,7 @@ function App() {
           updateList(li.id, {
             visibility: k
           });
-          if (k !== "private") window.mspToast?.("Le partage de listes arrive bientôt — réglage enregistré ✨", "success");
+          if (k !== "private") window.mspToast?.(tr("t_24"), "success");
         },
         style: {
           padding: '6px 12px',
@@ -16714,7 +16915,7 @@ function App() {
     style: {
       marginBottom: 6
     }
-  }, "\uD83D\uDCEB Tes events \xB7 ", sortedEvents.length, " a venir"), React.createElement("h1", {
+  }, tr("ev_mine"), " \xB7 ", sortedEvents.length, " ", tr("ev_upcoming")), React.createElement("h1", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -16723,7 +16924,7 @@ function App() {
       letterSpacing: '-0.025em',
       margin: 0
     }
-  }, "Ca vient,", React.createElement("br", null), "prepare-toi \uD83C\uDF89")), React.createElement("div", {
+  }, tr("ev_title1"), React.createElement("br", null), tr("ev_title2"))), React.createElement("div", {
     style: {
       padding: "14px 20px 4px"
     }
@@ -16735,14 +16936,14 @@ function App() {
     }
   }, React.createElement("div", {
     className: "mono-label"
-  }, "\uD83C\uDF9B\uFE0F Tes collectifs", collectifs.length ? ` · ${collectifs.length}` : ''), React.createElement("div", {
+  }, tr("ev_coll"), collectifs.length ? ` · ${collectifs.length}` : ''), React.createElement("div", {
     style: {
       flex: 1
     }
   }), React.createElement("button", {
     onClick: () => {
       if (!sessionRef.current) {
-        window.mspToast?.("Connecte-toi pour suivre tes collectifs ✨", "warn");
+        window.mspToast?.(tr("t_3"), "warn");
         return;
       }
       setShowCollectifSearch(true);
@@ -16759,7 +16960,7 @@ function App() {
       fontFamily: 'var(--font-body)',
       cursor: 'pointer'
     }
-  }, "\uD83D\uDD0D Rechercher un collectif")), collectifs.length > 0 && React.createElement("div", {
+  }, tr("ev_search"))), collectifs.length > 0 && React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6,
@@ -16884,10 +17085,10 @@ function App() {
       fontSize: 13.5,
       color: 'var(--ink-400)'
     }
-  }, "Suis tes collectifs et clubs pr\xE9f\xE9r\xE9s \u2014 leurs prochaines soir\xE9es atterrissent ici, direct \uD83D\uDD25"), React.createElement("button", {
+  }, tr("ev_follow_hint")), React.createElement("button", {
     onClick: () => {
       if (!sessionRef.current) {
-        window.mspToast?.("Connecte-toi pour suivre tes collectifs ✨", "warn");
+        window.mspToast?.(tr("t_3"), "warn");
         return;
       }
       setShowCollectifSearch(true);
@@ -16905,7 +17106,7 @@ function App() {
       fontFamily: 'var(--font-body)',
       cursor: 'pointer'
     }
-  }, "\uD83D\uDD25 D\xE9couvrir les collectifs actifs")) : (() => {
+  }, tr("ev_discover"))) : (() => {
     if (!collectifs.some(c => !c.manual)) return null;
     if (raLoading) return React.createElement("div", {
       style: {
@@ -16965,7 +17166,7 @@ function App() {
     style: {
       marginBottom: 8
     }
-  }, "\uD83D\uDD25 Ce qui se passe \xE0 ", (CITIES[city] || CITIES.paris).label), city !== "paris" ? React.createElement("div", {
+  }, tr("ev_whatson"), " ", (CITIES[city] || CITIES.paris).label), city !== "paris" ? React.createElement("div", {
     style: {
       background: "#fff",
       border: "1px solid var(--hairline)",
@@ -17449,7 +17650,7 @@ function App() {
   })), React.createElement("textarea", {
     value: evDesc,
     onChange: e => setEvDesc(e.target.value),
-    placeholder: "Description",
+    placeholder: tr("fo_desc"),
     className: "input-v2",
     style: {
       resize: "vertical",
@@ -18422,7 +18623,7 @@ function App() {
       s: 'Repartir d\'une carte perso vierge',
       action: () => {
         if (spots.length === 0) {
-          window.mspToast?.("Mes spots est déjà vide", "info");
+          window.mspToast?.(tr("t_18"), "info");
           return;
         }
         if (confirm(`Vider Mes spots (${spots.length} spots) ?\n\nTa liste perso repart à zéro. Les spots restent dans Découvrir, tu pourras les rajouter quand tu veux.`)) {
@@ -18431,7 +18632,7 @@ function App() {
             ids: [],
             month: getMonthLabel()
           });
-          window.mspToast?.("Mes spots vidé", "success");
+          window.mspToast?.(tr("t_17"), "success");
         }
       }
     }, {
@@ -18949,7 +19150,7 @@ function App() {
       if (pendingRecvSpot) {
         setSpots(s => s.some(x => x.id === pendingRecvSpot.id) ? s : [...s, pendingRecvSpot]);
         setPendingRecvSpot(null);
-        window.mspToast?.("Ton spot t'attend dans Mes spots 📍", "success");
+        window.mspToast?.(tr("t_6"), "success");
       }
       if (pendingRecvList) {
         setSpots(prev => {
@@ -18958,7 +19159,7 @@ function App() {
         });
         setLists(ls => [...ls, pendingRecvList.list]);
         setPendingRecvList(null);
-        window.mspToast?.("Ta liste t'attend dans Spots → Listes 📁", "success");
+        window.mspToast?.(tr("t_7"), "success");
       }
     }
   }), showZones && React.createElement(ZonesModal, {
@@ -18993,7 +19194,7 @@ function App() {
           ...data,
           _editId: undefined
         } : x));
-        window.mspToast?.("Spot modifié", "success");
+        window.mspToast?.(tr("t_10"), "success");
       } else {
         setSpots(s => [...s, {
           id: Date.now(),
@@ -19622,7 +19823,7 @@ function App() {
       });
       setSearchMode("discover");
       setTab("spots");
-      window.mspToast?.("Découvrir filtré sur la zone de la carte 📍", "success");
+      window.mspToast?.(tr("t_34"), "success");
     },
     className: "press",
     style: {
