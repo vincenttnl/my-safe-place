@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T01:31:05.569Z -->
+<!-- built 2026-07-12T02:20:44.148Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2962,6 +2962,19 @@ const I18N = {
     ev_follow_hint: "Suis tes collectifs et clubs préférés — leurs prochaines soirées atterrissent ici, direct 🔥",
     ev_follow_hint2: "Suis tes collectifs et clubs — leurs prochaines soirées arrivent direct dans Events.",
     ev_discover: "🔥 Découvrir les collectifs actifs",
+    e_1: "Photo trop lourde (15 Mo max)",
+    e_2: "Pseudo : 2 caractères minimum",
+    e_3: "Email invalide",
+    e_4: "Mot de passe : 6 caractères minimum",
+    e_5: "Email ou mot de passe incorrect. Pas encore de compte ? Crée-le en dessous.",
+    e_6: "Choisis un pseudo (2 caractères minimum)",
+    e_7: "Les deux mots de passe ne correspondent pas",
+    e_8: "Pour créer ton compte et rejoindre la communauté, coche la case ci-dessus.",
+    e_9: "Un compte existe déjà avec cet email. Connecte-toi, ou passe par « Mot de passe oublié ».",
+    e_10: "Entre ton email d'abord",
+    e_11: "6 caractères minimum",
+    wz_who: "Avec qui y aller ?",
+    wz_nocontact: "Aucun contact",
     fo_name: "Nom du lieu *",
     fo_addr: "📍 Adresse",
     fo_desc: "Description",
@@ -3225,6 +3238,19 @@ const I18N = {
     ev_follow_hint: "Follow your favorite collectives and clubs — their next parties land right here 🔥",
     ev_follow_hint2: "Follow your collectives and clubs — their next parties arrive straight in Events.",
     ev_discover: "🔥 Discover active collectives",
+    e_1: "Photo too large (15 MB max)",
+    e_2: "Username: 2 characters minimum",
+    e_3: "Invalid email",
+    e_4: "Password: 6 characters minimum",
+    e_5: "Wrong email or password. No account yet? Create one below.",
+    e_6: "Pick a username (2 characters minimum)",
+    e_7: "The two passwords don't match",
+    e_8: "To create your account and join the community, tick the box above.",
+    e_9: "An account already exists with this email. Sign in, or use “Forgot password”.",
+    e_10: "Enter your email first",
+    e_11: "6 characters minimum",
+    wz_who: "Who to go with?",
+    wz_nocontact: "No contacts",
     fo_name: "Place name *",
     fo_addr: "📍 Address",
     fo_desc: "Description",
@@ -3488,6 +3514,19 @@ const I18N = {
     ev_follow_hint: "Sigue tus colectivos y clubs favoritos — sus próximas fiestas aterrizan aquí 🔥",
     ev_follow_hint2: "Sigue tus colectivos y clubs — sus próximas fiestas llegan directo a Eventos.",
     ev_discover: "🔥 Descubrir colectivos activos",
+    e_1: "Foto demasiado pesada (15 MB máx)",
+    e_2: "Apodo: 2 caracteres mínimo",
+    e_3: "Email inválido",
+    e_4: "Contraseña: 6 caracteres mínimo",
+    e_5: "Email o contraseña incorrectos. ¿Sin cuenta? Créala abajo.",
+    e_6: "Elige un apodo (2 caracteres mínimo)",
+    e_7: "Las dos contraseñas no coinciden",
+    e_8: "Para crear tu cuenta y unirte a la comunidad, marca la casilla de arriba.",
+    e_9: "Ya existe una cuenta con este email. Conéctate o usa «Contraseña olvidada».",
+    e_10: "Escribe tu email primero",
+    e_11: "6 caracteres mínimo",
+    wz_who: "¿Con quién ir?",
+    wz_nocontact: "Sin contactos",
     fo_name: "Nombre del lugar *",
     fo_addr: "📍 Dirección",
     fo_desc: "Descripción",
@@ -5016,6 +5055,13 @@ function firstPhoto(s) {
   const p = getPhotos(s);
   return p[0] || "";
 }
+function spotDesc(s) {
+  if (!s) return "";
+  const t = s.tags || {};
+  if (__lang === "en" && t.desc_en) return t.desc_en;
+  if (__lang === "es" && t.desc_es) return t.desc_es;
+  return s.desc || "";
+}
 function gRating(s) {
   return s.grating || s.tags && s.tags.grating || null;
 }
@@ -5580,14 +5626,14 @@ function SharedSpotLanding({
       borderRadius: 8,
       padding: "5px 10px"
     }
-  }, m))), spot.desc && React.createElement("div", {
+  }, m))), spotDesc(spot) && React.createElement("div", {
     style: {
       fontSize: 15,
       lineHeight: 1.55,
       color: "var(--ink-600)",
       marginBottom: 18
     }
-  }, spot.desc), photos.length > 1 && React.createElement("div", {
+  }, spotDesc(spot)), photos.length > 1 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -6508,7 +6554,7 @@ function ContactPicker({
       fontSize: 22,
       marginBottom: 4
     }
-  }, "Avec qui y aller ?"), React.createElement("div", {
+  }, tr("wz_who")), React.createElement("div", {
     style: {
       fontSize: 13,
       color: "var(--ink-400)",
@@ -6527,7 +6573,7 @@ function ContactPicker({
       marginBottom: 12,
       fontFamily: 'var(--font-body)'
     }
-  }, "Aucun contact"), React.createElement("button", {
+  }, tr("wz_nocontact")), React.createElement("button", {
     onClick: onOpenContacts,
     className: "btn-primary"
   }, "+ Creer mon 1er contact")) : React.createElement("div", {
@@ -7188,7 +7234,7 @@ function PropositionsModal({
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
-    }, s.desc), React.createElement("div", {
+    }, spotDesc(s)), React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
@@ -8270,7 +8316,7 @@ function SpotDetail({
         fontWeight: 700
       }
     }, m.e, " ", m.l);
-  })), spot.desc && React.createElement("p", {
+  })), spotDesc(spot) && React.createElement("p", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 15.5,
@@ -8278,7 +8324,7 @@ function SpotDetail({
       color: 'var(--ink-600)',
       margin: '18px 0 0'
     }
-  }, spot.desc), React.createElement("div", {
+  }, spotDesc(spot)), React.createElement("div", {
     style: {
       display: 'flex',
       gap: 14,
@@ -11529,7 +11575,7 @@ function AuthCard({
     e.target.value = "";
     if (!f) return;
     if (f.size > 15 * 1024 * 1024) {
-      setErr("Photo trop lourde (15 Mo max)");
+      setErr(tr("e_1"));
       return;
     }
     try {
@@ -11576,7 +11622,7 @@ function AuthCard({
     reset();
     const p = ePseudo.trim();
     if (p.length < 2) {
-      setErr("Pseudo : 2 caractères minimum");
+      setErr(tr("e_2"));
       return;
     }
     setBusy(true);
@@ -11606,11 +11652,11 @@ function AuthCard({
   const login = async () => {
     reset();
     if (!/.+@.+\..+/.test(email)) {
-      setErr("Email invalide");
+      setErr(tr("e_3"));
       return;
     }
     if (password.length < 6) {
-      setErr("Mot de passe : 6 caractères minimum");
+      setErr(tr("e_4"));
       return;
     }
     setBusy(true);
@@ -11623,7 +11669,7 @@ function AuthCard({
       if (e.status === 400 && (msg.includes("not confirmed") || msg.includes("non confirm"))) {
         setInfo("📧 Ton compte n'est pas encore activé. Clique le lien qu'on t'a envoyé par email (pense à regarder les spams).");
       } else if (e.status === 400) {
-        setErr("Email ou mot de passe incorrect. Pas encore de compte ? Crée-le en dessous.");
+        setErr(tr("e_5"));
       } else setErr(e.message);
     }
     setBusy(false);
@@ -11632,23 +11678,23 @@ function AuthCard({
     reset();
     const p = pseudo.trim();
     if (p.length < 2) {
-      setErr("Choisis un pseudo (2 caractères minimum)");
+      setErr(tr("e_6"));
       return;
     }
     if (!/.+@.+\..+/.test(email)) {
-      setErr("Email invalide");
+      setErr(tr("e_3"));
       return;
     }
     if (password.length < 6) {
-      setErr("Mot de passe : 6 caractères minimum");
+      setErr(tr("e_4"));
       return;
     }
     if (password !== password2) {
-      setErr("Les deux mots de passe ne correspondent pas");
+      setErr(tr("e_7"));
       return;
     }
     if (!optin) {
-      setErr("Pour créer ton compte et rejoindre la communauté, coche la case ci-dessus.");
+      setErr(tr("e_8"));
       return;
     }
     setBusy(true);
@@ -11664,7 +11710,7 @@ function AuthCard({
         return;
       }
       if (Array.isArray(s.identities) && s.identities.length === 0) {
-        setErr("Un compte existe déjà avec cet email. Connecte-toi, ou passe par « Mot de passe oublié ».");
+        setErr(tr("e_9"));
         setBusy(false);
         return;
       }
@@ -11677,7 +11723,7 @@ function AuthCard({
   const sendReset = async () => {
     reset();
     if (!/.+@.+\..+/.test(email)) {
-      setErr("Entre ton email d'abord");
+      setErr(tr("e_10"));
       return;
     }
     setBusy(true);
@@ -12427,11 +12473,11 @@ function RecoveryCard({
   const go = async () => {
     setErr("");
     if (pw.length < 6) {
-      setErr("6 caractères minimum");
+      setErr(tr("e_11"));
       return;
     }
     if (pw !== pw2) {
-      setErr("Les deux mots de passe ne correspondent pas");
+      setErr(tr("e_7"));
       return;
     }
     setBusy(true);
@@ -19551,7 +19597,7 @@ function App() {
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
-    }, peekSpot.desc), !metroJ && !metroLoading && React.createElement("button", {
+    }, spotDesc(peekSpot)), !metroJ && !metroLoading && React.createElement("button", {
       onClick: () => calcMetro(peekSpot),
       className: "press",
       style: {
