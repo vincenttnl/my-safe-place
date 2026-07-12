@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T04:54:41.817Z -->
+<!-- built 2026-07-12T05:00:09.549Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -5531,7 +5531,7 @@ function SharedSpotLanding({
     style: {
       background: "linear-gradient(135deg,var(--pop-pink),var(--pop-violet))",
       color: "#fff",
-      padding: "16px 20px",
+      padding: "calc(16px + env(safe-area-inset-top,0px)) 20px 16px",
       fontWeight: 700,
       fontSize: 15,
       display: "flex",
@@ -5762,7 +5762,7 @@ function SharedListLanding({
     style: {
       background: "linear-gradient(135deg,var(--pop-pink),var(--pop-violet))",
       color: "#fff",
-      padding: "16px 20px 46px",
+      padding: "calc(16px + env(safe-area-inset-top,0px)) 20px 46px",
       flexShrink: 0
     }
   }, React.createElement("div", {
@@ -9160,7 +9160,7 @@ function OnboardingFlow({
   };
   const ProgressBar = () => React.createElement("div", {
     style: {
-      padding: '16px 24px 0',
+      padding: 'calc(16px + env(safe-area-inset-top,0px)) 24px 0',
       width: '100%',
       maxWidth: 440,
       margin: '0 auto'
@@ -10263,7 +10263,7 @@ function WrappedModal({
     const w = e.currentTarget.clientWidth || 1;
     const x = e.clientX - e.currentTarget.getBoundingClientRect().left;
     window.mspHaptic?.(8);
-    if (x < w * 0.35) setIdx(i => Math.max(0, i - 1));else if (idx < last) setIdx(i => Math.min(last, i + 1));
+    if (x < w * 0.35) setIdx(i => Math.max(0, i - 1));else if (idx < last) setIdx(i => Math.min(last, i + 1));else onClose();
   };
   const sKick = {
     fontFamily: "var(--font-mono)",
@@ -10295,7 +10295,7 @@ function WrappedModal({
     marginTop: 12,
     lineHeight: 1.4
   };
-  return React.createElement("div", {
+  return ReactDOM.createPortal(React.createElement("div", {
     onClick: nav,
     style: {
       position: "fixed",
@@ -10344,7 +10344,7 @@ function WrappedModal({
       position: "relative",
       display: "flex",
       gap: 4,
-      padding: "14px 14px 0",
+      padding: "calc(14px + env(safe-area-inset-top,0px)) 14px 0",
       maxWidth: 600,
       width: "100%",
       margin: "0 auto",
@@ -10364,12 +10364,12 @@ function WrappedModal({
       e.stopPropagation();
       onClose();
     },
-    size: 36,
+    size: 40,
     style: {
       position: "absolute",
-      top: 26,
+      top: "calc(26px + env(safe-area-inset-top,0px))",
       right: 14,
-      zIndex: 2
+      zIndex: 30
     }
   }), React.createElement("div", {
     key: idx,
@@ -10382,14 +10382,14 @@ function WrappedModal({
       alignItems: "center",
       justifyContent: "center",
       textAlign: "center",
-      padding: "20px 28px 46px",
+      padding: "20px 28px calc(46px + env(safe-area-inset-bottom,0px))",
       maxWidth: 600,
       width: "100%",
       margin: "0 auto",
       boxSizing: "border-box",
       textShadow: "0 1px 14px rgba(0,0,0,.5)"
     }
-  }, cur.r()));
+  }, cur.r())), document.body);
 }
 const LIST_EMOJIS = ["📁", "❤️", "🍸", "🍽️", "🌙", "☀️", "🎉", "💎", "🏙️", "🔥", "🎯", "🧺"];
 function ListFormModal({
