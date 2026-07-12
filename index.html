@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T17:34:27.955Z -->
+<!-- built 2026-07-12T18:01:48.795Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -35,9 +35,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- leaflet.markercluster RETIRÉ v10.43 : remplacé par le moteur de clustering maison (min 8 spots, labo Vincent №4) -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
@@ -139,11 +137,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .modal-sheet{position:relative;background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
 .modal-sheet .sheet-handle{width:46px;height:5px;border-radius:var(--radius-pill);background:var(--hairline);margin:0 auto 16px}
 .modal-center{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-center .modal-box{background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
+.modal-center .modal-box{position:relative;background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
 
 /* Pill buttons - Partiful */
 .pill-btn{padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
-.pill-btn.active{border-color:var(--ink-900);background:var(--ink-900);color:#fff}
+/* v10.43 : actif = OUTLINE (langage B1 №4 étendu à toutes les pastilles) */
+.pill-btn.active{border:1.5px solid var(--pop-pink);background:#fff;color:var(--pop-pink);font-weight:700}
 .pill-btn:active{transform:scale(.95)}
 
 /* Inputs - Partiful */
@@ -2904,6 +2903,8 @@ const I18N = {
     spots_pill: "★ {n} spots",
     home_title: "Où on va ce soir ? 🍸",
     prof_title: "C'est ton safe place 🏠",
+    h_favs: "Favoris ❤️",
+    spots_favs: "Tes favoris ❤️",
     cat_all: "Tout",
     cat_resto: "Restos",
     cat_cafe: "Cafés",
@@ -3190,6 +3191,8 @@ const I18N = {
     spots_pill: "★ {n} spots",
     home_title: "Where to tonight? 🍸",
     prof_title: "Your safe place 🏠",
+    h_favs: "Favorites ❤️",
+    spots_favs: "Your favorites ❤️",
     cat_all: "All",
     cat_resto: "Restaurants",
     cat_cafe: "Cafés",
@@ -3476,6 +3479,8 @@ const I18N = {
     spots_pill: "★ {n} spots",
     home_title: "¿Salimos esta noche? 🍸",
     prof_title: "Tu safe place 🏠",
+    h_favs: "Favoritos ❤️",
+    spots_favs: "Tus favoritos ❤️",
     cat_all: "Todo",
     cat_resto: "Restos",
     cat_cafe: "Cafés",
@@ -6096,7 +6101,16 @@ function ReactionModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onSkip,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       textAlign: "center"
     }
@@ -6607,7 +6621,16 @@ function ContactPicker({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -8050,8 +8073,8 @@ function SpotFormModal({
       className: `pill-btn${on ? " active" : ""}`,
       style: on ? {
         borderColor: CC[c.key],
-        background: CC[c.key],
-        color: '#fff'
+        color: CC[c.key],
+        background: '#fff'
       } : {}
     }, c.emoji, " ", c.label);
   }))), (nCats.includes("resto") || nCats.includes("cafe")) && React.createElement("div", {
@@ -9579,7 +9602,16 @@ function PremiumModal({
       padding: 0,
       overflow: 'hidden'
     }
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 12,
+      right: 12,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
       color: '#fff',
@@ -10470,7 +10502,16 @@ function ListFormModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -10566,7 +10607,16 @@ function ListPickerModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -10829,7 +10879,16 @@ function CollectifSearchModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 32,
+    style: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      zIndex: 5
+    }
+  }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -10944,19 +11003,7 @@ function CollectifSearchModal({
       cursor: 'pointer',
       fontFamily: 'var(--font-body)'
     }
-  }, "\u2795 Le suivre quand m\xEAme avec un lien")), React.createElement("button", {
-    onClick: onClose,
-    style: {
-      marginTop: 12,
-      width: '100%',
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      color: 'var(--ink-400)'
-    }
-  }, "Fermer")));
+  }, "\u2795 Le suivre quand m\xEAme avec un lien"))));
 }
 function BigEventCard({
   cover,
@@ -12187,9 +12234,19 @@ function AuthCard({
     }, React.createElement("div", {
       onClick: e => e.stopPropagation(),
       style: {
-        textAlign: 'center'
+        textAlign: 'center',
+        position: 'relative'
       }
-    }, React.createElement("img", {
+    }, React.createElement(RedX, {
+      onClick: () => setShowBig(false),
+      size: 36,
+      style: {
+        position: 'absolute',
+        top: -6,
+        right: -6,
+        zIndex: 5
+      }
+    }), React.createElement("img", {
       src: avatar,
       alt: "",
       style: {
@@ -12208,20 +12265,6 @@ function AuthCard({
         marginTop: 18
       }
     }, React.createElement("button", {
-      onClick: () => setShowBig(false),
-      className: "press",
-      style: {
-        background: 'rgba(255,255,255,0.15)',
-        color: '#fff',
-        border: '1px solid rgba(255,255,255,0.4)',
-        borderRadius: 999,
-        padding: '11px 22px',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 14,
-        cursor: 'pointer'
-      }
-    }, "Fermer"), React.createElement("button", {
       onClick: () => {
         setShowBig(false);
         openPicker("direct");
@@ -12957,21 +13000,23 @@ function App() {
   const [filtPanelH, setFiltPanelH] = useState(190);
   const filtPanelRef = useRef(null);
   const spotsHdrRef = useRef(null);
+  const homeHdrRef = useRef(null);
   const [hdrStuck, setHdrStuck] = useState(false);
+  const [homeStuck, setHomeStuck] = useState(false);
   const [showToTop, setShowToTop] = useState(false);
   useEffect(() => {
     let raf = 0;
+    const isStuck = el => {
+      if (!el) return false;
+      const t = parseFloat(getComputedStyle(el).top) || 0;
+      return el.getBoundingClientRect().top <= t + 0.5;
+    };
     const onScroll = () => {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
-        const el = spotsHdrRef.current;
-        let stuck = false;
-        if (el) {
-          const t = parseFloat(getComputedStyle(el).top) || 0;
-          stuck = el.getBoundingClientRect().top <= t + 0.5;
-        }
-        setHdrStuck(stuck);
+        setHdrStuck(isStuck(spotsHdrRef.current));
+        setHomeStuck(isStuck(homeHdrRef.current));
         setShowToTop(window.scrollY > 350);
       });
     };
@@ -14581,27 +14626,7 @@ function App() {
       attribution: 'OSM, CARTO'
     }).addTo(map);
     mapRef.current = map;
-    try {
-      clusterRef.current = L.markerClusterGroup({
-        chunkedLoading: true,
-        maxClusterRadius: 32,
-        showCoverageOnHover: false,
-        spiderfyOnMaxZoom: true,
-        disableClusteringAtZoom: 14,
-        iconCreateFunction: cluster => {
-          const n = cluster.getChildCount();
-          const size = n < 10 ? 36 : n < 50 ? 44 : 52;
-          return L.divIcon({
-            html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:999px;background:rgba(255,61,139,0.94);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,sans-serif);font-weight:900;font-size:' + (n < 10 ? 14 : 16) + 'px;box-shadow:0 3px 12px rgba(0,0,0,0.28);border:2.5px solid #fff">' + n + '</div>',
-            className: '',
-            iconSize: [size, size]
-          });
-        }
-      });
-      map.addLayer(clusterRef.current);
-    } catch (e) {
-      clusterRef.current = null;
-    }
+    clusterRef.current = null;
     didFitRef.current = false;
     userMarkerRef.current = null;
     selMarkerRef.current = null;
@@ -14644,36 +14669,139 @@ function App() {
   useEffect(() => {
     if (tab !== "map" || !mapRef.current) return;
     const map = mapRef.current;
-    const cluster = clusterRef.current;
-    if (cluster) cluster.clearLayers();else map.eachLayer(l => {
-      if (l instanceof L.CircleMarker) map.removeLayer(l);
-    });
+    if (clusterRef.current) {
+      try {
+        map.off("moveend", clusterRef.current.onMove);
+        map.off("zoomend", clusterRef.current.onMove);
+        map.removeLayer(clusterRef.current.layer);
+      } catch {}
+      clusterRef.current = null;
+    }
     const bounds = [];
     const pnow = openNow ? nowParis() : null;
+    const pts = [];
     mapSource.forEach(s => {
       if (!s.lat || !s.lng) return;
       if (!mapCats.has(primaryCat(s))) return;
       if (openNow && isOpenNow(s.hours, pnow) !== true) return;
       if (lateNight && !opensLate(s.hours)) return;
-      const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
-      const fw = friendSpotMap.has(s.id);
-      const m = L.circleMarker([s.lat, s.lng], {
-        radius: fw ? 9 : s.done ? 6 : 8,
-        fillColor: col,
-        color: fw ? "#7C3AED" : "#fff",
-        weight: fw ? 3 : 2,
-        opacity: 1,
-        fillOpacity: s.done ? 0.5 : 0.9
-      });
-      m.on("click", () => {
-        setPeekSpot(s);
-        try {
-          map.panTo([s.lat, s.lng]);
-        } catch {}
-      });
-      if (cluster) cluster.addLayer(m);else m.addTo(map);
+      pts.push(s);
       bounds.push([s.lat, s.lng]);
     });
+    if (!map._spotCanvas) map._spotCanvas = L.canvas({
+      padding: 0.3
+    });
+    const canvas = map._spotCanvas;
+    const layer = L.layerGroup().addTo(map);
+    const MINPTS = 8,
+      RPX = 60;
+    const redraw = () => {
+      layer.clearLayers();
+      const z = map.getZoom(),
+        vb = map.getBounds().pad(0.25);
+      const view = [];
+      for (const s of pts) {
+        if (!vb.contains([s.lat, s.lng])) continue;
+        const pj = map.project([s.lat, s.lng], z);
+        view.push({
+          s,
+          x: pj.x,
+          y: pj.y,
+          used: false
+        });
+      }
+      const cell = {};
+      const K = (cx, cy) => cx + "_" + cy;
+      for (const p of view) {
+        const k = K(Math.floor(p.x / RPX), Math.floor(p.y / RPX));
+        (cell[k] = cell[k] || []).push(p);
+      }
+      for (const p of view) {
+        if (p.used) continue;
+        const cx = Math.floor(p.x / RPX),
+          cy = Math.floor(p.y / RPX),
+          grp = [];
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+          const arr = cell[K(cx + dx, cy + dy)];
+          if (!arr) continue;
+          for (const q of arr) {
+            if (q.used) continue;
+            const ax = q.x - p.x,
+              ay = q.y - p.y;
+            if (ax * ax + ay * ay <= RPX * RPX) {
+              q.used = true;
+              grp.push(q);
+            }
+          }
+        }
+        if (grp.length >= MINPTS) {
+          let la = 0,
+            ln = 0;
+          grp.forEach(q => {
+            la += q.s.lat;
+            ln += q.s.lng;
+          });
+          la /= grp.length;
+          ln /= grp.length;
+          const n = grp.length,
+            size = n < 10 ? 36 : n < 50 ? 44 : 52;
+          const icon = L.divIcon({
+            html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:999px;background:rgba(255,61,139,0.94);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,sans-serif);font-weight:900;font-size:' + (n < 10 ? 14 : 16) + 'px;box-shadow:0 3px 12px rgba(0,0,0,0.28);border:2.5px solid #fff">' + n + '</div>',
+            className: '',
+            iconSize: [size, size]
+          });
+          const m = L.marker([la, ln], {
+            icon,
+            keyboard: false
+          });
+          m.on("click", () => {
+            try {
+              const b = L.latLngBounds(grp.map(q => [q.s.lat, q.s.lng]));
+              map.fitBounds(b.pad(0.3), {
+                maxZoom: Math.min(map.getZoom() + 3, 18)
+              });
+            } catch {}
+          });
+          layer.addLayer(m);
+        } else {
+          grp.forEach(q => {
+            const s = q.s;
+            const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
+            const fw = friendSpotMap.has(s.id);
+            const m = L.circleMarker([s.lat, s.lng], {
+              renderer: canvas,
+              radius: fw ? 9 : s.done ? 6 : 8,
+              fillColor: col,
+              color: fw ? "#7C3AED" : "#fff",
+              weight: fw ? 3 : 2,
+              opacity: 1,
+              fillOpacity: s.done ? 0.5 : 0.9
+            });
+            m.on("click", () => {
+              setPeekSpot(s);
+              try {
+                map.panTo([s.lat, s.lng]);
+              } catch {}
+            });
+            layer.addLayer(m);
+          });
+        }
+      }
+    };
+    let raf = 0;
+    const onMove = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        redraw();
+      });
+    };
+    map.on("moveend", onMove);
+    map.on("zoomend", onMove);
+    clusterRef.current = {
+      layer,
+      onMove
+    };
     if (userMarkerRef.current) {
       try {
         map.removeLayer(userMarkerRef.current);
@@ -14710,6 +14838,15 @@ function App() {
       });
       didFitRef.current = true;
     }
+    redraw();
+    return () => {
+      try {
+        map.off("moveend", onMove);
+        map.off("zoomend", onMove);
+        map.removeLayer(layer);
+      } catch {}
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [tab, mapSource, userPos, mapCats, openNow, lateNight, friendSpotMap]);
   useEffect(() => {
     const map = mapRef.current;
@@ -14886,7 +15023,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 16px',
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 2px',
         background: 'var(--bg-cream)'
       }
     }, React.createElement("div", {
@@ -14911,18 +15048,27 @@ function App() {
     }, React.createElement(Avatar, {
       src: avatar,
       name: who,
-      size: 38,
+      size: 76,
       ring: true
-    }))), React.createElement("h1", {
-      className: "hero-line",
+    })))), React.createElement("div", {
+      ref: homeHdrRef,
       style: {
-        marginTop: 8
+        position: 'sticky',
+        top: 'env(safe-area-inset-top,0px)',
+        zIndex: 5,
+        background: 'var(--bg-cream)',
+        padding: '4px 20px 12px',
+        boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
+        borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
+        transition: 'box-shadow .25s,border-color .25s'
       }
+    }, React.createElement("h1", {
+      className: "hero-line"
     }, tr("home_title")), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 10,
-        marginTop: 14
+        marginTop: 10
       }
     }, React.createElement("button", {
       onClick: () => setShowPropositions(true),
@@ -14933,7 +15079,7 @@ function App() {
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '14px 18px',
+        padding: '13px 18px',
         fontFamily: 'var(--font-body)',
         fontWeight: 600,
         fontSize: 15,
@@ -14948,7 +15094,7 @@ function App() {
         color: 'var(--ink-900)',
         border: '1.5px solid var(--ink-900)',
         borderRadius: 999,
-        padding: '14px 18px',
+        padding: '13px 18px',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 15,
@@ -14958,111 +15104,14 @@ function App() {
         gap: 7,
         whiteSpace: 'nowrap'
       }
-    }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise"))), favs.length > 0 && React.createElement("div", {
       style: {
-        padding: '16px 20px 4px'
+        padding: '18px 0 0'
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 18,
-        boxShadow: 'var(--shadow-sm)'
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4,1fr)',
-        gap: 8
-      }
-    }, [{
-      v: spots.length,
-      l: 'spots',
-      f: 'all'
-    }, {
-      v: todoCount,
-      l: 'a faire',
-      f: 'todo'
-    }, {
-      v: doneCount,
-      l: 'faits',
-      f: 'done'
-    }, {
-      v: favCount,
-      l: 'favoris',
-      f: 'fav'
-    }].map((s, i) => React.createElement("button", {
-      key: i,
-      className: "press",
-      onClick: () => {
-        setCat("all");
-        setFilter(s.f);
-        setSearch("");
-        setSearchMode("local");
-        setTab("spots");
-      },
-      style: {
-        textAlign: 'center',
-        background: 'transparent',
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 30,
-        lineHeight: 1,
-        letterSpacing: '-0.02em',
-        color: 'var(--ink-900)'
-      }
-    }, s.v), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-mono)',
-        fontSize: 9.5,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        color: 'var(--ink-400)',
-        marginTop: 6
-      }
-    }, s.l)))), React.createElement("div", {
-      style: {
-        marginTop: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        marginBottom: 6
-      }
-    }, React.createElement("span", null, "Progression"), React.createElement("span", {
-      style: {
-        fontWeight: 600,
-        color: 'var(--ink-900)'
-      }
-    }, pct, "%")), React.createElement("div", {
-      style: {
-        height: 8,
-        background: 'var(--bg-soft)',
-        borderRadius: 999,
-        overflow: 'hidden'
-      }
-    }, React.createElement("div", {
-      style: {
-        width: `${pct}%`,
-        height: '100%',
-        background: 'var(--pop-pink)',
-        borderRadius: 999,
-        transition: 'width .4s'
-      }
-    }))))), React.createElement("div", {
-      style: {
-        padding: '28px 20px 0'
+        padding: '0 20px',
+        marginBottom: 14
       }
     }, React.createElement("h2", {
       style: {
@@ -15070,113 +15119,26 @@ function App() {
         fontWeight: 900,
         fontSize: 28,
         letterSpacing: '-0.015em',
-        margin: '0 0 14px'
+        margin: 0
       }
-    }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
-      className: "cat-grid"
-    }, CATS.filter(c => c.key !== "all").map((c, i) => {
-      const count = spots.filter(s => hasCat(s, c.key)).length;
-      const tilt = stableTilt(i + 50, 1.5);
-      return React.createElement("button", {
-        key: c.key,
-        className: "cat-card",
-        onClick: () => {
-          setCat(c.key);
-          setTab("spots");
-        },
-        style: {
-          background: CB[c.key],
-          border: `1.5px solid ${CC[c.key]}`,
-          transform: `rotate(${tilt}deg)`
-        },
-        onMouseEnter: e => {
-          e.currentTarget.style.transform = `rotate(${tilt - 0.5}deg) translateY(-3px)`;
-        },
-        onMouseLeave: e => {
-          e.currentTarget.style.transform = `rotate(${tilt}deg)`;
-        }
-      }, React.createElement("div", {
-        className: "cat-emoji"
-      }, c.emoji), React.createElement("div", {
-        className: "cat-name"
-      }, c.label), React.createElement("div", {
-        className: "cat-count"
-      }, count));
-    }))), homeResume && React.createElement("div", {
+    }, tr("h_favs"))), React.createElement("div", {
+      className: "h-scroll",
       style: {
-        padding: '22px 20px 0'
+        padding: '0 20px 4px'
       }
-    }, React.createElement("button", {
-      onClick: homeResume.go,
-      className: "press",
+    }, favs.map(s => React.createElement("div", {
+      key: s.id,
       style: {
-        width: '100%',
-        textAlign: 'left',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 13,
-        background: 'linear-gradient(135deg,#2ED8A7,#2D7DFF)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: 'var(--radius-lg)',
-        padding: '14px 16px',
-        cursor: 'pointer',
-        boxShadow: '0 8px 22px rgba(45,125,255,.35)'
-      }
-    }, homeResume.img ? React.createElement("img", {
-      src: homeResume.img,
-      alt: "",
-      style: {
-        width: 54,
-        height: 54,
-        borderRadius: 12,
-        objectFit: 'cover',
-        flexShrink: 0
-      },
-      onError: e => {
-        e.target.style.display = 'none';
-      }
-    }) : React.createElement("span", {
-      style: {
-        fontSize: 30,
+        width: 170,
         flexShrink: 0
       }
-    }, homeResume.emoji), React.createElement("div", {
+    }, React.createElement(PosterSpotCard, {
+      spot: s,
+      onOpen: setSelectedSpot,
+      userPos: userPos
+    }))))), React.createElement("div", {
       style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 16.5,
-        lineHeight: 1.15
-      }
-    }, homeResume.img ? homeResume.emoji + " " : "", homeResume.title), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12.5,
-        opacity: .78,
-        marginTop: 3,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, homeResume.sub)), React.createElement("span", {
-      style: {
-        background: 'var(--pop-pink)',
-        borderRadius: 999,
-        padding: '8px 13px',
-        fontSize: 12,
-        fontWeight: 700,
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-        fontFamily: 'var(--font-body)'
-      }
-    }, homeResume.cta))), React.createElement("div", {
-      style: {
-        padding: '28px 0 0'
+        padding: '26px 0 0'
       }
     }, React.createElement("div", {
       style: {
@@ -15187,7 +15149,7 @@ function App() {
         marginBottom: 12
       }
     }, React.createElement("div", {
-      className: "mono-label"
+      className: "grad-lbl"
     }, tr("h_open"), userPos ? tr("h_nearyou") : ''), React.createElement("div", {
       style: {
         flex: 1
@@ -15326,6 +15288,120 @@ function App() {
           textOverflow: 'ellipsis'
         }
       }, [gRating(s) ? `⭐ ${gRating(s)}` : null, d != null ? `📏 ${fmtKm(d)}` : cat?.label].filter(Boolean).join(' · '))));
+    }))), homeResume && React.createElement("div", {
+      style: {
+        padding: '22px 20px 0'
+      }
+    }, React.createElement("button", {
+      onClick: homeResume.go,
+      className: "press",
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 13,
+        background: 'linear-gradient(135deg,#2ED8A7,#2D7DFF)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '14px 16px',
+        cursor: 'pointer',
+        boxShadow: '0 8px 22px rgba(45,125,255,.35)'
+      }
+    }, homeResume.img ? React.createElement("img", {
+      src: homeResume.img,
+      alt: "",
+      style: {
+        width: 54,
+        height: 54,
+        borderRadius: 12,
+        objectFit: 'cover',
+        flexShrink: 0
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }) : React.createElement("span", {
+      style: {
+        fontSize: 30,
+        flexShrink: 0
+      }
+    }, homeResume.emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 16.5,
+        lineHeight: 1.15
+      }
+    }, homeResume.img ? homeResume.emoji + " " : "", homeResume.title), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .78,
+        marginTop: 3,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, homeResume.sub)), React.createElement("span", {
+      style: {
+        background: 'var(--pop-pink)',
+        borderRadius: 999,
+        padding: '8px 13px',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        fontFamily: 'var(--font-body)'
+      }
+    }, homeResume.cta))), React.createElement("div", {
+      style: {
+        padding: '26px 20px 0'
+      }
+    }, React.createElement("h2", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 28,
+        letterSpacing: '-0.015em',
+        margin: '0 0 14px'
+      }
+    }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
+      className: "cat-grid"
+    }, CATS.filter(c => c.key !== "all").map((c, i) => {
+      const count = spots.filter(s => hasCat(s, c.key)).length;
+      const tilt = stableTilt(i + 50, 1.5);
+      return React.createElement("button", {
+        key: c.key,
+        className: "cat-card",
+        onClick: () => {
+          setCat(c.key);
+          setTab("spots");
+        },
+        style: {
+          background: CB[c.key],
+          border: `1.5px solid ${CC[c.key]}`,
+          transform: `rotate(${tilt}deg)`
+        },
+        onMouseEnter: e => {
+          e.currentTarget.style.transform = `rotate(${tilt - 0.5}deg) translateY(-3px)`;
+        },
+        onMouseLeave: e => {
+          e.currentTarget.style.transform = `rotate(${tilt}deg)`;
+        }
+      }, React.createElement("div", {
+        className: "cat-emoji"
+      }, c.emoji), React.createElement("div", {
+        className: "cat-name"
+      }, c.label), React.createElement("div", {
+        className: "cat-count"
+      }, count));
     }))), false && challengeSpots.length > 0 && React.createElement("div", {
       style: {
         padding: '28px 20px 0'
@@ -15577,38 +15653,108 @@ function App() {
           marginTop: 4
         }
       }, "\uD83D\uDCCD ", ev.lieu)));
-    }))), favs.length > 0 && React.createElement("div", {
+    }))), React.createElement("div", {
       style: {
-        padding: '28px 0 16px'
+        padding: '26px 20px 16px'
       }
     }, React.createElement("div", {
       style: {
-        padding: '0 20px',
-        marginBottom: 14
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 18,
+        boxShadow: 'var(--shadow-sm)'
       }
-    }, React.createElement("h2", {
+    }, React.createElement("div", {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4,1fr)',
+        gap: 8
+      }
+    }, [{
+      v: spots.length,
+      l: 'spots',
+      f: 'all'
+    }, {
+      v: todoCount,
+      l: 'a faire',
+      f: 'todo'
+    }, {
+      v: doneCount,
+      l: 'faits',
+      f: 'done'
+    }, {
+      v: favCount,
+      l: 'favoris',
+      f: 'fav'
+    }].map((s, i) => React.createElement("button", {
+      key: i,
+      className: "press",
+      onClick: () => {
+        setCat("all");
+        setFilter(s.f);
+        setSearch("");
+        setSearchMode("local");
+        setTab("spots");
+      },
+      style: {
+        textAlign: 'center',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer'
+      }
+    }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 28,
-        letterSpacing: '-0.015em',
-        margin: 0
+        fontSize: 30,
+        lineHeight: 1,
+        letterSpacing: '-0.02em',
+        color: 'var(--ink-900)'
       }
-    }, "Coups de coeur \u2665")), React.createElement("div", {
-      className: "h-scroll",
+    }, s.v), React.createElement("div", {
       style: {
-        padding: '0 20px 16px'
+        fontFamily: 'var(--font-mono)',
+        fontSize: 9.5,
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+        color: 'var(--ink-400)',
+        marginTop: 6
       }
-    }, favs.map(s => React.createElement("div", {
-      key: s.id,
+    }, s.l)))), React.createElement("div", {
       style: {
-        width: 170,
-        flexShrink: 0
+        marginTop: 16
       }
-    }, React.createElement(PosterSpotCard, {
-      spot: s,
-      onOpen: setSelectedSpot,
-      userPos: userPos
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginBottom: 6
+      }
+    }, React.createElement("span", null, "Progression"), React.createElement("span", {
+      style: {
+        fontWeight: 600,
+        color: 'var(--ink-900)'
+      }
+    }, pct, "%")), React.createElement("div", {
+      style: {
+        height: 8,
+        background: 'var(--bg-soft)',
+        borderRadius: 999,
+        overflow: 'hidden'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: `${pct}%`,
+        height: '100%',
+        background: 'var(--pop-pink)',
+        borderRadius: 999,
+        transition: 'width .4s'
+      }
     }))))));
   };
   const ListsView = () => {
@@ -16076,17 +16222,6 @@ function App() {
   }, tr("spots_title", {
     city: (CITIES[city] || CITIES.paris).label
   }))), React.createElement("div", {
-    style: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 'env(safe-area-inset-top,0px)',
-      background: 'var(--bg-cream)',
-      zIndex: 6,
-      pointerEvents: 'none'
-    }
-  }), React.createElement("div", {
     ref: spotsHdrRef,
     style: {
       position: 'sticky',
@@ -16351,11 +16486,11 @@ function App() {
         borderRadius: 999,
         whiteSpace: 'nowrap',
         fontFamily: 'var(--font-body)',
-        fontWeight: 600,
+        fontWeight: active ? 800 : 600,
         fontSize: 13,
-        border: '1px solid ' + (active ? 'var(--ink-900)' : 'var(--hairline)'),
-        background: active ? 'var(--ink-900)' : '#fff',
-        color: active ? '#fff' : 'var(--ink-900)',
+        border: '1.5px solid ' + (active ? c.key === "all" ? 'var(--pop-pink)' : CC[c.key] : 'var(--hairline)'),
+        background: '#fff',
+        color: active ? c.key === "all" ? 'var(--pop-pink)' : CC[c.key] : 'var(--ink-900)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -16715,7 +16850,7 @@ function App() {
       letterSpacing: '-0.015em',
       marginBottom: 14
     }
-  }, "Tes coups de coeur \u2665"), React.createElement("div", {
+  }, tr("spots_favs")), React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -17659,19 +17794,7 @@ function App() {
       fontSize: 13,
       textDecoration: 'none'
     }
-  }, "\uD83D\uDDFA\uFE0F Maps")), React.createElement("button", {
-    onClick: () => setQfapPeek(null),
-    style: {
-      marginTop: 14,
-      width: '100%',
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      color: 'var(--ink-400)'
-    }
-  }, "Fermer")))), React.createElement("div", {
+  }, "\uD83D\uDDFA\uFE0F Maps"))))), React.createElement("div", {
     style: {
       padding: '16px 20px',
       display: 'flex',
@@ -20234,7 +20357,18 @@ function App() {
     style: {
       paddingBottom: 20
     }
-  }, tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), showToTop && tab !== "map" && React.createElement("button", {
+  }, tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), tab !== "map" && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 'env(safe-area-inset-top,0px)',
+      background: 'var(--bg-cream)',
+      zIndex: 6,
+      pointerEvents: 'none'
+    }
+  }), showToTop && tab !== "map" && React.createElement("button", {
     className: "msp-totop press",
     "aria-label": "Retour en haut",
     onClick: () => window.scrollTo({
