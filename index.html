@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T18:01:48.795Z -->
+<!-- built 2026-07-12T22:35:04.071Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -120,6 +120,20 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .cat-card .cat-emoji{font-size:28px;margin-bottom:6px}
 .cat-card .cat-name{font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--ink-900)}
 .cat-card .cat-count{font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-600);margin-top:2px}
+/* 🎨 Grille « Choisis ton mood » — style №33 validé (stickers photo + teinte cat + cadre couleur) v10.44 */
+.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.mood-card{position:relative;aspect-ratio:1/0.8;border-radius:15px;overflow:hidden;cursor:pointer;padding:0;border:2.5px solid var(--ink-900);box-shadow:4px 5px 0 rgba(10,10,10,0.82);transition:transform .18s var(--ease)}
+.mood-card:active{transform:scale(.97)}
+.mood-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mood-card .m-ov{position:absolute;inset:0}
+.mood-card .m-em{position:absolute;top:8px;left:9px;font-size:24px;z-index:2;filter:drop-shadow(0 1px 5px rgba(0,0,0,0.55))}
+.mood-card .m-lab{position:absolute;left:0;right:0;bottom:0;padding:9px 11px;z-index:2;color:#fff;text-align:left;text-shadow:0 1px 8px rgba(0,0,0,0.6)}
+.mood-card .m-lab .m-n{font-family:var(--font-display);font-weight:900;font-size:17px;letter-spacing:-0.01em;line-height:1}
+.mood-card .m-lab .m-c{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;opacity:.92;margin-top:3px}
+/* 💎 PremiumModal widget v10.44 : taglines rotatives + tableau A2 point pulsant */
+@keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes mspPulseDot{0%,100%{opacity:.35}50%{opacity:1}}
+.pm-dot{width:7px;height:7px;border-radius:999px;background:#FF2D9E;flex-shrink:0;animation:mspPulseDot 1.4s infinite}
 
 /* Spot cards */
 .spot-card-v2{background:var(--card);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .2s var(--ease),box-shadow .2s var(--ease);cursor:pointer;border:1px solid var(--hairline)}
@@ -4333,6 +4347,15 @@ const CB = {
   speakeasy: "#ECE4FE",
   club: "#FBDDEE",
   sortie: "#FEE7D6"
+};
+const MOOD_SB = "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/";
+const MOOD_COVER = {
+  rooftop: MOOD_SB + "158-1.jpg",
+  speakeasy: MOOD_SB + "810-4.jpg",
+  club: MOOD_SB + "2036-1.jpg",
+  sortie: MOOD_SB + "89-2.jpg",
+  cafe: MOOD_SB + "57-1.jpg",
+  resto: MOOD_SB + "129-2.jpg"
 };
 const CAT_TYPE = {
   resto: "resto",
@@ -9586,10 +9609,67 @@ function OnboardingFlow({
   }
   return null;
 }
+function SpotaneLogo({
+  size = 28
+}) {
+  return React.createElement("span", {
+    style: {
+      display: "inline-block",
+      width: size,
+      height: size,
+      borderRadius: size * 0.25,
+      overflow: "hidden",
+      flexShrink: 0,
+      lineHeight: 0
+    }
+  }, React.createElement("svg", {
+    viewBox: "0 0 120 120",
+    width: size,
+    height: size
+  }, React.createElement("rect", {
+    width: "120",
+    height: "120",
+    fill: "#000"
+  }), React.createElement("ellipse", {
+    cx: "60",
+    cy: "96",
+    rx: "34",
+    ry: "9",
+    fill: "none",
+    stroke: "#fff",
+    strokeWidth: "3",
+    opacity: ".5"
+  }), React.createElement("ellipse", {
+    cx: "60",
+    cy: "96",
+    rx: "20",
+    ry: "5.5",
+    fill: "none",
+    stroke: "#fff",
+    strokeWidth: "3",
+    opacity: ".72"
+  }), React.createElement("path", {
+    d: "M39 40 A21 21 0 1 1 81 40 C79.9 56.8 64.6 69.6 60 81.6 C55.4 69.6 40.1 56.8 39 40 Z",
+    fill: "#FF2D9E"
+  }), React.createElement("circle", {
+    cx: "60",
+    cy: "40",
+    r: "8.8",
+    fill: "#fff"
+  })));
+}
+const PREMIUM_TAGS = [["Ton samedi soir, déjà réglé.", "Le spot, le métro, la bande — tout coule."], ["Imagine : t'as juste à y être ✨", "Spotane s'occupe du reste."], ["La ville t'attend. Toi, t'es prêt.", "Spots, trajets, potes : alignés."], ["La nuit est à toi, pas à Google Maps.", "Tout Spotane, sans limite."], ["Pendant qu'ils cherchent, t'y es déjà.", "Un coup d'avance, toujours."], ["Fin de soirée réglée, pas improvisée.", "Le spot d'après, prêt."], ["On te demande où aller. T'as la réponse.", "À chaque fois."], ["Sors mieux, sans jamais galérer.", "L'app t'emmène jusqu'au bout."], ["Le métro calculé jusqu'à la porte 🚇", "Fini le copier-coller vers Citymapper."], ["Tes spots, même sans réseau ✈️", "En voyage, en sous-sol, partout."], ["Trouve plus vite, recherche magique 🧠", "« Rooftop date vers Bastille » → trouvé."], ["Tout ce qui te fait gagner du temps.", "Débloqué d'un coup."], ["Spotane, sans aucune limite.", "Débride ta ville."], ["Élève ton jeu ✨", "La ville, version premium."], ["Ta ville, en grand.", "Sans aucune retenue."], ["Leurs meilleurs spots, sur ta carte.", "Ce que tes amis adorent, visible."], ["Une soirée par an te rembourse l'année.", "Le calcul est vite fait."], ["L'abo le moins cher de ton téléphone.", "Et le plus utile le week-end."], ["3,99 € : le meilleur ticket de la soirée.", "Il sert tous les autres soirs aussi."], ["Ça coûte moins qu'un shot 🥃", "Et ça dure 30 jours."], ["Mode expert, débloqué ⚡", "La totale pour les initiés."], ["Recherche magique, itinéraires, hors-ligne.", "Tout, d'un coup."], ["Ton Spotane en puissance maximale.", "Sans aucun frein."], ["Les outils des explorateurs urbains.", "Le niveau au-dessus."], ["Passe en pilotage avancé.", "Tu maîtrises la ville."], ["Débloque le plein potentiel de l'app.", "Rien en réserve."], ["Toute ta ville, dans ta poche.", "Le spot, le trajet, la bande."], ["Imagine la soirée. Spotane la rend possible.", "De l'envie au réel."]];
+const PREMIUM_ROWS = [["📍 Spots & catalogue", "✓", "✓", "Déjà illimité en gratuit — 2 345 adresses curatées + tes ajouts sans limite. Ça, c'est cadeau, et ça le restera."], ["📁 Listes", "2", "∞", "En gratuit : 2 listes. Avec + : autant que tu veux — ET remplies à plusieurs avec ta bande (« l'EVJF de Léa » à 4 mains)."], ["👥 Amis", "5", "∞", "En gratuit : 5 amis. Avec + : toute ta bande — leurs listes partagées et leurs spots directement sur ta carte."], ["🚇 Itinéraires métro", "—", "✓", "Le trajet métro/RER calculé jusqu'à la porte du spot, dans la fiche. Fini le copier-coller vers Citymapper à 23 h."], ["🧠 Recherche magique", "—", "✓", "« Rooftop tranquille pour un date vers Bastille » → l'app comprend l'ambiance, le lieu, le moment. La recherche simple reste gratuite."], ["✈️ Hors-ligne", "—", "✓", "Tes spots, cartes et photos accessibles sans réseau — dans le métro, en avion, à l'étranger sans data."], ["✨ Fiches auto", "10/mois", "∞", "L'enrichissement auto (photos, horaires, note Google en 1 tap) : 10 spots/mois en gratuit, illimité avec +."], ["📊 Wrapped & stats", "basique", "complet", "Ton année en spots version intégrale : tous les slides, toutes les stats, la carte story à partager."]];
 function PremiumModal({
   onClose
 }) {
-  const PERKS = [["🚇", tr("pm_p1t"), tr("pm_p1d")], ["🧠", tr("pm_p2t"), tr("pm_p2d")], ["📁", tr("pm_p3t"), tr("pm_p3d")], ["✈️", tr("pm_p4t"), tr("pm_p4d")], ["⚡", tr("pm_p5t"), tr("pm_p5d")]];
+  const [ti, setTi] = React.useState(0);
+  const [openRow, setOpenRow] = React.useState(-1);
+  React.useEffect(() => {
+    const id = setInterval(() => setTi(t => (t + 1) % PREMIUM_TAGS.length), 2600);
+    return () => clearInterval(id);
+  }, []);
+  const tag = PREMIUM_TAGS[ti];
   return React.createElement("div", {
     className: "modal-center",
     role: "dialog",
@@ -9600,7 +9680,8 @@ function PremiumModal({
     onClick: e => e.stopPropagation(),
     style: {
       padding: 0,
-      overflow: 'hidden'
+      overflow: 'hidden',
+      background: '#fff'
     }
   }, React.createElement(RedX, {
     onClick: onClose,
@@ -9613,102 +9694,188 @@ function PremiumModal({
     }
   }), React.createElement("div", {
     style: {
-      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
-      color: '#fff',
-      padding: '26px 20px 22px',
-      textAlign: 'center'
+      padding: '22px 20px 16px',
+      position: 'relative',
+      overflow: 'hidden'
     }
   }, React.createElement("div", {
     style: {
-      fontSize: 40,
-      lineHeight: 1
+      position: 'absolute',
+      top: '-40%',
+      right: '-15%',
+      width: '55%',
+      height: '120%',
+      background: 'radial-gradient(circle,rgba(255,45,158,.12),transparent 70%)',
+      pointerEvents: 'none'
     }
-  }, "\uD83D\uDC8E"), React.createElement("div", {
+  }), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9
+    }
+  }, React.createElement(SpotaneLogo, {
+    size: 30
+  }), React.createElement("span", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
-      fontSize: 30,
-      letterSpacing: '-0.02em',
-      marginTop: 8
+      fontSize: 22,
+      color: 'var(--ink-900)',
+      lineHeight: 1
     }
-  }, "Spotane+"), React.createElement("div", {
+  }, "Spotane", React.createElement("span", {
     style: {
-      fontSize: 14,
-      opacity: .9,
-      marginTop: 4,
-      fontFamily: 'var(--font-body)'
+      color: '#FF2D9E',
+      marginLeft: 6
     }
-  }, tr("pm_price"))), React.createElement("div", {
+  }, "+"))), React.createElement("div", {
+    key: ti,
     style: {
-      padding: '18px 20px 20px'
+      animation: 'mspFade .5s var(--ease)',
+      minHeight: 64,
+      marginTop: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 20,
+      lineHeight: 1.13,
+      color: 'var(--ink-900)'
+    }
+  }, tag[0]), React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: 'var(--ink-400)',
+      marginTop: 5,
+      lineHeight: 1.45
+    }
+  }, tag[1]))), React.createElement("div", {
+    style: {
+      padding: '0 16px 4px'
     }
   }, React.createElement("div", {
     style: {
       display: 'flex',
-      flexDirection: 'column',
-      gap: 13
-    }
-  }, PERKS.map(([e, t, d]) => React.createElement("div", {
-    key: t,
-    style: {
-      display: 'flex',
-      gap: 12,
-      alignItems: 'flex-start'
+      fontSize: 9.5,
+      letterSpacing: '.06em',
+      textTransform: 'uppercase',
+      fontWeight: 800,
+      color: 'var(--ink-400)',
+      padding: '0 2px 6px'
     }
   }, React.createElement("span", {
     style: {
-      fontSize: 20,
-      flexShrink: 0,
-      marginTop: 1
+      flex: 1
     }
-  }, e), React.createElement("div", null, React.createElement("div", {
+  }), React.createElement("span", {
     style: {
-      fontFamily: 'var(--font-body)',
+      width: 56,
+      textAlign: 'center'
+    }
+  }, "Gratuit"), React.createElement("span", {
+    style: {
+      width: 74,
+      textAlign: 'center',
+      color: '#fff',
+      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+      borderRadius: '8px 8px 0 0',
+      padding: '4px 0'
+    }
+  }, "Spotane+")), PREMIUM_ROWS.map(([l, f, p, gain], i) => React.createElement("div", {
+    key: i
+  }, React.createElement("button", {
+    onClick: () => setOpenRow(openRow === i ? -1 : i),
+    className: "press",
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      width: '100%',
+      padding: '9px 2px',
+      border: 'none',
+      borderTop: '1px solid var(--hairline)',
+      background: 'transparent',
+      cursor: 'pointer',
+      textAlign: 'left'
+    }
+  }, React.createElement("span", {
+    style: {
       fontWeight: 700,
-      fontSize: 14.5
-    }
-  }, t), React.createElement("div", {
-    style: {
       fontSize: 12.5,
-      color: 'var(--ink-400)',
-      marginTop: 1,
-      lineHeight: 1.4
+      color: 'var(--ink-900)'
     }
-  }, d))))), React.createElement("div", {
+  }, l), React.createElement("span", {
+    className: "pm-dot"
+  }), React.createElement("span", {
     style: {
-      marginTop: 16,
+      flex: 1
+    }
+  }), React.createElement("span", {
+    style: {
+      width: 56,
+      textAlign: 'center',
+      fontSize: 11,
+      color: 'var(--ink-400)'
+    }
+  }, f), React.createElement("span", {
+    style: {
+      width: 74,
+      textAlign: 'center',
+      fontSize: 11.5,
+      fontWeight: 800,
+      color: '#FF2D9E'
+    }
+  }, p)), openRow === i && React.createElement("div", {
+    style: {
+      animation: 'mspFade .3s var(--ease)',
+      fontSize: 11,
+      lineHeight: 1.5,
+      color: '#333',
+      background: '#FFF0F6',
+      borderRadius: 9,
+      padding: '9px 11px',
+      margin: '2px 0 6px'
+    }
+  }, "\uD83D\uDC8E ", gain)))), React.createElement("div", {
+    style: {
+      padding: '12px 20px 20px'
+    }
+  }, React.createElement("div", {
+    style: {
       background: 'var(--bg-cream)',
       borderRadius: 12,
-      padding: '11px 14px',
-      fontSize: 12.5,
+      padding: '10px 13px',
+      fontSize: 12,
       color: 'var(--ink-600)',
       lineHeight: 1.5,
       fontFamily: 'var(--font-body)'
     }
-  }, "\uD83E\uDD1D Et le gratuit reste g\xE9n\xE9reux : spots illimit\xE9s, partage illimit\xE9, photos, toutes les villes, sync multi-appareils. ", React.createElement("strong", null, "Le c\u0153ur de Spotane ne sera jamais payant.")), React.createElement("button", {
+  }, "\uD83E\uDD1D Le gratuit reste g\xE9n\xE9reux : spots illimit\xE9s, partage, photos, toutes les villes, sync. ", React.createElement("strong", null, "Le c\u0153ur de Spotane ne sera jamais payant.")), React.createElement("button", {
     onClick: () => {
       window.mspToast?.(tr("t_9"), "success");
       onClose();
     },
     className: "press",
     style: {
-      marginTop: 16,
+      marginTop: 14,
       width: '100%',
-      padding: 16,
+      padding: 15,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 16,
+      fontWeight: 800,
+      fontSize: 15.5,
       cursor: 'pointer',
-      boxShadow: 'var(--shadow-pop)'
+      boxShadow: '0 10px 24px -8px rgba(255,45,158,.6)'
     }
-  }, tr("pm_cta")), React.createElement("button", {
+  }, "Je passe \xE0 Spotane + \xB7 3,99 \u20AC/mois"), React.createElement("button", {
     onClick: onClose,
     style: {
-      marginTop: 10,
+      marginTop: 9,
       width: '100%',
       background: 'none',
       border: 'none',
@@ -15373,35 +15540,44 @@ function App() {
         margin: '0 0 14px'
       }
     }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
-      className: "cat-grid"
+      className: "mood-grid"
     }, CATS.filter(c => c.key !== "all").map((c, i) => {
       const count = spots.filter(s => hasCat(s, c.key)).length;
-      const tilt = stableTilt(i + 50, 1.5);
+      const cov = MOOD_COVER[c.key];
+      const ov = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(10,10,10,.35) 68%,${c.color}73 100%)`;
       return React.createElement("button", {
         key: c.key,
-        className: "cat-card",
+        className: "mood-card",
         onClick: () => {
           setCat(c.key);
           setTab("spots");
         },
         style: {
-          background: CB[c.key],
-          border: `1.5px solid ${CC[c.key]}`,
-          transform: `rotate(${tilt}deg)`
-        },
-        onMouseEnter: e => {
-          e.currentTarget.style.transform = `rotate(${tilt - 0.5}deg) translateY(-3px)`;
-        },
-        onMouseLeave: e => {
-          e.currentTarget.style.transform = `rotate(${tilt}deg)`;
+          borderColor: c.color,
+          transform: `rotate(${i % 2 ? 1.6 : -2}deg)`
         }
-      }, React.createElement("div", {
-        className: "cat-emoji"
-      }, c.emoji), React.createElement("div", {
-        className: "cat-name"
-      }, c.label), React.createElement("div", {
-        className: "cat-count"
-      }, count));
+      }, cov && React.createElement("img", {
+        src: cov,
+        alt: "",
+        loading: "lazy",
+        decoding: "async",
+        onError: e => {
+          e.target.style.display = 'none';
+        }
+      }), React.createElement("div", {
+        className: "m-ov",
+        style: {
+          background: ov
+        }
+      }), React.createElement("span", {
+        className: "m-em"
+      }, c.emoji), React.createElement("span", {
+        className: "m-lab"
+      }, React.createElement("span", {
+        className: "m-n"
+      }, c.label), React.createElement("span", {
+        className: "m-c"
+      }, count, " spot", count > 1 ? 's' : '')));
     }))), false && challengeSpots.length > 0 && React.createElement("div", {
       style: {
         padding: '28px 20px 0'
