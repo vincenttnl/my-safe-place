@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T23:30:10.862Z -->
+<!-- built 2026-07-12T23:45:58.532Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3083,6 +3083,27 @@ const I18N = {
     h_open: "🟢 Ouvert maintenant",
     h_nearyou: " · près de toi",
     h_best: "Le meilleur de",
+    sl_greet_matin: "☕ Bien réveillé",
+    sl_greet_midi: "🍽️ Un petit creux",
+    sl_greet_aprem: "🌇 Bel aprem",
+    sl_greet_apero: "🍹 C'est l'heure de l'apéro",
+    sl_greet_soir: "🌙 Belle soirée",
+    sl_greet_nuit: "🌃 La nuit est jeune",
+    sl_greet_after: "😳 Encore debout",
+    sl_title_matin: "On commence où ce matin ? ☕",
+    sl_title_midi: "On déjeune où ? 🍽️",
+    sl_title_aprem: "Un spot pour cet aprem ? 🌇",
+    sl_title_apero: "On pose l'apéro où ? 🍹",
+    sl_title_soir: "Où on va ce soir ? 🍸",
+    sl_title_nuit: "On continue où ? 🌃",
+    sl_title_after: "Ça tient encore ? 🌅",
+    sl_open_matin: "☕ Ouvert pour le café",
+    sl_open_midi: "🍽️ Ouvert pour déjeuner",
+    sl_open_aprem: "🌇 Sympa cet aprem",
+    sl_open_apero: "🍹 L'apéro t'attend",
+    sl_open_soir: "🍸 Ouvert ce soir",
+    sl_open_nuit: "🌃 Encore ouvert à cette heure",
+    sl_open_after: "🌙 Toujours ouvert, là",
     map_friends: "Amis",
     mapempty_friends: "Pas encore de spots d'amis ici",
     mapempty_friends_h: "Importe les listes de tes amis : leurs spots s'affichent avec un anneau violet 👥",
@@ -3371,6 +3392,27 @@ const I18N = {
     h_open: "🟢 Open now",
     h_nearyou: " · near you",
     h_best: "The best of",
+    sl_greet_matin: "☕ Rise and shine",
+    sl_greet_midi: "🍽️ Lunch o'clock",
+    sl_greet_aprem: "🌇 Easy afternoon",
+    sl_greet_apero: "🍹 Happy hour",
+    sl_greet_soir: "🌙 Lovely evening",
+    sl_greet_nuit: "🌃 The night is young",
+    sl_greet_after: "😳 Still up",
+    sl_title_matin: "Where to this morning? ☕",
+    sl_title_midi: "Where for lunch? 🍽️",
+    sl_title_aprem: "A spot for this afternoon? 🌇",
+    sl_title_apero: "Where for drinks? 🍹",
+    sl_title_soir: "Where to tonight? 🍸",
+    sl_title_nuit: "Where to next? 🌃",
+    sl_title_after: "Still going? 🌅",
+    sl_open_matin: "☕ Open for coffee",
+    sl_open_midi: "🍽️ Open for lunch",
+    sl_open_aprem: "🌇 Nice this afternoon",
+    sl_open_apero: "🍹 Open for drinks",
+    sl_open_soir: "🍸 Open tonight",
+    sl_open_nuit: "🌃 Still open at this hour",
+    sl_open_after: "🌙 Still open, right now",
     map_friends: "Friends",
     mapempty_friends: "No friend spots here yet",
     mapempty_friends_h: "Import your friends' lists: their spots show up with a purple ring 👥",
@@ -3659,6 +3701,27 @@ const I18N = {
     h_open: "🟢 Abierto ahora",
     h_nearyou: " · cerca de ti",
     h_best: "Lo mejor de",
+    sl_greet_matin: "☕ Buenos días",
+    sl_greet_midi: "🍽️ Hora de comer",
+    sl_greet_aprem: "🌇 Buena tarde",
+    sl_greet_apero: "🍹 Hora del apero",
+    sl_greet_soir: "🌙 Buenas noches",
+    sl_greet_nuit: "🌃 La noche es joven",
+    sl_greet_after: "😳 Aún despierto",
+    sl_title_matin: "¿Dónde empezamos la mañana? ☕",
+    sl_title_midi: "¿Dónde comemos? 🍽️",
+    sl_title_aprem: "¿Un plan para la tarde? 🌇",
+    sl_title_apero: "¿Dónde tomamos algo? 🍹",
+    sl_title_soir: "¿Salimos esta noche? 🍸",
+    sl_title_nuit: "¿Dónde seguimos? 🌃",
+    sl_title_after: "¿Aguantas más? 🌅",
+    sl_open_matin: "☕ Abierto para el café",
+    sl_open_midi: "🍽️ Abierto para comer",
+    sl_open_aprem: "🌇 Para esta tarde",
+    sl_open_apero: "🍹 Abierto para el apero",
+    sl_open_soir: "🍸 Abierto esta noche",
+    sl_open_nuit: "🌃 Aún abierto a esta hora",
+    sl_open_after: "🌙 Sigue abierto ahora",
     map_friends: "Amigos",
     mapempty_friends: "Aún no hay spots de amigos aquí",
     mapempty_friends_h: "Importa las listas de tus amigos: sus spots aparecen con un anillo violeta 👥",
@@ -4014,6 +4077,52 @@ function opensLate(hoursRaw) {
     if (en < st && en >= 300) return true;
   }
   return false;
+}
+const TIME_SLOTS = [{
+  id: "matin",
+  accent: "#FF6B2C",
+  accent2: "#8C3B18",
+  boost: ["cafe"]
+}, {
+  id: "midi",
+  accent: "#F59E0B",
+  accent2: "#875706",
+  boost: ["resto"]
+}, {
+  id: "aprem",
+  accent: "#3DC8FF",
+  accent2: "#226E8C",
+  boost: ["cafe", "sortie"]
+}, {
+  id: "apero",
+  accent: "#FF3D8B",
+  accent2: "#8C224C",
+  boost: ["rooftop", "speakeasy"]
+}, {
+  id: "soir",
+  accent: "#8B5CF6",
+  accent2: "#4C3387",
+  boost: ["resto", "speakeasy", "rooftop"]
+}, {
+  id: "nuit",
+  accent: "#6C63FF",
+  accent2: "#3B368C",
+  boost: ["club", "speakeasy"]
+}, {
+  id: "after",
+  accent: "#E91E63",
+  accent2: "#801136",
+  boost: ["club"]
+}];
+function timeSlot(now) {
+  const m = now.min;
+  if (m >= 6 * 60 && m < 12 * 60) return TIME_SLOTS[0];
+  if (m >= 12 * 60 && m < 15 * 60) return TIME_SLOTS[1];
+  if (m >= 15 * 60 && m < 18 * 60) return TIME_SLOTS[2];
+  if (m >= 18 * 60 && m < 20 * 60) return TIME_SLOTS[3];
+  if (m >= 20 * 60) return TIME_SLOTS[4];
+  if (m < 2 * 60) return TIME_SLOTS[5];
+  return TIME_SLOTS[6];
 }
 const DEPTS = [{
   k: "75",
@@ -13275,7 +13384,8 @@ function App() {
     const mine = spots.filter(s => s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
     const extra = catalog.filter(s => !ownedIds.has(s.id) && isOpenNow(s.hours, pnow) === true);
     const dist = s => userPos && s.lat && s.lng ? distKm(userPos.lat, userPos.lng, s.lat, s.lng) : null;
-    const srt = arr => userPos ? [...arr].sort((a, b) => (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => (gRating(b) || 0) - (gRating(a) || 0));
+    const bst = s => timeSlot(pnow).boost.includes(primaryCat(s)) ? 0 : 1;
+    const srt = arr => userPos ? [...arr].sort((a, b) => bst(a) - bst(b) || (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => bst(a) - bst(b) || (gRating(b) || 0) - (gRating(a) || 0));
     return [...srt(mine), ...srt(extra)].slice(0, 12).map(s => ({
       s,
       mine: ownedIds.has(s.id),
@@ -15183,6 +15293,7 @@ function App() {
       month: "long"
     });
     const who = session && session.user && session.user.pseudo || profile && profile.display_name || "";
+    const hSlot = timeSlot(nowParis());
     return React.createElement("div", {
       style: {
         paddingBottom: 100,
@@ -15201,8 +15312,11 @@ function App() {
         gap: 12
       }
     }, React.createElement("div", {
-      className: "grad-pill"
-    }, "\u263C Salut", who ? " " + who : "", " \xB7 ", dayLabel), session && React.createElement("button", {
+      className: "grad-pill",
+      style: {
+        background: 'linear-gradient(135deg,' + hSlot.accent + ',' + hSlot.accent2 + ')'
+      }
+    }, tr("sl_greet_" + hSlot.id), who ? " " + who : "", " \xB7 ", dayLabel), session && React.createElement("button", {
       onClick: () => setTab("profile"),
       className: "press",
       style: {
@@ -15231,7 +15345,7 @@ function App() {
       }
     }, React.createElement("h1", {
       className: "hero-line"
-    }, tr("home_title")), React.createElement("div", {
+    }, tr("sl_title_" + hSlot.id)), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 10,
@@ -15242,7 +15356,7 @@ function App() {
       className: "press",
       style: {
         flex: 1,
-        background: 'var(--pop-pink)',
+        background: hSlot.accent,
         color: '#fff',
         border: 'none',
         borderRadius: 999,
@@ -15316,8 +15430,11 @@ function App() {
         marginBottom: 12
       }
     }, React.createElement("div", {
-      className: "grad-lbl"
-    }, tr("h_open"), userPos ? tr("h_nearyou") : ''), React.createElement("div", {
+      className: "grad-lbl",
+      style: {
+        backgroundImage: 'linear-gradient(135deg,' + hSlot.accent + ',' + hSlot.accent2 + ')'
+      }
+    }, tr("sl_open_" + hSlot.id), userPos ? tr("h_nearyou") : ''), React.createElement("div", {
       style: {
         flex: 1
       }
