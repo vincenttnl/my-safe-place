@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T22:35:04.071Z -->
+<!-- built 2026-07-12T23:30:10.862Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16769,8 +16769,8 @@ function App() {
       fontWeight: openNow ? 700 : 600,
       fontSize: 12,
       border: '1.5px solid ' + (openNow ? '#16A34A' : 'var(--hairline)'),
-      background: openNow ? '#fff' : 'transparent',
-      color: openNow ? '#16A34A' : 'var(--ink-600)',
+      background: openNow ? '#16A34A' : 'transparent',
+      color: openNow ? '#fff' : 'var(--ink-600)',
       cursor: 'pointer',
       flexShrink: 0,
       display: 'flex',
@@ -16787,8 +16787,8 @@ function App() {
       fontWeight: lateNight ? 700 : 600,
       fontSize: 12,
       border: '1.5px solid ' + (lateNight ? '#1E1B4B' : 'var(--hairline)'),
-      background: lateNight ? '#fff' : 'transparent',
-      color: lateNight ? '#1E1B4B' : 'var(--ink-600)',
+      background: lateNight ? '#1E1B4B' : 'transparent',
+      color: lateNight ? '#fff' : 'var(--ink-600)',
       cursor: 'pointer',
       flexShrink: 0,
       display: 'flex',
@@ -18516,7 +18516,10 @@ function App() {
     }, c.emoji);
   })), React.createElement("div", {
     style: {
-      marginTop: 8
+      marginTop: 8,
+      display: 'flex',
+      gap: 6,
+      flexWrap: 'wrap'
     }
   }, React.createElement("button", {
     onClick: () => setOpenNow(v => !v),
@@ -18537,7 +18540,26 @@ function App() {
       border: openNow ? '1px solid transparent' : '1px solid var(--hairline)',
       transition: 'all .15s var(--ease)'
     }
-  }, "\uD83D\uDD50 Ouvert maintenant")))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true)).length === 0 && React.createElement("div", {
+  }, "\uD83D\uDD50 Ouvert maintenant"), React.createElement("button", {
+    onClick: () => setLateNight(v => !v),
+    className: "press",
+    "aria-pressed": lateNight,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '6px 12px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 11.5,
+      background: lateNight ? '#1E1B4B' : '#fff',
+      color: lateNight ? '#fff' : 'var(--ink-600)',
+      border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83C\uDF19 +5h")))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
       top: '50%',
