@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T00:11:44.375Z -->
+<!-- built 2026-07-12T00:14:15.670Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2908,6 +2908,9 @@ const I18N = {
     vb_cozy: "Tranquille",
     vb_intime: "Intime",
     vb_exotic: "Dépaysant",
+    map_friends: "Amis",
+    mapempty_friends: "Pas encore de spots d'amis ici",
+    mapempty_friends_h: "Importe les listes de tes amis : leurs spots s'affichent avec un anneau violet 👥",
     chip_open: "🟢 Ouvert",
     search_ph: "Chercher un spot, une vibe...",
     st_done: "Fait",
@@ -3038,6 +3041,9 @@ const I18N = {
     vb_cozy: "Cozy",
     vb_intime: "Intimate",
     vb_exotic: "Exotic",
+    map_friends: "Friends",
+    mapempty_friends: "No friend spots here yet",
+    mapempty_friends_h: "Import your friends' lists: their spots show up with a purple ring 👥",
     chip_open: "🟢 Open",
     search_ph: "Search a spot, a vibe...",
     st_done: "Done",
@@ -3168,6 +3174,9 @@ const I18N = {
     vb_cozy: "Tranquilo",
     vb_intime: "Íntimo",
     vb_exotic: "Exótico",
+    map_friends: "Amigos",
+    mapempty_friends: "Aún no hay spots de amigos aquí",
+    mapempty_friends_h: "Importa las listas de tus amigos: sus spots aparecen con un anillo violeta 👥",
     chip_open: "🟢 Abierto",
     search_ph: "Busca un spot, una vibe...",
     st_done: "Hecho",
@@ -12421,10 +12430,19 @@ function App() {
   const [mapMode, setMapMode] = useState("discover");
   const [mapFilter, setMapFilter] = useState(null);
   const [zoneFilter, setZoneFilter] = useState(null);
+  const friendSpotMap = useMemo(() => {
+    const m = new Map();
+    friendLists.forEach(fl => fl.ids.forEach(id => {
+      const a = m.get(id) || [];
+      if (!a.includes(fl.by)) a.push(fl.by);
+      m.set(id, a);
+    }));
+    return m;
+  }, [friendLists]);
   const mapSource = useMemo(() => {
-    const base = mapMode === "discover" ? catalog : spots;
+    const base = mapMode === "discover" ? catalog : mapMode === "friends" ? catalog.filter(s => friendSpotMap.has(s.id)) : spots;
     return mapFilter ? base.filter(s => mapFilter.ids.has(s.id)) : base;
-  }, [mapMode, catalog, spots, mapFilter]);
+  }, [mapMode, catalog, spots, mapFilter, friendSpotMap]);
   const [remoteProposals, setRemoteProposals] = useState(null);
   useEffect(() => {
     (async () => {
@@ -12449,9 +12467,10 @@ function App() {
     const f = arr => arr.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, pnow) === true)).length;
     return {
       discover: f(catalog),
-      mine: f(spots)
+      mine: f(spots),
+      friends: f(catalog.filter(s => friendSpotMap.has(s.id)))
     };
-  }, [catalog, spots, mapCats, openNow]);
+  }, [catalog, spots, mapCats, openNow, friendSpotMap]);
   const [metroJ, setMetroJ] = useState(null);
   const [metroLoading, setMetroLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -12985,15 +13004,6 @@ function App() {
     window.mspPopEmoji?.("🎁");
     window.mspToast?.(`Liste « ${fl.name} » ajoutée chez toi !`, "success");
   };
-  const friendSpotMap = useMemo(() => {
-    const m = new Map();
-    friendLists.forEach(fl => fl.ids.forEach(id => {
-      const a = m.get(id) || [];
-      if (!a.includes(fl.by)) a.push(fl.by);
-      m.set(id, a);
-    }));
-    return m;
-  }, [friendLists]);
   const fullSync = async sess => {
     if (!sess) return;
     setSyncState("syncing");
@@ -17357,7 +17367,11 @@ function App() {
     k: 'mine',
     l: tr("seg_mine"),
     n: mapCount.mine
-  }].map(o => {
+  }, ...(mapCount.friends > 0 ? [{
+    k: 'friends',
+    l: "👥 " + tr("map_friends"),
+    n: mapCount.friends
+  }] : [])].map(o => {
     const on = mapMode === o.k;
     return React.createElement("button", {
       key: o.k,
@@ -17548,14 +17562,14 @@ function App() {
       lineHeight: 1.15,
       marginBottom: 6
     }
-  }, openNow ? "Rien d'ouvert maintenant" : mapMode === "discover" ? `Pas encore de spots à ${(CITIES[city] || CITIES.paris).label}` : "Ta carte est vide ici"), React.createElement("div", {
+  }, openNow ? "Rien d'ouvert maintenant" : mapMode === "discover" ? `Pas encore de spots à ${(CITIES[city] || CITIES.paris).label}` : mapMode === "friends" ? tr("mapempty_friends") : "Ta carte est vide ici"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       fontSize: 13,
       color: 'var(--ink-400)',
       lineHeight: 1.45
     }
-  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
+  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
     onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
