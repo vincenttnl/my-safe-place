@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-11T23:27:38.232Z -->
+<!-- built 2026-07-12T00:11:44.375Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2866,107 +2866,529 @@ const STOCK_SPOTS = [{
     work: false
   }
 }];
+const I18N = {
+  fr: {
+    nav_home: "Accueil",
+    nav_spots: "Spots",
+    nav_map: "Carte",
+    nav_events: "Events",
+    nav_profile: "Profil",
+    seg_discover: "Découvrir 🔍",
+    seg_mine: "Mes spots ❤️",
+    seg_lists: "Listes 📁",
+    profile_city: "🌍 Ta ville",
+    profile_friends: "👥 Mes amis",
+    profile_join: "☁️ Rejoindre la communauté Spotane",
+    wrapped_teaser_title: "Ton année en spots",
+    wrapped_teaser_sub: "Ton Wrapped {year} est prêt — stats, coups de cœur ✨",
+    btn_invite: "🤝 Inviter",
+    btn_see: "Voir →",
+    btn_cancel: "Annuler",
+    btn_later: "Plus tard",
+    lang_title: "🌍 Langue",
+    lang_auto: "🪄 langue du téléphone",
+    cat_all: "Tout",
+    cat_resto: "Restos",
+    cat_cafe: "Cafés",
+    cat_rooftop: "Rooftops",
+    cat_speakeasy: "Bars",
+    cat_club: "Clubs",
+    cat_sortie: "Sorties",
+    react_fire: "Incroyable",
+    react_ok: "Bien",
+    react_meh: "Bof",
+    f_all: "Tous",
+    f_todo: "A faire",
+    f_wish: "Envies",
+    f_done: "Faits",
+    f_fav: "Favoris",
+    vb_chic: "Chic",
+    vb_casual: "Décontracté",
+    vb_party: "Festif",
+    vb_cozy: "Tranquille",
+    vb_intime: "Intime",
+    vb_exotic: "Dépaysant",
+    chip_open: "🟢 Ouvert",
+    search_ph: "Chercher un spot, une vibe...",
+    st_done: "Fait",
+    st_todo: "A faire",
+    who_date: "Date",
+    who_potes: "Potes",
+    who_solo: "Solo",
+    who_coll: "Collègues",
+    who_fam: "Famille",
+    when_apero: "Apéro (17-20h)",
+    when_soiree: "Soirée (20h-1h)",
+    when_after: "After (1h+)",
+    when_day: "Journée",
+    zone_any: "Peu importe",
+    zone_centre: "Centre",
+    zone_est: "Est",
+    zone_nord: "Nord",
+    zone_ouest: "Ouest",
+    zone_sud: "Sud",
+    zone_banlieue: "Banlieue",
+    cu_fr: "Français",
+    cu_it: "Italien",
+    cu_asia: "Asiatique",
+    cu_gastro: "Gastro",
+    cu_bistrot: "Bistrot",
+    cu_brunch: "Brunch",
+    cu_healthy: "Healthy",
+    cu_burger: "Burger",
+    cu_pizza: "Pizza",
+    cu_fast: "Fast-food",
+    cu_street: "Sur le pouce",
+    bud_free: "Gratuit",
+    months: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+    w_tap: "Tape à droite pour avancer →",
+    w_intro_name: "{name}, ton année en spots.",
+    w_intro: "Ton année en spots.",
+    w_added_kick: "Ta carte s'est remplie",
+    w_added_lbl: "spots ajoutés en {year}",
+    w_added_lbl1: "spot ajouté en {year}",
+    w_lists_n: "Rangés dans {n} listes 📁",
+    w_lists_1: "Rangés dans 1 liste 📁",
+    w_added_sub: "Et ce n'est que le début.",
+    w_done_kick: "Passé de l'envie au réel",
+    w_done_lbl: "spots testés",
+    w_done_lbl1: "spot testé",
+    w_done_react: "Ton verdict le plus donné : {e} ×{n}",
+    w_done_noreact: "Il est temps de donner ton verdict 🔥👍😐",
+    w_cat_kick: "Ta grande passion",
+    w_cat_lbl: "{n} spots — ta catégorie n°1",
+    w_cat_sub: "On ne se refait pas.",
+    w_vibe_kick: "Ton mood de l'année",
+    w_vibe_lbl: "l'ambiance qui revient le plus sur ta carte",
+    w_month_kick: "Ton mois le plus chaud",
+    w_month_lbl: "{n} spots ajoutés ou testés ce mois-là",
+    w_podium_kick: "Ton podium de l'année",
+    w_heart_kick: "Ton coup de cœur",
+    w_explore_kick: "Âme d'explorateur",
+    w_explore_lbl: "coins différents sur ta carte",
+    w_explore_sub: "Ta ville n'a presque plus de secrets.",
+    w_persona_kick: "Ton profil Spotane {year}",
+    w_persona_foot: "Et toi, t'es quoi ? · Spotane",
+    w_final_kick: "Ton année {year} en bref",
+    w_tile_added: "ajoutés",
+    w_tile_done: "testés",
+    w_tile_cat: "top catégorie",
+    w_tile_codes: "coins explorés",
+    w_share_btn: "📤 Partager mon année",
+    w_premium_btn: "💎 Encore plus de stats avec Spotane+",
+    w_bits_map: "{n} spots sur ma carte",
+    w_bits_done: "{n} testés",
+    w_bits_team: "team {cat} {e}",
+    w_share_l1: "Mon année {year} en spots : {bits}",
+    w_share_l2: "Mon profil : {p}",
+    w_share_l3: "Et toi, t'es quoi ? Fais ton Wrapped sur Spotane 👇",
+    w_card_cta: "Et toi, t'es quoi ?",
+    w_card_sub: "Fais ton Wrapped sur Spotane",
+    p_night: "Noctambule",
+    p_night_why: "{p} % de ta carte, c'est des bars et des clubs. La nuit te connaît.",
+    p_roof: "Accro aux hauteurs",
+    p_roof_why: "Toujours plus haut : ta carte est pleine de rooftops et de vues.",
+    p_food: "Fine bouche",
+    p_food_why: "{p} % de ta carte, c'est des tables et des cafés. On sait qui appeler pour manger.",
+    p_explorer: "Boussole humaine",
+    p_explorer_why: "{n} coins différents explorés. Ta ville n'a plus de secrets.",
+    p_doer: "Zéro liste d'attente",
+    p_doer_why: "{p} % de tes spots déjà testés. Chez toi, une envie ne reste jamais une envie.",
+    p_curator: "Radar à pépites",
+    p_curator_why: "Tu repères, tu gardes, tu curates. Tes amis savent à qui demander."
+  },
+  en: {
+    nav_home: "Home",
+    nav_spots: "Spots",
+    nav_map: "Map",
+    nav_events: "Events",
+    nav_profile: "Profile",
+    seg_discover: "Discover 🔍",
+    seg_mine: "My spots ❤️",
+    seg_lists: "Lists 📁",
+    profile_city: "🌍 Your city",
+    profile_friends: "👥 My friends",
+    profile_join: "☁️ Join the Spotane community",
+    wrapped_teaser_title: "Your year in spots",
+    wrapped_teaser_sub: "Your {year} Wrapped is ready — stats & highlights ✨",
+    btn_invite: "🤝 Invite",
+    btn_see: "See →",
+    btn_cancel: "Cancel",
+    btn_later: "Later",
+    lang_title: "🌍 Language",
+    lang_auto: "🪄 phone language",
+    cat_all: "All",
+    cat_resto: "Restaurants",
+    cat_cafe: "Cafés",
+    cat_rooftop: "Rooftops",
+    cat_speakeasy: "Bars",
+    cat_club: "Clubs",
+    cat_sortie: "Outings",
+    react_fire: "Amazing",
+    react_ok: "Good",
+    react_meh: "Meh",
+    f_all: "All",
+    f_todo: "To do",
+    f_wish: "Wishlist",
+    f_done: "Done",
+    f_fav: "Favorites",
+    vb_chic: "Chic",
+    vb_casual: "Casual",
+    vb_party: "Party",
+    vb_cozy: "Cozy",
+    vb_intime: "Intimate",
+    vb_exotic: "Exotic",
+    chip_open: "🟢 Open",
+    search_ph: "Search a spot, a vibe...",
+    st_done: "Done",
+    st_todo: "To do",
+    who_date: "Date",
+    who_potes: "Friends",
+    who_solo: "Solo",
+    who_coll: "Coworkers",
+    who_fam: "Family",
+    when_apero: "Drinks (5-8pm)",
+    when_soiree: "Night (8pm-1am)",
+    when_after: "After (1am+)",
+    when_day: "Daytime",
+    zone_any: "Anywhere",
+    zone_centre: "Center",
+    zone_est: "East",
+    zone_nord: "North",
+    zone_ouest: "West",
+    zone_sud: "South",
+    zone_banlieue: "Suburbs",
+    cu_fr: "French",
+    cu_it: "Italian",
+    cu_asia: "Asian",
+    cu_gastro: "Fine dining",
+    cu_bistrot: "Bistro",
+    cu_brunch: "Brunch",
+    cu_healthy: "Healthy",
+    cu_burger: "Burger",
+    cu_pizza: "Pizza",
+    cu_fast: "Fast food",
+    cu_street: "Street food",
+    bud_free: "Free",
+    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    w_tap: "Tap right to move on →",
+    w_intro_name: "{name}, your year in spots.",
+    w_intro: "Your year in spots.",
+    w_added_kick: "Your map filled up",
+    w_added_lbl: "spots added in {year}",
+    w_added_lbl1: "spot added in {year}",
+    w_lists_n: "Sorted into {n} lists 📁",
+    w_lists_1: "Sorted into 1 list 📁",
+    w_added_sub: "And it's just the beginning.",
+    w_done_kick: "From wishlist to real life",
+    w_done_lbl: "spots tried",
+    w_done_lbl1: "spot tried",
+    w_done_react: "Your most given verdict: {e} ×{n}",
+    w_done_noreact: "Time to give your verdict 🔥👍😐",
+    w_cat_kick: "Your big passion",
+    w_cat_lbl: "{n} spots — your #1 category",
+    w_cat_sub: "You can't help it.",
+    w_vibe_kick: "Your mood of the year",
+    w_vibe_lbl: "the vibe that shows up most on your map",
+    w_month_kick: "Your hottest month",
+    w_month_lbl: "{n} spots added or tried that month",
+    w_podium_kick: "Your podium of the year",
+    w_heart_kick: "Your crush",
+    w_explore_kick: "Explorer's soul",
+    w_explore_lbl: "different corners on your map",
+    w_explore_sub: "Your city has almost no secrets left.",
+    w_persona_kick: "Your Spotane profile {year}",
+    w_persona_foot: "And you, what are you? · Spotane",
+    w_final_kick: "Your {year} in short",
+    w_tile_added: "added",
+    w_tile_done: "tried",
+    w_tile_cat: "top category",
+    w_tile_codes: "corners explored",
+    w_share_btn: "📤 Share my year",
+    w_premium_btn: "💎 Even more stats with Spotane+",
+    w_bits_map: "{n} spots on my map",
+    w_bits_done: "{n} tried",
+    w_bits_team: "team {cat} {e}",
+    w_share_l1: "My {year} in spots: {bits}",
+    w_share_l2: "My profile: {p}",
+    w_share_l3: "And you, what are you? Make your Wrapped on Spotane 👇",
+    w_card_cta: "And you, what are you?",
+    w_card_sub: "Make your Wrapped on Spotane",
+    p_night: "Night owl",
+    p_night_why: "{p}% of your map is bars and clubs. The night knows you.",
+    p_roof: "Rooftop addict",
+    p_roof_why: "Always higher: your map is full of rooftops and views.",
+    p_food: "Foodie at heart",
+    p_food_why: "{p}% of your map is tables and cafés. Everyone knows who to call for food.",
+    p_explorer: "Human compass",
+    p_explorer_why: "{n} different corners explored. Your city has no secrets left.",
+    p_doer: "Zero waiting list",
+    p_doer_why: "{p}% of your spots already tried. A craving never stays a craving with you.",
+    p_curator: "Gem radar",
+    p_curator_why: "You spot, you save, you curate. Your friends know who to ask."
+  },
+  es: {
+    nav_home: "Inicio",
+    nav_spots: "Spots",
+    nav_map: "Mapa",
+    nav_events: "Eventos",
+    nav_profile: "Perfil",
+    seg_discover: "Descubrir 🔍",
+    seg_mine: "Mis spots ❤️",
+    seg_lists: "Listas 📁",
+    profile_city: "🌍 Tu ciudad",
+    profile_friends: "👥 Mis amigos",
+    profile_join: "☁️ Únete a la comunidad Spotane",
+    wrapped_teaser_title: "Tu año en spots",
+    wrapped_teaser_sub: "Tu Wrapped {year} está listo — stats y favoritos ✨",
+    btn_invite: "🤝 Invitar",
+    btn_see: "Ver →",
+    btn_cancel: "Cancelar",
+    btn_later: "Más tarde",
+    lang_title: "🌍 Idioma",
+    lang_auto: "🪄 idioma del teléfono",
+    cat_all: "Todo",
+    cat_resto: "Restos",
+    cat_cafe: "Cafés",
+    cat_rooftop: "Rooftops",
+    cat_speakeasy: "Bares",
+    cat_club: "Clubs",
+    cat_sortie: "Planes",
+    react_fire: "Increíble",
+    react_ok: "Bien",
+    react_meh: "Bah",
+    f_all: "Todos",
+    f_todo: "Por hacer",
+    f_wish: "Antojos",
+    f_done: "Hechos",
+    f_fav: "Favoritos",
+    vb_chic: "Chic",
+    vb_casual: "Relajado",
+    vb_party: "Festivo",
+    vb_cozy: "Tranquilo",
+    vb_intime: "Íntimo",
+    vb_exotic: "Exótico",
+    chip_open: "🟢 Abierto",
+    search_ph: "Busca un spot, una vibe...",
+    st_done: "Hecho",
+    st_todo: "Por hacer",
+    who_date: "Cita",
+    who_potes: "Amigos",
+    who_solo: "Solo",
+    who_coll: "Colegas",
+    who_fam: "Familia",
+    when_apero: "Aperitivo (17-20h)",
+    when_soiree: "Noche (20h-1h)",
+    when_after: "After (1h+)",
+    when_day: "De día",
+    zone_any: "Da igual",
+    zone_centre: "Centro",
+    zone_est: "Este",
+    zone_nord: "Norte",
+    zone_ouest: "Oeste",
+    zone_sud: "Sur",
+    zone_banlieue: "Afueras",
+    cu_fr: "Francés",
+    cu_it: "Italiano",
+    cu_asia: "Asiático",
+    cu_gastro: "Gastro",
+    cu_bistrot: "Bistró",
+    cu_brunch: "Brunch",
+    cu_healthy: "Healthy",
+    cu_burger: "Burger",
+    cu_pizza: "Pizza",
+    cu_fast: "Fast food",
+    cu_street: "Al paso",
+    bud_free: "Gratis",
+    months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+    w_tap: "Toca a la derecha para avanzar →",
+    w_intro_name: "{name}, tu año en spots.",
+    w_intro: "Tu año en spots.",
+    w_added_kick: "Tu mapa se llenó",
+    w_added_lbl: "spots añadidos en {year}",
+    w_added_lbl1: "spot añadido en {year}",
+    w_lists_n: "Ordenados en {n} listas 📁",
+    w_lists_1: "Ordenados en 1 lista 📁",
+    w_added_sub: "Y esto es solo el principio.",
+    w_done_kick: "Del antojo a la realidad",
+    w_done_lbl: "spots probados",
+    w_done_lbl1: "spot probado",
+    w_done_react: "Tu veredicto más dado: {e} ×{n}",
+    w_done_noreact: "Hora de dar tu veredicto 🔥👍😐",
+    w_cat_kick: "Tu gran pasión",
+    w_cat_lbl: "{n} spots — tu categoría n.º 1",
+    w_cat_sub: "Uno no cambia.",
+    w_vibe_kick: "Tu mood del año",
+    w_vibe_lbl: "el ambiente que más se repite en tu mapa",
+    w_month_kick: "Tu mes más caliente",
+    w_month_lbl: "{n} spots añadidos o probados ese mes",
+    w_podium_kick: "Tu podio del año",
+    w_heart_kick: "Tu favorito",
+    w_explore_kick: "Alma de explorador",
+    w_explore_lbl: "rincones distintos en tu mapa",
+    w_explore_sub: "Tu ciudad ya casi no tiene secretos.",
+    w_persona_kick: "Tu perfil Spotane {year}",
+    w_persona_foot: "¿Y tú, qué eres? · Spotane",
+    w_final_kick: "Tu {year} en resumen",
+    w_tile_added: "añadidos",
+    w_tile_done: "probados",
+    w_tile_cat: "top categoría",
+    w_tile_codes: "rincones explorados",
+    w_share_btn: "📤 Compartir mi año",
+    w_premium_btn: "💎 Aún más stats con Spotane+",
+    w_bits_map: "{n} spots en mi mapa",
+    w_bits_done: "{n} probados",
+    w_bits_team: "team {cat} {e}",
+    w_share_l1: "Mi {year} en spots: {bits}",
+    w_share_l2: "Mi perfil: {p}",
+    w_share_l3: "¿Y tú, qué eres? Haz tu Wrapped en Spotane 👇",
+    w_card_cta: "¿Y tú, qué eres?",
+    w_card_sub: "Haz tu Wrapped en Spotane",
+    p_night: "Noctámbulo",
+    p_night_why: "El {p} % de tu mapa son bares y clubs. La noche te conoce.",
+    p_roof: "Adicto a las alturas",
+    p_roof_why: "Siempre más alto: tu mapa está lleno de rooftops y vistas.",
+    p_food: "Sibarita",
+    p_food_why: "El {p} % de tu mapa son mesas y cafés. Ya saben a quién llamar para comer.",
+    p_explorer: "Brújula humana",
+    p_explorer_why: "{n} rincones distintos explorados. Tu ciudad ya no tiene secretos.",
+    p_doer: "Cero lista de espera",
+    p_doer_why: "El {p} % de tus spots ya probados. Contigo un antojo nunca se queda en antojo.",
+    p_curator: "Radar de joyas",
+    p_curator_why: "Detectas, guardas, curas. Tus amigos saben a quién preguntar."
+  }
+};
+const LANGK = "myplace_lang_v1";
+let __lang = (() => {
+  try {
+    const l = localStorage.getItem(LANGK);
+    if (I18N[l]) return l;
+    const nav = (navigator.language || "fr").slice(0, 2).toLowerCase();
+    return I18N[nav] ? nav : "fr";
+  } catch {
+    return "fr";
+  }
+})();
+const LANG_EXPLICIT = (() => {
+  try {
+    return !!localStorage.getItem(LANGK);
+  } catch {
+    return false;
+  }
+})();
+function tr(key, vars) {
+  let s = (I18N[__lang] && I18N[__lang][key]) ?? I18N.fr[key] ?? key;
+  if (vars) for (const k in vars) s = s.replace("{" + k + "}", vars[k]);
+  return s;
+}
+try {
+  window.mspSetLang = l => {
+    if (!I18N[l]) return;
+    localStorage.setItem(LANGK, l);
+    location.reload();
+  };
+} catch {}
 const Q_WHO = [{
   k: "date",
-  l: "💑 Date"
+  l: "💑 " + tr("who_date")
 }, {
   k: "potes",
-  l: "👥 Potes"
+  l: "👥 " + tr("who_potes")
 }, {
   k: "solo",
-  l: "🧑 Solo"
+  l: "🧑 " + tr("who_solo")
 }, {
   k: "collegues",
-  l: "👔 Collègues"
+  l: "👔 " + tr("who_coll")
 }, {
   k: "famille",
-  l: "👨‍👩‍👧 Famille"
+  l: "👨‍👩‍👧 " + tr("who_fam")
 }];
 const Q_WHEN = [{
   k: "apero",
-  l: "🌅 Apéro (17-20h)"
+  l: "🌅 " + tr("when_apero")
 }, {
   k: "soiree",
-  l: "🌃 Soirée (20h-1h)"
+  l: "🌃 " + tr("when_soiree")
 }, {
   k: "after",
-  l: "🌌 After (1h+)"
+  l: "🌌 " + tr("when_after")
 }, {
   k: "journee",
-  l: "🌞 Journée"
+  l: "🌞 " + tr("when_day")
 }];
 const Q_VIBE = [{
   k: "chic",
-  l: "✨ Chic"
+  l: "✨ " + tr("vb_chic")
 }, {
   k: "decontracte",
-  l: "😎 Décontracté"
+  l: "😎 " + tr("vb_casual")
 }, {
   k: "festif",
-  l: "🔥 Festif"
+  l: "🔥 " + tr("vb_party")
 }, {
   k: "intime",
-  l: "🤫 Intime"
+  l: "🤫 " + tr("vb_intime")
 }, {
   k: "depaysant",
-  l: "🌍 Dépaysant"
+  l: "🌍 " + tr("vb_exotic")
 }];
 const Q_ZONE = [{
   k: "",
-  l: "🎯 Peu importe"
+  l: "🎯 " + tr("zone_any")
 }, {
   k: "centre",
-  l: "Centre"
+  l: tr("zone_centre")
 }, {
   k: "est",
-  l: "Est"
+  l: tr("zone_est")
 }, {
   k: "nord",
-  l: "Nord"
+  l: tr("zone_nord")
 }, {
   k: "ouest",
-  l: "Ouest"
+  l: tr("zone_ouest")
 }, {
   k: "sud",
-  l: "Sud"
+  l: tr("zone_sud")
 }, {
   k: "banlieue",
-  l: "Banlieue"
+  l: tr("zone_banlieue")
 }];
 const Q_CUISINE = [{
   k: "francais",
-  l: "🥖 Français"
+  l: "🥖 " + tr("cu_fr")
 }, {
   k: "italien",
-  l: "🍝 Italien"
+  l: "🍝 " + tr("cu_it")
 }, {
   k: "asiat",
-  l: "🍜 Asiatique"
+  l: "🍜 " + tr("cu_asia")
 }, {
   k: "gastro",
-  l: "👨‍🍳 Gastro"
+  l: "👨‍🍳 " + tr("cu_gastro")
 }, {
   k: "bistrot",
-  l: "🍷 Bistrot"
+  l: "🍷 " + tr("cu_bistrot")
 }, {
   k: "brunch",
-  l: "🥐 Brunch"
+  l: "🥐 " + tr("cu_brunch")
 }, {
   k: "healthy",
-  l: "🥗 Healthy"
+  l: "🥗 " + tr("cu_healthy")
 }, {
   k: "burger",
-  l: "🍔 Burger"
+  l: "🍔 " + tr("cu_burger")
 }, {
   k: "pizza",
-  l: "🍕 Pizza"
+  l: "🍕 " + tr("cu_pizza")
 }, {
   k: "fastfood",
-  l: "🌯 Fast-food"
+  l: "🌯 " + tr("cu_fast")
 }];
 const Q_BUDGET = [{
   k: "free",
-  l: "🆓 Gratuit"
+  l: "🆓 " + tr("bud_free")
 }, {
   k: "€",
   l: "€ · -15€"
@@ -2980,7 +3402,7 @@ const Q_BUDGET = [{
 const STREET_KEYS = ["burger", "pizza", "fastfood"];
 const Q_CUISINE_WIZ = [...Q_CUISINE.filter(c => !STREET_KEYS.includes(c.k)), {
   k: "streetfood",
-  l: "🍔 Sur le pouce"
+  l: "🍔 " + tr("cu_street")
 }];
 function priceBucket(p) {
   if (!p) return null;
@@ -3108,37 +3530,37 @@ const PARIS_ARR = Array.from({
 }, (_, i) => `75-${i + 1}`);
 const CATS = [{
   key: "all",
-  label: "Tout",
+  label: tr("cat_all"),
   emoji: "🌟",
   color: "#6C63FF"
 }, {
   key: "resto",
-  label: "Restos",
+  label: tr("cat_resto"),
   emoji: "🍽️",
   color: "#16A34A"
 }, {
   key: "cafe",
-  label: "Cafés",
+  label: tr("cat_cafe"),
   emoji: "☕",
   color: "#6F4E37"
 }, {
   key: "rooftop",
-  label: "Rooftops",
+  label: tr("cat_rooftop"),
   emoji: "🏙️",
   color: "#2563EB"
 }, {
   key: "speakeasy",
-  label: "Bars",
+  label: tr("cat_speakeasy"),
   emoji: "🍸",
   color: "#7C3AED"
 }, {
   key: "club",
-  label: "Clubs",
+  label: tr("cat_club"),
   emoji: "🪩",
   color: "#DB2777"
 }, {
   key: "sortie",
-  label: "Sorties",
+  label: tr("cat_sortie"),
   emoji: "✨",
   color: "#EA580C"
 }];
@@ -3420,277 +3842,14 @@ const CAT_TYPE = {
 };
 const REACTIONS = [{
   emoji: "🔥",
-  label: "Incroyable"
+  label: tr("react_fire")
 }, {
   emoji: "👍",
-  label: "Bien"
+  label: tr("react_ok")
 }, {
   emoji: "😐",
-  label: "Bof"
+  label: tr("react_meh")
 }];
-const I18N = {
-  fr: {
-    nav_home: "Accueil",
-    nav_spots: "Spots",
-    nav_map: "Carte",
-    nav_events: "Events",
-    nav_profile: "Profil",
-    seg_discover: "Découvrir 🔍",
-    seg_mine: "Mes spots ❤️",
-    seg_lists: "Listes 📁",
-    profile_city: "🌍 Ta ville",
-    profile_friends: "👥 Mes amis",
-    profile_join: "☁️ Rejoindre la communauté Spotane",
-    wrapped_teaser_title: "Ton année en spots",
-    wrapped_teaser_sub: "Ton Wrapped {year} est prêt — stats, coups de cœur ✨",
-    btn_invite: "🤝 Inviter",
-    btn_see: "Voir →",
-    btn_cancel: "Annuler",
-    btn_later: "Plus tard",
-    lang_title: "🌍 Langue",
-    lang_auto: "🪄 langue du téléphone",
-    months: ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
-    w_tap: "Tape à droite pour avancer →",
-    w_intro_name: "{name}, ton année en spots.",
-    w_intro: "Ton année en spots.",
-    w_added_kick: "Ta carte s'est remplie",
-    w_added_lbl: "spots ajoutés en {year}",
-    w_added_lbl1: "spot ajouté en {year}",
-    w_lists_n: "Rangés dans {n} listes 📁",
-    w_lists_1: "Rangés dans 1 liste 📁",
-    w_added_sub: "Et ce n'est que le début.",
-    w_done_kick: "Passé de l'envie au réel",
-    w_done_lbl: "spots testés",
-    w_done_lbl1: "spot testé",
-    w_done_react: "Ton verdict le plus donné : {e} ×{n}",
-    w_done_noreact: "Il est temps de donner ton verdict 🔥👍😐",
-    w_cat_kick: "Ta grande passion",
-    w_cat_lbl: "{n} spots — ta catégorie n°1",
-    w_cat_sub: "On ne se refait pas.",
-    w_vibe_kick: "Ton mood de l'année",
-    w_vibe_lbl: "l'ambiance qui revient le plus sur ta carte",
-    w_month_kick: "Ton mois le plus chaud",
-    w_month_lbl: "{n} spots ajoutés ou testés ce mois-là",
-    w_podium_kick: "Ton podium de l'année",
-    w_heart_kick: "Ton coup de cœur",
-    w_explore_kick: "Âme d'explorateur",
-    w_explore_lbl: "coins différents sur ta carte",
-    w_explore_sub: "Ta ville n'a presque plus de secrets.",
-    w_persona_kick: "Ton profil Spotane {year}",
-    w_persona_foot: "Et toi, t'es quoi ? · Spotane",
-    w_final_kick: "Ton année {year} en bref",
-    w_tile_added: "ajoutés",
-    w_tile_done: "testés",
-    w_tile_cat: "top catégorie",
-    w_tile_codes: "coins explorés",
-    w_share_btn: "📤 Partager mon année",
-    w_premium_btn: "💎 Encore plus de stats avec Spotane+",
-    w_bits_map: "{n} spots sur ma carte",
-    w_bits_done: "{n} testés",
-    w_bits_team: "team {cat} {e}",
-    w_share_l1: "Mon année {year} en spots : {bits}",
-    w_share_l2: "Mon profil : {p}",
-    w_share_l3: "Et toi, t'es quoi ? Fais ton Wrapped sur Spotane 👇",
-    w_card_cta: "Et toi, t'es quoi ?",
-    w_card_sub: "Fais ton Wrapped sur Spotane",
-    p_night: "Noctambule",
-    p_night_why: "{p} % de ta carte, c'est des bars et des clubs. La nuit te connaît.",
-    p_roof: "Accro aux hauteurs",
-    p_roof_why: "Toujours plus haut : ta carte est pleine de rooftops et de vues.",
-    p_food: "Fine bouche",
-    p_food_why: "{p} % de ta carte, c'est des tables et des cafés. On sait qui appeler pour manger.",
-    p_explorer: "Boussole humaine",
-    p_explorer_why: "{n} coins différents explorés. Ta ville n'a plus de secrets.",
-    p_doer: "Zéro liste d'attente",
-    p_doer_why: "{p} % de tes spots déjà testés. Chez toi, une envie ne reste jamais une envie.",
-    p_curator: "Radar à pépites",
-    p_curator_why: "Tu repères, tu gardes, tu curates. Tes amis savent à qui demander."
-  },
-  en: {
-    nav_home: "Home",
-    nav_spots: "Spots",
-    nav_map: "Map",
-    nav_events: "Events",
-    nav_profile: "Profile",
-    seg_discover: "Discover 🔍",
-    seg_mine: "My spots ❤️",
-    seg_lists: "Lists 📁",
-    profile_city: "🌍 Your city",
-    profile_friends: "👥 My friends",
-    profile_join: "☁️ Join the Spotane community",
-    wrapped_teaser_title: "Your year in spots",
-    wrapped_teaser_sub: "Your {year} Wrapped is ready — stats & highlights ✨",
-    btn_invite: "🤝 Invite",
-    btn_see: "See →",
-    btn_cancel: "Cancel",
-    btn_later: "Later",
-    lang_title: "🌍 Language",
-    lang_auto: "🪄 phone language",
-    months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    w_tap: "Tap right to move on →",
-    w_intro_name: "{name}, your year in spots.",
-    w_intro: "Your year in spots.",
-    w_added_kick: "Your map filled up",
-    w_added_lbl: "spots added in {year}",
-    w_added_lbl1: "spot added in {year}",
-    w_lists_n: "Sorted into {n} lists 📁",
-    w_lists_1: "Sorted into 1 list 📁",
-    w_added_sub: "And it's just the beginning.",
-    w_done_kick: "From wishlist to real life",
-    w_done_lbl: "spots tried",
-    w_done_lbl1: "spot tried",
-    w_done_react: "Your most given verdict: {e} ×{n}",
-    w_done_noreact: "Time to give your verdict 🔥👍😐",
-    w_cat_kick: "Your big passion",
-    w_cat_lbl: "{n} spots — your #1 category",
-    w_cat_sub: "You can't help it.",
-    w_vibe_kick: "Your mood of the year",
-    w_vibe_lbl: "the vibe that shows up most on your map",
-    w_month_kick: "Your hottest month",
-    w_month_lbl: "{n} spots added or tried that month",
-    w_podium_kick: "Your podium of the year",
-    w_heart_kick: "Your crush",
-    w_explore_kick: "Explorer's soul",
-    w_explore_lbl: "different corners on your map",
-    w_explore_sub: "Your city has almost no secrets left.",
-    w_persona_kick: "Your Spotane profile {year}",
-    w_persona_foot: "And you, what are you? · Spotane",
-    w_final_kick: "Your {year} in short",
-    w_tile_added: "added",
-    w_tile_done: "tried",
-    w_tile_cat: "top category",
-    w_tile_codes: "corners explored",
-    w_share_btn: "📤 Share my year",
-    w_premium_btn: "💎 Even more stats with Spotane+",
-    w_bits_map: "{n} spots on my map",
-    w_bits_done: "{n} tried",
-    w_bits_team: "team {cat} {e}",
-    w_share_l1: "My {year} in spots: {bits}",
-    w_share_l2: "My profile: {p}",
-    w_share_l3: "And you, what are you? Make your Wrapped on Spotane 👇",
-    w_card_cta: "And you, what are you?",
-    w_card_sub: "Make your Wrapped on Spotane",
-    p_night: "Night owl",
-    p_night_why: "{p}% of your map is bars and clubs. The night knows you.",
-    p_roof: "Rooftop addict",
-    p_roof_why: "Always higher: your map is full of rooftops and views.",
-    p_food: "Foodie at heart",
-    p_food_why: "{p}% of your map is tables and cafés. Everyone knows who to call for food.",
-    p_explorer: "Human compass",
-    p_explorer_why: "{n} different corners explored. Your city has no secrets left.",
-    p_doer: "Zero waiting list",
-    p_doer_why: "{p}% of your spots already tried. A craving never stays a craving with you.",
-    p_curator: "Gem radar",
-    p_curator_why: "You spot, you save, you curate. Your friends know who to ask."
-  },
-  es: {
-    nav_home: "Inicio",
-    nav_spots: "Spots",
-    nav_map: "Mapa",
-    nav_events: "Eventos",
-    nav_profile: "Perfil",
-    seg_discover: "Descubrir 🔍",
-    seg_mine: "Mis spots ❤️",
-    seg_lists: "Listas 📁",
-    profile_city: "🌍 Tu ciudad",
-    profile_friends: "👥 Mis amigos",
-    profile_join: "☁️ Únete a la comunidad Spotane",
-    wrapped_teaser_title: "Tu año en spots",
-    wrapped_teaser_sub: "Tu Wrapped {year} está listo — stats y favoritos ✨",
-    btn_invite: "🤝 Invitar",
-    btn_see: "Ver →",
-    btn_cancel: "Cancelar",
-    btn_later: "Más tarde",
-    lang_title: "🌍 Idioma",
-    lang_auto: "🪄 idioma del teléfono",
-    months: ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
-    w_tap: "Toca a la derecha para avanzar →",
-    w_intro_name: "{name}, tu año en spots.",
-    w_intro: "Tu año en spots.",
-    w_added_kick: "Tu mapa se llenó",
-    w_added_lbl: "spots añadidos en {year}",
-    w_added_lbl1: "spot añadido en {year}",
-    w_lists_n: "Ordenados en {n} listas 📁",
-    w_lists_1: "Ordenados en 1 lista 📁",
-    w_added_sub: "Y esto es solo el principio.",
-    w_done_kick: "Del antojo a la realidad",
-    w_done_lbl: "spots probados",
-    w_done_lbl1: "spot probado",
-    w_done_react: "Tu veredicto más dado: {e} ×{n}",
-    w_done_noreact: "Hora de dar tu veredicto 🔥👍😐",
-    w_cat_kick: "Tu gran pasión",
-    w_cat_lbl: "{n} spots — tu categoría n.º 1",
-    w_cat_sub: "Uno no cambia.",
-    w_vibe_kick: "Tu mood del año",
-    w_vibe_lbl: "el ambiente que más se repite en tu mapa",
-    w_month_kick: "Tu mes más caliente",
-    w_month_lbl: "{n} spots añadidos o probados ese mes",
-    w_podium_kick: "Tu podio del año",
-    w_heart_kick: "Tu favorito",
-    w_explore_kick: "Alma de explorador",
-    w_explore_lbl: "rincones distintos en tu mapa",
-    w_explore_sub: "Tu ciudad ya casi no tiene secretos.",
-    w_persona_kick: "Tu perfil Spotane {year}",
-    w_persona_foot: "¿Y tú, qué eres? · Spotane",
-    w_final_kick: "Tu {year} en resumen",
-    w_tile_added: "añadidos",
-    w_tile_done: "probados",
-    w_tile_cat: "top categoría",
-    w_tile_codes: "rincones explorados",
-    w_share_btn: "📤 Compartir mi año",
-    w_premium_btn: "💎 Aún más stats con Spotane+",
-    w_bits_map: "{n} spots en mi mapa",
-    w_bits_done: "{n} probados",
-    w_bits_team: "team {cat} {e}",
-    w_share_l1: "Mi {year} en spots: {bits}",
-    w_share_l2: "Mi perfil: {p}",
-    w_share_l3: "¿Y tú, qué eres? Haz tu Wrapped en Spotane 👇",
-    w_card_cta: "¿Y tú, qué eres?",
-    w_card_sub: "Haz tu Wrapped en Spotane",
-    p_night: "Noctámbulo",
-    p_night_why: "El {p} % de tu mapa son bares y clubs. La noche te conoce.",
-    p_roof: "Adicto a las alturas",
-    p_roof_why: "Siempre más alto: tu mapa está lleno de rooftops y vistas.",
-    p_food: "Sibarita",
-    p_food_why: "El {p} % de tu mapa son mesas y cafés. Ya saben a quién llamar para comer.",
-    p_explorer: "Brújula humana",
-    p_explorer_why: "{n} rincones distintos explorados. Tu ciudad ya no tiene secretos.",
-    p_doer: "Cero lista de espera",
-    p_doer_why: "El {p} % de tus spots ya probados. Contigo un antojo nunca se queda en antojo.",
-    p_curator: "Radar de joyas",
-    p_curator_why: "Detectas, guardas, curas. Tus amigos saben a quién preguntar."
-  }
-};
-const LANGK = "myplace_lang_v1";
-let __lang = (() => {
-  try {
-    const l = localStorage.getItem(LANGK);
-    if (I18N[l]) return l;
-    const nav = (navigator.language || "fr").slice(0, 2).toLowerCase();
-    return I18N[nav] ? nav : "fr";
-  } catch {
-    return "fr";
-  }
-})();
-const LANG_EXPLICIT = (() => {
-  try {
-    return !!localStorage.getItem(LANGK);
-  } catch {
-    return false;
-  }
-})();
-function tr(key, vars) {
-  let s = (I18N[__lang] && I18N[__lang][key]) ?? I18N.fr[key] ?? key;
-  if (vars) for (const k in vars) s = s.replace("{" + k + "}", vars[k]);
-  return s;
-}
-try {
-  window.mspSetLang = l => {
-    if (!I18N[l]) return;
-    localStorage.setItem(LANGK, l);
-    location.reload();
-  };
-} catch {}
 const SK = "myplace_spots_v3";
 const CK = "myplace_challenge_v3";
 const TRK = "myplace_trash_v1";
@@ -8010,7 +8169,7 @@ function SpotDetail({
     }
   }, [{
     i: spot.done ? "✓" : "○",
-    t: spot.done ? "Fait" : "A faire",
+    t: spot.done ? tr("st_done") : tr("st_todo"),
     a: "done",
     active: spot.done,
     color: 'var(--pop-lime)'
@@ -15370,7 +15529,7 @@ function App() {
   }, "\uD83D\uDD0D"), React.createElement("input", {
     value: search,
     onChange: e => setSearch(e.target.value),
-    placeholder: "Chercher un spot, une vibe...",
+    placeholder: tr("search_ph"),
     style: {
       flex: 1,
       border: 'none',
@@ -15640,7 +15799,7 @@ function App() {
       alignItems: 'center',
       gap: 5
     }
-  }, "\uD83D\uDFE2 Ouvert"), [["all", "Tous"], ["todo", "A faire"], ["wishlist", "Envies"], ["done", "Faits"], ["fav", "Favoris"], ["work", "Workfriendly"]].map(([k, l]) => {
+  }, tr("chip_open")), [["all", tr("f_all")], ["todo", tr("f_todo")], ["wishlist", tr("f_wish")], ["done", tr("f_done")], ["fav", tr("f_fav")], ["work", "Workfriendly"]].map(([k, l]) => {
     const active = filter === k;
     return React.createElement("button", {
       key: k,
@@ -16045,11 +16204,11 @@ function App() {
       journee: "☀️ Journée"
     };
     const VB = {
-      chic: "✨ Chic",
-      decontracte: "😎 Décontracté",
-      festif: "🎉 Festif",
-      intime: "🕯️ Tranquille",
-      depaysant: "🌍 Dépaysant"
+      chic: "✨ " + tr("vb_chic"),
+      decontracte: "😎 " + tr("vb_casual"),
+      festif: "🎉 " + tr("vb_party"),
+      intime: "🕯️ " + tr("vb_cozy"),
+      depaysant: "🌍 " + tr("vb_exotic")
     };
     const BU = {
       free: "🆓 Gratuit",
