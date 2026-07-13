@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T02:38:10.054Z -->
+<!-- built 2026-07-13T02:56:24.818Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3114,7 +3114,7 @@ const I18N = {
     sl_open_apero: "🍹 L'apéro t'attend",
     sl_open_soir: "🍸 Ouvert ce soir",
     sl_open_nuit: "🌃 Encore ouvert à cette heure",
-    sl_open_after: "🌙 Toujours ouvert, là",
+    sl_open_after: "🌙 Ouvert actuellement",
     sdj_badge: "💡 Spot du jour",
     pk_metro: "Trajet métro",
     hm_t: "Tout dort là, tout de suite 😴",
@@ -3437,7 +3437,7 @@ const I18N = {
     sl_open_apero: "🍹 Open for drinks",
     sl_open_soir: "🍸 Open tonight",
     sl_open_nuit: "🌃 Still open at this hour",
-    sl_open_after: "🌙 Still open, right now",
+    sl_open_after: "🌙 Open right now",
     sdj_badge: "💡 Spot of the day",
     pk_metro: "Metro route",
     hm_t: "Everything's asleep right now 😴",
@@ -3760,7 +3760,7 @@ const I18N = {
     sl_open_apero: "🍹 Abierto para el apero",
     sl_open_soir: "🍸 Abierto esta noche",
     sl_open_nuit: "🌃 Aún abierto a esta hora",
-    sl_open_after: "🌙 Sigue abierto ahora",
+    sl_open_after: "🌙 Abierto ahora mismo",
     sdj_badge: "💡 Spot del día",
     pk_metro: "Trayecto en metro",
     hm_t: "Todo duerme ahora mismo 😴",
@@ -9111,7 +9111,7 @@ function PosterSpotCard({
   compact
 }) {
   const cat = CATS.find(c => c.key === primaryCat(spot));
-  const tilt = stableTilt(spot.id, 2);
+  const tilt = stableTilt(spot.id, compact ? 2 : 3);
   const dist = userPos && spot.lat && spot.lng ? distKm(userPos.lat, userPos.lng, spot.lat, spot.lng) : null;
   if (compact) {
     const col = CC[primaryCat(spot)] || "#888";
@@ -9193,12 +9193,12 @@ function PosterSpotCard({
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 13,
+        fontSize: (spot.name || "").length > 20 ? 11 : 13,
         lineHeight: 1.08,
         letterSpacing: '-0.01em',
         textShadow: '0 1px 6px rgba(0,0,0,.5)',
         display: '-webkit-box',
-        WebkitLineClamp: 2,
+        WebkitLineClamp: 3,
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
@@ -9339,21 +9339,54 @@ function PosterSpotCard({
       lineHeight: 0.98,
       letterSpacing: '-0.015em'
     }
-  }, spot.name), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 11,
-      opacity: 0.85,
-      marginTop: 6,
-      display: 'flex',
-      gap: 8,
-      alignItems: 'center'
-    }
-  }, React.createElement("span", null, "\uD83D\uDCCD ", spot.metro || ''), React.createElement("span", null, "\xB7"), React.createElement("span", null, spot.price || ''), dist != null && React.createElement(React.Fragment, null, React.createElement("span", null, "\xB7"), React.createElement("span", {
-    style: {
-      fontWeight: 700
-    }
-  }, "\uD83D\uDCCF ", fmtKm(dist)))))));
+  }, spot.name), (() => {
+    const mp = metroParse(spot.metro);
+    return React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11,
+        opacity: 0.9,
+        marginTop: 6,
+        display: 'flex',
+        gap: 6,
+        alignItems: 'center',
+        minWidth: 0
+      }
+    }, mp ? React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 16,
+        height: 16,
+        borderRadius: 99,
+        background: mp.color,
+        color: mp.fg,
+        fontWeight: 800,
+        fontSize: 9.5,
+        padding: '0 3px',
+        flexShrink: 0
+      }
+    }, mp.line), React.createElement("span", {
+      style: {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, mp.station)) : spot.metro ? React.createElement("span", {
+      style: {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, "\uD83D\uDCCD ", spot.metro) : null, dist != null && React.createElement("span", {
+      style: {
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0
+      }
+    }, "\xB7 \uD83D\uDCCF ", fmtKm(dist)));
+  })())));
 }
 function CleanSpotCard({
   s,
@@ -13588,8 +13621,9 @@ function App() {
     if (tab !== "home") return [];
     const pnow = nowParis();
     const ownedIds = new Set(spots.map(s => s.id));
+    const ownedNames = new Set(spots.map(s => (s.name || "").trim().toLowerCase()));
     const mine = spots.filter(s => s.status !== "rejected" && isOpenNow(s.hours, pnow) === true);
-    const extra = catalog.filter(s => !ownedIds.has(s.id) && isOpenNow(s.hours, pnow) === true);
+    const extra = catalog.filter(s => !ownedIds.has(s.id) && !ownedNames.has((s.name || "").trim().toLowerCase()) && isOpenNow(s.hours, pnow) === true);
     const dist = s => userPos && s.lat && s.lng ? distKm(userPos.lat, userPos.lng, s.lat, s.lng) : null;
     const bst = s => timeSlot(pnow).boost.includes(primaryCat(s)) ? 0 : 1;
     const srt = arr => userPos ? [...arr].sort((a, b) => bst(a) - bst(b) || (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => bst(a) - bst(b) || (gRating(b) || 0) - (gRating(a) || 0));
@@ -15783,7 +15817,9 @@ function App() {
         textTransform: 'uppercase',
         padding: '5px 11px',
         borderRadius: 999,
-        fontFamily: 'var(--font-body)'
+        fontFamily: 'var(--font-body)',
+        border: '1.5px solid var(--pop-yellow)',
+        boxShadow: '0 0 10px rgba(255,210,63,.6)'
       }
     }, tr("sdj_badge")), React.createElement("div", {
       style: {
@@ -19002,10 +19038,11 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
+      position: 'relative',
       background: "rgba(255,255,255,0.94)",
       backdropFilter: 'blur(14px)',
       WebkitBackdropFilter: 'blur(14px)',
-      padding: 'calc(10px + env(safe-area-inset-top,0px)) 12px 10px',
+      padding: 'calc(6px + env(safe-area-inset-top,0px)) 12px 12px',
       boxShadow: "0 8px 24px -10px rgba(0,0,0,0.18)",
       borderBottom: '1px solid var(--hairline)',
       pointerEvents: "auto"
@@ -19015,7 +19052,9 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: 6,
-      marginBottom: 9
+      overflowX: 'auto',
+      scrollbarWidth: 'none',
+      padding: '8px 0 0'
     }
   }, React.createElement("div", {
     style: {
@@ -19023,7 +19062,8 @@ function App() {
       background: 'var(--bg-soft,#F3F1F6)',
       borderRadius: 999,
       padding: 3,
-      gap: 3
+      gap: 3,
+      flexShrink: 0
     }
   }, [{
     k: 'discover',
@@ -19054,10 +19094,10 @@ function App() {
         border: 'none',
         cursor: 'pointer',
         borderRadius: 999,
-        padding: '6px 12px',
+        padding: '6px 11px',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 12.5,
+        fontSize: 12,
         background: on ? 'var(--pop-pink)' : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
         boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
@@ -19084,23 +19124,71 @@ function App() {
       }
     }, o.n));
   })), React.createElement("button", {
+    onClick: () => setOpenNow(v => !v),
+    className: "press",
+    "aria-pressed": openNow,
+    "aria-label": "Ouvert maintenant",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '6px 10px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 11.5,
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      background: openNow ? '#16A34A' : '#fff',
+      color: openNow ? '#fff' : 'var(--ink-600)',
+      border: openNow ? '1px solid transparent' : '1px solid var(--hairline)',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83D\uDD50 Ouvert"), React.createElement("button", {
+    onClick: () => setLateNight(v => !v),
+    className: "press",
+    "aria-pressed": lateNight,
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '6px 10px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 11.5,
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      background: lateNight ? '#1E1B4B' : '#fff',
+      color: lateNight ? '#fff' : 'var(--ink-600)',
+      border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83C\uDF19 +5h")), React.createElement("button", {
     onClick: () => setMapReduced(v => !v),
     className: "press",
     "aria-label": mapReduced ? "Déplier les filtres" : "Réduire les filtres",
     style: {
-      flexShrink: 0,
-      width: 30,
-      height: 30,
+      position: 'absolute',
+      bottom: -13,
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: 2,
+      width: 26,
+      height: 26,
       borderRadius: '50%',
-      border: 'none',
+      border: '2px solid #fff',
       cursor: 'pointer',
       background: 'var(--pop-pink)',
       color: '#fff',
-      fontSize: 14,
-      boxShadow: '0 4px 12px rgba(255,61,139,0.4)',
+      fontSize: 11,
+      boxShadow: '0 4px 12px rgba(255,61,139,0.45)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      padding: 0
     }
   }, React.createElement("span", {
     style: {
@@ -19108,56 +19196,12 @@ function App() {
       transition: 'transform .2s var(--ease)',
       transform: mapReduced ? 'rotate(180deg)' : 'none'
     }
-  }, "\u25BE"))), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6,
-      flexWrap: 'wrap',
-      marginBottom: mapReduced ? 0 : 8
-    }
-  }, React.createElement("button", {
-    onClick: () => setOpenNow(v => !v),
-    className: "press",
-    "aria-pressed": openNow,
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      cursor: 'pointer',
-      borderRadius: 999,
-      padding: '6px 12px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 11.5,
-      background: openNow ? '#16A34A' : '#fff',
-      color: openNow ? '#fff' : 'var(--ink-600)',
-      border: openNow ? '1px solid transparent' : '1px solid var(--hairline)',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83D\uDD50 Ouvert maintenant"), React.createElement("button", {
-    onClick: () => setLateNight(v => !v),
-    className: "press",
-    "aria-pressed": lateNight,
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      cursor: 'pointer',
-      borderRadius: 999,
-      padding: '6px 12px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 11.5,
-      background: lateNight ? '#1E1B4B' : '#fff',
-      color: lateNight ? '#fff' : 'var(--ink-600)',
-      border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83C\uDF19 +5h")), !mapReduced ? React.createElement("div", {
+  }, "\u25BE")), !mapReduced ? React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 6
+      gap: 6,
+      marginTop: 8
     }
   }, CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
