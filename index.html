@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T22:14:59.330Z -->
+<!-- built 2026-07-13T22:42:34.004Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8471,6 +8471,10 @@ function SpotDetail({
       background: 'var(--bg-primary)',
       borderRadius: '24px 24px 0 0'
     }
+  }, React.createElement("div", {
+    style: {
+      position: 'relative'
+    }
   }, photos.length > 0 ? React.createElement(PhotoCarousel, {
     photos: photos,
     catColor: CB[primaryCat(spot)]
@@ -8485,6 +8489,73 @@ function SpotDetail({
       position: 'relative'
     }
   }, cat?.emoji), React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      pointerEvents: 'none',
+      background: 'linear-gradient(to top,rgba(10,10,10,0.66) 0%,rgba(10,10,10,0.12) 44%,rgba(10,10,10,0) 70%)'
+    }
+  }), React.createElement("div", {
+    style: {
+      position: 'absolute',
+      left: 16,
+      right: 16,
+      bottom: 14,
+      zIndex: 6,
+      display: 'flex',
+      alignItems: 'flex-end',
+      gap: 12,
+      pointerEvents: 'none'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, React.createElement("h1", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: (spot.name || "").length > 18 ? 28 : 34,
+      lineHeight: 0.98,
+      letterSpacing: '-0.02em',
+      margin: 0,
+      color: '#fff',
+      textShadow: '0 2px 12px rgba(0,0,0,0.55)'
+    }
+  }, spot.name), spot.adresse && React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      color: 'rgba(255,255,255,0.9)',
+      marginTop: 6,
+      textShadow: '0 1px 6px rgba(0,0,0,0.55)'
+    }
+  }, "\uD83D\uDCCD ", spot.adresse)), React.createElement("button", {
+    onClick: () => onFav(spot.id),
+    className: "press",
+    "aria-label": spot.fav ? "Retirer des favoris" : "Ajouter aux favoris",
+    style: {
+      pointerEvents: 'auto',
+      flex: '0 0 auto',
+      width: 64,
+      height: 64,
+      borderRadius: 999,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 30,
+      lineHeight: 1,
+      fontFamily: 'var(--font-body)',
+      transition: 'transform .14s var(--ease),background .18s',
+      background: spot.fav ? 'var(--pop-pink)' : 'rgba(255,255,255,0.16)',
+      color: '#fff',
+      border: spot.fav ? '2px solid transparent' : '2.5px solid #fff',
+      boxShadow: spot.fav ? '0 10px 26px -8px rgba(255,61,139,0.7)' : '0 4px 14px -4px rgba(0,0,0,0.4)',
+      backdropFilter: 'blur(4px)'
+    }
+  }, spot.fav ? '♥' : '♡'))), React.createElement("div", {
     style: {
       position: 'absolute',
       top: 8,
@@ -8530,17 +8601,7 @@ function SpotDetail({
       fontWeight: 500,
       fontSize: 12.5
     }
-  }, spot.vibe), spot.status === "wishlist" && React.createElement("span", {
-    style: {
-      background: 'var(--pop-yellow)',
-      color: 'var(--ink-900)',
-      padding: '6px 12px',
-      borderRadius: 999,
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 12.5
-    }
-  }, "\u2605 Envie"), spot.sharedBy && React.createElement("span", {
+  }, spot.vibe), spot.sharedBy && React.createElement("span", {
     style: {
       background: 'var(--pop-cyan)',
       color: 'var(--ink-900)',
@@ -8550,27 +8611,7 @@ function SpotDetail({
       fontWeight: 600,
       fontSize: 12.5
     }
-  }, "\uD83D\uDCE9 via ", spot.sharedBy)), React.createElement("h1", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 36,
-      lineHeight: 0.98,
-      letterSpacing: '-0.02em',
-      margin: 0
-    }
-  }, spot.name, " ", spot.fav && React.createElement("span", {
-    style: {
-      color: 'var(--pop-pink)'
-    }
-  }, "\u2665")), spot.adresse && React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      color: 'var(--ink-400)',
-      marginTop: 8
-    }
-  }, "\uD83D\uDCCD ", spot.adresse), (meta.length > 0 || friendsWith && friendsWith.length > 0) && React.createElement("div", {
+  }, "\uD83D\uDCE9 via ", spot.sharedBy)), (meta.length > 0 || friendsWith && friendsWith.length > 0) && React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -8918,83 +8959,103 @@ function SpotDetail({
     }
   }, tr("d_addnote"))), React.createElement("div", {
     style: {
-      display: "grid",
-      gridTemplateColumns: "repeat(4,1fr)",
+      display: "flex",
       gap: 8,
       marginTop: 24
     }
-  }, [{
-    i: spot.done ? "✓" : "○",
-    t: spot.done ? tr("st_done") : tr("st_todo"),
-    a: "done",
-    active: spot.done,
-    color: 'var(--pop-lime)'
-  }, {
-    i: "♥",
-    t: "Favori",
-    a: "fav",
-    active: spot.fav,
-    color: 'var(--pop-pink)'
-  }, {
-    i: "★",
-    t: "Envie",
-    a: "wishlist",
-    active: spot.status === "wishlist",
-    color: 'var(--pop-yellow)'
-  }, {
-    i: "🫂",
-    t: "Potes",
-    a: "contacts",
-    active: false,
-    color: 'var(--pop-cyan)'
-  }].map(b => React.createElement("button", {
-    key: b.a,
+  }, React.createElement("button", {
     onClick: () => {
-      if (b.a === "done") onDone(spot.id);
-      if (b.a === "fav") onFav(spot.id);
-      if (b.a === "wishlist") onStatus(spot.id, "wishlist");
-      if (b.a === "contacts") onContactPicker(spot.id);
+      if (spot.done) onDone(spot.id);
     },
     className: "press",
     style: {
-      background: b.active ? b.color : '#fff',
-      color: 'var(--ink-900)',
-      border: '1px solid ' + (b.active ? b.color : 'var(--hairline)'),
+      flex: 1,
+      background: !spot.done ? 'var(--ink-900)' : '#fff',
+      color: !spot.done ? '#fff' : 'var(--ink-600)',
+      border: '1px solid ' + (!spot.done ? 'var(--ink-900)' : 'var(--hairline)'),
       borderRadius: 'var(--radius-md)',
-      padding: '12px 6px',
+      padding: '12px 8px',
       cursor: 'pointer',
       display: 'flex',
-      flexDirection: 'column',
-      gap: 4,
       alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
       fontFamily: 'var(--font-body)',
       fontWeight: 600,
-      fontSize: 11.5
+      fontSize: 13
     }
   }, React.createElement("span", {
     style: {
-      fontSize: 18
+      fontSize: 15
     }
-  }, b.i), React.createElement("span", null, b.t)))), React.createElement("button", {
+  }, "\u25CB"), " ", tr("st_todo")), React.createElement("button", {
+    onClick: () => {
+      if (!spot.done) onDone(spot.id);
+    },
+    className: "press",
+    style: {
+      flex: 1,
+      background: spot.done ? '#2ECC71' : '#fff',
+      color: spot.done ? '#fff' : 'var(--ink-600)',
+      border: '1px solid ' + (spot.done ? '#2ECC71' : 'var(--hairline)'),
+      borderRadius: 'var(--radius-md)',
+      padding: '12px 8px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 15
+    }
+  }, "\u2713"), " ", tr("st_done")), React.createElement("button", {
     onClick: () => onListPicker(spot),
+    className: "press",
+    "aria-label": tr("d_addlist"),
+    title: tr("d_addlist"),
+    style: {
+      flex: '0 0 auto',
+      width: 48,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 'var(--radius-md)',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 24,
+      lineHeight: 1,
+      fontWeight: 600,
+      color: 'var(--ink-900)',
+      fontFamily: 'var(--font-body)'
+    }
+  }, "+")), React.createElement("button", {
+    onClick: () => onShare(spot),
     className: "press",
     style: {
       marginTop: 10,
       width: '100%',
-      background: '#fff',
-      border: '1px solid var(--hairline)',
-      padding: '13px',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      border: 'none',
+      padding: '14px',
       borderRadius: 999,
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 13.5,
+      fontWeight: 700,
+      fontSize: 14,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 8
+      gap: 8,
+      boxShadow: '0 6px 16px -8px rgba(255,61,139,0.6)'
     }
-  }, tr("d_addlist")), React.createElement("div", {
+  }, "\uD83D\uDCE4 Envoyer"), React.createElement("div", {
     style: {
       display: "flex",
       gap: 8,
@@ -9031,20 +9092,6 @@ function SpotDetail({
       textAlign: 'center'
     }
   }, "\u2197 Maps"), React.createElement("button", {
-    onClick: () => onShare(spot),
-    style: {
-      flex: 1,
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      border: 'none',
-      padding: '12px',
-      borderRadius: 999,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 13
-    }
-  }, "\uD83D\uDCE4 Envoyer"), React.createElement("button", {
     onClick: () => {
       if (confirm(`Supprimer "${spot.name}" ?`)) onRemove(spot.id);
       onClose();
@@ -9471,12 +9518,7 @@ function CleanSpotCard({
       color: 'var(--pop-pink)',
       fontSize: 14
     }
-  }, "\u2665"), s.status === 'wishlist' && React.createElement("span", {
-    style: {
-      fontSize: 11,
-      color: 'var(--ink-400)'
-    }
-  }, "\xB7 envie"), s.sharedBy && React.createElement("span", {
+  }, "\u2665"), s.sharedBy && React.createElement("span", {
     style: {
       fontSize: 11,
       color: 'var(--pop-cyan)'
@@ -12572,13 +12614,39 @@ function AuthCard({
         marginTop: 10
       }
     }, "\u26A0\uFE0F ", err)) : React.createElement("div", {
-      style: card
-    }, React.createElement("div", {
+      style: {
+        ...card,
+        position: 'relative'
+      }
+    }, React.createElement("button", {
+      onClick: openEdit,
+      "aria-label": "Modifier mon profil",
+      title: "Modifier mon profil",
+      className: "press",
+      style: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 34,
+        height: 34,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 15,
+        color: 'var(--ink-600)',
+        cursor: 'pointer',
+        padding: 0
+      }
+    }, "\u2699\uFE0F"), React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: 11,
-        marginBottom: 10
+        gap: 13,
+        marginBottom: 14,
+        paddingRight: 42
       }
     }, React.createElement("div", {
       style: {
@@ -12596,23 +12664,32 @@ function AuthCard({
         border: 'none',
         padding: 0,
         cursor: 'pointer',
-        display: 'block'
+        display: 'block',
+        borderRadius: '50%'
+      }
+    }, React.createElement("span", {
+      style: {
+        display: 'block',
+        padding: 2.5,
+        borderRadius: '50%',
+        background: '#fff',
+        boxShadow: '0 0 0 2px var(--hairline)'
       }
     }, React.createElement(Avatar, {
       src: avatar,
       name: curPseudo,
-      size: 46
-    })), React.createElement("button", {
+      size: 56
+    }))), React.createElement("button", {
       type: "button",
       onClick: () => openPicker("direct"),
       disabled: busy,
       "aria-label": "Changer la photo",
       style: {
         position: 'absolute',
-        right: -4,
-        bottom: -4,
-        width: 21,
-        height: 21,
+        right: -2,
+        bottom: -2,
+        width: 22,
+        height: 22,
         borderRadius: '50%',
         background: 'var(--ink-900)',
         color: '#fff',
@@ -12620,7 +12697,7 @@ function AuthCard({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontSize: 9.5,
+        fontSize: 10,
         cursor: 'pointer',
         padding: 0
       }
@@ -12631,19 +12708,21 @@ function AuthCard({
       }
     }, React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-body)',
+        fontFamily: 'var(--font-display)',
         fontWeight: 700,
-        fontSize: 14.5,
-        lineHeight: 1.2,
+        fontSize: 19,
+        letterSpacing: '-0.01em',
+        lineHeight: 1.15,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
       }
     }, curPseudo || "Mon compte"), React.createElement("div", {
       style: {
-        fontSize: 12,
+        fontSize: 12.5,
         color: 'var(--ink-400)',
         fontFamily: 'var(--font-body)',
+        marginTop: 2,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
@@ -12659,8 +12738,7 @@ function AuthCard({
     }, lbl), React.createElement("div", {
       style: {
         display: 'flex',
-        gap: 8,
-        marginBottom: 8
+        gap: 8
       }
     }, React.createElement("button", {
       onClick: onResync,
@@ -12692,20 +12770,7 @@ function AuthCard({
         color: 'var(--ink-600)',
         cursor: 'pointer'
       }
-    }, "Se d\xE9connecter")), React.createElement("button", {
-      onClick: openEdit,
-      className: "press",
-      style: {
-        width: '100%',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-400)',
-        padding: '4px 0'
-      }
-    }, "\u2699\uFE0F Mon profil"), info && React.createElement("div", {
+    }, "Se d\xE9connecter")), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: '#2ECC71',
@@ -13205,6 +13270,7 @@ function App() {
       localStorage.setItem(CITYK, city);
     } catch {}
   }, [city]);
+  const [cityPickerOpen, setCityPickerOpen] = useState(false);
   const [allSpots, setAllSpots] = useState(() => {
     try {
       const raw = localStorage.getItem(SK);
@@ -19509,11 +19575,19 @@ function App() {
       nice: 'linear-gradient(135deg,#C6FF3D,#3DC8FF)',
       bordeaux: 'linear-gradient(135deg,#E91E63,#FF3D8B)'
     };
+    const CITYCOLOR = {
+      paris: '#FF3D8B',
+      lyon: '#FF6B2C',
+      marseille: '#3DC8FF',
+      toulouse: '#8B5CF6',
+      nice: '#C6FF3D',
+      bordeaux: '#E91E63'
+    };
     const CITYPHOTO = {
       paris: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Eiffel_Tower_sunset_skyline_%28Unsplash%29.jpg/960px-Eiffel_Tower_sunset_skyline_%28Unsplash%29.jpg',
-      lyon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lyon_%28191802527%29.jpeg/960px-Lyon_%28191802527%29.jpeg',
-      marseille: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Marseille_Basilique_Notre-Dame-de-la-Garde_Vue_sur_Marseille_20.jpg/960px-Marseille_Basilique_Notre-Dame-de-la-Garde_Vue_sur_Marseille_20.jpg',
-      toulouse: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Gare_de_Toulouse-Matabiau_%2827631939457%29.jpg/960px-Gare_de_Toulouse-Matabiau_%2827631939457%29.jpg',
+      lyon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Lyon_vue_depuis_fourviere.jpg/960px-Lyon_vue_depuis_fourviere.jpg',
+      marseille: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Mer_M%C3%A9diterran%C3%A9e_Marseille_2.jpg/960px-Mer_M%C3%A9diterran%C3%A9e_Marseille_2.jpg',
+      toulouse: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Toulouse_Capitole_Night_Wikimedia_Commons.jpg/960px-Toulouse_Capitole_Night_Wikimedia_Commons.jpg',
       nice: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Nizza-C%C3%B4te_d%27Azur.jpg/960px-Nizza-C%C3%B4te_d%27Azur.jpg',
       bordeaux: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Place_De_La_Bourse_Water_Mirror_Bordeaux_%28134913857%29.jpeg/960px-Place_De_La_Bourse_Water_Mirror_Bordeaux_%28134913857%29.jpeg'
     };
@@ -19568,64 +19642,60 @@ function App() {
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount,
       flush: true
-    })), React.createElement("div", {
-      style: {
-        borderTop: '1px solid var(--hairline)',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 11
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 36,
-        height: 36,
-        borderRadius: 999,
-        background: 'var(--pop-pink)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 16,
-        color: '#fff',
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, myName ? myName[0].toUpperCase() : '?'), React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 14
-      }
-    }, myName || 'Pas de prénom'), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 11.5,
-        color: 'var(--ink-400)',
-        marginTop: 1
-      }
-    }, "Affich\xE9 quand tu partages un spot")), React.createElement("button", {
+    })), React.createElement("button", {
       onClick: () => {
         const n = prompt("Ton prénom :", myName);
         if (n !== null) setMyName(n.trim());
       },
-      "aria-label": "Modifier mon pr\xE9nom",
+      "aria-label": "Modifier mon pr\xE9nom de partage",
       className: "press",
       style: {
-        padding: '7px 12px',
-        borderRadius: 999,
-        border: '1px solid var(--hairline)',
-        background: '#fff',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 500,
-        fontSize: 13,
+        width: '100%',
+        textAlign: 'left',
+        padding: '12px 16px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        background: 'none',
+        border: 'none',
+        borderTop: '1px solid var(--hairline)',
         cursor: 'pointer'
       }
-    }, "\u270F\uFE0F")), React.createElement("div", {
+    }, React.createElement("div", {
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        background: myName ? 'var(--pop-pink)' : 'var(--bg-soft)',
+        color: myName ? '#fff' : 'var(--ink-400)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: myName ? 15 : 16,
+        fontWeight: 700,
+        flexShrink: 0
+      }
+    }, myName ? myName[0].toUpperCase() : '👤'), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0,
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        lineHeight: 1.35
+      }
+    }, myName ? React.createElement("span", null, React.createElement("b", {
+      style: {
+        color: 'var(--ink-900)'
+      }
+    }, myName), ", ton pr\xE9nom quand tu partages un spot") : 'Ajoute ton prénom de partage'), React.createElement("span", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 17,
+        flexShrink: 0,
+        lineHeight: 1
+      }
+    }, "\u203A")), React.createElement("div", {
       style: {
         borderTop: '1px solid var(--hairline)',
         padding: 16
@@ -19690,100 +19760,192 @@ function App() {
       style: {
         padding: '24px 20px 0'
       }
+    }, !cityPickerOpen && React.createElement("div", {
+      style: {
+        position: 'relative',
+        height: 190,
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden',
+        border: '1px solid var(--hairline)',
+        boxShadow: 'var(--shadow-sm)'
+      }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-md)',
-        padding: 16,
-        boxShadow: 'var(--shadow-sm)'
+        position: 'absolute',
+        inset: 0,
+        background: `linear-gradient(180deg,rgba(10,10,10,0) 30%,rgba(10,10,10,.82) 100%), center/cover no-repeat url("${CITYPHOTO[city] || ''}"), ${CITYGRAD[city] || 'var(--bg-soft)'}`
+      }
+    }), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        inset: 0,
+        padding: 18,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        color: '#fff'
       }
     }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 15,
-        marginBottom: 12
+        fontSize: 11,
+        textTransform: 'uppercase',
+        letterSpacing: '.12em',
+        opacity: .9
       }
     }, tr("profile_city")), React.createElement("div", {
       style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 46,
-        height: 46,
-        borderRadius: 16,
-        flexShrink: 0,
-        background: cityBg(city),
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 22,
-        boxShadow: '0 4px 12px rgba(10,10,10,.12)'
-      }
-    }, CITYPHOTO[city] ? '' : (CITIES[city] || CITIES.paris).emoji), React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 17,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 42,
+        lineHeight: .95,
+        letterSpacing: '-.025em',
+        margin: '4px 0 10px',
+        textShadow: '0 2px 14px rgba(0,0,0,.45)'
       }
     }, (CITIES[city] || CITIES.paris).label), React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        marginTop: 1
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 10
       }
-    }, "Ta ville \xB7 ", cityCount(city), " spot", cityCount(city) > 1 ? 's' : ''))), React.createElement("div", {
-      className: "hide-scroll",
+    }, React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        background: 'rgba(255,255,255,.18)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
+        border: '1px solid rgba(255,255,255,.32)',
+        borderRadius: 999,
+        padding: '5px 12px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 12.5,
+        whiteSpace: 'nowrap'
+      }
+    }, (CITIES[city] || CITIES.paris).emoji, " ", cityCount(city), " spot", cityCount(city) > 1 ? 's' : ''), React.createElement("button", {
+      onClick: () => {
+        setCityPickerOpen(true);
+        window.mspHaptic?.(12);
+      },
+      className: "press",
+      style: {
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 999,
+        padding: '8px 15px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        flexShrink: 0
+      }
+    }, "Change de ville \u203A")))), cityPickerOpen && React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16,
+        boxShadow: 'var(--shadow-sm)'
+      }
+    }, React.createElement("div", {
       style: {
         display: 'flex',
-        gap: 8,
-        overflowX: 'auto'
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 14
       }
-    }, CITY_ORDER.filter(k => k !== city).map(k => {
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 20,
+        letterSpacing: '-0.01em'
+      }
+    }, "Choisis ta ville"), React.createElement("button", {
+      onClick: () => {
+        setCityPickerOpen(false);
+        window.mspHaptic?.(12);
+      },
+      "aria-label": "Fermer",
+      className: "press",
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--bg-soft)',
+        color: 'var(--ink-400)',
+        fontSize: 16,
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0
+      }
+    }, "\u2715")), React.createElement("div", {
+      className: "mood-grid"
+    }, CITY_ORDER.map((k, i) => {
       const c = CITIES[k];
+      const active = k === city;
+      const brd = active ? 'var(--pop-pink)' : CITYCOLOR[k] || 'var(--ink-900)';
+      const ov = `linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(10,10,10,.35) 66%,rgba(10,10,10,.68) 100%)`;
       return React.createElement("button", {
         key: k,
+        className: "mood-card",
         onClick: () => {
           setCity(k);
+          setCityPickerOpen(false);
           window.mspHaptic?.(12);
           window.mspToast?.(`${c.emoji} ${c.label}`, "success");
         },
-        className: "press",
         style: {
-          flexShrink: 0,
-          width: 92,
-          height: 44,
-          borderRadius: 14,
-          border: 'none',
-          cursor: 'pointer',
-          background: tileBg(k),
+          borderColor: brd,
+          transform: `rotate(${i % 2 ? 1.6 : -2}deg)`
+        }
+      }, React.createElement("img", {
+        src: CITYPHOTO[k],
+        alt: "",
+        loading: "lazy",
+        decoding: "async",
+        onError: e => {
+          e.target.style.display = 'none';
+        }
+      }), React.createElement("div", {
+        className: "m-ov",
+        style: {
+          background: ov
+        }
+      }), React.createElement("span", {
+        className: "m-em"
+      }, c.emoji), active && React.createElement("span", {
+        style: {
+          position: 'absolute',
+          top: 8,
+          right: 9,
+          zIndex: 3,
+          background: 'var(--pop-pink)',
           color: '#fff',
           fontFamily: 'var(--font-body)',
           fontWeight: 800,
-          fontSize: 13,
-          textShadow: '0 1px 3px rgba(0,0,0,.55)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 4,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden'
+          fontSize: 10,
+          padding: '3px 8px',
+          borderRadius: 999,
+          textShadow: 'none'
         }
-      }, CITYPHOTO[k] ? c.label : `${c.emoji} ${c.label}`);
+      }, "\u2605 ici"), React.createElement("span", {
+        className: "m-lab"
+      }, React.createElement("span", {
+        className: "m-n"
+      }, c.label, React.createElement("span", {
+        className: "m-c"
+      }, " \xB7 ", cityCount(k)))));
     })))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
