@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T00:49:19.059Z -->
+<!-- built 2026-07-13T00:56:39.257Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -131,7 +131,8 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .mood-card .m-em{position:absolute;top:8px;left:9px;font-size:24px;z-index:2;filter:drop-shadow(0 1px 5px rgba(0,0,0,0.55))}
 .mood-card .m-lab{position:absolute;left:0;right:0;bottom:0;padding:9px 11px;z-index:2;color:#fff;text-align:left;text-shadow:0 1px 8px rgba(0,0,0,0.6)}
 .mood-card .m-lab .m-n{font-family:var(--font-display);font-weight:900;font-size:17px;letter-spacing:-0.01em;line-height:1}
-.mood-card .m-lab .m-c{font-family:var(--font-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;opacity:.92;margin-top:3px}
+/* v10.51 — compteur mood №2 (choix Vincent) : « Rooftops · 7 » sur UNE ligne aérée (l'ancien mono inline s'écrasait contre le nom) */
+.mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.85}
 /* 💎 PremiumModal widget v10.44 : taglines rotatives + tableau A2 point pulsant */
 @keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 @keyframes mspPulseDot{0%,100%{opacity:.35}50%{opacity:1}}
@@ -15932,9 +15933,9 @@ function App() {
         className: "m-lab"
       }, React.createElement("span", {
         className: "m-n"
-      }, c.label), React.createElement("span", {
+      }, c.label, React.createElement("span", {
         className: "m-c"
-      }, count, " spot", count > 1 ? 's' : '')));
+      }, " \xB7 ", count))));
     }))), false && challengeSpots.length > 0 && React.createElement("div", {
       style: {
         padding: '28px 20px 0'
@@ -17056,24 +17057,24 @@ function App() {
     style: {
       padding: '0 20px',
       background: 'var(--bg-cream)',
-      maxHeight: hdrStuck ? 0 : 96,
+      maxHeight: hdrStuck ? 0 : 60,
       overflow: 'hidden',
       transition: 'max-height .3s var(--ease)'
     }
   }, React.createElement("div", {
     style: {
-      marginTop: 9,
+      marginTop: 7,
       display: 'flex',
       alignItems: 'center',
-      gap: 10,
-      borderRadius: 14,
-      padding: '11px 13px',
+      gap: 8,
+      borderRadius: 11,
+      padding: '6px 10px',
       background: 'linear-gradient(135deg,#1E1B4B,#FF2D9E)',
       color: '#fff'
     }
   }, React.createElement("span", {
     style: {
-      fontSize: 18,
+      fontSize: 14,
       flexShrink: 0
     }
   }, "\uD83E\uDDE0"), React.createElement("div", {
@@ -17081,23 +17082,32 @@ function App() {
       flex: 1,
       minWidth: 0,
       fontFamily: 'var(--font-body)',
-      fontSize: 11.8,
-      lineHeight: 1.42
+      fontSize: 10.2,
+      lineHeight: 1.35
+    }
+  }, React.createElement("div", {
+    style: {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     }
   }, React.createElement("b", {
     style: {
-      fontSize: 12.3
+      fontSize: 10.6
     }
-  }, tr("si_t")), " ", tr("si_d"), React.createElement("br", null), React.createElement("span", {
+  }, tr("si_t")), " ", tr("si_d")), React.createElement("div", {
     style: {
-      opacity: .8
+      opacity: .8,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     }
   }, tr("si_ex"))), React.createElement("span", {
     style: {
-      fontSize: 9.5,
+      fontSize: 8.5,
       fontWeight: 800,
       borderRadius: 999,
-      padding: '3px 8px',
+      padding: '2px 7px',
       background: 'rgba(255,255,255,.2)',
       whiteSpace: 'nowrap',
       flexShrink: 0,
