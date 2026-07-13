@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T17:18:39.371Z -->
+<!-- built 2026-07-13T20:18:07.865Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -81,6 +81,8 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
+@keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,61,139,.45)}70%{box-shadow:0 0 0 10px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
+@media (prefers-reduced-motion:reduce){.cta-pulse{animation:none!important}}
 
 .fade-in{animation:fadeIn .3s ease-out both}
 .slide-up{animation:slideUp .35s var(--ease) both}
@@ -107,10 +109,13 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* Section titles - Partiful */
 .section-title{font-family:var(--font-display);font-weight:900;font-size:28px;letter-spacing:-0.015em;color:var(--ink-900);line-height:1.05}
 .section-sub{font-family:var(--font-body);font-size:13px;color:var(--ink-400);margin-top:4px}
-.mono-label{font-family:var(--font-mono);font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-400)}
+/* Labels typo №26 « ✦ Fraunces italique » (v10.63) — remplace la petite écriture mono grise partout */
+.mono-label{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)}
+.mono-label::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 /* DA v10.39 — en-têtes dynamiques : pastille dégradée (remplace le mono-label gris des heros) + titres 1 ligne */
 .grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,61,139,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.grad-lbl{font-family:var(--font-body);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:800;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)} /* v10.63 : homogénéisé sur le style label ✦ №26 (retour Vincent) */
+.grad-lbl::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 .hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px)}
 /* v10.52 — bouton ↑ ROSE LÉGER (retour Vincent 13/07 : exit le noir agressif), plus bas, chevron SVG centré */
 .msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,61,139,0.25);animation:totopIn .25s var(--ease) both;padding:0}
@@ -177,6 +182,8 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 
 .h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
 .h-scroll::-webkit-scrollbar{display:none}
+.hide-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
+.hide-scroll::-webkit-scrollbar{display:none}
 .h-scroll>*{scroll-snap-align:start;flex-shrink:0}
 
 @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
@@ -1655,7 +1662,7 @@ const STOCK_SPOTS = [{
   name: "Bouillon Chartier",
   cats: ["resto"],
   photo: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80",
-  desc: "Institution depuis 1896. Cuisine française tradtionnelle à prix plancher dans un décor Belle Époque classé.",
+  desc: "Institution depuis 1896. Cuisine française traditionnelle à prix plancher dans un décor Belle Époque classé.",
   vibe: "🏛️ Monument",
   adresse: "7 rue du Faubourg Montmartre, 75009 Paris",
   lat: 48.8735,
@@ -3029,8 +3036,8 @@ const I18N = {
     fo_cats: "Catégories",
     fo_cuisine: "Cuisine",
     fo_vibe: "Ambiance",
-    ev_coll: "🎛️ Tes collectifs",
-    ev_whatson: "🔥 Ce qui se passe à",
+    ev_coll: "Tes collectifs",
+    ev_whatson: "Ce qui se passe à",
     auth_sub: "Connecte-toi pour retrouver tes spots, favoris et notes sur tous tes appareils.",
     auth_login: "Se connecter",
     auth_signup: "✨ Créer un compte",
@@ -3352,8 +3359,8 @@ const I18N = {
     fo_cats: "Categories",
     fo_cuisine: "Cuisine",
     fo_vibe: "Vibe",
-    ev_coll: "🎛️ Your collectives",
-    ev_whatson: "🔥 What's on in",
+    ev_coll: "Your collectives",
+    ev_whatson: "What's on in",
     auth_sub: "Sign in to find your spots, favorites and notes on all your devices.",
     auth_login: "Sign in",
     auth_signup: "✨ Create an account",
@@ -3675,8 +3682,8 @@ const I18N = {
     fo_cats: "Categorías",
     fo_cuisine: "Cocina",
     fo_vibe: "Ambiente",
-    ev_coll: "🎛️ Tus colectivos",
-    ev_whatson: "🔥 Qué se cuece en",
+    ev_coll: "Tus colectivos",
+    ev_whatson: "Qué se cuece en",
     auth_sub: "Conéctate para encontrar tus spots, favoritos y notas en todos tus dispositivos.",
     auth_login: "Iniciar sesión",
     auth_signup: "✨ Crear una cuenta",
@@ -4653,7 +4660,6 @@ const MIGRATION_KEY = "myplace_schema_version";
       }
     }
     localStorage.setItem(MIGRATION_KEY, "1");
-    if (migrated > 0) console.log(`[my-safe-place] ${migrated} clé(s) migrée(s) monparis_* → myplace_*`);
   } catch {}
 })();
 const SUPABASE_URL = "https://gyulgensyqsmpsaxrwcz.supabase.co";
@@ -6582,7 +6588,7 @@ function ZonesModal({
     style: {
       marginBottom: 6
     }
-  }, "\uD83C\uDF0D Zones"), React.createElement("div", {
+  }, "Zones"), React.createElement("div", {
     className: "section-title"
   }, isOnboarding ? "Bienvenue !" : "Tes zones"), React.createElement("div", {
     className: "section-sub"
@@ -6668,7 +6674,7 @@ function ContactsModal({
     style: {
       marginBottom: 6
     }
-  }, "\uD83E\uDEC2 Contacts"), React.createElement("div", {
+  }, "Contacts"), React.createElement("div", {
     className: "section-title"
   }, "Mes contacts"), React.createElement("div", {
     className: "section-sub"
@@ -7160,7 +7166,7 @@ function PropositionsModal({
     style: {
       marginBottom: 4
     }
-  }, "\uD83D\uDCA1 Propositions"), React.createElement("div", {
+  }, "Propositions"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -7449,7 +7455,7 @@ function PropositionsModal({
         background: CB[s.cats[0]] || 'var(--bg-soft)'
       }
     }, (() => {
-      const cachedPhoto = stockPhotoCache && stockPhotoCache[s.id] ? stockPhotoCache[s.id][0] : s.photo;
+      const cachedPhoto = stockPhotoCache && stockPhotoCache[s.id] ? stockPhotoCache[s.id][0] : firstPhoto(s);
       return cachedPhoto && React.createElement("img", {
         src: cachedPhoto,
         alt: s.name,
@@ -8070,7 +8076,7 @@ function SpotFormModal({
     style: {
       marginBottom: 4
     }
-  }, editingId != null ? "✏️ Modifier" : "+ Nouveau"), React.createElement("div", {
+  }, editingId != null ? "Modifier" : "Nouveau"), React.createElement("div", {
     className: "section-title",
     style: {
       marginBottom: 16
@@ -8887,7 +8893,7 @@ function SpotDetail({
     style: {
       color: 'var(--ink-600)'
     }
-  }, "\uD83D\uDCDD Ta note"), React.createElement("div", {
+  }, "Ta note"), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontStyle: 'italic',
@@ -11438,7 +11444,7 @@ function CollectifSearchModal({
     style: {
       marginTop: 6
     }
-  }, "\uD83D\uDD25 Actifs en ce moment \xE0 Paris"), sugLoading && React.createElement("div", {
+  }, "Actifs en ce moment \xE0 Paris"), sugLoading && React.createElement("div", {
     style: {
       fontSize: 13,
       color: 'var(--ink-400)'
@@ -13213,6 +13219,7 @@ function App() {
           hours: s.hours || init.hours,
           tags: {
             ...init.tags,
+            ...s.tags,
             cuisine: s.tags?.cuisine || [],
             work: s.tags?.work || false
           }
@@ -13341,6 +13348,15 @@ function App() {
       return localStorage.getItem("myplace_username_v1") || "";
     } catch {
       return "";
+    }
+  });
+  const [mood, setMood] = useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem("myplace_mood_v1") || "null");
+      const today = new Date().toISOString().slice(0, 10);
+      return v && v.date === today ? v.mood : null;
+    } catch {
+      return null;
     }
   });
   const [sharedRef, setSharedRef] = useState(() => parseSharedSpot());
@@ -14809,7 +14825,7 @@ function App() {
     }, sel);
   };
   const markDone = id => {
-    const spot = spots.find(s => s.id === id);
+    const spot = allSpots.find(s => s.id === id);
     if (!spot) return;
     if (!spot.done) {
       window.mspHaptic?.(15);
@@ -14827,7 +14843,7 @@ function App() {
     } : x));
   };
   const revisitSpot = id => {
-    const spot = spots.find(s => s.id === id);
+    const spot = allSpots.find(s => s.id === id);
     if (!spot) return;
     window.mspHaptic?.(15);
     setSpots(s => s.map(x => x.id === id ? {
@@ -14854,7 +14870,7 @@ function App() {
     setReactionSpot(null);
   };
   const toggleFav = id => {
-    const cur = spots.find(s => s.id === id);
+    const cur = allSpots.find(s => s.id === id);
     if (cur && !cur.fav) {
       window.mspHaptic?.(10);
       window.mspPopEmoji?.("❤️");
@@ -14927,6 +14943,8 @@ function App() {
     if (todo.length) {
       const s = todo[Math.floor(Math.random() * todo.length)];
       setSelectedSpot(s);
+    } else {
+      window.mspToast?.("Aucun spot à te proposer pour l'instant 👀", "info");
     }
   };
   const addPreviewSpot = spot => {
@@ -15060,6 +15078,10 @@ function App() {
   };
   const addFromDiscover = el => {
     const t = el.tags || {};
+    if (!t.name) {
+      window.mspToast?.("Ce lieu n'a pas de nom — impossible de l'ajouter", "info");
+      return;
+    }
     const lat = el.lat || el.center && el.center.lat || 48.86;
     const lng = el.lon || el.center && el.center.lon || 2.35;
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
@@ -15083,8 +15105,9 @@ function App() {
       name: t.name,
       cats: [guessCat],
       photo: "",
+      photos: [],
       desc: t.description || "",
-      vibe: "🌐 Decouvert",
+      vibe: "🌐 Découvert",
       adresse: [addr, loc].filter(Boolean).join(", "),
       lat,
       lng,
@@ -15113,7 +15136,7 @@ function App() {
     const msg = [];
     if (missingPerso.length) msg.push(`${missingPerso.length} spot${missingPerso.length > 1 ? "s" : ""} perso`);
     if (missingStock.length) msg.push(`${missingStock.length} spot${missingStock.length > 1 ? "s" : ""} propositions`);
-    if (!confirm(`Recuperer les photos pour ${msg.join(" + ")} (${totalMissing} total) ?\n\n4 photos/spot — utilise ton quota Google Places API.`)) return;
+    if (!confirm(`Récupérer les photos pour ${msg.join(" + ")} (${totalMissing} total) ?\n\n4 photos/spot — utilise ton quota Google Places API.`)) return;
     setPhotoLoading(true);
     let done = 0;
     let found = 0;
@@ -15173,16 +15196,18 @@ function App() {
       try {
         const d = JSON.parse(e.target.result);
         if (!Array.isArray(d.spots)) throw new Error("Format invalide");
-        const mode = confirm(`${d.spots.length} spots.\n\nOK = remplacer\nAnnuler = fusionner`);
-        if (mode) {
-          setSpots(d.spots);
-          if (d.challenge) setChallenge(d.challenge);
-          window.mspToast?.(`${d.spots.length} spots importés`, "success");
-        } else {
+        if (!confirm(`${d.spots.length} spots dans ce fichier.\n\n« OK » pour l'importer · « Annuler » pour ne rien faire.`)) return;
+        const fusionner = confirm(`Comment l'importer ?\n\n« OK » = FUSIONNER (garder tes spots actuels + ajouter les nouveaux)\n« Annuler » = TOUT REMPLACER`);
+        if (fusionner) {
           const ids = new Set(allSpots.map(s => s.id));
           const newOnes = d.spots.filter(s => !ids.has(s.id));
           setSpots([...allSpots, ...newOnes]);
           window.mspToast?.(`${newOnes.length} nouveaux spots ajoutés`, "success");
+        } else {
+          if (!confirm(`⚠️ REMPLACER efface tes ${allSpots.length} spots actuels et les remplace par les ${d.spots.length} du fichier.\n\nConfirmer le remplacement ?`)) return;
+          setSpots(d.spots);
+          if (d.challenge) setChallenge(d.challenge);
+          window.mspToast?.(`${d.spots.length} spots importés (remplacement)`, "success");
         }
       } catch (err) {
         window.mspToast?.(tr("t_28") + err.message, "error");
@@ -16711,7 +16736,7 @@ function App() {
       style: {
         marginBottom: 12
       }
-    }, "\u26A1 Listes intelligentes"), React.createElement("div", {
+    }, "Listes intelligentes"), React.createElement("div", {
       style: {
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -16757,7 +16782,7 @@ function App() {
       }
     }, React.createElement("div", {
       className: "mono-label"
-    }, "\uD83D\uDCC1 Mes listes", lists.length > 0 ? ` · ${lists.length}` : ''), React.createElement("div", {
+    }, "Mes listes", lists.length > 0 ? ` · ${lists.length}` : ''), React.createElement("div", {
       style: {
         flex: 1
       }
@@ -16968,13 +16993,13 @@ function App() {
     onClick: () => setSearchMode("discover"),
     className: "press",
     style: {
-      position: 'relative',
       whiteSpace: 'nowrap',
       flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
-      gap: 6,
-      padding: '9px 15px',
+      gap: 5,
+      height: 36,
+      padding: '0 15px',
       borderRadius: 999,
       background: searchMode === "discover" ? 'var(--pop-pink)' : '#fff',
       color: searchMode === "discover" ? '#fff' : 'var(--ink-600)',
@@ -16988,37 +17013,24 @@ function App() {
     }
   }, tr("seg_discover"), catalogVisible.length > 0 && React.createElement("span", {
     style: {
-      position: 'absolute',
-      top: -8,
-      right: -4,
-      background: 'var(--pop-violet)',
-      color: '#fff',
-      minWidth: 19,
-      height: 19,
+      fontFamily: 'var(--font-mono)',
       fontSize: 11,
-      fontWeight: 800,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 5px',
-      borderRadius: 999,
-      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-      border: '2px solid var(--bg-cream)'
+      opacity: .85
     }
-  }, catalogVisible.length)), React.createElement("button", {
+  }, "\xB7", catalogVisible.length)), React.createElement("button", {
     onClick: () => {
       setSearchMode("local");
       setDiscoverResults([]);
     },
     className: "press",
     style: {
-      position: 'relative',
       whiteSpace: 'nowrap',
       flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
-      gap: 6,
-      padding: '9px 15px',
+      gap: 5,
+      height: 36,
+      padding: '0 15px',
       borderRadius: 999,
       background: searchMode === "local" ? 'var(--pop-pink)' : '#fff',
       color: searchMode === "local" ? '#fff' : 'var(--ink-600)',
@@ -17032,37 +17044,24 @@ function App() {
     }
   }, tr("seg_mine"), sortedVisible.length > 0 && React.createElement("span", {
     style: {
-      position: 'absolute',
-      top: -8,
-      right: -4,
-      background: 'var(--pop-violet)',
-      color: '#fff',
-      minWidth: 19,
-      height: 19,
+      fontFamily: 'var(--font-mono)',
       fontSize: 11,
-      fontWeight: 800,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 5px',
-      borderRadius: 999,
-      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-      border: '2px solid var(--bg-cream)'
+      opacity: .85
     }
-  }, sortedVisible.length)), React.createElement("button", {
+  }, "\xB7", sortedVisible.length)), React.createElement("button", {
     onClick: () => {
       setSearchMode("lists");
       setOpenListId(null);
     },
     className: "press",
     style: {
-      position: 'relative',
       whiteSpace: 'nowrap',
       flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
-      gap: 6,
-      padding: '9px 15px',
+      gap: 5,
+      height: 36,
+      padding: '0 15px',
       borderRadius: 999,
       background: searchMode === "lists" ? 'var(--pop-pink)' : '#fff',
       color: searchMode === "lists" ? '#fff' : 'var(--ink-600)',
@@ -17076,24 +17075,11 @@ function App() {
     }
   }, tr("seg_lists"), lists.length > 0 && React.createElement("span", {
     style: {
-      position: 'absolute',
-      top: -8,
-      right: -4,
-      background: 'var(--pop-violet)',
-      color: '#fff',
-      minWidth: 19,
-      height: 19,
+      fontFamily: 'var(--font-mono)',
       fontSize: 11,
-      fontWeight: 800,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 5px',
-      borderRadius: 999,
-      boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-      border: '2px solid var(--bg-cream)'
+      opacity: .85
     }
-  }, lists.length)), React.createElement("button", {
+  }, "\xB7", lists.length)), React.createElement("button", {
     onClick: () => {
       if (!isPremium && lists.length >= FREE_LISTS_MAX) {
         window.mspToast?.(`${FREE_LISTS_MAX} listes en gratuit — Spotane+ arrive bientôt ✨`, "error");
@@ -17147,7 +17133,7 @@ function App() {
     }
   }, "+ Ajouter")), React.createElement("div", {
     style: {
-      padding: '8px 20px 0',
+      padding: '6px 20px 0',
       background: 'var(--bg-cream)',
       display: 'flex',
       gap: 8,
@@ -17157,13 +17143,14 @@ function App() {
     style: {
       flex: 1,
       minWidth: 0,
+      height: 42,
       display: 'flex',
       alignItems: 'center',
       gap: 8,
       background: '#fff',
-      border: '1.5px solid var(--ink-900)',
+      border: '2px solid var(--ink-900)',
       borderRadius: 999,
-      padding: '10px 16px'
+      padding: '0 14px'
     }
   }, React.createElement("span", {
     style: {
@@ -17172,9 +17159,7 @@ function App() {
   }, "\uD83D\uDD0D"), React.createElement("input", {
     value: search,
     onChange: e => setSearch(e.target.value),
-    placeholder: searchMode === "discover" ? tr("search_ph_full", {
-      city: (CITIES[city] || CITIES.paris).label
-    }) : searchMode === "local" ? tr("search_ph_mine") : tr("search_ph"),
+    placeholder: "Chercher dans tout",
     style: {
       flex: 1,
       minWidth: 0,
@@ -17195,33 +17180,7 @@ function App() {
       fontSize: 16,
       color: 'var(--ink-400)'
     }
-  }, "x"), React.createElement("select", {
-    value: sort,
-    onChange: e => {
-      const v = e.target.value;
-      setSort(v);
-      if (v === "distance" && !userPos) requestGeo();
-    },
-    style: {
-      border: 'none',
-      background: 'transparent',
-      fontFamily: 'var(--font-body)',
-      fontSize: 13,
-      fontWeight: 500,
-      color: 'var(--ink-600)',
-      cursor: 'pointer'
-    }
-  }, React.createElement("option", {
-    value: "recent"
-  }, "Recents"), React.createElement("option", {
-    value: "alpha"
-  }, "A-Z"), React.createElement("option", {
-    value: "price-asc"
-  }, "Prix \u2191"), React.createElement("option", {
-    value: "price-desc"
-  }, "Prix \u2193"), React.createElement("option", {
-    value: "distance"
-  }, "\uD83D\uDCCD Distance"))), React.createElement("button", {
+  }, "x")), React.createElement("button", {
     onClick: () => window.mspToast?.(tr("t_9"), "success"),
     className: "press",
     "aria-label": tr("si_t"),
@@ -17229,74 +17188,54 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      width: 44,
-      height: 44,
+      width: 42,
+      height: 42,
       borderRadius: 999,
       border: 'none',
       cursor: 'pointer',
-      background: 'linear-gradient(135deg,var(--pop-magenta,#FF2D9E),var(--pop-violet))',
+      background: 'linear-gradient(135deg,#8B5CF6,#E91E63)',
       color: '#fff',
       fontSize: 19,
       flexShrink: 0,
-      boxShadow: '0 6px 16px rgba(255,45,158,.35)'
+      boxShadow: '0 6px 16px rgba(139,92,246,.35)'
     }
   }, "\u2728")), React.createElement("div", {
     style: {
       padding: '0 20px',
       background: 'var(--bg-cream)',
-      maxHeight: hdrStuck ? 0 : 60,
+      maxHeight: hdrStuck ? 0 : 48,
       overflow: 'hidden',
       transition: 'max-height .3s var(--ease)'
     }
   }, React.createElement("div", {
     style: {
-      marginTop: 7,
-      borderRadius: 11,
-      padding: '6px 10px 7px',
-      background: 'linear-gradient(135deg,#1E1B4B,#FF2D9E)',
+      marginTop: 6,
+      height: 32,
+      display: 'flex',
+      alignItems: 'center',
+      borderRadius: 16,
+      padding: '0 12px',
+      background: 'linear-gradient(95deg,#4A1D5E,#C2185B 55%,#E91E63)',
       color: '#fff',
       fontFamily: 'var(--font-body)'
     }
   }, React.createElement("div", {
     style: {
-      fontSize: 10,
-      lineHeight: 1.45,
+      fontSize: 12,
       whiteSpace: 'nowrap',
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
+      textOverflow: 'ellipsis',
+      minWidth: 0
     }
   }, "\uD83E\uDDE0 ", React.createElement("b", {
     style: {
-      fontSize: 10.3
+      fontWeight: 700
     }
-  }, tr("si_t")), " ", tr("si_d")), React.createElement("div", {
+  }, "Recherche IA"), " ", React.createElement("span", {
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8
+      fontWeight: 500
     }
-  }, React.createElement("span", {
-    style: {
-      flex: 1,
-      minWidth: 0,
-      fontSize: 10,
-      lineHeight: 1.45,
-      opacity: .82,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  }, tr("si_ex")), React.createElement("span", {
-    style: {
-      fontSize: 8,
-      fontWeight: 800,
-      borderRadius: 999,
-      padding: '2px 6px',
-      background: 'rgba(255,255,255,.2)',
-      whiteSpace: 'nowrap',
-      flexShrink: 0
-    }
-  }, tr("si_soon"))))), searchMode !== "lists" && React.createElement("div", {
+  }, "\xB7 ex : bar \xE0 Bastille avec des amis")))), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
       padding: '8px 0 0'
@@ -17321,9 +17260,9 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: active ? 800 : 600,
         fontSize: 13,
-        border: '1.5px solid ' + (active ? c.key === "all" ? 'var(--pop-pink)' : CC[c.key] : 'var(--hairline)'),
+        border: active ? '2px solid var(--pop-pink)' : '1.5px solid var(--hairline)',
         background: '#fff',
-        color: active ? c.key === "all" ? 'var(--pop-pink)' : CC[c.key] : 'var(--ink-900)',
+        color: active ? 'var(--pop-pink)' : 'var(--ink-900)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -17826,7 +17765,7 @@ function App() {
     }
   }, React.createElement("div", {
     className: "mono-label"
-  }, (CITIES[city] || CITIES.paris).emoji, " ", tr("h_best"), " ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), React.createElement("div", {
+  }, tr("h_best"), " ", (CITIES[city] || CITIES.paris).label, catalogVisible.length ? ` · ${catalogVisible.length}` : ''), React.createElement("div", {
     style: {
       flex: 1
     }
@@ -17978,54 +17917,69 @@ function App() {
       onClick: () => setSelectedSpot(owned ? allSpots.find(x => x.id === s.id) || s : s),
       className: "press",
       style: {
+        position: 'relative',
         display: 'flex',
-        gap: 12,
         alignItems: 'center',
+        height: 132,
+        overflow: 'hidden',
         background: '#fff',
-        borderRadius: 'var(--radius-md)',
-        padding: 10,
         border: '1px solid var(--hairline)',
+        borderRadius: 20,
+        boxShadow: '0 2px 10px rgba(10,10,10,.04)',
         cursor: 'pointer'
       }
     }, React.createElement("div", {
       style: {
-        width: 56,
-        height: 56,
-        borderRadius: 12,
-        flexShrink: 0,
-        backgroundImage: ph ? `url(${ph})` : 'none',
-        backgroundColor: 'var(--bg-soft,#F3F1F6)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      }
-    }), React.createElement("div", {
-      style: {
         flex: 1,
-        minWidth: 0
+        minWidth: 0,
+        padding: '0 4px 0 16px'
       }
     }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 14,
+        fontWeight: 800,
+        fontSize: 17,
+        color: '#0A0A0A',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, s.name), s.vibe && React.createElement("div", {
+    }, s.name), s.vibe && (() => {
+      const isNew = /Nouveau/i.test(s.vibe);
+      const txt = isNew ? s.vibe.replace(/^[^a-zA-ZÀ-ÿ]+/, '').trim() : s.vibe;
+      return React.createElement("div", {
+        style: {
+          marginTop: 3,
+          fontSize: 13.5,
+          fontWeight: 600,
+          color: 'var(--pop-pink)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 5,
+          minWidth: 0
+        }
+      }, isNew && React.createElement("span", {
+        style: {
+          flexShrink: 0,
+          background: 'var(--pop-violet)',
+          color: '#fff',
+          fontSize: 9.5,
+          fontWeight: 800,
+          borderRadius: 5,
+          padding: '2px 5px'
+        }
+      }, "NEW"), React.createElement("span", {
+        style: {
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, txt));
+    })(), React.createElement("div", {
       style: {
-        fontSize: 12,
-        color: 'var(--pop-pink)',
-        marginTop: 1,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, s.vibe), React.createElement("div", {
-      style: {
-        fontSize: 11.5,
-        color: 'var(--ink-400)',
-        marginTop: 2,
+        marginTop: 3,
+        fontSize: 13.5,
+        color: 'var(--ink-600)',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
@@ -18035,12 +17989,26 @@ function App() {
         color: '#7C3AED',
         fontWeight: 700
       }
-    }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price, userPos && s.lat ? fmtKm(distKm(userPos.lat, userPos.lng, s.lat, s.lng)) : null].filter(Boolean).join(' · ') || s.adresse)), owned ? React.createElement("span", {
+    }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
+      style: {
+        width: '46%',
+        height: '100%',
+        flex: 'none',
+        backgroundImage: ph ? `url(${ph})` : 'none',
+        backgroundColor: CB[primaryCat(s)],
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        clipPath: 'polygon(22% 0, 100% 0, 100% 100%, 0 100%)'
+      }
+    }), owned ? React.createElement("span", {
       title: "D\xE9j\xE0 dans Mes spots",
       style: {
-        fontSize: 20,
-        flexShrink: 0,
-        paddingRight: 5
+        position: 'absolute',
+        right: 10,
+        bottom: 10,
+        zIndex: 1,
+        fontSize: 29,
+        filter: 'drop-shadow(0 2px 5px rgba(0,0,0,.4))'
       }
     }, "\u2705") : React.createElement("button", {
       onClick: e => {
@@ -18050,16 +18018,20 @@ function App() {
       className: "press",
       "aria-label": "Ajouter",
       style: {
-        width: 38,
-        height: 38,
-        borderRadius: 12,
+        position: 'absolute',
+        right: 10,
+        bottom: 10,
+        zIndex: 1,
+        width: 44,
+        height: 44,
+        borderRadius: 14,
         border: 'none',
         background: 'var(--pop-pink)',
         color: '#fff',
-        fontSize: 22,
+        fontSize: 26,
         lineHeight: 1,
-        flexShrink: 0,
-        cursor: 'pointer'
+        cursor: 'pointer',
+        boxShadow: '0 3px 8px rgba(255,61,139,.35)'
       }
     }, "+"));
   }), catalogVisible.length === 0 && React.createElement("div", {
@@ -18075,7 +18047,7 @@ function App() {
     style: {
       marginBottom: 10
     }
-  }, "\uD83C\uDF0D Pas trouv\xE9 ? Cherche plus loin"), !search.trim() && React.createElement("div", {
+  }, "Pas trouv\xE9 ? Cherche plus loin"), !search.trim() && React.createElement("div", {
     className: "h-scroll",
     style: {
       marginBottom: 12
@@ -18118,7 +18090,7 @@ function App() {
     }
   }, React.createElement("div", {
     className: "mono-label"
-  }, "\uD83C\uDF0D ", discoverResults.length, " lieux trouv\xE9s ailleurs"), discoverResults.map((el, i) => {
+  }, discoverResults.length, " lieux trouv\xE9s ailleurs"), discoverResults.map((el, i) => {
     const t = el.tags || {};
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
     const loc = [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ");
@@ -18231,11 +18203,7 @@ function App() {
     }
   }, React.createElement("div", {
     className: "grad-lbl"
-  }, tr("ev_coll"), collectifs.length ? ` · ${collectifs.length}` : ''), React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }), React.createElement("button", {
+  }, tr("ev_coll"), collectifs.length ? ` · ${collectifs.length}` : '')), React.createElement("button", {
     onClick: () => {
       if (!sessionRef.current) {
         window.mspToast?.(tr("t_3"), "warn");
@@ -18243,19 +18211,22 @@ function App() {
       }
       setShowCollectifSearch(true);
     },
-    className: "press",
+    className: "press cta-pulse",
     style: {
-      padding: '7px 14px',
+      width: '100%',
+      marginBottom: 12,
+      padding: '13px 16px',
       borderRadius: 999,
-      border: 'none',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      fontWeight: 700,
-      fontSize: 12.5,
+      border: '2px solid var(--pop-pink)',
+      background: 'transparent',
+      color: 'var(--pop-magenta)',
+      fontWeight: 800,
+      fontSize: 14.5,
       fontFamily: 'var(--font-body)',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      animation: 'pulseB 2s infinite'
     }
-  }, tr("ev_search"))), collectifs.length > 0 && React.createElement("div", {
+  }, tr("ev_search")), collectifs.length > 0 && React.createElement("div", {
     style: {
       display: 'flex',
       gap: 6,
@@ -19016,7 +18987,7 @@ function App() {
       borderBottom: '1px solid var(--hairline)',
       pointerEvents: "auto"
     }
-  }, React.createElement("div", {
+  }, !mapReduced && React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -19135,10 +19106,10 @@ function App() {
       border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
       transition: 'all .15s var(--ease)'
     }
-  }, "\uD83C\uDF19 +5h")), React.createElement("button", {
-    onClick: () => setMapReduced(v => !v),
+  }, "\uD83C\uDF19 +5h")), !mapReduced && React.createElement("button", {
+    onClick: () => setMapReduced(true),
     className: "press",
-    "aria-label": mapReduced ? "Déplier les filtres" : "Réduire les filtres",
+    "aria-label": "R\xE9duire les filtres",
     style: {
       position: 'absolute',
       bottom: -13,
@@ -19161,9 +19132,7 @@ function App() {
     }
   }, React.createElement("span", {
     style: {
-      display: 'inline-block',
-      transition: 'transform .2s var(--ease)',
-      transform: mapReduced ? 'rotate(180deg)' : 'none'
+      display: 'inline-block'
     }
   }, "\u25BE")), !mapReduced ? React.createElement("div", {
     style: {
@@ -19199,17 +19168,75 @@ function App() {
         background: on ? CC[c.key] : '#fff',
         color: on ? '#fff' : 'var(--ink-600)',
         border: on ? '1px solid transparent' : '1px solid var(--hairline)',
+        boxShadow: on ? '0 0 0 2px #fff, 0 0 0 3.5px #FF3D8B, 0 6px 18px rgba(255,61,139,.35)' : 'none',
         transition: 'all .15s var(--ease)'
       }
     }, c.emoji, " ", c.label);
   })) : React.createElement("div", {
     style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 6,
-      marginTop: 8
+      display: 'flex',
+      alignItems: 'center',
+      gap: 7,
+      height: 44
     }
-  }, CATS.filter(c => c.key !== "all").map(c => {
+  }, React.createElement("div", {
+    className: "hide-scroll",
+    style: {
+      flex: 1,
+      minWidth: 0,
+      overflowX: 'auto'
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 7,
+      width: 'max-content'
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      background: 'var(--bg-soft,#F3F1F6)',
+      borderRadius: 999,
+      padding: 3,
+      gap: 3,
+      flexShrink: 0
+    }
+  }, [{
+    k: 'discover',
+    l: tr("seg_discover")
+  }, {
+    k: 'mine',
+    l: tr("seg_mine")
+  }, ...(mapCount.friends > 0 ? [{
+    k: 'friends',
+    l: "👥 " + tr("map_friends")
+  }] : [])].map(o => {
+    const on = mapMode === o.k;
+    return React.createElement("button", {
+      key: o.k,
+      onClick: () => {
+        setMapMode(o.k);
+        setPeekSpot(null);
+      },
+      className: "press",
+      "aria-pressed": on,
+      style: {
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        border: 'none',
+        cursor: 'pointer',
+        borderRadius: 999,
+        padding: '5px 10px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 12,
+        background: on ? 'var(--pop-pink)' : 'transparent',
+        color: on ? '#fff' : 'var(--ink-600)',
+        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none'
+      }
+    }, o.l);
+  })), CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
     return React.createElement("button", {
       key: c.key,
@@ -19222,22 +19249,119 @@ function App() {
       "aria-pressed": on,
       "aria-label": c.label,
       style: {
-        width: 30,
-        height: 30,
-        borderRadius: '50%',
+        position: 'relative',
+        width: 34,
+        height: 34,
+        borderRadius: 999,
         flexShrink: 0,
         cursor: 'pointer',
-        fontSize: 15,
+        fontSize: 16,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: on ? CC[c.key] : '#fff',
-        border: on ? '1.6px solid ' + CC[c.key] : '1.6px solid var(--hairline)',
-        opacity: on ? 1 : 0.5,
+        background: CB[c.key],
+        border: 'none',
+        boxShadow: on ? '0 3px 8px rgba(10,10,10,.18)' : 'none',
+        filter: on ? 'none' : 'grayscale(.55) opacity(.85)',
         transition: 'all .15s var(--ease)'
       }
-    }, c.emoji);
-  })))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
+    }, c.emoji, on && React.createElement("span", {
+      style: {
+        position: 'absolute',
+        right: -1,
+        top: -1,
+        width: 9,
+        height: 9,
+        borderRadius: 999,
+        background: '#FF3D8B',
+        border: '1.5px solid #fff'
+      }
+    }));
+  }), React.createElement("button", {
+    onClick: () => setOpenNow(v => !v),
+    className: "press",
+    "aria-pressed": openNow,
+    "aria-label": "Ouvert maintenant",
+    style: {
+      position: 'relative',
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      flexShrink: 0,
+      cursor: 'pointer',
+      fontSize: 16,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: openNow ? 'var(--ink-900)' : 'var(--bg-soft)',
+      boxShadow: openNow ? '0 3px 8px rgba(10,10,10,.25)' : 'none',
+      border: 'none',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83D\uDD50", openNow && React.createElement("span", {
+    style: {
+      position: 'absolute',
+      right: -1,
+      top: -1,
+      width: 9,
+      height: 9,
+      borderRadius: 999,
+      background: '#FF3D8B',
+      border: '1.5px solid #fff'
+    }
+  })), React.createElement("button", {
+    onClick: () => setLateNight(v => !v),
+    className: "press",
+    "aria-pressed": lateNight,
+    "aria-label": "Ouvert +5h",
+    style: {
+      position: 'relative',
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      flexShrink: 0,
+      cursor: 'pointer',
+      fontSize: 16,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: '#1E1B4B',
+      filter: lateNight ? 'none' : 'grayscale(.4) opacity(.75)',
+      boxShadow: lateNight ? '0 3px 8px rgba(30,27,75,.35)' : 'none',
+      border: 'none',
+      transition: 'all .15s var(--ease)'
+    }
+  }, "\uD83C\uDF19", lateNight && React.createElement("span", {
+    style: {
+      position: 'absolute',
+      right: -1,
+      top: -1,
+      width: 9,
+      height: 9,
+      borderRadius: 999,
+      background: '#FF3D8B',
+      border: '1.5px solid #fff'
+    }
+  })))), React.createElement("button", {
+    onClick: () => setMapReduced(false),
+    className: "press",
+    "aria-label": "D\xE9plier les filtres",
+    style: {
+      marginLeft: 'auto',
+      flexShrink: 0,
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      border: 'none',
+      cursor: 'pointer',
+      background: 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))',
+      color: '#fff',
+      fontSize: 13,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }
+  }, "\u25BE")))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
       top: '50%',
@@ -19313,6 +19437,31 @@ function App() {
       } catch {
         return false;
       }
+    })();
+    const CITYGRAD = {
+      paris: 'linear-gradient(135deg,#FF3D8B,#8B5CF6)',
+      lyon: 'linear-gradient(135deg,#FF6B2C,#FFD23F)',
+      marseille: 'linear-gradient(135deg,#3DC8FF,#8B5CF6)',
+      toulouse: 'linear-gradient(135deg,#8B5CF6,#E91E63)',
+      nice: 'linear-gradient(135deg,#C6FF3D,#3DC8FF)',
+      bordeaux: 'linear-gradient(135deg,#E91E63,#FF3D8B)'
+    };
+    const cityCount = k => allSpots.filter(s => spotCity(s) === k).length;
+    const ZL = {
+      centre: 'Centre',
+      est: 'Est',
+      nord: 'Nord',
+      ouest: 'Ouest',
+      sud: 'Sud',
+      banlieue: 'Banlieue'
+    };
+    const zoneTop = (() => {
+      const m = {};
+      spots.forEach(s => {
+        const z = s.tags && s.tags.zone;
+        if (z) m[z] = (m[z] || 0) + 1;
+      });
+      return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 3).map(x => x[0]);
     })();
     return React.createElement("div", {
       style: {
@@ -19403,7 +19552,7 @@ function App() {
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
-        padding: 18,
+        padding: 16,
         boxShadow: 'var(--shadow-sm)'
       }
     }, React.createElement("div", {
@@ -19411,50 +19560,85 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 15,
-        marginBottom: 4
+        marginBottom: 12
       }
     }, tr("profile_city")), React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-400)',
-        marginBottom: 14,
-        lineHeight: 1.5
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        marginBottom: 12
       }
-    }, "Change de ville pour d\xE9couvrir ses meilleurs spots. Tes ajouts de chaque ville sont gard\xE9s s\xE9par\xE9ment."), React.createElement("div", {
+    }, React.createElement("div", {
       style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3,1fr)',
-        gap: 8
+        width: 46,
+        height: 46,
+        borderRadius: 16,
+        flexShrink: 0,
+        background: CITYGRAD[city] || 'var(--bg-soft)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 22,
+        boxShadow: '0 4px 12px rgba(10,10,10,.12)'
       }
-    }, CITY_ORDER.map(k => {
+    }, (CITIES[city] || CITIES.paris).emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 17,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, (CITIES[city] || CITIES.paris).label), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 1
+      }
+    }, "Ta ville \xB7 ", cityCount(city), " spot", cityCount(city) > 1 ? 's' : ''))), React.createElement("div", {
+      className: "hide-scroll",
+      style: {
+        display: 'flex',
+        gap: 8,
+        overflowX: 'auto'
+      }
+    }, CITY_ORDER.filter(k => k !== city).map(k => {
       const c = CITIES[k];
-      const active = city === k;
       return React.createElement("button", {
         key: k,
         onClick: () => {
-          if (city !== k) {
-            setCity(k);
-            window.mspHaptic?.(12);
-            window.mspToast?.(`${c.emoji} ${c.label}`, "success");
-          }
+          setCity(k);
+          window.mspHaptic?.(12);
+          window.mspToast?.(`${c.emoji} ${c.label}`, "success");
         },
         className: "press",
         style: {
-          padding: '9px 6px',
-          borderRadius: 'var(--radius-pill)',
-          border: '1.5px solid ' + (active ? 'var(--ink-900)' : 'var(--hairline)'),
-          background: active ? 'var(--ink-900)' : '#fff',
-          color: active ? '#fff' : 'var(--ink-900)',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 600,
-          fontSize: 12.5,
+          flexShrink: 0,
+          width: 92,
+          height: 44,
+          borderRadius: 14,
+          border: 'none',
           cursor: 'pointer',
-          transition: 'all .15s var(--ease)',
+          background: CITYGRAD[k] || 'var(--bg-soft)',
+          color: '#fff',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 800,
+          fontSize: 13,
+          textShadow: '0 1px 3px rgba(0,0,0,.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
           whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          textAlign: 'center'
+          overflow: 'hidden'
         }
       }, c.emoji, " ", c.label);
     }))), React.createElement("div", {
@@ -19522,6 +19706,141 @@ function App() {
         }
       }, f, " ", n);
     })))), React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 18,
+        marginBottom: 12
+      }
+    }, "\uD83C\uDFAD Ce soir t'es plut\xF4t\u2026"), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8
+      }
+    }, [["danser", "🕺 Danser"], ["tranquille", "🍷 Tranquille"], ["chiller", "🌿 Chiller"], ["surprise", "🎲 Surprends-moi"]].map(([k, l]) => {
+      const on = mood === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          window.mspHaptic?.(12);
+          const today = new Date().toISOString().slice(0, 10);
+          const nv = on ? null : k;
+          setMood(nv);
+          try {
+            localStorage.setItem("myplace_mood_v1", JSON.stringify({
+              mood: nv,
+              date: today
+            }));
+          } catch {}
+        },
+        className: "press",
+        style: {
+          padding: '8px 14px',
+          borderRadius: 999,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 13,
+          border: on ? '1.5px solid transparent' : '1.5px solid var(--hairline)',
+          background: on ? 'var(--pop-pink)' : '#fff',
+          color: on ? '#fff' : 'var(--ink-900)'
+        }
+      }, l);
+    })), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)',
+        marginTop: 12
+      }
+    }, "\u2192 ton Spot du jour s'adapte."))), React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden'
+      }
+    }, React.createElement("div", {
+      style: {
+        position: 'relative',
+        height: 110,
+        background: 'linear-gradient(135deg,#EDF8FF,#F7FFE3)'
+      }
+    }, React.createElement("span", {
+      style: {
+        position: 'absolute',
+        left: '14%',
+        top: '22%',
+        fontSize: 26
+      }
+    }, "\uD83D\uDCCD"), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        left: '52%',
+        top: '44%',
+        fontSize: 34
+      }
+    }, "\uD83D\uDCCD"), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        left: '30%',
+        top: '62%',
+        fontSize: 20
+      }
+    }, "\uD83D\uDCCD"), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        left: '74%',
+        top: '28%',
+        fontSize: 22
+      }
+    }, "\uD83D\uDCCD"), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        right: 10,
+        bottom: 10,
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontSize: 10,
+        fontWeight: 800,
+        borderRadius: 999,
+        padding: '4px 9px',
+        fontFamily: 'var(--font-body)'
+      }
+    }, "TON TERRITOIRE")), React.createElement("div", {
+      style: {
+        padding: '12px 16px'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 14,
+        marginBottom: 4
+      }
+    }, "Tes quartiers chauds \uD83D\uDD25"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-600)'
+      }
+    }, zoneTop.length >= 2 ? zoneTop.map(z => ZL[z] || z).join(' · ') : 'Ajoute des adresses pour révéler ta carte')))), React.createElement("div", {
       style: {
         padding: '10px 20px 0'
       }
@@ -19655,13 +19974,18 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-mono)',
-        fontSize: 10,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        opacity: 0.6
+        fontFamily: 'var(--font-display)',
+        fontStyle: 'italic',
+        fontWeight: 700,
+        fontSize: 14,
+        color: '#EFEAF2'
       }
-    }, "Tes stats"), React.createElement("div", {
+    }, React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontStyle: 'normal'
+      }
+    }, "\u2726 "), "Tes stats"), React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'baseline',
@@ -19724,7 +20048,7 @@ function App() {
       style: {
         marginBottom: 10
       }
-    }, "Reglages"), React.createElement("div", {
+    }, "R\xE9glages"), React.createElement("div", {
       style: {
         background: '#fff',
         border: '1px solid var(--hairline)',
@@ -19921,7 +20245,7 @@ function App() {
       style: {
         fontSize: 13
       }
-    }, photoLoading ? "⏳ En cours..." : "📷 Recuperer toutes les photos"), photoProgress && React.createElement("div", {
+    }, photoLoading ? "⏳ En cours..." : "📷 Récupérer toutes les photos"), photoProgress && React.createElement("div", {
       style: {
         fontSize: 12,
         color: 'var(--pop-pink)',
@@ -20117,7 +20441,7 @@ function App() {
         }
       }, "\u21A9\uFE0F"), React.createElement("button", {
         onClick: () => {
-          if (confirm(`Supprimer definitivement "${t.name}" ?`)) setTrash(tr => tr.filter(x => x.id !== t.id));
+          if (confirm(`Supprimer définitivement "${t.name}" ?`)) setTrash(arr => arr.filter(x => x.id !== t.id));
         },
         "aria-label": `Supprimer définitivement ${t.name}`,
         className: "press",
@@ -20262,7 +20586,7 @@ function App() {
       style: {
         marginBottom: 8
       }
-    }, "\uD83D\uDCE8 Demandes re\xE7ues"), friendReqs.map(f => React.createElement("div", {
+    }, "Demandes re\xE7ues"), friendReqs.map(f => React.createElement("div", {
       key: f.fid,
       style: {
         display: 'flex',
