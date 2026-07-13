@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T03:13:10.274Z -->
+<!-- built 2026-07-13T17:18:39.371Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4732,7 +4732,7 @@ const QFAP_RANK = {
   "Street-art": 5,
   "Gourmand": 6
 };
-const stripHtml = s => (s || "").replace(/<[^>]*>/g, "").trim();
+const stripHtml = s => (s || "").replace(/<br\s*\/?>/gi, " · ").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").replace(/( · )+/g, " · ").trim();
 function eventDateLabel(e) {
   if (e.dateDescription) return stripHtml(e.dateDescription);
   const d = e.dateEnd ? new Date(e.dateEnd) : e.date ? new Date(e.date) : null;
@@ -15663,17 +15663,10 @@ function App() {
       style: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         gap: 12
       }
-    }, React.createElement("div", {
-      className: "grad-pill",
-      style: {
-        background: 'linear-gradient(135deg,' + hSlot.accent + ',' + hSlot.accent2 + ')',
-        flex: '0 1 auto',
-        minWidth: 0
-      }
-    }, tr("sl_greet_" + hSlot.id), who ? " " + who : "", " \xB7 ", dayLabel), session && React.createElement("button", {
+    }, session && React.createElement("button", {
       onClick: () => setTab("profile"),
       className: "press",
       style: {
@@ -15742,94 +15735,58 @@ function App() {
         gap: 7,
         whiteSpace: 'nowrap'
       }
-    }, "\uD83C\uDFB2 Surprise"))), spotDay && React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
       style: {
-        padding: '18px 20px 0'
+        padding: '22px 20px 0'
       }
-    }, React.createElement("button", {
-      onClick: () => setSelectedSpot(spotDay),
-      className: "press",
-      style: {
-        position: 'relative',
-        display: 'block',
-        width: '100%',
-        height: 186,
-        border: '2px solid var(--pop-yellow)',
-        padding: 0,
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden',
-        cursor: 'pointer',
-        boxShadow: '0 0 18px rgba(255,210,63,.65),0 14px 30px -12px rgba(0,0,0,.4)',
-        background: CB[primaryCat(spotDay)] || 'var(--bg-soft)',
-        textAlign: 'left'
-      }
-    }, React.createElement("img", {
-      src: firstPhoto(spotDay),
-      alt: "",
-      loading: "lazy",
-      decoding: "async",
-      style: {
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        display: 'block'
-      },
-      onError: e => {
-        e.target.style.display = 'none';
-      }
-    }), React.createElement("div", {
-      style: {
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.78) 100%)'
-      }
-    }), React.createElement("span", {
-      style: {
-        position: 'absolute',
-        top: 12,
-        left: 12,
-        background: '#fff',
-        color: 'var(--ink-900)',
-        fontSize: 11,
-        fontWeight: 800,
-        letterSpacing: '.05em',
-        textTransform: 'uppercase',
-        padding: '5px 11px',
-        borderRadius: 999,
-        fontFamily: 'var(--font-body)',
-        border: '1.5px solid var(--pop-yellow)',
-        boxShadow: '0 0 10px rgba(255,210,63,.6)'
-      }
-    }, tr("sdj_badge")), React.createElement("div", {
-      style: {
-        position: 'absolute',
-        left: 16,
-        right: 16,
-        bottom: 14,
-        color: '#fff'
-      }
-    }, React.createElement("div", {
+    }, React.createElement("h2", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 23,
-        letterSpacing: '-0.01em',
-        lineHeight: 1.1,
-        marginBottom: 3,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        fontSize: 28,
+        letterSpacing: '-0.015em',
+        margin: '0 0 14px'
       }
-    }, spotDay.name), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12.5,
-        opacity: .85,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }
-    }, [spotDay.vibe, (CATS.find(c => c.key === primaryCat(spotDay)) || {}).label, gRating(spotDay) ? `⭐ ${gRating(spotDay)}` : null].filter(Boolean).join(' · '))))), favs.length > 0 && React.createElement("div", {
+    }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
+      className: "mood-grid"
+    }, CATS.filter(c => c.key !== "all").map((c, i) => {
+      const count = spots.filter(s => hasCat(s, c.key)).length;
+      const cov = MOOD_COVER[c.key];
+      const ov = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(10,10,10,.35) 68%,${c.color}73 100%)`;
+      return React.createElement("button", {
+        key: c.key,
+        className: "mood-card",
+        onClick: () => {
+          setCat(c.key);
+          setTab("spots");
+        },
+        style: {
+          borderColor: c.color,
+          transform: `rotate(${i % 2 ? 1.6 : -2}deg)`
+        }
+      }, cov && React.createElement("img", {
+        src: cov,
+        alt: "",
+        loading: "lazy",
+        decoding: "async",
+        onError: e => {
+          e.target.style.display = 'none';
+        }
+      }), React.createElement("div", {
+        className: "m-ov",
+        style: {
+          background: ov
+        }
+      }), React.createElement("span", {
+        className: "m-em"
+      }, c.emoji), React.createElement("span", {
+        className: "m-lab"
+      }, React.createElement("span", {
+        className: "m-n"
+      }, c.label, React.createElement("span", {
+        className: "m-c"
+      }, " \xB7 ", count))));
+    }))), favs.length > 0 && React.createElement("div", {
       style: {
         padding: '18px 0 0'
       }
@@ -16014,7 +15971,94 @@ function App() {
       onOpen: setSelectedSpot,
       userPos: userPos,
       compact: true
-    }))))), homeResume && React.createElement("div", {
+    }))))), spotDay && React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement("button", {
+      onClick: () => setSelectedSpot(spotDay),
+      className: "press",
+      style: {
+        position: 'relative',
+        display: 'block',
+        width: '100%',
+        height: 186,
+        border: '2px solid var(--pop-yellow)',
+        padding: 0,
+        borderRadius: 'var(--radius-lg)',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        boxShadow: '0 0 18px rgba(255,210,63,.65),0 14px 30px -12px rgba(0,0,0,.4)',
+        background: CB[primaryCat(spotDay)] || 'var(--bg-soft)',
+        textAlign: 'left'
+      }
+    }, React.createElement("img", {
+      src: firstPhoto(spotDay),
+      alt: "",
+      loading: "lazy",
+      decoding: "async",
+      style: {
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        display: 'block'
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.78) 100%)'
+      }
+    }), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        top: 12,
+        left: 12,
+        background: '#fff',
+        color: 'var(--ink-900)',
+        fontSize: 11,
+        fontWeight: 800,
+        letterSpacing: '.05em',
+        textTransform: 'uppercase',
+        padding: '5px 11px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        border: '1.5px solid var(--pop-yellow)',
+        boxShadow: '0 0 10px rgba(255,210,63,.6)'
+      }
+    }, tr("sdj_badge")), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: 16,
+        right: 16,
+        bottom: 14,
+        color: '#fff'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 23,
+        letterSpacing: '-0.01em',
+        lineHeight: 1.1,
+        marginBottom: 3,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, spotDay.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .85,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, [spotDay.vibe, (CATS.find(c => c.key === primaryCat(spotDay)) || {}).label, gRating(spotDay) ? `⭐ ${gRating(spotDay)}` : null].filter(Boolean).join(' · '))))), homeResume && React.createElement("div", {
       style: {
         padding: '22px 20px 0'
       }
@@ -16086,58 +16130,7 @@ function App() {
         flexShrink: 0,
         fontFamily: 'var(--font-body)'
       }
-    }, homeResume.cta))), React.createElement("div", {
-      style: {
-        padding: '26px 20px 0'
-      }
-    }, React.createElement("h2", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 28,
-        letterSpacing: '-0.015em',
-        margin: '0 0 14px'
-      }
-    }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
-      className: "mood-grid"
-    }, CATS.filter(c => c.key !== "all").map((c, i) => {
-      const count = spots.filter(s => hasCat(s, c.key)).length;
-      const cov = MOOD_COVER[c.key];
-      const ov = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(10,10,10,.35) 68%,${c.color}73 100%)`;
-      return React.createElement("button", {
-        key: c.key,
-        className: "mood-card",
-        onClick: () => {
-          setCat(c.key);
-          setTab("spots");
-        },
-        style: {
-          borderColor: c.color,
-          transform: `rotate(${i % 2 ? 1.6 : -2}deg)`
-        }
-      }, cov && React.createElement("img", {
-        src: cov,
-        alt: "",
-        loading: "lazy",
-        decoding: "async",
-        onError: e => {
-          e.target.style.display = 'none';
-        }
-      }), React.createElement("div", {
-        className: "m-ov",
-        style: {
-          background: ov
-        }
-      }), React.createElement("span", {
-        className: "m-em"
-      }, c.emoji), React.createElement("span", {
-        className: "m-lab"
-      }, React.createElement("span", {
-        className: "m-n"
-      }, c.label, React.createElement("span", {
-        className: "m-c"
-      }, " \xB7 ", count))));
-    }))), false && challengeSpots.length > 0 && React.createElement("div", {
+    }, homeResume.cta))), false && challengeSpots.length > 0 && React.createElement("div", {
       style: {
         padding: '28px 20px 0'
       }
@@ -16942,18 +16935,11 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 4px',
+      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 4px',
       background: 'var(--bg-cream)'
     }
-  }, React.createElement("div", {
-    className: "grad-pill"
-  }, tr("spots_pill", {
-    n: spots.length
-  })), React.createElement("h1", {
-    className: "hero-line",
-    style: {
-      marginTop: 6
-    }
+  }, React.createElement("h1", {
+    className: "hero-line"
   }, tr("spots_title", {
     city: (CITIES[city] || CITIES.paris).label
   }))), React.createElement("div", {
@@ -18228,16 +18214,11 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 10px',
+      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 10px',
       background: 'var(--bg-cream)'
     }
-  }, React.createElement("div", {
-    className: "grad-pill"
-  }, tr("ev_mine"), " \xB7 ", sortedEvents.length, " ", tr("ev_upcoming")), React.createElement("h1", {
-    className: "hero-line",
-    style: {
-      marginTop: 6
-    }
+  }, React.createElement("h1", {
+    className: "hero-line"
   }, tr("ev_title1"), " ", tr("ev_title2"))), React.createElement("div", {
     style: {
       padding: "14px 20px 4px"
@@ -19305,7 +19286,7 @@ function App() {
     },
     style: {
       position: 'absolute',
-      bottom: 52,
+      bottom: 12,
       right: 16,
       zIndex: 1000,
       background: 'var(--ink-900)',
@@ -19326,23 +19307,94 @@ function App() {
   }, geoLoading ? '⏳' : '📍', " Autour de moi"));
   const ProfileTab = () => {
     const counts = Object.fromEntries(CATS.filter(c => c.key !== 'all').map(c => [c.key, spots.filter(s => hasCat(s, c.key)).length]));
+    const devMode = (() => {
+      try {
+        return localStorage.getItem("myplace_devmode_v1") === "1";
+      } catch {
+        return false;
+      }
+    })();
     return React.createElement("div", {
       style: {
         paddingBottom: 100
       }
     }, React.createElement("div", {
       style: {
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 14px',
+        padding: 'calc(16px + env(safe-area-inset-top,0px)) 20px 0',
         background: 'var(--bg-cream)'
       }
-    }, React.createElement("div", {
-      className: "grad-pill"
-    }, "\u263B Profil \xB7 v3"), React.createElement("h1", {
-      className: "hero-line",
+    }, React.createElement(AuthCard, {
+      session: session,
+      syncState: syncState,
+      onLogin: handleLogin,
+      onSignOut: signOut,
+      onResync: () => fullSync(sessionRef.current),
+      profile: profile,
+      avatar: avatar,
+      onUpdateProfile: updateAccount,
+      onDeleteAccount: deleteAccount
+    }), React.createElement("div", {
       style: {
-        marginTop: 6
+        marginTop: 10,
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: '12px 14px',
+        boxShadow: 'var(--shadow-sm)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11
       }
-    }, tr("prof_title"))), React.createElement("div", {
+    }, React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 999,
+        background: 'var(--pop-pink)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 16,
+        color: '#fff',
+        fontWeight: 700,
+        flexShrink: 0
+      }
+    }, myName ? myName[0].toUpperCase() : '?'), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 14
+      }
+    }, myName || 'Pas de prénom'), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        marginTop: 1
+      }
+    }, "Affich\xE9 quand tu partages un spot")), React.createElement("button", {
+      onClick: () => {
+        const n = prompt("Ton prénom :", myName);
+        if (n !== null) setMyName(n.trim());
+      },
+      "aria-label": "Modifier mon pr\xE9nom",
+      className: "press",
+      style: {
+        padding: '7px 12px',
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 500,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, "\u270F\uFE0F"))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -19471,19 +19523,9 @@ function App() {
       }, f, " ", n);
     })))), React.createElement("div", {
       style: {
-        padding: '24px 20px 0'
+        padding: '10px 20px 0'
       }
-    }, React.createElement(AuthCard, {
-      session: session,
-      syncState: syncState,
-      onLogin: handleLogin,
-      onSignOut: signOut,
-      onResync: () => fullSync(sessionRef.current),
-      profile: profile,
-      avatar: avatar,
-      onUpdateProfile: updateAccount,
-      onDeleteAccount: deleteAccount
-    }), spots.length >= 3 && React.createElement("button", {
+    }, spots.length >= 3 && React.createElement("button", {
       onClick: () => {
         window.mspHaptic?.(12);
         setShowWrapped(true);
@@ -19600,240 +19642,7 @@ function App() {
         flexShrink: 0,
         fontFamily: 'var(--font-body)'
       }
-    }, "2,99 \u20AC/mois")), session && React.createElement("div", {
-      style: {
-        marginTop: 14,
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 18
-      }
-    }, tr("profile_friends"), friends.length ? ` · ${friends.length}` : ''), React.createElement("div", {
-      style: {
-        flex: 1
-      }
-    }), React.createElement("button", {
-      onClick: inviteFriend,
-      className: "press",
-      style: {
-        padding: '8px 14px',
-        borderRadius: 999,
-        border: 'none',
-        background: 'var(--pop-pink)',
-        color: '#fff',
-        fontWeight: 700,
-        fontSize: 12.5,
-        fontFamily: 'var(--font-body)',
-        cursor: 'pointer'
-      }
-    }, tr("btn_invite"))), friendsLoading && React.createElement("div", {
-      style: {
-        fontSize: 13,
-        color: 'var(--ink-400)'
-      }
-    }, "Chargement\u2026"), friendReqs.length > 0 && React.createElement("div", {
-      style: {
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      className: "mono-label",
-      style: {
-        marginBottom: 8
-      }
-    }, "\uD83D\uDCE8 Demandes re\xE7ues"), friendReqs.map(f => React.createElement("div", {
-      key: f.fid,
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '8px 0'
-      }
-    }, React.createElement(Avatar, {
-      src: f.avatar,
-      name: f.name,
-      size: 36
-    }), React.createElement("span", {
-      style: {
-        flex: 1,
-        fontWeight: 700,
-        fontSize: 14,
-        fontFamily: 'var(--font-body)',
-        minWidth: 0,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }
-    }, f.name), React.createElement("button", {
-      onClick: () => respondFriend(f.fid, true),
-      className: "press",
-      style: {
-        padding: '7px 13px',
-        borderRadius: 999,
-        border: 'none',
-        background: 'var(--ink-900)',
-        color: '#fff',
-        fontWeight: 700,
-        fontSize: 12,
-        cursor: 'pointer'
-      }
-    }, "Accepter"), React.createElement("button", {
-      onClick: () => respondFriend(f.fid, false),
-      className: "press",
-      style: {
-        width: 32,
-        height: 32,
-        borderRadius: 999,
-        border: '1px solid var(--hairline)',
-        background: '#fff',
-        cursor: 'pointer',
-        fontSize: 12,
-        color: 'var(--ink-400)'
-      }
-    }, "\u2715")))), friends.length === 0 && !friendsLoading && friendReqs.length === 0 && React.createElement("div", {
-      style: {
-        fontSize: 13.5,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-body)',
-        lineHeight: 1.5
-      }
-    }, "Invite tes potes avec ton lien \uD83E\uDD1D Vous pourrez partager vos listes de spots \u2014 et uniquement ce que chacun d\xE9cide."), friends.map(f => React.createElement("div", {
-      key: f.fid,
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '8px 0'
-      }
-    }, React.createElement(Avatar, {
-      src: f.avatar,
-      name: f.name,
-      size: 36
-    }), React.createElement("span", {
-      style: {
-        flex: 1,
-        fontWeight: 700,
-        fontSize: 14,
-        fontFamily: 'var(--font-body)',
-        minWidth: 0,
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
-      }
-    }, f.name), React.createElement("button", {
-      onClick: () => {
-        if (confirm(`Retirer ${f.name} de tes amis ?`)) respondFriend(f.fid, false);
-      },
-      className: "press",
-      style: {
-        padding: '6px 12px',
-        borderRadius: 999,
-        border: '1px solid var(--hairline)',
-        background: '#fff',
-        cursor: 'pointer',
-        fontSize: 11.5,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-body)'
-      }
-    }, "Retirer"))), friendOut.length > 0 && React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        marginTop: 8,
-        fontFamily: 'var(--font-body)'
-      }
-    }, "\u23F3 En attente : ", friendOut.map(f => f.name).join(", ")), React.createElement("button", {
-      onClick: () => setDiscreet(d => !d),
-      className: "press",
-      style: {
-        marginTop: 14,
-        width: '100%',
-        padding: '12px',
-        borderRadius: 999,
-        border: '1px solid ' + (discreet ? 'transparent' : 'var(--hairline)'),
-        background: discreet ? 'var(--ink-900)' : '#fff',
-        color: discreet ? '#fff' : 'var(--ink-600)',
-        fontWeight: 700,
-        fontSize: 13,
-        fontFamily: 'var(--font-body)',
-        cursor: 'pointer'
-      }
-    }, "\uD83D\uDC7B Mode discret ", discreet ? "activé — tes listes sont invisibles" : "désactivé"))), React.createElement("div", {
-      style: {
-        padding: '24px 20px 0'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-md)',
-        padding: 18,
-        boxShadow: 'var(--shadow-sm)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 44,
-        height: 44,
-        borderRadius: 999,
-        background: 'var(--pop-pink)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 20,
-        color: '#fff',
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, myName ? myName[0].toUpperCase() : '?'), React.createElement("div", {
-      style: {
-        flex: 1
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 15
-      }
-    }, myName || 'Pas de prénom'), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        marginTop: 2
-      }
-    }, "Affich\xE9 quand tu partages un spot")), React.createElement("button", {
-      onClick: () => {
-        const n = prompt("Ton prénom :", myName);
-        if (n !== null) setMyName(n.trim());
-      },
-      "aria-label": "Modifier mon pr\xE9nom",
-      className: "press",
-      style: {
-        padding: '8px 14px',
-        borderRadius: 999,
-        border: '1px solid var(--hairline)',
-        background: '#fff',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 500,
-        fontSize: 13,
-        cursor: 'pointer'
-      }
-    }, "\u270F\uFE0F"))), React.createElement("div", {
+    }, "2,99 \u20AC/mois"))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -19932,12 +19741,12 @@ function App() {
       t: 'Contacts',
       s: `${contacts.length} potes ajoutes`,
       action: () => setShowContacts(true)
-    }, {
+    }, ...(devMode ? [{
       i: '📷',
       t: 'Google Places API',
       s: gApiKey ? 'Cle configuree' : 'Ajouter une cle',
       action: null
-    }, {
+    }] : []), {
       i: '🗑️',
       t: 'Corbeille',
       s: `${trash.length} spots · recup. 7 jours`,
@@ -20070,7 +19879,7 @@ function App() {
       style: {
         display: "none"
       }
-    })))), React.createElement("div", {
+    })))), devMode && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -20128,7 +19937,7 @@ function App() {
         marginTop: 8,
         fontFamily: 'var(--font-body)'
       }
-    }, spots.filter(s => getPhotos(s).length === 0).length, " spot", spots.filter(s => getPhotos(s).length === 0).length > 1 ? "s" : "", " sans photo"))), React.createElement("div", {
+    }, spots.filter(s => getPhotos(s).length === 0).length, " spot", spots.filter(s => getPhotos(s).length === 0).length > 1 ? "s" : "", " sans photo"))), devMode && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -20397,16 +20206,202 @@ function App() {
         fontSize: 13.5,
         color: 'var(--ink-400)'
       }
-    }, "Ajouter")))), React.createElement("div", {
+    }, "Ajouter")))), session && React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 18
+      }
+    }, tr("profile_friends"), friends.length ? ` · ${friends.length}` : ''), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("button", {
+      onClick: inviteFriend,
+      className: "press",
+      style: {
+        padding: '8px 14px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 12.5,
+        fontFamily: 'var(--font-body)',
+        cursor: 'pointer'
+      }
+    }, tr("btn_invite"))), friendsLoading && React.createElement("div", {
+      style: {
+        fontSize: 13,
+        color: 'var(--ink-400)'
+      }
+    }, "Chargement\u2026"), friendReqs.length > 0 && React.createElement("div", {
+      style: {
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      className: "mono-label",
+      style: {
+        marginBottom: 8
+      }
+    }, "\uD83D\uDCE8 Demandes re\xE7ues"), friendReqs.map(f => React.createElement("div", {
+      key: f.fid,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 0'
+      }
+    }, React.createElement(Avatar, {
+      src: f.avatar,
+      name: f.name,
+      size: 36
+    }), React.createElement("span", {
+      style: {
+        flex: 1,
+        fontWeight: 700,
+        fontSize: 14,
+        fontFamily: 'var(--font-body)',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, f.name), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, true),
+      className: "press",
+      style: {
+        padding: '7px 13px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        fontWeight: 700,
+        fontSize: 12,
+        cursor: 'pointer'
+      }
+    }, "Accepter"), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, false),
+      className: "press",
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        cursor: 'pointer',
+        fontSize: 12,
+        color: 'var(--ink-400)'
+      }
+    }, "\u2715")))), friends.length === 0 && !friendsLoading && friendReqs.length === 0 && React.createElement("div", {
+      style: {
+        fontSize: 13.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.5
+      }
+    }, "Invite tes potes avec ton lien \uD83E\uDD1D Vous pourrez partager vos listes de spots \u2014 et uniquement ce que chacun d\xE9cide."), friends.map(f => React.createElement("div", {
+      key: f.fid,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        padding: '8px 0'
+      }
+    }, React.createElement(Avatar, {
+      src: f.avatar,
+      name: f.name,
+      size: 36
+    }), React.createElement("span", {
+      style: {
+        flex: 1,
+        fontWeight: 700,
+        fontSize: 14,
+        fontFamily: 'var(--font-body)',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }
+    }, f.name), React.createElement("button", {
+      onClick: () => {
+        if (confirm(`Retirer ${f.name} de tes amis ?`)) respondFriend(f.fid, false);
+      },
+      className: "press",
+      style: {
+        padding: '6px 12px',
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        cursor: 'pointer',
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Retirer"))), friendOut.length > 0 && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 8,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "\u23F3 En attente : ", friendOut.map(f => f.name).join(", ")), React.createElement("button", {
+      onClick: () => setDiscreet(d => !d),
+      className: "press",
+      style: {
+        marginTop: 14,
+        width: '100%',
+        padding: '12px',
+        borderRadius: 999,
+        border: '1px solid ' + (discreet ? 'transparent' : 'var(--hairline)'),
+        background: discreet ? 'var(--ink-900)' : '#fff',
+        color: discreet ? '#fff' : 'var(--ink-600)',
+        fontWeight: 700,
+        fontSize: 13,
+        fontFamily: 'var(--font-body)',
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDC7B Mode discret ", discreet ? "activé — tes listes sont invisibles" : "désactivé"))), React.createElement("div", {
+      onClick: () => {
+        window.__devTaps = (window.__devTaps || 0) + 1;
+        if (window.__devTaps >= 7) {
+          window.__devTaps = 0;
+          try {
+            if (devMode) localStorage.removeItem("myplace_devmode_v1");else localStorage.setItem("myplace_devmode_v1", "1");
+          } catch {}
+          window.mspToast?.(devMode ? "🛠 Mode dev désactivé" : "🛠 Mode dev activé", "success");
+          setTimeout(() => location.reload(), 450);
+        }
+      },
       style: {
         textAlign: 'center',
         fontSize: 12,
         color: 'var(--ink-400)',
         marginTop: 24,
         paddingBottom: 16,
-        fontFamily: 'var(--font-body)'
+        fontFamily: 'var(--font-body)',
+        cursor: 'default',
+        userSelect: 'none'
       }
-    }, "\uD83D\uDCBE Sauvegarde auto dans le navigateur"));
+    }, "\uD83D\uDCBE Sauvegarde auto dans le navigateur", devMode ? " · 🛠" : ""));
   };
   return React.createElement("div", {
     style: {
@@ -21160,7 +21155,7 @@ function App() {
       position: 'fixed',
       left: 0,
       right: 0,
-      bottom: 'calc(84px + env(safe-area-inset-bottom,0px))',
+      bottom: 'calc(150px + env(safe-area-inset-bottom,0px))',
       display: 'flex',
       justifyContent: 'center',
       zIndex: 1100,
