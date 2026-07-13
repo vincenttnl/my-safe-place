@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T02:07:59.721Z -->
+<!-- built 2026-07-13T02:34:11.108Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3115,7 +3115,7 @@ const I18N = {
     sl_open_soir: "🍸 Ouvert ce soir",
     sl_open_nuit: "🌃 Encore ouvert à cette heure",
     sl_open_after: "🌙 Toujours ouvert, là",
-    sdj_badge: "✦ Spot du jour",
+    sdj_badge: "💡 Spot du jour",
     pk_metro: "Trajet métro",
     hm_t: "Tout dort là, tout de suite 😴",
     hm_h: "Le bon moment pour préparer ta prochaine sortie ✨",
@@ -3438,7 +3438,7 @@ const I18N = {
     sl_open_soir: "🍸 Open tonight",
     sl_open_nuit: "🌃 Still open at this hour",
     sl_open_after: "🌙 Still open, right now",
-    sdj_badge: "✦ Spot of the day",
+    sdj_badge: "💡 Spot of the day",
     pk_metro: "Metro route",
     hm_t: "Everything's asleep right now 😴",
     hm_h: "Perfect time to plan your next one ✨",
@@ -3761,7 +3761,7 @@ const I18N = {
     sl_open_soir: "🍸 Abierto esta noche",
     sl_open_nuit: "🌃 Aún abierto a esta hora",
     sl_open_after: "🌙 Sigue abierto ahora",
-    sdj_badge: "✦ Spot del día",
+    sdj_badge: "💡 Spot del día",
     pk_metro: "Trayecto en metro",
     hm_t: "Todo duerme ahora mismo 😴",
     hm_h: "El momento perfecto para preparar tu próxima salida ✨",
@@ -9107,11 +9107,122 @@ function SpotDetail({
 function PosterSpotCard({
   spot,
   onOpen,
-  userPos
+  userPos,
+  compact
 }) {
   const cat = CATS.find(c => c.key === primaryCat(spot));
   const tilt = stableTilt(spot.id, 2);
   const dist = userPos && spot.lat && spot.lng ? distKm(userPos.lat, userPos.lng, spot.lat, spot.lng) : null;
+  if (compact) {
+    const col = CC[primaryCat(spot)] || "#888";
+    const mp = metroParse(spot.metro);
+    return React.createElement("button", {
+      onClick: () => onOpen(spot),
+      className: "press",
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        cursor: 'pointer',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        transform: `rotate(${tilt}deg)`,
+        transition: 'transform 250ms var(--ease)'
+      }
+    }, React.createElement("div", {
+      style: {
+        position: 'relative',
+        aspectRatio: '3/4',
+        borderRadius: 15,
+        overflow: 'hidden',
+        background: col,
+        border: '2px solid ' + col,
+        boxShadow: 'var(--shadow-md)'
+      }
+    }, firstPhoto(spot) && React.createElement("img", {
+      src: firstPhoto(spot),
+      alt: spot.name,
+      loading: "lazy",
+      decoding: "async",
+      onError: e => {
+        e.target.style.display = 'none';
+      },
+      style: {
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover'
+      }
+    }), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(180deg,rgba(0,0,0,0) 38%,rgba(0,0,0,0.74) 100%)'
+      }
+    }), React.createElement("span", {
+      style: {
+        position: 'absolute',
+        top: 6,
+        left: 6,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 3,
+        background: 'rgba(255,255,255,.94)',
+        color: col,
+        padding: '2px 7px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 8.5,
+        boxShadow: '0 1px 5px rgba(0,0,0,.25)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 10
+      }
+    }, cat?.emoji), cat?.label), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        left: 8,
+        right: 8,
+        bottom: 7,
+        color: '#fff'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 13,
+        lineHeight: 1.08,
+        letterSpacing: '-0.01em',
+        textShadow: '0 1px 6px rgba(0,0,0,.5)',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical',
+        overflow: 'hidden'
+      }
+    }, spot.name), mp && React.createElement("div", {
+      style: {
+        marginTop: 3
+      }
+    }, React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 14,
+        height: 14,
+        borderRadius: 99,
+        background: mp.color,
+        color: mp.fg,
+        fontWeight: 800,
+        fontSize: 8.5,
+        padding: '0 3px',
+        fontFamily: 'var(--font-body)'
+      }
+    }, mp.line)))));
+  }
   return React.createElement("button", {
     onClick: () => onOpen(spot),
     style: {
@@ -15630,12 +15741,12 @@ function App() {
         display: 'block',
         width: '100%',
         height: 186,
-        border: 'none',
+        border: '2px solid var(--pop-yellow)',
         padding: 0,
         borderRadius: 'var(--radius-lg)',
         overflow: 'hidden',
         cursor: 'pointer',
-        boxShadow: '0 14px 30px -12px rgba(0,0,0,.4)',
+        boxShadow: '0 0 18px rgba(255,210,63,.65),0 14px 30px -12px rgba(0,0,0,.4)',
         background: CB[primaryCat(spotDay)] || 'var(--bg-soft)',
         textAlign: 'left'
       }
@@ -15877,7 +15988,8 @@ function App() {
     }, React.createElement(PosterSpotCard, {
       spot: s,
       onOpen: setSelectedSpot,
-      userPos: userPos
+      userPos: userPos,
+      compact: true
     }))))), homeResume && React.createElement("div", {
       style: {
         padding: '22px 20px 0'
