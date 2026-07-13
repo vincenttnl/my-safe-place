@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T20:40:45.915Z -->
+<!-- built 2026-07-13T21:17:28.373Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -19483,6 +19483,16 @@ function App() {
       nice: 'linear-gradient(135deg,#C6FF3D,#3DC8FF)',
       bordeaux: 'linear-gradient(135deg,#E91E63,#FF3D8B)'
     };
+    const CITYPHOTO = {
+      paris: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Montmartre_with_Sacre_Coeur%2C_seen_from_Tour_Montparnasse.jpg/960px-Montmartre_with_Sacre_Coeur%2C_seen_from_Tour_Montparnasse.jpg',
+      lyon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Lyon_%28191802527%29.jpeg/960px-Lyon_%28191802527%29.jpeg',
+      marseille: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Marseille_Basilique_Notre-Dame-de-la-Garde_Vue_sur_Marseille_20.jpg/960px-Marseille_Basilique_Notre-Dame-de-la-Garde_Vue_sur_Marseille_20.jpg',
+      toulouse: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Gare_de_Toulouse-Matabiau_%2827631939457%29.jpg/960px-Gare_de_Toulouse-Matabiau_%2827631939457%29.jpg',
+      nice: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Nizza-C%C3%B4te_d%27Azur.jpg/960px-Nizza-C%C3%B4te_d%27Azur.jpg',
+      bordeaux: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Place_De_La_Bourse_Water_Mirror_Bordeaux_%28134913857%29.jpeg/960px-Place_De_La_Bourse_Water_Mirror_Bordeaux_%28134913857%29.jpeg'
+    };
+    const cityBg = k => CITYPHOTO[k] ? `center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
+    const tileBg = k => CITYPHOTO[k] ? `linear-gradient(180deg,rgba(10,10,10,.12),rgba(10,10,10,.55)), center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
     const cityCount = k => allSpots.filter(s => spotCity(s) === k).length;
     const ZL = {
       centre: 'Centre',
@@ -19612,14 +19622,14 @@ function App() {
         height: 46,
         borderRadius: 16,
         flexShrink: 0,
-        background: CITYGRAD[city] || 'var(--bg-soft)',
+        background: cityBg(city),
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: 22,
         boxShadow: '0 4px 12px rgba(10,10,10,.12)'
       }
-    }, (CITIES[city] || CITIES.paris).emoji), React.createElement("div", {
+    }, CITYPHOTO[city] ? '' : (CITIES[city] || CITIES.paris).emoji), React.createElement("div", {
       style: {
         flex: 1,
         minWidth: 0
@@ -19664,12 +19674,12 @@ function App() {
           borderRadius: 14,
           border: 'none',
           cursor: 'pointer',
-          background: CITYGRAD[k] || 'var(--bg-soft)',
+          background: tileBg(k),
           color: '#fff',
           fontFamily: 'var(--font-body)',
           fontWeight: 800,
           fontSize: 13,
-          textShadow: '0 1px 3px rgba(0,0,0,.45)',
+          textShadow: '0 1px 3px rgba(0,0,0,.55)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -19677,7 +19687,7 @@ function App() {
           whiteSpace: 'nowrap',
           overflow: 'hidden'
         }
-      }, c.emoji, " ", c.label);
+      }, CITYPHOTO[k] ? c.label : `${c.emoji} ${c.label}`);
     }))), React.createElement("div", {
       style: {
         marginTop: 14,
