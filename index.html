@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T03:04:44.985Z -->
+<!-- built 2026-07-13T03:10:58.104Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9115,7 +9115,6 @@ function PosterSpotCard({
   const dist = userPos && spot.lat && spot.lng ? distKm(userPos.lat, userPos.lng, spot.lat, spot.lng) : null;
   if (compact) {
     const col = CC[primaryCat(spot)] || "#888";
-    const mp = metroParse(spot.metro);
     return React.createElement("button", {
       onClick: () => onOpen(spot),
       className: "press",
@@ -9202,26 +9201,7 @@ function PosterSpotCard({
         WebkitBoxOrient: 'vertical',
         overflow: 'hidden'
       }
-    }, spot.name), mp && React.createElement("div", {
-      style: {
-        marginTop: 3
-      }
-    }, React.createElement("span", {
-      style: {
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 14,
-        height: 14,
-        borderRadius: 99,
-        background: mp.color,
-        color: mp.fg,
-        fontWeight: 800,
-        fontSize: 8.5,
-        padding: '0 3px',
-        fontFamily: 'var(--font-body)'
-      }
-    }, mp.line)))));
+    }, spot.name))));
   }
   return React.createElement("button", {
     onClick: () => onOpen(spot),
@@ -15889,16 +15869,25 @@ function App() {
       style: {
         display: 'flex',
         alignItems: 'center',
+        flexWrap: 'wrap',
         gap: 8,
         padding: '0 20px',
         marginBottom: 12
       }
-    }, React.createElement("div", {
-      className: "grad-lbl",
-      style: {
-        backgroundImage: 'linear-gradient(135deg,' + hSlot.accent + ',' + hSlot.accent2 + ')'
-      }
-    }, tr("sl_open_" + hSlot.id), userPos ? tr("h_nearyou") : ''), React.createElement("div", {
+    }, (() => {
+      const l = tr("sl_open_" + hSlot.id);
+      const m = l.match(/^(\S+)\s+(.*)$/);
+      return React.createElement("h2", {
+        style: {
+          fontFamily: 'var(--font-display)',
+          fontWeight: 900,
+          fontSize: 28,
+          letterSpacing: '-0.015em',
+          margin: 0,
+          lineHeight: 1.05
+        }
+      }, m ? m[2] + " " + m[1] : l);
+    })(), React.createElement("div", {
       style: {
         flex: 1
       }
