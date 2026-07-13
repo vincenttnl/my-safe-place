@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T02:56:24.818Z -->
+<!-- built 2026-07-13T03:04:44.985Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9292,7 +9292,9 @@ function PosterSpotCard({
       fontSize: 11,
       display: 'flex',
       alignItems: 'center',
-      gap: 4
+      gap: 4,
+      border: '1.5px solid ' + (CC[primaryCat(spot)] || '#fff'),
+      boxShadow: '0 0 10px ' + (CC[primaryCat(spot)] || '#fff') + 'CC'
     }
   }, React.createElement("span", {
     style: {
@@ -9318,26 +9320,17 @@ function PosterSpotCard({
       bottom: 14,
       color: '#fff'
     }
-  }, spot.vibe && React.createElement("div", {
-    style: {
-      display: 'inline-block',
-      fontFamily: 'var(--font-mono)',
-      fontSize: 10,
-      letterSpacing: '0.15em',
-      textTransform: 'uppercase',
-      background: 'rgba(255,255,255,0.18)',
-      backdropFilter: 'blur(6px)',
-      padding: '4px 8px',
-      borderRadius: 6,
-      marginBottom: 8
-    }
-  }, spot.vibe), React.createElement("div", {
+  }, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
-      fontSize: 22,
-      lineHeight: 0.98,
-      letterSpacing: '-0.015em'
+      fontSize: (spot.name || "").length > 16 ? 17 : 22,
+      lineHeight: 1.02,
+      letterSpacing: '-0.015em',
+      display: '-webkit-box',
+      WebkitLineClamp: 3,
+      WebkitBoxOrient: 'vertical',
+      overflow: 'hidden'
     }
   }, spot.name), (() => {
     const mp = metroParse(spot.metro);
@@ -13627,7 +13620,13 @@ function App() {
     const dist = s => userPos && s.lat && s.lng ? distKm(userPos.lat, userPos.lng, s.lat, s.lng) : null;
     const bst = s => timeSlot(pnow).boost.includes(primaryCat(s)) ? 0 : 1;
     const srt = arr => userPos ? [...arr].sort((a, b) => bst(a) - bst(b) || (dist(a) ?? 1e9) - (dist(b) ?? 1e9)) : [...arr].sort((a, b) => bst(a) - bst(b) || (gRating(b) || 0) - (gRating(a) || 0));
-    return [...srt(mine), ...srt(extra)].slice(0, 12).map(s => ({
+    const seen = new Set();
+    return [...srt(mine), ...srt(extra)].filter(s => {
+      const k = (s.name || "").trim().toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    }).slice(0, 12).map(s => ({
       s,
       mine: ownedIds.has(s.id),
       d: dist(s)
