@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T02:34:11.108Z -->
+<!-- built 2026-07-13T02:38:10.054Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18994,24 +18994,21 @@ function App() {
   }), React.createElement("div", {
     style: {
       position: "absolute",
-      top: "calc(12px + env(safe-area-inset-top,0px))",
-      left: 12,
-      right: 12,
+      top: 0,
+      left: 0,
+      right: 0,
       zIndex: 1000,
-      display: "flex",
-      justifyContent: "flex-start",
-      alignItems: "flex-start",
       pointerEvents: "none"
     }
   }, React.createElement("div", {
     style: {
       background: "rgba(255,255,255,0.94)",
-      backdropFilter: 'blur(12px)',
-      borderRadius: 'var(--radius-md)',
-      padding: 10,
-      boxShadow: "var(--shadow-md)",
-      pointerEvents: "auto",
-      maxWidth: 272
+      backdropFilter: 'blur(14px)',
+      WebkitBackdropFilter: 'blur(14px)',
+      padding: 'calc(10px + env(safe-area-inset-top,0px)) 12px 10px',
+      boxShadow: "0 8px 24px -10px rgba(0,0,0,0.18)",
+      borderBottom: '1px solid var(--hairline)',
+      pointerEvents: "auto"
     }
   }, React.createElement("div", {
     style: {
@@ -19111,80 +19108,12 @@ function App() {
       transition: 'transform .2s var(--ease)',
       transform: mapReduced ? 'rotate(180deg)' : 'none'
     }
-  }, "\u25BE"))), !mapReduced ? React.createElement("div", {
+  }, "\u25BE"))), React.createElement("div", {
     style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr",
-      gap: 6
-    }
-  }, CATS.filter(c => c.key !== "all").map(c => {
-    const on = mapCats.has(c.key);
-    return React.createElement("button", {
-      key: c.key,
-      onClick: () => setMapCats(prev => {
-        const n = new Set(prev);
-        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
-        return n;
-      }),
-      className: "press",
-      "aria-pressed": on,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        whiteSpace: "nowrap",
-        cursor: "pointer",
-        borderRadius: 999,
-        padding: '6px 10px',
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        fontWeight: 600,
-        background: on ? CC[c.key] : '#fff',
-        color: on ? '#fff' : 'var(--ink-600)',
-        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
-        transition: 'all .15s var(--ease)'
-      }
-    }, c.emoji, " ", c.label);
-  })) : React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 6
-    }
-  }, CATS.filter(c => c.key !== "all").map(c => {
-    const on = mapCats.has(c.key);
-    return React.createElement("button", {
-      key: c.key,
-      onClick: () => setMapCats(prev => {
-        const n = new Set(prev);
-        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
-        return n;
-      }),
-      className: "press",
-      "aria-pressed": on,
-      "aria-label": c.label,
-      style: {
-        width: 30,
-        height: 30,
-        borderRadius: '50%',
-        flexShrink: 0,
-        cursor: 'pointer',
-        fontSize: 15,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: on ? CC[c.key] : '#fff',
-        border: on ? '1.6px solid ' + CC[c.key] : '1.6px solid var(--hairline)',
-        opacity: on ? 1 : 0.5,
-        transition: 'all .15s var(--ease)'
-      }
-    }, c.emoji);
-  })), React.createElement("div", {
-    style: {
-      marginTop: 8,
       display: 'flex',
       gap: 6,
-      flexWrap: 'wrap'
+      flexWrap: 'wrap',
+      marginBottom: mapReduced ? 0 : 8
     }
   }, React.createElement("button", {
     onClick: () => setOpenNow(v => !v),
@@ -19224,7 +19153,78 @@ function App() {
       border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
       transition: 'all .15s var(--ease)'
     }
-  }, "\uD83C\uDF19 +5h")))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
+  }, "\uD83C\uDF19 +5h")), !mapReduced ? React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr",
+      gap: 6
+    }
+  }, CATS.filter(c => c.key !== "all").map(c => {
+    const on = mapCats.has(c.key);
+    return React.createElement("button", {
+      key: c.key,
+      onClick: () => setMapCats(prev => {
+        const n = new Set(prev);
+        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
+        return n;
+      }),
+      className: "press",
+      "aria-pressed": on,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 5,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        cursor: "pointer",
+        borderRadius: 999,
+        padding: '6px 6px',
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        fontWeight: 600,
+        background: on ? CC[c.key] : '#fff',
+        color: on ? '#fff' : 'var(--ink-600)',
+        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
+        transition: 'all .15s var(--ease)'
+      }
+    }, c.emoji, " ", c.label);
+  })) : React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      marginTop: 8
+    }
+  }, CATS.filter(c => c.key !== "all").map(c => {
+    const on = mapCats.has(c.key);
+    return React.createElement("button", {
+      key: c.key,
+      onClick: () => setMapCats(prev => {
+        const n = new Set(prev);
+        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
+        return n;
+      }),
+      className: "press",
+      "aria-pressed": on,
+      "aria-label": c.label,
+      style: {
+        width: 30,
+        height: 30,
+        borderRadius: '50%',
+        flexShrink: 0,
+        cursor: 'pointer',
+        fontSize: 15,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: on ? CC[c.key] : '#fff',
+        border: on ? '1.6px solid ' + CC[c.key] : '1.6px solid var(--hairline)',
+        opacity: on ? 1 : 0.5,
+        transition: 'all .15s var(--ease)'
+      }
+    }, c.emoji);
+  })))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
       top: '50%',
