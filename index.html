@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T00:10:08.933Z -->
+<!-- built 2026-07-13T00:35:12.219Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -96,8 +96,10 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 
 /* Bottom nav - Partiful style */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
-.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:4px 12px;font-size:10px;font-weight:600;font-family:var(--font-body);color:var(--ink-400);transition:color .2s}
-.bottom-nav button.active{color:var(--ink-900)}
+/* v10.49 — tab bar №2 « néon fort » (choix Vincent 13/07) : onglets TOUJOURS allumés (plus de gris),
+   l'actif = pill blanche bordure rose + glow néon. */
+.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:1.5px solid transparent;border-radius:14px;cursor:pointer;padding:4px 12px;font-size:10px;font-weight:700;font-family:var(--font-body);color:var(--ink-900);transition:all .2s}
+.bottom-nav button.active{background:#fff;border-color:var(--pop-pink);box-shadow:0 0 18px 4px rgba(255,45,158,.65)}
 .bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:all .2s var(--ease)}
 .bottom-nav button.active .nav-icon{filter:none;opacity:1;transform:scale(1.08) rotate(-4deg)}
 .bottom-nav button:not(.active) .nav-icon{filter:grayscale(0.8);opacity:0.55}
@@ -2893,9 +2895,15 @@ const I18N = {
     nav_map: "Carte",
     nav_events: "Events",
     nav_profile: "Profil",
-    seg_discover: "Découvrir 🔍",
-    seg_mine: "Mes spots ❤️",
-    seg_lists: "Listes 📁",
+    seg_discover: "🌍 Full",
+    seg_mine: "📍 Mes spots",
+    seg_lists: "📁 Listes",
+    search_ph_full: "Chercher dans tout {city}…",
+    search_ph_mine: "Chercher dans tes spots…",
+    si_t: "Recherche intelligente :",
+    si_d: "décris ta soirée, Spotane trouve.",
+    si_ex: "« bar dansant entre amis à Bastille » → il comprend.",
+    si_soon: "💎 bientôt",
     profile_city: "🌍 Ta ville",
     profile_friends: "👥 Mes amis",
     profile_join: "☁️ Rejoindre la communauté Spotane",
@@ -3208,9 +3216,15 @@ const I18N = {
     nav_map: "Map",
     nav_events: "Events",
     nav_profile: "Profile",
-    seg_discover: "Discover 🔍",
-    seg_mine: "My spots ❤️",
-    seg_lists: "Lists 📁",
+    seg_discover: "🌍 Full",
+    seg_mine: "📍 My spots",
+    seg_lists: "📁 Lists",
+    search_ph_full: "Search all of {city}…",
+    search_ph_mine: "Search your spots…",
+    si_t: "Smart search:",
+    si_d: "describe your night, Spotane finds it.",
+    si_ex: "“a dancey bar with friends in Bastille” → it gets it.",
+    si_soon: "💎 soon",
     profile_city: "🌍 Your city",
     profile_friends: "👥 My friends",
     profile_join: "☁️ Join the Spotane community",
@@ -3523,9 +3537,15 @@ const I18N = {
     nav_map: "Mapa",
     nav_events: "Eventos",
     nav_profile: "Perfil",
-    seg_discover: "Descubrir 🔍",
-    seg_mine: "Mis spots ❤️",
-    seg_lists: "Listas 📁",
+    seg_discover: "🌍 Full",
+    seg_mine: "📍 Mis spots",
+    seg_lists: "📁 Listas",
+    search_ph_full: "Busca en todo {city}…",
+    search_ph_mine: "Busca en tus spots…",
+    si_t: "Búsqueda inteligente:",
+    si_d: "describe tu noche, Spotane la encuentra.",
+    si_ex: "«un bar para bailar con amigos en Bastille» → lo entiende.",
+    si_soon: "💎 pronto",
     profile_city: "🌍 Tu ciudad",
     profile_friends: "👥 Mis amigos",
     profile_join: "☁️ Únete a la comunidad Spotane",
@@ -16831,74 +16851,6 @@ function App() {
   }, React.createElement("div", {
     style: {
       padding: '6px 20px 0',
-      background: 'var(--bg-cream)'
-    }
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      background: '#fff',
-      border: '1.5px solid var(--ink-900)',
-      borderRadius: 999,
-      padding: '10px 16px'
-    }
-  }, React.createElement("span", {
-    style: {
-      fontSize: 16
-    }
-  }, "\uD83D\uDD0D"), React.createElement("input", {
-    value: search,
-    onChange: e => setSearch(e.target.value),
-    placeholder: tr("search_ph"),
-    style: {
-      flex: 1,
-      border: 'none',
-      outline: 'none',
-      background: 'transparent',
-      fontFamily: 'var(--font-body)',
-      fontSize: 15,
-      color: 'var(--ink-900)'
-    }
-  }), search && React.createElement("button", {
-    onClick: () => setSearch(""),
-    "aria-label": "Effacer la recherche",
-    style: {
-      background: 'transparent',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: 16,
-      color: 'var(--ink-400)'
-    }
-  }, "x"), React.createElement("select", {
-    value: sort,
-    onChange: e => {
-      const v = e.target.value;
-      setSort(v);
-      if (v === "distance" && !userPos) requestGeo();
-    },
-    style: {
-      border: 'none',
-      background: 'transparent',
-      fontFamily: 'var(--font-body)',
-      fontSize: 13,
-      fontWeight: 500,
-      color: 'var(--ink-600)',
-      cursor: 'pointer'
-    }
-  }, React.createElement("option", {
-    value: "recent"
-  }, "Recents"), React.createElement("option", {
-    value: "alpha"
-  }, "A-Z"), React.createElement("option", {
-    value: "price-asc"
-  }, "Prix \u2191"), React.createElement("option", {
-    value: "price-desc"
-  }, "Prix \u2193"), React.createElement("option", {
-    value: "distance"
-  }, "\uD83D\uDCCD Distance")))), React.createElement("div", {
-    style: {
-      padding: '8px 20px 0',
       background: 'var(--bg-cream)',
       display: 'flex',
       gap: 10,
@@ -17036,7 +16988,36 @@ function App() {
       boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
       border: '2px solid var(--bg-cream)'
     }
-  }, lists.length)), React.createElement("div", {
+  }, lists.length)), React.createElement("button", {
+    onClick: () => {
+      if (!isPremium && lists.length >= FREE_LISTS_MAX) {
+        window.mspToast?.(`${FREE_LISTS_MAX} listes en gratuit — Spotane+ arrive bientôt ✨`, "error");
+        return;
+      }
+      setSearchMode("lists");
+      setOpenListId(null);
+      setShowListForm(true);
+    },
+    className: "press",
+    "aria-label": tr("l_new"),
+    style: {
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      width: 35,
+      height: 35,
+      borderRadius: 999,
+      border: '1px solid var(--hairline)',
+      background: '#fff',
+      color: 'var(--pop-pink)',
+      fontWeight: 800,
+      fontSize: 17,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0
+    }
+  }, "+"), React.createElement("div", {
     style: {
       flex: 1
     }
@@ -17059,7 +17040,153 @@ function App() {
       fontFamily: 'var(--font-body)',
       cursor: 'pointer'
     }
-  }, "+ Ajouter")), searchMode !== "lists" && React.createElement("div", {
+  }, "+ Ajouter")), React.createElement("div", {
+    style: {
+      padding: '8px 20px 0',
+      background: 'var(--bg-cream)',
+      display: 'flex',
+      gap: 8,
+      alignItems: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      background: '#fff',
+      border: '1.5px solid var(--ink-900)',
+      borderRadius: 999,
+      padding: '10px 16px'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 16
+    }
+  }, "\uD83D\uDD0D"), React.createElement("input", {
+    value: search,
+    onChange: e => setSearch(e.target.value),
+    placeholder: searchMode === "discover" ? tr("search_ph_full", {
+      city: (CITIES[city] || CITIES.paris).label
+    }) : searchMode === "local" ? tr("search_ph_mine") : tr("search_ph"),
+    style: {
+      flex: 1,
+      minWidth: 0,
+      border: 'none',
+      outline: 'none',
+      background: 'transparent',
+      fontFamily: 'var(--font-body)',
+      fontSize: 15,
+      color: 'var(--ink-900)'
+    }
+  }), search && React.createElement("button", {
+    onClick: () => setSearch(""),
+    "aria-label": "Effacer la recherche",
+    style: {
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      fontSize: 16,
+      color: 'var(--ink-400)'
+    }
+  }, "x"), React.createElement("select", {
+    value: sort,
+    onChange: e => {
+      const v = e.target.value;
+      setSort(v);
+      if (v === "distance" && !userPos) requestGeo();
+    },
+    style: {
+      border: 'none',
+      background: 'transparent',
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      fontWeight: 500,
+      color: 'var(--ink-600)',
+      cursor: 'pointer'
+    }
+  }, React.createElement("option", {
+    value: "recent"
+  }, "Recents"), React.createElement("option", {
+    value: "alpha"
+  }, "A-Z"), React.createElement("option", {
+    value: "price-asc"
+  }, "Prix \u2191"), React.createElement("option", {
+    value: "price-desc"
+  }, "Prix \u2193"), React.createElement("option", {
+    value: "distance"
+  }, "\uD83D\uDCCD Distance"))), React.createElement("button", {
+    onClick: () => window.mspToast?.(tr("t_9"), "success"),
+    className: "press",
+    "aria-label": tr("si_t"),
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 44,
+      height: 44,
+      borderRadius: 999,
+      border: 'none',
+      cursor: 'pointer',
+      background: 'linear-gradient(135deg,var(--pop-magenta,#FF2D9E),var(--pop-violet))',
+      color: '#fff',
+      fontSize: 19,
+      flexShrink: 0,
+      boxShadow: '0 6px 16px rgba(255,45,158,.35)'
+    }
+  }, "\u2728")), React.createElement("div", {
+    style: {
+      padding: '0 20px',
+      background: 'var(--bg-cream)',
+      maxHeight: hdrStuck ? 0 : 96,
+      overflow: 'hidden',
+      transition: 'max-height .3s var(--ease)'
+    }
+  }, React.createElement("div", {
+    style: {
+      marginTop: 9,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      borderRadius: 14,
+      padding: '11px 13px',
+      background: 'linear-gradient(135deg,#1E1B4B,#FF2D9E)',
+      color: '#fff'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 18,
+      flexShrink: 0
+    }
+  }, "\uD83E\uDDE0"), React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      fontFamily: 'var(--font-body)',
+      fontSize: 11.8,
+      lineHeight: 1.42
+    }
+  }, React.createElement("b", {
+    style: {
+      fontSize: 12.3
+    }
+  }, tr("si_t")), " ", tr("si_d"), React.createElement("br", null), React.createElement("span", {
+    style: {
+      opacity: .8
+    }
+  }, tr("si_ex"))), React.createElement("span", {
+    style: {
+      fontSize: 9.5,
+      fontWeight: 800,
+      borderRadius: 999,
+      padding: '3px 8px',
+      background: 'rgba(255,255,255,.2)',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      fontFamily: 'var(--font-body)'
+    }
+  }, tr("si_soon")))), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
       padding: '8px 0 0'
