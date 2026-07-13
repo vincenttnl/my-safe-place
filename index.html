@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T01:18:18.605Z -->
+<!-- built 2026-07-13T01:24:55.303Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18828,7 +18828,7 @@ function App() {
       top: 0,
       left: 0,
       right: 0,
-      bottom: 60,
+      bottom: 'calc(60px + env(safe-area-inset-bottom,0px))',
       zIndex: 1
     }
   }, React.createElement("div", {
@@ -20537,7 +20537,7 @@ function App() {
         position: 'fixed',
         left: 0,
         right: 0,
-        bottom: 60,
+        bottom: 'calc(60px + env(safe-area-inset-bottom,0px))',
         zIndex: 1500,
         maxWidth: 600,
         margin: '0 auto',
