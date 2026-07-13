@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T20:18:07.865Z -->
+<!-- built 2026-07-13T20:40:45.915Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -13635,6 +13635,22 @@ function App() {
     cafe: 1.1,
     sortie: 1
   };
+  const MOOD_BOOST = {
+    danser: {
+      club: 2.2,
+      speakeasy: 1.5,
+      sortie: 1.4
+    },
+    tranquille: {
+      speakeasy: 2,
+      cafe: 1.4,
+      rooftop: 1.2
+    },
+    chiller: {
+      cafe: 2,
+      rooftop: 1.6
+    }
+  };
   const spotDay = useMemo(() => {
     if (tab !== "home") return null;
     const ownedIds = new Set(spots.map(s => s.id));
@@ -13650,7 +13666,7 @@ function App() {
     }
     try {
       const saved = JSON.parse(localStorage.getItem("myplace_spotday_v1") || "null");
-      if (saved && saved.day === dayKey && saved.city === city) {
+      if (saved && saved.day === dayKey && saved.city === city && (saved.mood || null) === (mood || null)) {
         const hit = pool.find(s => s.id === saved.id);
         if (hit) return hit;
       }
@@ -13669,9 +13685,10 @@ function App() {
       Object.entries(JSON.parse(localStorage.getItem("myplace_catviews_v1") || "{}")).forEach(([c, n]) => add(c, Math.min(n, 20) * 0.5));
     } catch {}
     const maxAff = Math.max(1, ...Object.values(aff));
-    const weight = s => (SDJ_CATW[primaryCat(s)] || 1) * (1 + 3 * ((aff[primaryCat(s)] || 0) / maxAff) + ((gRating(s) || 0) >= 4.5 ? 1 : 0));
+    const mb = mood && MOOD_BOOST[mood] ? MOOD_BOOST[mood] : null;
+    const weight = s => (SDJ_CATW[primaryCat(s)] || 1) * (mb ? mb[primaryCat(s)] || 0.55 : 1) * (1 + 3 * ((aff[primaryCat(s)] || 0) / maxAff) + ((gRating(s) || 0) >= 4.5 ? 1 : 0));
     let seed = 0;
-    for (const ch of dayKey + city) seed = seed * 31 + ch.charCodeAt(0) >>> 0;
+    for (const ch of dayKey + city + (mood || "")) seed = seed * 31 + ch.charCodeAt(0) >>> 0;
     seed = seed || 1;
     seed ^= seed << 13;
     seed >>>= 0;
@@ -13691,11 +13708,12 @@ function App() {
       localStorage.setItem("myplace_spotday_v1", JSON.stringify({
         day: dayKey,
         city,
+        mood: mood || null,
         id: pick.id
       }));
     } catch {}
     return pick;
-  }, [tab, spots, catalog, city]);
+  }, [tab, spots, catalog, city, mood]);
   const hmPick = useMemo(() => {
     if (tab !== "home" || openNearby.length > 0) return null;
     const wish = spots.find(s => s.status === "wishlist" && !s.done && s.status !== "rejected" && (!spotDay || s.id !== spotDay.id));
@@ -16054,7 +16072,26 @@ function App() {
         border: '1.5px solid var(--pop-yellow)',
         boxShadow: '0 0 10px rgba(255,210,63,.6)'
       }
-    }, tr("sdj_badge")), React.createElement("div", {
+    }, tr("sdj_badge")), mood && React.createElement("span", {
+      style: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontSize: 11,
+        fontWeight: 800,
+        padding: '5px 10px',
+        borderRadius: 999,
+        fontFamily: 'var(--font-body)',
+        boxShadow: '0 3px 10px rgba(255,61,139,.4)'
+      }
+    }, {
+      danser: "🕺 Pour danser",
+      tranquille: "🍷 Peinard",
+      chiller: "🌿 Chill",
+      surprise: "🎲 Surprise"
+    }[mood]), React.createElement("div", {
       style: {
         position: 'absolute',
         left: 16,
