@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-12T23:57:29.538Z -->
+<!-- built 2026-07-13T00:10:08.933Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3105,6 +3105,11 @@ const I18N = {
     sl_open_nuit: "🌃 Encore ouvert à cette heure",
     sl_open_after: "🌙 Toujours ouvert, là",
     sdj_badge: "✦ Spot du jour",
+    hm_t: "Tout dort là, tout de suite 😴",
+    hm_h: "Le bon moment pour préparer ta prochaine sortie ✨",
+    hm_wish: "🔥 Sur tes envies",
+    hm_gem: "💎 Pépite à prévoir",
+    hm_cta: "Prévoir →",
     map_friends: "Amis",
     mapempty_friends: "Pas encore de spots d'amis ici",
     mapempty_friends_h: "Importe les listes de tes amis : leurs spots s'affichent avec un anneau violet 👥",
@@ -3415,6 +3420,11 @@ const I18N = {
     sl_open_nuit: "🌃 Still open at this hour",
     sl_open_after: "🌙 Still open, right now",
     sdj_badge: "✦ Spot of the day",
+    hm_t: "Everything's asleep right now 😴",
+    hm_h: "Perfect time to plan your next one ✨",
+    hm_wish: "🔥 On your wishlist",
+    hm_gem: "💎 Gem to plan",
+    hm_cta: "Plan it →",
     map_friends: "Friends",
     mapempty_friends: "No friend spots here yet",
     mapempty_friends_h: "Import your friends' lists: their spots show up with a purple ring 👥",
@@ -3725,6 +3735,11 @@ const I18N = {
     sl_open_nuit: "🌃 Aún abierto a esta hora",
     sl_open_after: "🌙 Sigue abierto ahora",
     sdj_badge: "✦ Spot del día",
+    hm_t: "Todo duerme ahora mismo 😴",
+    hm_h: "El momento perfecto para preparar tu próxima salida ✨",
+    hm_wish: "🔥 En tus antojos",
+    hm_gem: "💎 Joya para planear",
+    hm_cta: "Planéalo →",
     map_friends: "Amigos",
     mapempty_friends: "Aún no hay spots de amigos aquí",
     mapempty_friends_h: "Importa las listas de tus amigos: sus spots aparecen con un anillo violeta 👥",
@@ -13467,6 +13482,20 @@ function App() {
     } catch {}
     return pick;
   }, [tab, spots, catalog, city]);
+  const hmPick = useMemo(() => {
+    if (tab !== "home" || openNearby.length > 0) return null;
+    const wish = spots.find(s => s.status === "wishlist" && !s.done && s.status !== "rejected" && (!spotDay || s.id !== spotDay.id));
+    if (wish) return {
+      s: wish,
+      why: "wish"
+    };
+    const ownedIds = new Set(spots.map(s => s.id));
+    const best = [...catalog].filter(s => !ownedIds.has(s.id) && firstPhoto(s) && (!spotDay || s.id !== spotDay.id)).sort((a, b) => (gRating(b) || 0) - (gRating(a) || 0))[0];
+    return best ? {
+      s: best,
+      why: "gem"
+    } : null;
+  }, [tab, spots, catalog, spotDay, openNearby]);
   const homeResume = useMemo(() => {
     if (tab !== "home") return null;
     const now = Date.now();
@@ -15025,6 +15054,7 @@ function App() {
       try {
         map.off("moveend", clusterRef.current.onMove);
         map.off("zoomend", clusterRef.current.onMove);
+        if (clusterRef.current.onTap) map.off("click", clusterRef.current.onTap);
         map.removeLayer(clusterRef.current.layer);
       } catch {}
       clusterRef.current = null;
@@ -15041,14 +15071,18 @@ function App() {
       bounds.push([s.lat, s.lng]);
     });
     if (!map._spotCanvas) map._spotCanvas = L.canvas({
-      padding: 0.3
+      padding: 0.3,
+      tolerance: 12
     });
+    map._spotCanvas.options.tolerance = 12;
     const canvas = map._spotCanvas;
     const layer = L.layerGroup().addTo(map);
     const MINPTS = 8,
       RPX = 60;
+    const loose = [];
     const redraw = () => {
       layer.clearLayers();
+      loose.length = 0;
       const z = map.getZoom(),
         vb = map.getBounds().pad(0.25);
       const view = [];
@@ -15136,6 +15170,7 @@ function App() {
               } catch {}
             });
             layer.addLayer(m);
+            loose.push(s);
           });
         }
       }
@@ -15150,9 +15185,31 @@ function App() {
     };
     map.on("moveend", onMove);
     map.on("zoomend", onMove);
+    const onTap = e => {
+      let best = null,
+        bd = 28 * 28;
+      for (const s of loose) {
+        const cp = map.latLngToContainerPoint([s.lat, s.lng]);
+        const dx = cp.x - e.containerPoint.x,
+          dy = cp.y - e.containerPoint.y,
+          d = dx * dx + dy * dy;
+        if (d < bd) {
+          bd = d;
+          best = s;
+        }
+      }
+      if (best) {
+        setPeekSpot(best);
+        try {
+          map.panTo([best.lat, best.lng]);
+        } catch {}
+      }
+    };
+    map.on("click", onTap);
     clusterRef.current = {
       layer,
-      onMove
+      onMove,
+      onTap
     };
     if (userMarkerRef.current) {
       try {
@@ -15195,6 +15252,7 @@ function App() {
       try {
         map.off("moveend", onMove);
         map.off("zoomend", onMove);
+        map.off("click", onTap);
         map.removeLayer(layer);
       } catch {}
       if (raf) cancelAnimationFrame(raf);
@@ -15210,8 +15268,13 @@ function App() {
       parisRingRef.current = null;
     }
     if (tab === "map" && CITY_RINGS[city]) {
+      if (!map._spotCanvas) map._spotCanvas = L.canvas({
+        padding: 0.3,
+        tolerance: 12
+      });
       try {
         parisRingRef.current = L.polygon(CITY_RINGS[city], {
+          renderer: map._spotCanvas,
           color: "#0A0A0A",
           weight: 1.5,
           opacity: 0.5,
@@ -15618,12 +15681,92 @@ function App() {
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
-        padding: 16,
-        fontSize: 13.5,
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        letterSpacing: '-0.01em'
+      }
+    }, tr("hm_t")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
         color: 'var(--ink-400)',
+        marginTop: 3
+      }
+    }, tr("hm_h")), hmPick && React.createElement("button", {
+      onClick: () => setSelectedSpot(hmPick.s),
+      className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        width: '100%',
+        textAlign: 'left',
+        marginTop: 12,
+        padding: 10,
+        borderRadius: 16,
+        border: '1px solid var(--hairline)',
+        background: 'var(--bg-cream)',
+        cursor: 'pointer'
+      }
+    }, firstPhoto(hmPick.s) ? React.createElement("img", {
+      src: firstPhoto(hmPick.s),
+      alt: "",
+      loading: "lazy",
+      decoding: "async",
+      style: {
+        width: 46,
+        height: 46,
+        borderRadius: 12,
+        objectFit: 'cover',
+        flexShrink: 0
+      },
+      onError: e => {
+        e.target.style.display = 'none';
+      }
+    }) : React.createElement("span", {
+      style: {
+        fontSize: 24,
+        flexShrink: 0
+      }
+    }, (CATS.find(c => c.key === primaryCat(hmPick.s)) || {}).emoji), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 11,
+        color: hmPick.why === "wish" ? "#E05252" : "#7C3AED"
+      }
+    }, tr(hmPick.why === "wish" ? "hm_wish" : "hm_gem")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, hmPick.s.name)), React.createElement("span", {
+      style: {
+        background: hSlot.accent,
+        color: '#fff',
+        borderRadius: 999,
+        padding: '7px 12px',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
         fontFamily: 'var(--font-body)'
       }
-    }, "Tout est ferm\xE9 l\xE0, tout de suite \uD83D\uDE34 Reviens \xE0 l'heure de l'ap\xE9ro.") : React.createElement("div", {
+    }, tr("hm_cta")))) : React.createElement("div", {
       style: {
         display: 'flex',
         gap: 12,
