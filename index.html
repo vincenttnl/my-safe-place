@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T22:42:34.004Z -->
+<!-- built 2026-07-13T23:38:43.989Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -164,7 +164,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .modal-center .modal-box{position:relative;background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
 
 /* Pill buttons - Partiful */
-.pill-btn{padding:8px 14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
+.pill-btn{padding:8px 9px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:12.5px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
 /* v10.43 : actif = OUTLINE (langage B1 №4 étendu à toutes les pastilles) */
 .pill-btn.active{border:1.5px solid var(--pop-pink);background:#fff;color:var(--pop-pink);font-weight:700}
 .pill-btn:active{transform:scale(.95)}
@@ -7104,7 +7104,7 @@ function PropositionsModal({
     style: {
       display: "flex",
       flexWrap: "wrap",
-      gap: 6
+      gap: 5
     }
   }, onAll && React.createElement("button", {
     onClick: onAll,
@@ -7124,8 +7124,8 @@ function PropositionsModal({
     }, o.l, n !== null && React.createElement("span", {
       style: {
         opacity: .55,
-        fontSize: 11,
-        marginLeft: 5,
+        fontSize: 10.5,
+        marginLeft: 4,
         fontWeight: 600
       }
     }, n));
@@ -7143,15 +7143,16 @@ function PropositionsModal({
     onClick: e => e.stopPropagation(),
     style: {
       maxHeight: "95vh",
-      background: 'var(--bg-cream)'
+      background: 'var(--bg-cream)',
+      paddingTop: 0
     }
   }, React.createElement("div", {
     style: {
       position: 'sticky',
       top: 0,
-      padding: '0 0 12px',
+      padding: '20px 0 12px',
       background: 'var(--bg-cream)',
-      zIndex: 5,
+      zIndex: 6,
       borderBottom: '1px solid var(--hairline)'
     }
   }, React.createElement("div", {
@@ -7209,15 +7210,18 @@ function PropositionsModal({
   }, React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83D\uDCC2 Cat\xE9gorie"), React.createElement("div", {
     style: {
       display: "flex",
       flexWrap: "wrap",
-      gap: 6
+      gap: 5
     }
   }, React.createElement("button", {
     onClick: () => setCatFilter([]),
@@ -7237,17 +7241,20 @@ function PropositionsModal({
     }, c.emoji, " ", c.label, React.createElement("span", {
       style: {
         opacity: .55,
-        fontSize: 11,
-        marginLeft: 5,
+        fontSize: 10.5,
+        marginLeft: 4,
         fontWeight: 600
       }
     }, n));
   }))), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83E\uDEC2 Avec qui ?"), React.createElement(Pill, {
     list: Q_WHO,
@@ -7258,9 +7265,12 @@ function PropositionsModal({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83D\uDD50 Quand ?"), React.createElement(Pill, {
     list: Q_WHEN,
@@ -7271,9 +7281,12 @@ function PropositionsModal({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\u2728 Ambiance ?"), React.createElement(Pill, {
     list: Q_VIBE,
@@ -7284,9 +7297,12 @@ function PropositionsModal({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83D\uDCB6 Budget ?"), React.createElement(Pill, {
     list: Q_BUDGET,
@@ -7297,9 +7313,12 @@ function PropositionsModal({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83D\uDDFA\uFE0F Zone ?"), React.createElement(Pill, {
     list: Q_ZONE,
@@ -7310,9 +7329,12 @@ function PropositionsModal({
   })), React.createElement("div", null, React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      fontSize: 14,
-      fontWeight: 600,
-      marginBottom: 8
+      fontSize: 16.5,
+      fontWeight: 800,
+      marginBottom: 8,
+      color: 'var(--pop-pink)',
+      textShadow: '0 0 8px rgba(255,61,139,.5)',
+      letterSpacing: '-0.01em'
     }
   }, "\uD83C\uDF74 Cuisine ?"), React.createElement(Pill, {
     list: Q_CUISINE_WIZ,
@@ -8448,6 +8470,45 @@ function SpotDetail({
   const cat = CATS.find(c => c.key === primaryCat(spot));
   const isNight = getCats(spot).some(c => ["club", "speakeasy", "rooftop", "sortie"].includes(c));
   const eventsUrl = `https://shotgun.live/fr/search?q=${encodeURIComponent(spot.name)}`;
+  const mp = metroParse(spot.metro);
+  const openSt = spot.hours ? isOpenNow(spot.hours, nowParis()) : null;
+  const rndWrap = {
+    background: 'transparent',
+    border: 'none',
+    padding: 0,
+    margin: 0,
+    cursor: 'pointer',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 5,
+    textDecoration: 'none',
+    flex: '0 0 auto'
+  };
+  const rndCirc = {
+    width: 50,
+    height: 50,
+    borderRadius: 999,
+    border: '1px solid var(--hairline)',
+    background: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 19,
+    lineHeight: 1
+  };
+  const rndDark = {
+    ...rndCirc,
+    background: 'var(--ink-900)',
+    color: '#fff',
+    border: 'none'
+  };
+  const rndLbl = {
+    fontSize: 10.5,
+    color: 'var(--ink-600)',
+    fontWeight: 500,
+    fontFamily: 'var(--font-body)'
+  };
   return React.createElement("div", {
     style: {
       position: 'fixed',
@@ -8611,15 +8672,10 @@ function SpotDetail({
       fontWeight: 600,
       fontSize: 12.5
     }
-  }, "\uD83D\uDCE9 via ", spot.sharedBy)), (meta.length > 0 || friendsWith && friendsWith.length > 0) && React.createElement("div", {
+  }, "\uD83D\uDCE9 via ", spot.sharedBy)), friendsWith && friendsWith.length > 0 && React.createElement("div", {
     style: {
-      display: "flex",
-      gap: 8,
-      flexWrap: "wrap",
-      marginTop: 14
-    }
-  }, friendsWith && friendsWith.length > 0 && React.createElement("div", {
-    style: {
+      marginTop: 14,
+      display: 'inline-flex',
       background: '#F3EEFF',
       border: '1px solid #E4D9FF',
       color: '#7C3AED',
@@ -8628,25 +8684,91 @@ function SpotDetail({
       fontFamily: 'var(--font-body)',
       fontSize: 13,
       fontWeight: 700,
-      display: 'flex',
       gap: 6,
       alignItems: 'center'
     }
-  }, "\uD83D\uDC65 ", friendsWith.length === 1 ? `${friendsWith[0]} l'a dans ses listes` : `${friendsWith.length} amis l'ont dans leurs listes`), meta.map((m, i) => React.createElement("div", {
-    key: i,
+  }, "\uD83D\uDC65 ", friendsWith.length === 1 ? `${friendsWith[0]} l'a dans ses listes` : `${friendsWith.length} amis l'ont dans leurs listes`), (gRating(spot) || spot.metro || spot.price || spot.hours) && React.createElement("div", {
     style: {
-      background: 'var(--bg-cream)',
-      border: '1px solid var(--hairline)',
-      padding: '8px 12px',
-      borderRadius: 999,
-      fontFamily: 'var(--font-body)',
-      fontSize: 13,
-      fontWeight: 500,
-      display: 'flex',
-      gap: 6,
-      alignItems: 'center'
+      marginTop: 14
     }
-  }, m))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  }, React.createElement("div", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 10,
+      flexWrap: 'wrap',
+      background: 'linear-gradient(90deg,rgba(255,61,139,.12),rgba(139,92,246,.12))',
+      border: '1px solid rgba(139,92,246,.3)',
+      borderRadius: 999,
+      padding: '9px 16px',
+      fontFamily: 'var(--font-body)',
+      fontSize: 12.5,
+      fontWeight: 700,
+      maxWidth: '100%'
+    }
+  }, [gRating(spot) && React.createElement("span", {
+    key: "r",
+    style: {
+      color: '#B45309'
+    }
+  }, "\u2B50 ", gRating(spot), gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ''), spot.metro && React.createElement("span", {
+    key: "m",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      color: 'var(--ink-900)'
+    }
+  }, mp ? React.createElement(React.Fragment, null, React.createElement("span", {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: 16,
+      height: 16,
+      borderRadius: 99,
+      background: mp.color,
+      color: mp.fg,
+      fontWeight: 800,
+      fontSize: 9.5,
+      padding: '0 3px',
+      flexShrink: 0
+    }
+  }, mp.line), mp.station) : React.createElement(React.Fragment, null, "\uD83D\uDCCD ", spot.metro)), spot.price && React.createElement("span", {
+    key: "p",
+    style: {
+      color: 'var(--pop-pink)'
+    }
+  }, "\uD83D\uDCB8 ", spot.price)].filter(Boolean).reduce((acc, el, i) => {
+    if (acc.length) acc.push(React.createElement("span", {
+      key: 'sep' + i,
+      style: {
+        color: 'var(--hairline)'
+      }
+    }, "|"));
+    acc.push(el);
+    return acc;
+  }, [])), spot.hours && React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 11.5,
+      fontWeight: 700,
+      paddingLeft: 4
+    }
+  }, openSt === true ? React.createElement("span", {
+    style: {
+      color: '#2ECC71'
+    }
+  }, "\uD83D\uDFE2 Ouvert") : openSt === false ? React.createElement("span", {
+    style: {
+      color: 'var(--ink-400)'
+    }
+  }, "Ferm\xE9") : null, React.createElement("span", {
+    style: {
+      color: 'var(--ink-400)',
+      fontWeight: 500
+    }
+  }, openSt === null ? '🕐 ' : ' · ', spot.hours))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -9057,110 +9179,73 @@ function SpotDetail({
     }
   }, "\uD83D\uDCE4 Envoyer"), React.createElement("div", {
     style: {
-      display: "flex",
-      gap: 8,
-      marginTop: 14
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: 6,
+      marginTop: 16
     }
-  }, React.createElement("button", {
-    onClick: () => onEdit(spot),
-    style: {
-      flex: 1,
-      background: 'transparent',
-      border: '1px solid var(--hairline)',
-      padding: '12px',
-      borderRadius: 999,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13
-    }
-  }, "\u270F\uFE0F Modifier"), React.createElement("a", {
+  }, React.createElement("a", {
     href: gmaps,
     target: "_blank",
     rel: "noopener noreferrer",
-    style: {
-      flex: 1,
-      background: 'transparent',
-      border: '1px solid var(--hairline)',
-      padding: '12px',
-      borderRadius: 999,
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13,
-      textDecoration: 'none',
-      color: 'var(--ink-900)',
-      textAlign: 'center'
-    }
-  }, "\u2197 Maps"), React.createElement("button", {
+    className: "press",
+    style: rndWrap
+  }, React.createElement("span", {
+    style: rndDark
+  }, "\u2197"), React.createElement("span", {
+    style: rndLbl
+  }, "Maps")), React.createElement("button", {
+    onClick: () => onEdit(spot),
+    className: "press",
+    style: rndWrap
+  }, React.createElement("span", {
+    style: rndCirc
+  }, "\u270F\uFE0F"), React.createElement("span", {
+    style: rndLbl
+  }, "Modifier")), React.createElement("button", {
     onClick: () => {
-      if (confirm(`Supprimer "${spot.name}" ?`)) onRemove(spot.id);
-      onClose();
+      if (confirm(`Supprimer "${spot.name}" ?`)) {
+        onRemove(spot.id);
+        onClose();
+      }
     },
+    className: "press",
+    style: rndWrap
+  }, React.createElement("span", {
     style: {
-      background: 'transparent',
-      border: '1px solid var(--hairline)',
-      padding: '12px 14px',
-      borderRadius: 999,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13,
-      color: '#E91E63'
+      ...rndCirc,
+      color: 'var(--pop-magenta)'
     }
-  }, "\uD83D\uDDD1\uFE0F")), isNight && React.createElement("a", {
+  }, "\uD83D\uDDD1\uFE0F"), React.createElement("span", {
+    style: {
+      ...rndLbl,
+      color: 'var(--pop-magenta)'
+    }
+  }, "Suppr.")), React.createElement("button", {
+    onClick: () => onSecret(spot.id),
+    className: "press",
+    style: rndWrap
+  }, React.createElement("span", {
+    style: spot.secret ? rndDark : rndCirc
+  }, "\uD83D\uDD12"), React.createElement("span", {
+    style: rndLbl
+  }, spot.secret ? "Privé ✓" : "Privé")), isNight && React.createElement("a", {
     href: eventsUrl,
     target: "_blank",
     rel: "noopener noreferrer",
     className: "press",
+    style: rndWrap
+  }, React.createElement("span", {
     style: {
-      display: 'block',
-      marginTop: 8,
-      width: '100%',
+      ...rndCirc,
       background: 'var(--pop-violet)',
       color: '#fff',
-      padding: '13px',
-      borderRadius: 999,
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13.5,
-      textDecoration: 'none',
-      textAlign: 'center'
+      border: 'none'
     }
-  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es"), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 8,
-      marginTop: 8
-    }
-  }, React.createElement("button", {
-    onClick: () => onSecret(spot.id),
-    style: {
-      flex: 1,
-      background: spot.secret ? "var(--ink-900)" : "transparent",
-      border: '1px solid var(--hairline)',
-      padding: '12px',
-      borderRadius: 999,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13,
-      color: spot.secret ? "#fff" : "var(--ink-400)"
-    }
-  }, "\uD83D\uDE48 ", spot.secret ? "Spot secret ✓" : "Rendre secret"), React.createElement("button", {
-    onClick: () => onStatus(spot.id, "rejected"),
-    style: {
-      flex: 1,
-      background: spot.status === "rejected" ? "#fee2e2" : "transparent",
-      border: '1px solid var(--hairline)',
-      padding: '12px',
-      borderRadius: 999,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 500,
-      fontSize: 13,
-      color: spot.status === "rejected" ? "#991b1b" : "var(--ink-400)"
-    }
-  }, "\uD83D\uDEAB ", spot.status === "rejected" ? "Annuler refus" : "Refuser"))))));
+  }, "\uD83C\uDF9F\uFE0F"), React.createElement("span", {
+    style: rndLbl
+  }, "Soir\xE9es")))))));
 }
 function PosterSpotCard({
   spot,
@@ -9518,7 +9603,12 @@ function CleanSpotCard({
       color: 'var(--pop-pink)',
       fontSize: 14
     }
-  }, "\u2665"), s.sharedBy && React.createElement("span", {
+  }, "\u2665"), s.secret && React.createElement("span", {
+    title: "Priv\xE9 \u2014 invisible pour tes amis",
+    style: {
+      fontSize: 12
+    }
+  }, "\uD83D\uDD12"), s.sharedBy && React.createElement("span", {
     style: {
       fontSize: 11,
       color: 'var(--pop-cyan)'
@@ -14965,7 +15055,7 @@ function App() {
       ...x,
       secret: !x.secret
     } : x));
-    window.mspToast?.(sp.secret ? "Le spot redevient partageable" : "🙈 Spot secret — il ne sortira jamais de chez toi", "success");
+    window.mspToast?.(sp.secret ? "Le spot redevient visible par tes amis" : "🔒 Privé — invisible pour tes amis", "success");
   };
   const saveReaction = (id, emoji, note) => {
     setSpots(s => s.map(x => x.id === id ? {
@@ -15786,41 +15876,13 @@ function App() {
         background: 'var(--bg-primary)'
       }
     }, React.createElement("div", {
-      style: {
-        padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 0',
-        background: 'var(--bg-cream)',
-        minHeight: 0
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        gap: 12
-      }
-    }, session && React.createElement("button", {
-      onClick: () => setTab("profile"),
-      className: "press",
-      style: {
-        background: 'none',
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer',
-        flexShrink: 0
-      }
-    }, React.createElement(Avatar, {
-      src: avatar,
-      name: who,
-      size: 44,
-      ring: true
-    })))), React.createElement("div", {
       ref: homeHdrRef,
       style: {
         position: 'sticky',
         top: 'env(safe-area-inset-top,0px)',
         zIndex: 5,
         background: 'var(--bg-cream)',
-        padding: '4px 20px 12px',
+        padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 12px',
         boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
         borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
@@ -17386,8 +17448,8 @@ function App() {
     style: {
       display: 'flex',
       flexWrap: 'wrap',
-      gap: 8,
-      padding: '0 20px'
+      gap: 5,
+      padding: '0 16px'
     }
   }, React.createElement("button", {
     onClick: () => setShowFilters(v => !v),
@@ -17395,14 +17457,14 @@ function App() {
     style: {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6,
+      gap: 4,
       border: showFilters ? '2px solid var(--pop-violet)' : '1.5px solid var(--hairline)',
       background: '#fff',
       borderRadius: 999,
-      padding: '8px 14px',
+      padding: '7px 9px',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
-      fontSize: 13,
+      fontSize: 12.5,
       color: 'var(--ink-900)',
       cursor: 'pointer',
       flexShrink: 0
@@ -17435,12 +17497,12 @@ function App() {
       key: c.key,
       onClick: () => setCat(c.key),
       style: {
-        padding: '8px 14px',
+        padding: '7px 9px',
         borderRadius: 999,
         whiteSpace: 'nowrap',
         fontFamily: 'var(--font-body)',
         fontWeight: active ? 800 : 600,
-        fontSize: 13,
+        fontSize: 12.5,
         border: active ? '2px solid var(--pop-pink)' : '1.5px solid var(--hairline)',
         background: '#fff',
         color: active ? 'var(--pop-pink)' : 'var(--ink-900)',
@@ -18131,14 +18193,14 @@ function App() {
       }
     }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
       style: {
-        width: '50%',
+        width: '58%',
         height: '100%',
         flex: 'none',
         backgroundImage: ph ? `url(${ph})` : 'none',
         backgroundColor: CB[primaryCat(s)],
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        clipPath: 'polygon(22% 0, 100% 0, 100% 100%, 0 100%)'
+        clipPath: 'polygon(14% 0, 100% 0, 100% 100%, 0 100%)'
       }
     }), owned ? React.createElement("span", {
       title: "D\xE9j\xE0 dans Mes spots",
