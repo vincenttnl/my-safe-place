@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T21:26:49.677Z -->
+<!-- built 2026-07-13T22:14:59.330Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -129,8 +129,8 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .cat-card .cat-name{font-family:var(--font-body);font-weight:700;font-size:14px;color:var(--ink-900)}
 .cat-card .cat-count{font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-600);margin-top:2px}
 /* 🎨 Grille « Choisis ton mood » — style №33 validé (stickers photo + teinte cat + cadre couleur) v10.44 */
-.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.mood-card{position:relative;aspect-ratio:1/0.8;border-radius:15px;overflow:hidden;cursor:pointer;padding:0;border:2.5px solid var(--ink-900);box-shadow:4px 5px 0 rgba(10,10,10,0.82);transition:transform .18s var(--ease)}
+.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mood-card{position:relative;aspect-ratio:1/0.66;border-radius:15px;overflow:hidden;cursor:pointer;padding:0;border:2.5px solid var(--ink-900);box-shadow:4px 5px 0 rgba(10,10,10,0.82);transition:transform .18s var(--ease)}
 .mood-card:active{transform:scale(.97)}
 .mood-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .mood-card .m-ov{position:absolute;inset:0}
@@ -140,6 +140,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* v10.51 — compteur mood №2 (choix Vincent) : « Rooftops · 7 » sur UNE ligne aérée (l'ancien mono inline s'écrasait contre le nom) */
 .mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.85}
 /* 💎 PremiumModal widget v10.44 : taglines rotatives + tableau A2 point pulsant */
+@keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 @keyframes mspPulseDot{0%,100%{opacity:.35}50%{opacity:1}}
 .pm-dot{width:7px;height:7px;border-radius:999px;background:#FF2D9E;flex-shrink:0;animation:mspPulseDot 1.4s infinite}
@@ -3099,6 +3100,7 @@ const I18N = {
     le_listt: "Cette liste est vide",
     le_listh: "Ouvre un spot et tape « Ajouter à une liste » pour la remplir.",
     h_open: "🟢 Ouvert maintenant",
+    h_opennow: "Ouvert actuellement",
     h_nearyou: " · près de toi",
     h_best: "Le meilleur de",
     sl_greet_matin: "☕ Bien réveillé",
@@ -3422,6 +3424,7 @@ const I18N = {
     le_listt: "This list is empty",
     le_listh: "Open a spot and tap “Add to a list” to fill it.",
     h_open: "🟢 Open now",
+    h_opennow: "Open now",
     h_nearyou: " · near you",
     h_best: "The best of",
     sl_greet_matin: "☕ Rise and shine",
@@ -3745,6 +3748,7 @@ const I18N = {
     le_listt: "Esta lista está vacía",
     le_listh: "Abre un spot y toca «Añadir a una lista» para llenarla.",
     h_open: "🟢 Abierto ahora",
+    h_opennow: "Abierto ahora",
     h_nearyou: " · cerca de ti",
     h_best: "Lo mejor de",
     sl_greet_matin: "☕ Buenos días",
@@ -6264,13 +6268,14 @@ function RedX({
   size = 34,
   style
 }) {
+  const S = Math.round(size * 1.4);
   return React.createElement("button", {
     onClick: onClick,
     "aria-label": "Retour",
     className: "msp-x",
     style: {
-      width: size,
-      height: size,
+      width: S,
+      height: S,
       borderRadius: 999,
       cursor: 'pointer',
       display: 'flex',
@@ -6283,8 +6288,8 @@ function RedX({
   }, React.createElement("svg", {
     viewBox: "0 0 24 24",
     style: {
-      width: Math.round(size * 0.5),
-      height: Math.round(size * 0.5),
+      width: Math.round(S * 0.5),
+      height: Math.round(S * 0.5),
       stroke: 'var(--pop-pink)',
       strokeWidth: 3.2,
       strokeLinecap: 'round',
@@ -6328,10 +6333,10 @@ function ReactionModal({
     onClick: onSkip,
     size: 32,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 10,
       right: 10,
-      zIndex: 5
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -6848,10 +6853,10 @@ function ContactPicker({
     onClick: onClose,
     size: 32,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 10,
       right: 10,
-      zIndex: 5
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -8495,10 +8500,10 @@ function SpotDetail({
     onClick: onClose,
     size: 36,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 14,
       right: 14,
-      zIndex: 2
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -10990,10 +10995,10 @@ function ListFormModal({
     onClick: onClose,
     size: 32,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 10,
       right: 10,
-      zIndex: 5
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -11095,10 +11100,10 @@ function ListPickerModal({
     onClick: onClose,
     size: 32,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 10,
       right: 10,
-      zIndex: 5
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -11367,10 +11372,10 @@ function CollectifSearchModal({
     onClick: onClose,
     size: 32,
     style: {
-      position: 'absolute',
+      position: 'fixed',
       top: 10,
       right: 10,
-      zIndex: 5
+      zIndex: 20
     }
   }), React.createElement("div", {
     style: {
@@ -11394,6 +11399,13 @@ function CollectifSearchModal({
     placeholder: "\uD83D\uDD0D Mamacita, Jetlag, Rex Club\u2026",
     className: "input-v2",
     autoFocus: true,
+    type: "search",
+    inputMode: "search",
+    enterKeyHint: "search",
+    autoComplete: "off",
+    autoCorrect: "off",
+    autoCapitalize: "off",
+    spellCheck: false,
     style: {
       fontSize: 15
     }
@@ -12137,7 +12149,8 @@ function AuthCard({
   profile,
   avatar,
   onUpdateProfile,
-  onDeleteAccount
+  onDeleteAccount,
+  flush
 }) {
   const [mode, setMode] = useState("login");
   const [pseudo, setPseudo] = useState("");
@@ -12326,7 +12339,12 @@ function AuthCard({
     }
     setBusy(false);
   };
-  const card = {
+  const card = flush ? {
+    background: 'transparent',
+    border: 'none',
+    borderRadius: 0,
+    padding: 0
+  } : {
     background: '#fff',
     border: '1px solid var(--hairline)',
     borderRadius: 'var(--radius-md)',
@@ -13500,6 +13518,7 @@ function App() {
   const [showToTop, setShowToTop] = useState(false);
   useEffect(() => {
     let raf = 0;
+    let lastY = window.scrollY;
     const isStuck = el => {
       if (!el) return false;
       const t = parseFloat(getComputedStyle(el).top) || 0;
@@ -13509,9 +13528,12 @@ function App() {
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
+        const y = window.scrollY;
         setHdrStuck(isStuck(spotsHdrRef.current));
         setHomeStuck(isStuck(homeHdrRef.current));
-        setShowToTop(window.scrollY > 350);
+        setShowToTop(y > 350);
+        if (y - lastY > 6) setShowFilters(f => f ? false : f);
+        lastY = y;
       });
     };
     window.addEventListener("scroll", onScroll, {
@@ -15699,8 +15721,9 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 2px',
-        background: 'var(--bg-cream)'
+        padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 0',
+        background: 'var(--bg-cream)',
+        minHeight: 0
       }
     }, React.createElement("div", {
       style: {
@@ -15722,7 +15745,7 @@ function App() {
     }, React.createElement(Avatar, {
       src: avatar,
       name: who,
-      size: 76,
+      size: 44,
       ring: true
     })))), React.createElement("div", {
       ref: homeHdrRef,
@@ -15780,7 +15803,7 @@ function App() {
       }
     }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
       style: {
-        padding: '22px 20px 0'
+        padding: '14px 20px 0'
       }
     }, React.createElement("h2", {
       style: {
@@ -15788,7 +15811,7 @@ function App() {
         fontWeight: 900,
         fontSize: 28,
         letterSpacing: '-0.015em',
-        margin: '0 0 14px'
+        margin: '0 0 10px'
       }
     }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
       className: "mood-grid"
@@ -15874,20 +15897,29 @@ function App() {
         padding: '0 20px',
         marginBottom: 12
       }
-    }, (() => {
-      const l = tr("sl_open_" + hSlot.id);
-      const m = l.match(/^(\S+)\s+(.*)$/);
-      return React.createElement("h2", {
-        style: {
-          fontFamily: 'var(--font-display)',
-          fontWeight: 900,
-          fontSize: 28,
-          letterSpacing: '-0.015em',
-          margin: 0,
-          lineHeight: 1.05
-        }
-      }, m ? m[2] + " " + m[1] : l);
-    })(), React.createElement("div", {
+    }, React.createElement("h2", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 9,
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 28,
+        letterSpacing: '-0.015em',
+        margin: 0,
+        lineHeight: 1.05
+      }
+    }, tr("h_opennow"), React.createElement("span", {
+      style: {
+        width: 11,
+        height: 11,
+        borderRadius: 999,
+        background: '#2ECC71',
+        flexShrink: 0,
+        animation: 'liveBlink 1.3s ease-in-out infinite',
+        boxShadow: '0 0 8px rgba(46,204,113,.7)'
+      }
+    })), React.createElement("div", {
       style: {
         flex: 1
       }
@@ -17197,6 +17229,13 @@ function App() {
     value: search,
     onChange: e => setSearch(e.target.value),
     placeholder: "Chercher dans tout",
+    type: "search",
+    inputMode: "search",
+    enterKeyHint: "search",
+    autoComplete: "off",
+    autoCorrect: "off",
+    autoCapitalize: "off",
+    spellCheck: false,
     style: {
       flex: 1,
       minWidth: 0,
@@ -17275,17 +17314,56 @@ function App() {
   }, "\xB7 ex : bar \xE0 Bastille avec des amis")))), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
-      padding: '8px 0 0'
+      padding: '8px 0 8px'
     }
   }, React.createElement("div", {
     style: {
       display: 'flex',
+      flexWrap: 'wrap',
       gap: 8,
-      overflowX: 'auto',
-      padding: '0 20px',
-      scrollbarWidth: 'none'
+      padding: '0 20px'
     }
-  }, CATS.map(c => {
+  }, React.createElement("button", {
+    onClick: () => setShowFilters(v => !v),
+    className: "press",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      border: showFilters ? '2px solid var(--pop-violet)' : '1.5px solid var(--hairline)',
+      background: '#fff',
+      borderRadius: 999,
+      padding: '8px 14px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13,
+      color: 'var(--ink-900)',
+      cursor: 'pointer',
+      flexShrink: 0
+    }
+  }, "\u2699\uFE0F ", tr("flt_btn"), nActiveFilters > 0 && React.createElement("span", {
+    style: {
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      minWidth: 18,
+      height: 18,
+      borderRadius: 999,
+      fontSize: 11,
+      fontWeight: 800,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0 5px'
+    }
+  }, nActiveFilters), React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: 'var(--ink-400)',
+      display: 'inline-block',
+      transform: showFilters ? 'rotate(180deg)' : 'none',
+      transition: 'transform .25s var(--ease)'
+    }
+  }, "\u25BC")), CATS.map(c => {
     const active = cat === c.key;
     return React.createElement("button", {
       key: c.key,
@@ -17304,53 +17382,11 @@ function App() {
         flexShrink: 0
       }
     }, c.emoji, " ", c.label);
-  })), React.createElement("div", {
+  })), nActiveFilters > 0 && React.createElement("div", {
     style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      padding: '8px 20px 8px'
+      padding: '6px 20px 0'
     }
   }, React.createElement("button", {
-    onClick: () => setShowFilters(v => !v),
-    className: "press",
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 7,
-      border: '1px solid var(--hairline)',
-      background: '#fff',
-      borderRadius: 999,
-      padding: '8px 14px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13,
-      color: 'var(--ink-900)',
-      cursor: 'pointer'
-    }
-  }, "\u2699\uFE0F ", tr("flt_btn"), nActiveFilters > 0 && React.createElement("span", {
-    style: {
-      background: 'var(--pop-violet)',
-      color: '#fff',
-      minWidth: 19,
-      height: 19,
-      borderRadius: 999,
-      fontSize: 11,
-      fontWeight: 800,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '0 5px'
-    }
-  }, nActiveFilters), React.createElement("span", {
-    style: {
-      fontSize: 10,
-      color: 'var(--ink-400)',
-      display: 'inline-block',
-      transform: showFilters ? 'rotate(180deg)' : 'none',
-      transition: 'transform .25s var(--ease)'
-    }
-  }, "\u25BC")), nActiveFilters > 0 && React.createElement("button", {
     onClick: resetFilters,
     style: {
       border: 'none',
@@ -17359,7 +17395,8 @@ function App() {
       fontWeight: 700,
       fontSize: 12.5,
       fontFamily: 'var(--font-body)',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      padding: 0
     }
   }, tr("flt_reset"))), React.createElement("div", {
     ref: filtPanelRef,
@@ -18028,7 +18065,7 @@ function App() {
       }
     }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
       style: {
-        width: '46%',
+        width: '50%',
         height: '100%',
         flex: 'none',
         backgroundImage: ph ? `url(${ph})` : 'none',
@@ -19296,24 +19333,13 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: CB[c.key],
+        background: on ? CC[c.key] : CB[c.key],
         border: 'none',
-        boxShadow: on ? '0 3px 8px rgba(10,10,10,.18)' : 'none',
-        filter: on ? 'none' : 'grayscale(.55) opacity(.85)',
+        boxShadow: on ? '0 3px 8px rgba(10,10,10,.22)' : 'none',
+        filter: on ? 'none' : 'grayscale(1) opacity(.7)',
         transition: 'all .15s var(--ease)'
       }
-    }, c.emoji, on && React.createElement("span", {
-      style: {
-        position: 'absolute',
-        right: -1,
-        top: -1,
-        width: 9,
-        height: 9,
-        borderRadius: 999,
-        background: '#FF3D8B',
-        border: '1.5px solid #fff'
-      }
-    }));
+    }, c.emoji);
   }), React.createElement("button", {
     onClick: () => setOpenNow(v => !v),
     className: "press",
@@ -19330,8 +19356,8 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: openNow ? 'var(--ink-900)' : 'var(--bg-soft)',
-      boxShadow: openNow ? '0 3px 8px rgba(10,10,10,.25)' : 'none',
+      background: openNow ? '#2ECC71' : 'var(--bg-soft)',
+      boxShadow: openNow ? '0 3px 8px rgba(46,204,113,.35)' : 'none',
       border: 'none',
       transition: 'all .15s var(--ease)'
     }
@@ -19519,6 +19545,18 @@ function App() {
         padding: 'calc(16px + env(safe-area-inset-top,0px)) 20px 0',
         background: 'var(--bg-cream)'
       }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-sm)',
+        overflow: 'hidden'
+      }
+    }, React.createElement("div", {
+      style: {
+        padding: 16
+      }
     }, React.createElement(AuthCard, {
       session: session,
       syncState: syncState,
@@ -19528,15 +19566,12 @@ function App() {
       profile: profile,
       avatar: avatar,
       onUpdateProfile: updateAccount,
-      onDeleteAccount: deleteAccount
-    }), React.createElement("div", {
+      onDeleteAccount: deleteAccount,
+      flush: true
+    })), React.createElement("div", {
       style: {
-        marginTop: 10,
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-md)',
-        padding: '12px 14px',
-        boxShadow: 'var(--shadow-sm)',
+        borderTop: '1px solid var(--hairline)',
+        padding: '12px 16px',
         display: 'flex',
         alignItems: 'center',
         gap: 11
@@ -19590,7 +19625,68 @@ function App() {
         fontSize: 13,
         cursor: 'pointer'
       }
-    }, "\u270F\uFE0F"))), React.createElement("div", {
+    }, "\u270F\uFE0F")), React.createElement("div", {
+      style: {
+        borderTop: '1px solid var(--hairline)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15
+      }
+    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("lang_auto"))), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
+      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          if (on) return;
+          window.mspHaptic?.(12);
+          if (k === "auto") {
+            try {
+              localStorage.removeItem(LANGK);
+            } catch {}
+            location.reload();
+          } else window.mspSetLang(k);
+        },
+        className: "press",
+        style: {
+          padding: '8px 13px',
+          borderRadius: 999,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 12.5,
+          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
+          background: on ? 'var(--pop-pink)' : '#fff',
+          color: on ? '#fff' : 'var(--ink-900)'
+        }
+      }, f, " ", n);
+    }))))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -19688,70 +19784,6 @@ function App() {
           overflow: 'hidden'
         }
       }, CITYPHOTO[k] ? c.label : `${c.emoji} ${c.label}`);
-    }))), React.createElement("div", {
-      style: {
-        marginTop: 14,
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 15
-      }
-    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
-      style: {
-        background: '#EEF9F4',
-        color: '#0E8A62',
-        borderRadius: 999,
-        padding: '3px 9px',
-        fontSize: 10.5,
-        fontWeight: 800,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("lang_auto"))), React.createElement("div", {
-      style: {
-        display: 'flex',
-        gap: 6,
-        flexWrap: 'wrap'
-      }
-    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
-      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
-      return React.createElement("button", {
-        key: k,
-        onClick: () => {
-          if (on) return;
-          window.mspHaptic?.(12);
-          if (k === "auto") {
-            try {
-              localStorage.removeItem(LANGK);
-            } catch {}
-            location.reload();
-          } else window.mspSetLang(k);
-        },
-        className: "press",
-        style: {
-          padding: '8px 13px',
-          borderRadius: 999,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 700,
-          fontSize: 12.5,
-          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
-          background: on ? 'var(--pop-pink)' : '#fff',
-          color: on ? '#fff' : 'var(--ink-900)'
-        }
-      }, f, " ", n);
     })))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
@@ -21524,11 +21556,8 @@ function App() {
   }, "\u2715"))), tab === "map" && mapMode === "discover" && !peekSpot && React.createElement("div", {
     style: {
       position: 'fixed',
-      left: 0,
-      right: 0,
-      bottom: 'calc(150px + env(safe-area-inset-bottom,0px))',
-      display: 'flex',
-      justifyContent: 'center',
+      left: 16,
+      bottom: 'calc(72px + env(safe-area-inset-bottom,0px))',
       zIndex: 1100,
       pointerEvents: 'none'
     }
@@ -21554,7 +21583,7 @@ function App() {
       color: 'var(--ink-900)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
-      padding: '10px 18px',
+      padding: '12px 18px',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 13,
