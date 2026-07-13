@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T01:07:03.352Z -->
+<!-- built 2026-07-13T01:18:18.605Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2923,6 +2923,7 @@ const I18N = {
     flt_budget: "Budget",
     flt_vibe: "Ambiance",
     flt_music: "Musique",
+    flt_music_note: "🎵 Un genre = « y joue souvent ». Taggage en cours : {n} lieux tagués sur {t} — ça s'enrichit.",
     spots_title: "Mes spots à {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "Où on va ce soir ? 🍸",
@@ -3244,6 +3245,7 @@ const I18N = {
     flt_budget: "Budget",
     flt_vibe: "Vibe",
     flt_music: "Music",
+    flt_music_note: "🎵 A genre = “often plays it”. Tagging in progress: {n} of {t} places tagged — growing.",
     spots_title: "My spots in {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "Where to tonight? 🍸",
@@ -3565,6 +3567,7 @@ const I18N = {
     flt_budget: "Presupuesto",
     flt_vibe: "Ambiente",
     flt_music: "Música",
+    flt_music_note: "🎵 Un género = «suele sonar ahí». Etiquetado en curso: {n} de {t} lugares — va creciendo.",
     spots_title: "Mis spots en {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "¿Salimos esta noche? 🍸",
@@ -15341,6 +15344,25 @@ function App() {
     }
   }, [tab, peekSpot]);
   const lateCount = useMemo(() => (searchMode === "local" ? spots : catalog).filter(s => opensLate(s.hours)).length, [spots, catalog, searchMode]);
+  const musicStats = useMemo(() => {
+    const base = searchMode === "local" ? spots : catalog;
+    const counts = {};
+    let tagged = 0;
+    base.forEach(s => {
+      const m = s.tags?.music;
+      if (Array.isArray(m) && m.length) {
+        tagged++;
+        m.forEach(g => {
+          counts[g] = (counts[g] || 0) + 1;
+        });
+      }
+    });
+    return {
+      counts,
+      tagged,
+      total: base.length
+    };
+  }, [spots, catalog, searchMode]);
   const visible = useMemo(() => {
     const pnow = openNow ? nowParis() : null;
     return spots.filter(s => {
@@ -17421,6 +17443,8 @@ function App() {
     }, "\uD83C\uDFB5 Tout");
   })(), MUSIC.map(m => {
     const active = musicF.includes(m.k);
+    const n = musicStats.counts[m.k] || 0;
+    if (n < 5 && !active) return null;
     return React.createElement("button", {
       key: m.k,
       onClick: () => setMusicF(p => active ? p.filter(x => x !== m.k) : [...p, m.k]),
@@ -17437,7 +17461,23 @@ function App() {
         cursor: 'pointer',
         flexShrink: 0
       }
-    }, m.e, " ", m.l);
+    }, m.e, " ", m.l, " ", React.createElement("span", {
+      style: {
+        opacity: .65,
+        fontWeight: 700
+      }
+    }, "\xB7 ", n));
+  })), musicF.length > 0 && React.createElement("div", {
+    style: {
+      padding: '0 20px 8px',
+      fontFamily: 'var(--font-body)',
+      fontSize: 11,
+      color: 'var(--ink-400)',
+      lineHeight: 1.4
+    }
+  }, tr("flt_music_note", {
+    n: musicStats.tagged,
+    t: musicStats.total
   }))), showFilters && React.createElement("div", {
     onPointerDown: startFiltDrag,
     style: {
