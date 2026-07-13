@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T01:24:55.303Z -->
+<!-- built 2026-07-13T02:07:59.721Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3116,6 +3116,7 @@ const I18N = {
     sl_open_nuit: "🌃 Encore ouvert à cette heure",
     sl_open_after: "🌙 Toujours ouvert, là",
     sdj_badge: "✦ Spot du jour",
+    pk_metro: "Trajet métro",
     hm_t: "Tout dort là, tout de suite 😴",
     hm_h: "Le bon moment pour préparer ta prochaine sortie ✨",
     hm_wish: "🔥 Sur tes envies",
@@ -3438,6 +3439,7 @@ const I18N = {
     sl_open_nuit: "🌃 Still open at this hour",
     sl_open_after: "🌙 Still open, right now",
     sdj_badge: "✦ Spot of the day",
+    pk_metro: "Metro route",
     hm_t: "Everything's asleep right now 😴",
     hm_h: "Perfect time to plan your next one ✨",
     hm_wish: "🔥 On your wishlist",
@@ -3760,6 +3762,7 @@ const I18N = {
     sl_open_nuit: "🌃 Aún abierto a esta hora",
     sl_open_after: "🌙 Sigue abierto ahora",
     sdj_badge: "✦ Spot del día",
+    pk_metro: "Trayecto en metro",
     hm_t: "Todo duerme ahora mismo 😴",
     hm_h: "El momento perfecto para preparar tu próxima salida ✨",
     hm_wish: "🔥 En tus antojos",
@@ -4166,6 +4169,45 @@ function timeSlot(now) {
   if (m >= 20 * 60) return TIME_SLOTS[4];
   if (m < 2 * 60) return TIME_SLOTS[5];
   return TIME_SLOTS[6];
+}
+const METRO_COLORS = {
+  "1": "#FFCE00",
+  "2": "#0064B0",
+  "3": "#9F9825",
+  "3B": "#98D4E2",
+  "4": "#C04191",
+  "5": "#F28E42",
+  "6": "#83C491",
+  "7": "#F3A4BA",
+  "7B": "#83C491",
+  "8": "#CEADD2",
+  "9": "#D5C900",
+  "10": "#E3B32A",
+  "11": "#8D5E2A",
+  "12": "#00814F",
+  "13": "#98D4E2",
+  "14": "#662483",
+  "A": "#E2231A",
+  "B": "#7BA3DC",
+  "C": "#F99D1C",
+  "D": "#00A88F",
+  "E": "#B94E9A"
+};
+function metroParse(raw) {
+  if (!raw) return null;
+  const t = String(raw).trim();
+  const x = t.match(/^M\s?(\d{1,2}[bB]?)\s+(.+)/) || t.match(/^RER\s*([A-E])\s+(.+)/i) || t.match(/^ligne\s*(\d{1,2}[bB]?)\s+(.+)/i);
+  if (!x) return null;
+  const line = x[1].toUpperCase();
+  const color = METRO_COLORS[line] || "#83C491";
+  const n = parseInt(color.slice(1), 16);
+  const lum = 0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255);
+  return {
+    line,
+    station: x[2],
+    color,
+    fg: lum > 150 ? "#1A1A1A" : "#fff"
+  };
 }
 const DEPTS = [{
   k: "75",
@@ -20541,51 +20583,16 @@ function App() {
         zIndex: 1500,
         maxWidth: 600,
         margin: '0 auto',
-        background: 'var(--bg-primary)',
-        borderRadius: '20px 20px 0 0',
+        background: 'var(--bg-cream,#FFF8EC)',
+        borderRadius: '22px 22px 0 0',
         boxShadow: '0 -10px 40px -8px rgba(0,0,0,0.35)',
-        padding: '14px 16px 18px'
+        overflow: 'hidden'
       }
     }, React.createElement("div", {
       style: {
-        display: 'flex',
-        justifyContent: 'center',
-        marginBottom: 8
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 42,
-        height: 5,
-        borderRadius: 999,
-        background: 'var(--hairline)'
-      }
-    })), React.createElement(RedX, {
-      onClick: () => setPeekSpot(null),
-      size: 32,
-      style: {
-        position: 'absolute',
-        top: 12,
-        right: 12,
-        zIndex: 2
-      }
-    }), React.createElement("div", {
-      style: {
-        display: 'flex',
-        gap: 12,
-        alignItems: 'center'
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 72,
-        height: 72,
-        borderRadius: 14,
-        overflow: 'hidden',
-        flexShrink: 0,
-        background: CB[primaryCat(peekSpot)],
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 30
+        position: 'relative',
+        height: 200,
+        background: CB[primaryCat(peekSpot)]
       }
     }, ph ? React.createElement("img", {
       src: ph,
@@ -20593,140 +20600,206 @@ function App() {
       style: {
         width: '100%',
         height: '100%',
-        objectFit: 'cover'
+        objectFit: 'cover',
+        display: 'block'
       },
       onError: e => {
         e.target.style.display = 'none';
       }
-    }) : cat?.emoji), React.createElement("div", {
+    }) : React.createElement("div", {
       style: {
-        flex: 1,
-        minWidth: 0
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 52
       }
-    }, React.createElement("div", {
+    }, cat?.emoji), React.createElement("div", {
       style: {
+        position: 'absolute',
+        top: 8,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 42,
+        height: 5,
+        borderRadius: 999,
+        background: 'rgba(255,255,255,.75)'
+      }
+    }), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: 24,
+        left: 12,
         display: 'flex',
         gap: 6,
         alignItems: 'center',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        maxWidth: '72%'
       }
-    }, cat && React.createElement(CatPill, {
-      cat: primaryCat(peekSpot)
-    }), peekSpot.fav && React.createElement("span", {
+    }, cat && React.createElement("span", {
       style: {
+        background: '#fff',
+        color: CC[primaryCat(peekSpot)] || 'var(--ink-900)',
+        fontSize: 11.5,
+        fontWeight: 800,
+        borderRadius: 999,
+        padding: '4px 11px',
+        boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        fontFamily: 'var(--font-body)'
+      }
+    }, cat.emoji, " ", cat.label), peekSpot.fav && React.createElement("span", {
+      style: {
+        background: '#fff',
         color: 'var(--pop-pink)',
-        fontSize: 14
+        borderRadius: 999,
+        width: 24,
+        height: 24,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 12,
+        boxShadow: '0 2px 8px rgba(0,0,0,.25)'
       }
     }, "\u2665"), friendSpotMap.has(peekSpot.id) && React.createElement("span", {
       style: {
-        background: '#F3EEFF',
-        border: '1px solid #E4D9FF',
+        background: 'rgba(255,255,255,.94)',
         color: '#7C3AED',
-        fontSize: 11,
+        fontSize: 10.5,
         fontWeight: 700,
         borderRadius: 999,
-        padding: '3px 9px'
+        padding: '4px 9px',
+        boxShadow: '0 2px 8px rgba(0,0,0,.25)',
+        fontFamily: 'var(--font-body)'
       }
-    }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`)), React.createElement("div", {
+    }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`)), React.createElement(RedX, {
+      onClick: () => setPeekSpot(null),
+      size: 32,
+      style: {
+        position: 'absolute',
+        top: 20,
+        right: 12,
+        zIndex: 2
+      }
+    })), React.createElement("div", {
+      style: {
+        padding: '11px 16px 16px'
+      }
+    }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 20,
+        fontSize: 24,
         letterSpacing: '-0.01em',
         lineHeight: 1.05,
-        marginTop: 4,
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, peekSpot.name), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12.5,
-        color: 'var(--ink-400)',
-        marginTop: 2,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, [peekSpot.metro, peekSpot.price].filter(Boolean).join(' · ')), walkMin != null ? React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12.5,
-        marginTop: 4,
-        fontWeight: 700,
-        color: 'var(--ink-600)'
-      }
-    }, "\uD83D\uDEB6 ~", walkMin, " min \xE0 pied ", React.createElement("span", {
-      style: {
-        color: 'var(--ink-400)',
-        fontWeight: 500
-      }
-    }, "\xB7 ", fmtKm(pkDist))) : React.createElement("button", {
-      onClick: () => {
-        wantRecenterRef.current = false;
-        requestGeo();
-      },
-      style: {
-        marginTop: 4,
-        padding: 0,
-        background: 'none',
-        border: 'none',
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        fontWeight: 600,
-        color: 'var(--pop-pink)',
-        cursor: 'pointer'
-      }
-    }, "\uD83D\uDCCD Activer ma position pour le temps de trajet"))), peekSpot.desc && React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-600)',
-        lineHeight: 1.45,
-        marginTop: 10,
-        display: '-webkit-box',
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden'
-      }
-    }, spotDesc(peekSpot)), !metroJ && !metroLoading && React.createElement("button", {
+    }, peekSpot.name), (() => {
+      const mp = metroParse(peekSpot.metro);
+      if (mp) return React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+          marginTop: 5,
+          fontFamily: 'var(--font-body)',
+          fontSize: 12.5,
+          color: 'var(--ink-400)'
+        }
+      }, React.createElement("span", {
+        style: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: 19,
+          height: 19,
+          borderRadius: 99,
+          background: mp.color,
+          color: mp.fg,
+          fontWeight: 800,
+          fontSize: 10.5,
+          padding: '0 3px',
+          flexShrink: 0
+        }
+      }, mp.line), React.createElement("span", {
+        style: {
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, mp.station));
+      const alt = peekSpot.metro || peekSpot.adresse;
+      return alt ? React.createElement("div", {
+        style: {
+          marginTop: 5,
+          fontFamily: 'var(--font-body)',
+          fontSize: 12.5,
+          color: 'var(--ink-400)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, "\uD83D\uDCCD ", alt) : null;
+    })(), !metroJ && !metroLoading && React.createElement("button", {
       onClick: () => calcMetro(peekSpot),
       className: "press",
       style: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 7,
+        gap: 8,
         width: '100%',
-        marginTop: 12,
-        padding: '12px 0',
+        marginTop: 11,
+        padding: '10px 14px',
         borderRadius: 999,
-        background: 'var(--bg-soft,#F3F1F6)',
-        border: '1px solid var(--hairline)',
+        background: '#fff',
+        border: '1.5px dashed var(--pop-pink)',
         color: 'var(--ink-900)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 13.5,
+        fontSize: 12.5,
         cursor: 'pointer'
       }
-    }, "\uD83D\uDE87 Calculer le trajet en m\xE9tro"), metroLoading && React.createElement("div", {
+    }, "\uD83D\uDE87 ", tr("pk_metro"), React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontWeight: 800,
+        fontSize: 11
+      }
+    }, "\uD83D\uDD12 Spotane +")), metroLoading && React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center',
-        gap: 7,
-        marginTop: 12,
-        padding: '12px 0',
+        gap: 8,
+        marginTop: 11,
+        padding: '10px 14px',
         borderRadius: 999,
-        background: 'var(--bg-soft,#F3F1F6)',
-        border: '1px solid var(--hairline)',
+        background: '#fff',
+        border: '1.5px dashed var(--pop-pink)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 13.5,
+        fontSize: 12.5,
         color: 'var(--ink-400)'
       }
-    }, "\u23F3 Calcul de l'itin\xE9raire\u2026"), metroJ && metroJ.err && React.createElement("div", {
+    }, "\u23F3 Calcul de l'itin\xE9raire\u2026", React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontWeight: 800,
+        fontSize: 11
+      }
+    }, "\uD83D\uDD12 Spotane +")), metroJ && metroJ.err && React.createElement("div", {
       style: {
         marginTop: 12,
         display: 'flex',
@@ -20885,7 +20958,7 @@ function App() {
         fontSize: 16,
         fontWeight: 700
       }
-    }, "\u203A")));
+    }, "\u203A"))));
   })(), tab === "map" && mapFilter && React.createElement("div", {
     style: {
       position: 'fixed',
