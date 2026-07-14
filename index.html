@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-13T23:38:43.989Z -->
+<!-- built 2026-07-14T00:12:34.945Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3143,9 +3143,9 @@ const I18N = {
     who_solo: "Solo",
     who_coll: "Collègues",
     who_fam: "Famille",
-    when_apero: "Apéro (17-20h)",
-    when_soiree: "Soirée (20h-1h)",
-    when_after: "After (1h+)",
+    when_apero: "Apéro",
+    when_soiree: "Soirée",
+    when_after: "After",
     when_day: "Journée",
     zone_any: "Peu importe",
     zone_centre: "Centre",
@@ -3467,9 +3467,9 @@ const I18N = {
     who_solo: "Solo",
     who_coll: "Coworkers",
     who_fam: "Family",
-    when_apero: "Drinks (5-8pm)",
-    when_soiree: "Night (8pm-1am)",
-    when_after: "After (1am+)",
+    when_apero: "Drinks",
+    when_soiree: "Night",
+    when_after: "After",
     when_day: "Daytime",
     zone_any: "Anywhere",
     zone_centre: "Center",
@@ -3791,9 +3791,9 @@ const I18N = {
     who_solo: "Solo",
     who_coll: "Colegas",
     who_fam: "Familia",
-    when_apero: "Aperitivo (17-20h)",
-    when_soiree: "Noche (20h-1h)",
-    when_after: "After (1h+)",
+    when_apero: "Aperitivo",
+    when_soiree: "Noche",
+    when_after: "After",
     when_day: "De día",
     zone_any: "Da igual",
     zone_centre: "Centro",
@@ -18193,7 +18193,7 @@ function App() {
       }
     }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
       style: {
-        width: '58%',
+        width: '52%',
         height: '100%',
         flex: 'none',
         backgroundImage: ph ? `url(${ph})` : 'none',
