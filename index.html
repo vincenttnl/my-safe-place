@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-14T01:55:43.581Z -->
+<!-- built 2026-07-14T13:09:38.316Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -160,7 +160,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* Modal overlay - Partiful */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
 .modal-sheet{position:relative;background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
-.modal-sheet .sheet-handle{width:46px;height:5px;border-radius:var(--radius-pill);background:var(--hairline);margin:0 auto 16px}
+.modal-sheet .sheet-handle{display:none}/* v10.73 : poignées décoratives « trait iOS » retirées partout (confondues avec un retour — retour Vincent). Le vrai drag-handle des filtres n'utilise PAS cette classe → conservé. */
 .modal-center{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal-center .modal-box{position:relative;background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
 
@@ -6311,6 +6311,7 @@ function RedX({
     style: {
       width: Math.round(S * 0.5),
       height: Math.round(S * 0.5),
+      transform: 'translateX(1px)',
       stroke: 'var(--pop-pink)',
       strokeWidth: 3.2,
       strokeLinecap: 'round',
@@ -6329,7 +6330,7 @@ function SheetClose({
     onClick: onClose,
     style: {
       position: 'absolute',
-      top: 6,
+      top: 10,
       right: 6,
       zIndex: 20
     }
@@ -8599,19 +8600,7 @@ function SpotDetail({
       boxShadow: spot.fav ? '0 10px 26px -8px rgba(255,61,139,0.7)' : '0 4px 14px -4px rgba(0,0,0,0.4)',
       backdropFilter: 'blur(4px)'
     }
-  }, spot.fav ? '♥' : '♡'))), React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: 8,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      width: 46,
-      height: 5,
-      borderRadius: 999,
-      background: 'rgba(255,255,255,0.7)',
-      zIndex: 2
-    }
-  }), React.createElement(RedX, {
+  }, spot.fav ? '♥' : '♡'))), React.createElement(RedX, {
     onClick: onClose,
     size: 36,
     style: {
@@ -9430,8 +9419,8 @@ function PosterSpotCard({
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
-      fontSize: (spot.name || "").length > 16 ? 17 : 22,
-      lineHeight: 1.02,
+      fontSize: (spot.name || "").length > 26 ? 14 : (spot.name || "").length > 16 ? 16 : 22,
+      lineHeight: 1.04,
       letterSpacing: '-0.015em',
       display: '-webkit-box',
       WebkitLineClamp: 3,
@@ -13744,6 +13733,7 @@ function App() {
   const [sort, setSort] = useState("recent");
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [peekSpot, setPeekSpot] = useState(null);
+  const peekSeenRef = useRef([]);
   useEffect(() => {
     if (!selectedSpot) return;
     try {
@@ -15463,7 +15453,10 @@ function App() {
     didFitRef.current = false;
   }, [city]);
   useEffect(() => {
-    if (tab !== "map" && peekSpot) setPeekSpot(null);
+    if (tab !== "map" && peekSpot) {
+      setPeekSpot(null);
+      peekSeenRef.current = [];
+    }
   }, [tab]);
   useEffect(() => {
     setMetroJ(null);
@@ -15589,6 +15582,7 @@ function App() {
               fillOpacity: s.done ? 0.5 : 0.9
             });
             m.on("click", () => {
+              peekSeenRef.current = [s.id];
               setPeekSpot(s);
               try {
                 map.panTo([s.lat, s.lng]);
@@ -15624,6 +15618,7 @@ function App() {
         }
       }
       if (best) {
+        peekSeenRef.current = [best.id];
         setPeekSpot(best);
         try {
           map.panTo([best.lat, best.lng]);
@@ -15889,7 +15884,7 @@ function App() {
         zIndex: 5,
         background: 'var(--bg-cream)',
         overflow: 'hidden',
-        padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 12px',
+        padding: 'calc(6px + env(safe-area-inset-top,0px)) 20px 8px',
         boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
         borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
@@ -15898,16 +15893,16 @@ function App() {
       "aria-hidden": "true",
       style: {
         position: 'absolute',
-        top: 2,
+        top: 0,
         left: '50%',
         transform: 'translateX(-50%)',
         width: 300,
-        height: 118,
+        height: 88,
         borderRadius: '50%',
         zIndex: 0,
         pointerEvents: 'none',
         background: `radial-gradient(circle, ${hSlot.accent}AA, ${hSlot.accent2}55 52%, transparent 72%)`,
-        filter: 'blur(30px)',
+        filter: 'blur(28px)',
         animation: 'haloPulse 3.6s ease-in-out infinite'
       }
     }), React.createElement("div", {
@@ -15916,12 +15911,15 @@ function App() {
         zIndex: 1
       }
     }, React.createElement("h1", {
-      className: "hero-line"
+      className: "hero-line",
+      style: {
+        fontSize: 'clamp(18px,6.4vw,26px)'
+      }
     }, tr("sl_title_" + hSlot.id)), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 10,
-        marginTop: 12,
+        marginTop: 9,
         justifyContent: 'center'
       }
     }, React.createElement("button", {
@@ -15932,7 +15930,7 @@ function App() {
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '13px 22px',
+        padding: '10px 20px',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 15,
@@ -15943,32 +15941,32 @@ function App() {
       onClick: pickRandom,
       className: "press",
       style: {
-        background: 'var(--pop-yellow)',
-        color: 'var(--ink-900)',
-        border: '2px solid var(--ink-900)',
+        background: 'linear-gradient(135deg, var(--pop-violet), var(--pop-pink))',
+        color: '#fff',
+        border: 'none',
         borderRadius: 999,
-        padding: '13px 20px',
+        padding: '10px 20px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 800,
+        fontWeight: 700,
         fontSize: 15,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         gap: 7,
         whiteSpace: 'nowrap',
-        boxShadow: '0 4px 0 var(--ink-900)'
+        boxShadow: '0 8px 22px rgba(139,92,246,.45)'
       }
     }, "\uD83C\uDFB2 Surprise")))), React.createElement("div", {
       style: {
-        padding: '14px 20px 0'
+        padding: '10px 20px 0'
       }
     }, React.createElement("h2", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 28,
+        fontSize: 26,
         letterSpacing: '-0.015em',
-        margin: '0 0 10px'
+        margin: '0 0 8px'
       }
     }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
       className: "mood-grid"
@@ -17186,15 +17184,6 @@ function App() {
       paddingBottom: 100
     }
   }, React.createElement("div", {
-    style: {
-      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 4px',
-      background: 'var(--bg-cream)'
-    }
-  }, React.createElement("h1", {
-    className: "hero-line"
-  }, tr("spots_title", {
-    city: (CITIES[city] || CITIES.paris).label
-  }))), React.createElement("div", {
     ref: spotsHdrRef,
     style: {
       position: 'sticky',
@@ -17206,6 +17195,17 @@ function App() {
       transition: 'box-shadow .25s,border-color .25s'
     }
   }, React.createElement("div", {
+    style: {
+      padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 2px'
+    }
+  }, React.createElement("h1", {
+    className: "hero-line",
+    style: {
+      fontSize: 'clamp(19px,6.6vw,27px)'
+    }
+  }, tr("spots_title", {
+    city: (CITIES[city] || CITIES.paris).label
+  }))), React.createElement("div", {
     style: {
       padding: '6px 20px 0',
       background: 'var(--bg-cream)',
@@ -17469,7 +17469,7 @@ function App() {
     style: {
       fontWeight: 500
     }
-  }, "\xB7 ex : bar \xE0 Bastille avec des amis")))), searchMode !== "lists" && React.createElement("div", {
+  }, "\xB7 disponible avec Spotane+ \u2728")))), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
       padding: '8px 0 8px'
@@ -17488,7 +17488,7 @@ function App() {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 4,
-      border: showFilters ? '2px solid var(--pop-violet)' : '1.5px solid var(--hairline)',
+      border: '2px solid ' + (showFilters ? 'var(--pop-violet)' : 'var(--hairline)'),
       background: '#fff',
       borderRadius: 999,
       padding: '7px 9px',
@@ -17531,10 +17531,10 @@ function App() {
         borderRadius: 999,
         whiteSpace: 'nowrap',
         fontFamily: 'var(--font-body)',
-        fontWeight: active ? 800 : 600,
+        fontWeight: 700,
         fontSize: 12.5,
-        border: active ? '2px solid var(--pop-pink)' : '1.5px solid var(--hairline)',
-        background: '#fff',
+        border: '2px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: active ? '#FFF0F6' : '#fff',
         color: active ? 'var(--pop-pink)' : 'var(--ink-900)',
         cursor: 'pointer',
         flexShrink: 0
@@ -18154,7 +18154,7 @@ function App() {
         alignItems: 'center',
         height: 132,
         overflow: 'hidden',
-        background: '#fff',
+        background: 'linear-gradient(180deg,#FFFFFF 0%,' + (CB[primaryCat(s)] || '#fff') + '99 100%)',
         border: '1px solid var(--hairline)',
         borderRadius: 20,
         boxShadow: '0 2px 10px rgba(10,10,10,.04)',
@@ -19745,60 +19745,7 @@ function App() {
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount,
       flush: true
-    })), React.createElement("button", {
-      onClick: () => {
-        const n = prompt("Ton prénom :", myName);
-        if (n !== null) setMyName(n.trim());
-      },
-      "aria-label": "Modifier mon pr\xE9nom de partage",
-      className: "press",
-      style: {
-        width: '100%',
-        textAlign: 'left',
-        padding: '12px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 11,
-        background: 'none',
-        border: 'none',
-        borderTop: '1px solid var(--hairline)',
-        cursor: 'pointer'
-      }
-    }, React.createElement("div", {
-      style: {
-        width: 32,
-        height: 32,
-        borderRadius: 999,
-        background: myName ? 'var(--pop-pink)' : 'var(--bg-soft)',
-        color: myName ? '#fff' : 'var(--ink-400)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: myName ? 15 : 16,
-        fontWeight: 700,
-        flexShrink: 0
-      }
-    }, myName ? myName[0].toUpperCase() : '👤'), React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0,
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-600)',
-        lineHeight: 1.35
-      }
-    }, myName ? React.createElement("span", null, React.createElement("b", {
-      style: {
-        color: 'var(--ink-900)'
-      }
-    }, myName), ", ton pr\xE9nom quand tu partages un spot") : 'Ajoute ton prénom de partage'), React.createElement("span", {
-      style: {
-        color: 'var(--ink-400)',
-        fontSize: 17,
-        flexShrink: 0,
-        lineHeight: 1
-      }
-    }, "\u203A")), React.createElement("div", {
+    })), React.createElement("div", {
       style: {
         borderTop: '1px solid var(--hairline)',
         padding: 16
@@ -21366,14 +21313,56 @@ function App() {
     onClose: () => setListPickerFor(null)
   }), tab === "map" && peekSpot && (() => {
     const navList = mapSource;
-    const idx = navList.findIndex(s => s.id === peekSpot.id);
     const go = d => {
       if (!navList.length) return;
-      const n = navList[(idx + d + navList.length) % navList.length];
-      setPeekSpot(n);
-      if (mapRef.current) try {
-        mapRef.current.panTo([n.lat, n.lng]);
-      } catch {}
+      const cur = peekSpot;
+      const seen = peekSeenRef.current;
+      const jump = t => {
+        if (!t) return;
+        if (mapRef.current) try {
+          mapRef.current.panTo([t.lat, t.lng]);
+        } catch {}
+        setPeekSpot(t);
+      };
+      const nearest = pool => {
+        let best = null,
+          bd = Infinity;
+        for (const s of pool) {
+          if (!s.lat || !s.lng || s.id === cur.id) continue;
+          const dd = distKm(cur.lat, cur.lng, s.lat, s.lng);
+          if (dd < bd) {
+            bd = dd;
+            best = s;
+          }
+        }
+        return best;
+      };
+      if (d > 0) {
+        if (!cur.lat || !cur.lng) {
+          const i = navList.findIndex(s => s.id === cur.id);
+          return jump(navList[(i + 1) % navList.length]);
+        }
+        if (!seen.includes(cur.id)) seen.push(cur.id);
+        let next = nearest(navList.filter(s => !seen.includes(s.id)));
+        if (!next) {
+          peekSeenRef.current = [cur.id];
+          next = nearest(navList);
+        }
+        if (next) {
+          peekSeenRef.current.push(next.id);
+          jump(next);
+        }
+      } else {
+        if (seen.length >= 2) {
+          seen.pop();
+          const prev = navList.find(s => s.id === seen[seen.length - 1]);
+          if (prev) return jump(prev);
+        }
+        if (cur.lat && cur.lng) jump(nearest(navList));else {
+          const i = navList.findIndex(s => s.id === cur.id);
+          jump(navList[(i - 1 + navList.length) % navList.length]);
+        }
+      }
     };
     const cat = CATS.find(c => c.key === primaryCat(peekSpot));
     const ph = firstPhoto(peekSpot);
@@ -21398,7 +21387,7 @@ function App() {
     }, React.createElement("div", {
       style: {
         position: 'relative',
-        height: 200,
+        height: 120,
         background: CB[primaryCat(peekSpot)]
       }
     }, ph ? React.createElement("img", {
@@ -21425,18 +21414,7 @@ function App() {
     }, cat?.emoji), React.createElement("div", {
       style: {
         position: 'absolute',
-        top: 8,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 42,
-        height: 5,
-        borderRadius: 999,
-        background: 'rgba(255,255,255,.75)'
-      }
-    }), React.createElement("div", {
-      style: {
-        position: 'absolute',
-        top: 24,
+        top: 12,
         left: 12,
         display: 'flex',
         gap: 6,
@@ -21483,23 +21461,26 @@ function App() {
         fontFamily: 'var(--font-body)'
       }
     }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`)), React.createElement(RedX, {
-      onClick: () => setPeekSpot(null),
+      onClick: () => {
+        setPeekSpot(null);
+        peekSeenRef.current = [];
+      },
       size: 32,
       style: {
         position: 'absolute',
-        top: 20,
+        top: 12,
         right: 12,
         zIndex: 2
       }
     })), React.createElement("div", {
       style: {
-        padding: '11px 16px 16px'
+        padding: '9px 14px 12px'
       }
     }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 24,
+        fontSize: 20,
         letterSpacing: '-0.01em',
         lineHeight: 1.05,
         whiteSpace: 'nowrap',
@@ -21697,7 +21678,7 @@ function App() {
       style: {
         display: 'flex',
         gap: 8,
-        marginTop: 10,
+        marginTop: 8,
         alignItems: 'center'
       }
     }, React.createElement("button", {
@@ -21710,7 +21691,7 @@ function App() {
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
-        padding: '12px 0',
+        padding: '10px 0',
         cursor: 'pointer',
         fontSize: 16,
         fontWeight: 700
@@ -21719,6 +21700,7 @@ function App() {
       onClick: () => {
         setSelectedSpot(peekSpot);
         setPeekSpot(null);
+        peekSeenRef.current = [];
       },
       className: "press",
       style: {
@@ -21727,7 +21709,7 @@ function App() {
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '13px 0',
+        padding: '11px 0',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 14,
@@ -21744,7 +21726,7 @@ function App() {
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '12px 0',
+        padding: '10px 0',
         cursor: 'pointer',
         fontSize: 18,
         fontWeight: 700,
@@ -21752,7 +21734,7 @@ function App() {
       }
     }, "+"), React.createElement("button", {
       onClick: () => go(1),
-      "aria-label": "Spot suivant",
+      "aria-label": "Spot le plus proche",
       className: "press",
       style: {
         width: 46,
@@ -21760,7 +21742,7 @@ function App() {
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
-        padding: '12px 0',
+        padding: '10px 0',
         cursor: 'pointer',
         fontSize: 16,
         fontWeight: 700
