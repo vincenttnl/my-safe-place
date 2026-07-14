@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-14T00:18:13.381Z -->
+<!-- built 2026-07-14T01:55:43.581Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -81,6 +81,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
+@keyframes haloPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.12)}}/* v10.72 : halo néon entête accueil (style №1) */
 @keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,61,139,.45)}70%{box-shadow:0 0 0 10px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
 @media (prefers-reduced-motion:reduce){.cta-pulse{animation:none!important}}
 
@@ -116,7 +117,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,61,139,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)} /* v10.63 : homogénéisé sur le style label ✦ №26 (retour Vincent) */
 .grad-lbl::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
-.hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px)}
+.hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px);text-align:center;width:100%}/* v10.72 : titre centré + pleine largeur sur chaque onglet (retour Vincent) */
 /* v10.52 — bouton ↑ ROSE LÉGER (retour Vincent 13/07 : exit le noir agressif), plus bas, chevron SVG centré */
 .msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,61,139,0.25);animation:totopIn .25s var(--ease) both;padding:0}
 @keyframes totopIn{from{opacity:0;transform:translateY(14px) scale(.85)}to{opacity:1;transform:none}}
@@ -168,6 +169,18 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* v10.43 : actif = OUTLINE (langage B1 №4 étendu à toutes les pastilles) */
 .pill-btn.active{border:1.5px solid var(--pop-pink);background:#fff;color:var(--pop-pink);font-weight:700}
 .pill-btn:active{transform:scale(.95)}
+/* v10.72 — bloc filtres « te ferait plaisir » style №1 (choix Vincent) : titre Fraunces italique souligné (couleur par groupe --acc, SANS emoji), « Tout » collé au titre, options en scroll horizontal (fondu crème à droite), Catégorie centrée 2 lignes, actif = teinte légère + couleur --acci. Emojis GARDÉS sur les options. */
+.pl-grp{position:relative;margin:0}
+.pl-row{display:flex;flex-wrap:nowrap;align-items:center;gap:7px;overflow-x:auto;scrollbar-width:none;padding:3px 0}
+.pl-row::-webkit-scrollbar{display:none}
+.pl-title{font-family:var(--font-display);font-weight:900;font-style:italic;font-size:16.5px;color:var(--ink-900);white-space:nowrap;flex:0 0 auto;margin-right:4px;line-height:1}
+.pl-title .t{text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:3px;text-decoration-thickness:2px}
+.pl-pill{font-family:var(--font-body);font-weight:600;font-size:12.5px;border:1px solid var(--hairline);background:#fff;color:var(--ink-600);border-radius:999px;padding:5px 12px;white-space:nowrap;cursor:pointer;flex:0 0 auto;line-height:1.1}
+.pl-pill.tout{color:var(--ink-900);font-weight:700}
+.pl-pill.active{border-color:var(--acci);color:var(--acci);background:color-mix(in srgb,var(--acc) 12%,#fff)}
+.pl-grp.cat .pl-row{flex-wrap:wrap;justify-content:center;overflow:visible;gap:7px 8px}
+.pl-grp.cat .pl-title{margin-right:6px}
+.pl-grp.scrollgrp::after{content:"";position:absolute;top:0;right:0;bottom:0;width:34px;background:linear-gradient(90deg,transparent,var(--bg-cream));pointer-events:none}
 
 /* Inputs - Partiful */
 .input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:#fff;font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
@@ -4635,6 +4648,14 @@ const CITIES = {
   }
 };
 const CITY_ORDER = ["paris", "lyon", "marseille", "toulouse", "nice", "bordeaux"];
+const CITY_CATALOG_BASE = {
+  paris: 1260,
+  lyon: 234,
+  marseille: 200,
+  toulouse: 237,
+  nice: 206,
+  bordeaux: 208
+};
 const spotCity = s => s && s.tags && s.tags.city || "paris";
 const PARIS_RING = [[48.8542, 2.22412], [48.85004, 2.23956], [48.84773, 2.24247], [48.84557, 2.25254], [48.84286, 2.25122], [48.83891, 2.25165], [48.83481, 2.25515], [48.83458, 2.26795], [48.83301, 2.27003], [48.83156, 2.2673], [48.82785, 2.26781], [48.82793, 2.27274], [48.83245, 2.27905], [48.82714, 2.29222], [48.81821, 2.33237], [48.81703, 2.33174], [48.81558, 2.3445], [48.81853, 2.3524], [48.81597, 2.35592], [48.81606, 2.36341], [48.82965, 2.40249], [48.82505, 2.4108], [48.82357, 2.42975], [48.82169, 2.43289], [48.81928, 2.43418], [48.81936, 2.43697], [48.81822, 2.43735], [48.81701, 2.45863], [48.81903, 2.4628], [48.82733, 2.46618], [48.82763, 2.46461], [48.83115, 2.46523], [48.83556, 2.4697], [48.84011, 2.46638], [48.84237, 2.46273], [48.84592, 2.44077], [48.84435, 2.44051], [48.84457, 2.43794], [48.84089, 2.43719], [48.84177, 2.42476], [48.8445, 2.42211], [48.84249, 2.41942], [48.83581, 2.42218], [48.83376, 2.41611], [48.83387, 2.41123], [48.83788, 2.41351], [48.84879, 2.41644], [48.87638, 2.4125], [48.88028, 2.40929], [48.88149, 2.40372], [48.88382, 2.40009], [48.89459, 2.39776], [48.89826, 2.39553], [48.90098, 2.39069], [48.90216, 2.38443], [48.90076, 2.32036], [48.88657, 2.28566], [48.88295, 2.28099], [48.8787, 2.27996], [48.87796, 2.27749], [48.88028, 2.25889], [48.87408, 2.25481], [48.87636, 2.24562], [48.87189, 2.24046], [48.86951, 2.23208], [48.86514, 2.22824], [48.8542, 2.22412]];
 const CITY_RINGS = {
@@ -7200,135 +7221,111 @@ function PropositionsModal({
       gap: 16,
       paddingTop: 12
     }
-  }, React.createElement("div", null, React.createElement("div", {
+  }, [{
+    id: 'cat',
+    title: 'Catégorie ?',
+    tout: 'Tout',
+    cat: true,
+    acc: '#FF3D8B',
+    acci: '#E01E6E',
+    list: catOptions.map(c => ({
+      k: c.key,
+      l: c.emoji + ' ' + c.label
+    })),
+    value: catFilter,
+    set: setCatFilter,
+    counts: pillCounts.cat
+  }, {
+    id: 'who',
+    title: 'Avec qui ?',
+    tout: 'Tout',
+    acc: '#E91E63',
+    acci: '#C2185B',
+    list: Q_WHO,
+    value: who,
+    set: setWho,
+    counts: pillCounts.who
+  }, {
+    id: 'when',
+    title: 'Quand ?',
+    tout: 'Tout',
+    acc: '#3DC8FF',
+    acci: '#1B9BD1',
+    list: Q_WHEN,
+    value: when,
+    set: setWhen,
+    counts: pillCounts.when
+  }, {
+    id: 'amb',
+    title: 'Ambiance ?',
+    tout: 'Tout',
+    acc: '#8B5CF6',
+    acci: '#7C3AED',
+    list: Q_VIBE,
+    value: vibe,
+    set: setVibe,
+    counts: pillCounts.vibe
+  }, {
+    id: 'bud',
+    title: 'Budget ?',
+    tout: 'Tout',
+    acc: '#FF6B2C',
+    acci: '#E85411',
+    list: Q_BUDGET,
+    value: budget,
+    set: setBudget,
+    counts: pillCounts.budget
+  }, {
+    id: 'zone',
+    title: 'Zone ?',
+    tout: 'Toutes',
+    acc: '#C6FF3D',
+    acci: '#5E7A00',
+    list: Q_ZONE.filter(z => z.k),
+    value: zone,
+    set: setZone,
+    counts: pillCounts.zone
+  }, {
+    id: 'cui',
+    title: 'Cuisine ?',
+    tout: 'Tout',
+    acc: '#FFD23F',
+    acci: '#9A7B00',
+    list: Q_CUISINE_WIZ,
+    value: cuisine,
+    set: setCuisine,
+    counts: pillCounts.cuisine
+  }].map(G => React.createElement("div", {
+    key: G.id,
+    className: "pl-grp " + (G.cat ? "cat" : "scrollgrp"),
     style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
+      "--acc": G.acc,
+      "--acci": G.acci
     }
-  }, "\uD83D\uDCC2 Cat\xE9gorie"), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 5
-    }
-  }, React.createElement("button", {
-    onClick: () => setCatFilter([]),
-    className: `pill-btn${catFilter.length === 0 ? " active" : ""}`
-  }, "\uD83C\uDF1F Tout"), catOptions.map(c => {
-    const n = pillCounts.cat[c.key] || 0;
-    const off = n === 0 && !catFilter.includes(c.key);
+  }, React.createElement("div", {
+    className: "pl-row"
+  }, React.createElement("span", {
+    className: "pl-title"
+  }, React.createElement("span", {
+    className: "t"
+  }, G.title)), React.createElement("button", {
+    onClick: () => G.set([]),
+    className: "pl-pill tout" + (G.value.length === 0 ? " active" : "")
+  }, G.tout), G.list.map(o => {
+    const n = G.counts && o.k ? G.counts[o.k] || 0 : null;
+    const off = n === 0 && !G.value.includes(o.k);
+    const active = G.value.includes(o.k);
     return React.createElement("button", {
-      key: c.key,
-      onClick: () => !off && toggleVal(setCatFilter)(c.key),
-      className: `pill-btn${catFilter.includes(c.key) ? " active" : ""}`,
+      key: o.k,
+      onClick: () => !off && G.set(p => p.includes(o.k) ? p.filter(x => x !== o.k) : [...p, o.k]),
+      className: "pl-pill" + (active ? " active" : ""),
       style: off ? {
         opacity: .35,
         cursor: 'default'
-      } : {},
+      } : undefined,
       "aria-disabled": off
-    }, c.emoji, " ", c.label);
-  }))), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\uD83E\uDEC2 Avec qui ?"), React.createElement(Pill, {
-    list: Q_WHO,
-    value: who,
-    onToggle: toggleVal(setWho),
-    onAll: () => setWho([]),
-    counts: pillCounts.who
-  })), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\uD83D\uDD50 Quand ?"), React.createElement(Pill, {
-    list: Q_WHEN,
-    value: when,
-    onToggle: toggleVal(setWhen),
-    onAll: () => setWhen([]),
-    counts: pillCounts.when
-  })), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\u2728 Ambiance ?"), React.createElement(Pill, {
-    list: Q_VIBE,
-    value: vibe,
-    onToggle: toggleVal(setVibe),
-    onAll: () => setVibe([]),
-    counts: pillCounts.vibe
-  })), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\uD83D\uDCB6 Budget ?"), React.createElement(Pill, {
-    list: Q_BUDGET,
-    value: budget,
-    onToggle: toggleVal(setBudget),
-    onAll: () => setBudget([]),
-    counts: pillCounts.budget
-  })), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\uD83D\uDDFA\uFE0F Zone ?"), React.createElement(Pill, {
-    list: Q_ZONE,
-    value: zone,
-    onToggle: toggleVal(setZone),
-    onAll: () => setZone([]),
-    counts: pillCounts.zone
-  })), React.createElement("div", null, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 16.5,
-      fontWeight: 800,
-      marginBottom: 8,
-      color: 'var(--pop-pink)',
-      textShadow: '0 0 8px rgba(255,61,139,.5)',
-      letterSpacing: '-0.01em'
-    }
-  }, "\uD83C\uDF74 Cuisine ?"), React.createElement(Pill, {
-    list: Q_CUISINE_WIZ,
-    value: cuisine,
-    onToggle: toggleVal(setCuisine),
-    onAll: () => setCuisine([]),
-    counts: pillCounts.cuisine
-  })), React.createElement("div", {
+    }, o.l);
+  })))), React.createElement("div", {
     style: {
       position: 'sticky',
       bottom: 0,
@@ -10240,15 +10237,31 @@ function PremiumModal({
       cursor: 'pointer',
       textAlign: 'left'
     }
-  }, React.createElement("span", {
-    style: {
-      fontWeight: 700,
-      fontSize: 12.5,
-      color: 'var(--ink-900)'
-    }
-  }, l), React.createElement("span", {
-    className: "pm-dot"
-  }), React.createElement("span", {
+  }, (() => {
+    const sp = l.indexOf(' ');
+    const em = sp > 0 ? l.slice(0, sp) : l;
+    const rest = sp > 0 ? l.slice(sp + 1) : '';
+    return React.createElement(React.Fragment, null, React.createElement("span", {
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        flexShrink: 0
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 13
+      }
+    }, em), React.createElement("span", {
+      className: "pm-dot"
+    })), React.createElement("span", {
+      style: {
+        fontWeight: 700,
+        fontSize: 12.5,
+        color: 'var(--ink-900)'
+      }
+    }, rest));
+  })(), React.createElement("span", {
     style: {
       flex: 1
     }
@@ -13334,6 +13347,11 @@ function parseAuthHash() {
 }
 function App() {
   const [tab, setTab] = useState("home");
+  useEffect(() => {
+    try {
+      window.scrollTo(0, 0);
+    } catch {}
+  }, [tab]);
   const [city, setCity] = useState(() => {
     try {
       return localStorage.getItem(CITYK) || "paris";
@@ -13644,6 +13662,7 @@ function App() {
     })();
   }, []);
   const [cat, setCat] = useState("all");
+  const [catMulti, setCatMulti] = useState([]);
   const [filter, setFilter] = useState("all");
   const [budgetF, setBudgetF] = useState([]);
   const [vibeF, setVibeF] = useState([]);
@@ -13711,11 +13730,12 @@ function App() {
     t.addEventListener("pointerup", up);
     t.addEventListener("pointercancel", up);
   };
-  const nActiveFilters = (openNow ? 1 : 0) + (lateNight ? 1 : 0) + (filter !== "all" ? 1 : 0) + budgetF.length + vibeF.length + musicF.length;
+  const nActiveFilters = (openNow ? 1 : 0) + (lateNight ? 1 : 0) + (filter !== "all" ? 1 : 0) + catMulti.length + budgetF.length + vibeF.length + musicF.length;
   const resetFilters = () => {
     setOpenNow(false);
     setLateNight(false);
     setFilter("all");
+    setCatMulti([]);
     setBudgetF([]);
     setVibeF([]);
     setMusicF([]);
@@ -15741,7 +15761,7 @@ function App() {
     return spots.filter(s => {
       if (openNow && isOpenNow(s.hours, pnow) !== true) return false;
       if (lateNight && !opensLate(s.hours)) return false;
-      const catOk = cat === "all" || hasCat(s, cat);
+      const catOk = !catMulti.length || catMulti.some(k => hasCat(s, k));
       let fOk = true;
       if (filter === "all") fOk = s.status !== "rejected";else if (filter === "todo") fOk = !s.done && s.status !== "rejected";else if (filter === "done") fOk = s.done;else if (filter === "fav") fOk = s.fav;else if (filter === "wishlist") fOk = s.status === "wishlist";else if (filter === "rejected") fOk = s.status === "rejected";else if (filter === "work") fOk = s.tags?.work === true;
       const q = search.trim().toLowerCase();
@@ -15757,7 +15777,7 @@ function App() {
       }
       return catOk && fOk && sOk && bOk && vbOk && muOk && zOk;
     });
-  }, [spots, cat, filter, search, budgetF, vibeF, musicF, zones, openNow, lateNight]);
+  }, [spots, catMulti, filter, search, budgetF, vibeF, musicF, zones, openNow, lateNight]);
   const sortedVisible = useMemo(() => {
     const arr = [...visible];
     const extractPrice = p => {
@@ -15802,7 +15822,7 @@ function App() {
       if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
       if (wantOpen && isOpenNow(s.hours, pnow) !== true) return false;
       if (lateNight && !opensLate(s.hours)) return false;
-      const catOk = (cat === "all" || hasCat(s, cat)) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
+      const catOk = (!catMulti.length || catMulti.some(k => hasCat(s, k))) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
       let sOk = true;
       if (useNlp) {
         const hay = (s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -15840,7 +15860,7 @@ function App() {
       }
       return softScore(b) - softScore(a) || (gRating(b) || 0) - (gRating(a) || 0);
     });
-  }, [catalog, cat, search, budgetF, vibeF, musicF, openNow, lateNight, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
+  }, [catalog, catMulti, search, budgetF, vibeF, musicF, openNow, lateNight, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
   const doneCount = spots.filter(x => x.done).length;
   const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
@@ -15868,10 +15888,32 @@ function App() {
         top: 'env(safe-area-inset-top,0px)',
         zIndex: 5,
         background: 'var(--bg-cream)',
+        overflow: 'hidden',
         padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 12px',
         boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
         borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
+      }
+    }, React.createElement("div", {
+      "aria-hidden": "true",
+      style: {
+        position: 'absolute',
+        top: 2,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 300,
+        height: 118,
+        borderRadius: '50%',
+        zIndex: 0,
+        pointerEvents: 'none',
+        background: `radial-gradient(circle, ${hSlot.accent}AA, ${hSlot.accent2}55 52%, transparent 72%)`,
+        filter: 'blur(30px)',
+        animation: 'haloPulse 3.6s ease-in-out infinite'
+      }
+    }), React.createElement("div", {
+      style: {
+        position: 'relative',
+        zIndex: 1
       }
     }, React.createElement("h1", {
       className: "hero-line"
@@ -15879,23 +15921,23 @@ function App() {
       style: {
         display: 'flex',
         gap: 10,
-        marginTop: 10
+        marginTop: 12,
+        justifyContent: 'center'
       }
     }, React.createElement("button", {
       onClick: () => setShowPropositions(true),
       className: "press",
       style: {
-        flex: 1,
-        background: hSlot.accent,
+        background: `linear-gradient(135deg, ${hSlot.accent}, ${hSlot.accent2})`,
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '13px 18px',
+        padding: '13px 22px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 600,
+        fontWeight: 700,
         fontSize: 15,
         cursor: 'pointer',
-        animation: 'goldGlow 2.6s ease-in-out infinite'
+        boxShadow: '0 8px 22px ' + hSlot.accent + '55'
       }
     }, "\u2728 Propositions"), React.createElement("button", {
       onClick: pickRandom,
@@ -15903,19 +15945,20 @@ function App() {
       style: {
         background: 'var(--pop-yellow)',
         color: 'var(--ink-900)',
-        border: '1.5px solid var(--ink-900)',
+        border: '2px solid var(--ink-900)',
         borderRadius: 999,
-        padding: '13px 18px',
+        padding: '13px 20px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 700,
+        fontWeight: 800,
         fontSize: 15,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         gap: 7,
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        boxShadow: '0 4px 0 var(--ink-900)'
       }
-    }, "\uD83C\uDFB2 Surprise"))), React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise")))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -15930,14 +15973,15 @@ function App() {
     }, "Choisis ton mood \uD83C\uDFA8"), React.createElement("div", {
       className: "mood-grid"
     }, CATS.filter(c => c.key !== "all").map((c, i) => {
-      const count = spots.filter(s => hasCat(s, c.key)).length;
+      const count = catalog.filter(s => hasCat(s, c.key)).length;
       const cov = MOOD_COVER[c.key];
       const ov = `linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(10,10,10,.35) 68%,${c.color}73 100%)`;
       return React.createElement("button", {
         key: c.key,
         className: "mood-card",
         onClick: () => {
-          setCat(c.key);
+          setCatMulti([c.key]);
+          setSearchMode("discover");
           setTab("spots");
         },
         style: {
@@ -16627,7 +16671,7 @@ function App() {
       key: i,
       className: "press",
       onClick: () => {
-        setCat("all");
+        setCatMulti([]);
         setFilter(s.f);
         setSearch("");
         setSearchMode("local");
@@ -17478,10 +17522,10 @@ function App() {
       transition: 'transform .25s var(--ease)'
     }
   }, "\u25BC")), CATS.map(c => {
-    const active = cat === c.key;
+    const active = c.key === "all" ? catMulti.length === 0 : catMulti.includes(c.key);
     return React.createElement("button", {
       key: c.key,
-      onClick: () => setCat(c.key),
+      onClick: () => c.key === "all" ? setCatMulti([]) : setCatMulti(p => p.includes(c.key) ? p.filter(x => x !== c.key) : [...p, c.key]),
       style: {
         padding: '7px 9px',
         borderRadius: 999,
@@ -19642,6 +19686,17 @@ function App() {
     const cityBg = k => CITYPHOTO[k] ? `center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
     const tileBg = k => CITYPHOTO[k] ? `linear-gradient(180deg,rgba(10,10,10,.12),rgba(10,10,10,.55)), center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
     const cityCount = k => allSpots.filter(s => spotCity(s) === k).length;
+    const catCityCount = k => {
+      if (k === city && catalog.length) return catalog.length;
+      try {
+        const raw = localStorage.getItem("myplace_catalog_" + k);
+        if (raw) {
+          const a = JSON.parse(raw);
+          if (a && a.length) return a.length;
+        }
+      } catch {}
+      return CITY_CATALOG_BASE[k] || 0;
+    };
     const ZL = {
       centre: 'Centre',
       est: 'Est',
@@ -19993,7 +20048,7 @@ function App() {
         className: "m-n"
       }, c.label, React.createElement("span", {
         className: "m-c"
-      }, " \xB7 ", cityCount(k)))));
+      }, " \xB7 ", catCityCount(k)))));
     })))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
