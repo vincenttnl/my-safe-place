@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-14T13:09:38.316Z -->
+<!-- built 2026-07-14T13:36:20.260Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9412,7 +9412,7 @@ function PosterSpotCard({
       position: 'absolute',
       left: 14,
       right: 14,
-      bottom: 14,
+      bottom: 16,
       color: '#fff'
     }
   }, React.createElement("div", {
@@ -9434,7 +9434,7 @@ function PosterSpotCard({
         fontFamily: 'var(--font-body)',
         fontSize: 11,
         opacity: 0.9,
-        marginTop: 6,
+        marginTop: 10,
         display: 'flex',
         gap: 6,
         alignItems: 'center',
@@ -15880,11 +15880,11 @@ function App() {
       ref: homeHdrRef,
       style: {
         position: 'sticky',
-        top: 'env(safe-area-inset-top,0px)',
+        top: 0,
         zIndex: 5,
         background: 'var(--bg-cream)',
         overflow: 'hidden',
-        padding: 'calc(6px + env(safe-area-inset-top,0px)) 20px 8px',
+        padding: 'calc(4px + env(safe-area-inset-top,0px)) 20px 6px',
         boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
         borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
@@ -15958,7 +15958,7 @@ function App() {
       }
     }, "\uD83C\uDFB2 Surprise")))), React.createElement("div", {
       style: {
-        padding: '10px 20px 0'
+        padding: '6px 20px 0'
       }
     }, React.createElement("h2", {
       style: {
@@ -17187,7 +17187,7 @@ function App() {
     ref: spotsHdrRef,
     style: {
       position: 'sticky',
-      top: 'env(safe-area-inset-top,0px)',
+      top: 0,
       zIndex: 5,
       background: 'var(--bg-cream)',
       boxShadow: hdrStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
@@ -17196,7 +17196,7 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 2px'
+      padding: 'calc(6px + env(safe-area-inset-top,0px)) 20px 2px'
     }
   }, React.createElement("h1", {
     className: "hero-line",
@@ -17478,8 +17478,8 @@ function App() {
     style: {
       display: 'flex',
       flexWrap: 'wrap',
-      gap: 5,
-      padding: '0 16px'
+      gap: 4,
+      padding: '0 14px'
     }
   }, React.createElement("button", {
     onClick: () => setShowFilters(v => !v),
@@ -17491,10 +17491,10 @@ function App() {
       border: '2px solid ' + (showFilters ? 'var(--pop-violet)' : 'var(--hairline)'),
       background: '#fff',
       borderRadius: 999,
-      padding: '7px 9px',
+      padding: '5px 8px',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
-      fontSize: 12.5,
+      fontSize: 12,
       color: 'var(--ink-900)',
       cursor: 'pointer',
       flexShrink: 0
@@ -17503,15 +17503,15 @@ function App() {
     style: {
       background: 'var(--pop-violet)',
       color: '#fff',
-      minWidth: 18,
-      height: 18,
+      minWidth: 15,
+      height: 15,
       borderRadius: 999,
-      fontSize: 11,
+      fontSize: 10,
       fontWeight: 800,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '0 5px'
+      padding: '0 4px'
     }
   }, nActiveFilters), React.createElement("span", {
     style: {
@@ -17527,15 +17527,15 @@ function App() {
       key: c.key,
       onClick: () => c.key === "all" ? setCatMulti([]) : setCatMulti(p => p.includes(c.key) ? p.filter(x => x !== c.key) : [...p, c.key]),
       style: {
-        padding: '7px 9px',
+        padding: '5px 8px',
         borderRadius: 999,
         whiteSpace: 'nowrap',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 12.5,
-        border: '2px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
-        background: active ? '#FFF0F6' : '#fff',
-        color: active ? 'var(--pop-pink)' : 'var(--ink-900)',
+        fontSize: 12,
+        border: '2px solid ' + (active ? CC[c.key] || 'var(--pop-pink)' : 'var(--hairline)'),
+        background: active ? CB[c.key] || '#FFF0F6' : '#fff',
+        color: active ? CC[c.key] || 'var(--pop-pink)' : 'var(--ink-900)',
         cursor: 'pointer',
         flexShrink: 0
       }
@@ -18154,7 +18154,7 @@ function App() {
         alignItems: 'center',
         height: 132,
         overflow: 'hidden',
-        background: 'linear-gradient(180deg,#FFFFFF 0%,' + (CB[primaryCat(s)] || '#fff') + '99 100%)',
+        background: 'linear-gradient(160deg,#FFFFFF 0%,' + (CB[primaryCat(s)] || '#fff') + 'CC 100%)',
         border: '1px solid var(--hairline)',
         borderRadius: 20,
         boxShadow: '0 2px 10px rgba(10,10,10,.04)',
