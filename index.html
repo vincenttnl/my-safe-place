@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-14T14:12:12.858Z -->
+<!-- built 2026-07-14T15:10:18.058Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -13734,6 +13734,63 @@ function App() {
   const [selectedSpot, setSelectedSpot] = useState(null);
   const [peekSpot, setPeekSpot] = useState(null);
   const peekSeenRef = useRef([]);
+  const [notifPerm, setNotifPerm] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
+  const enableNotifs = async () => {
+    if (typeof Notification === 'undefined') {
+      window.mspToast?.("Notifications non supportées ici — sur iPhone, ajoute Spotane à l'écran d'accueil d'abord", "error");
+      return;
+    }
+    let p;
+    try {
+      p = await Notification.requestPermission();
+    } catch {
+      p = Notification.permission;
+    }
+    setNotifPerm(p);
+    if (p === 'granted') {
+      try {
+        localStorage.setItem('myplace_notif_optin_v1', '1');
+      } catch {}
+      window.mspHaptic?.(15);
+      window.mspToast?.("Notifications activées 🔔", "success");
+      try {
+        const reg = await navigator.serviceWorker?.ready;
+        reg?.showNotification("Spotane 🔔", {
+          body: "C'est bon ! Tu recevras les bons plans au bon moment ✨",
+          icon: './icon-192.png',
+          badge: './icon-192.png',
+          data: {
+            url: './'
+          }
+        });
+      } catch {}
+    } else if (p === 'denied') {
+      try {
+        localStorage.removeItem('myplace_notif_optin_v1');
+      } catch {}
+      window.mspToast?.("Notifications refusées", "error");
+    }
+  };
+  const testNotif = async () => {
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (!reg) {
+        window.mspToast?.("Service worker pas prêt — recharge l'app", "error");
+        return;
+      }
+      reg.showNotification("🎫 Un event t'attend ce soir", {
+        body: "Test Spotane — si tu vois ça, les notifications marchent parfaitement !",
+        icon: './icon-192.png',
+        badge: './icon-192.png',
+        data: {
+          url: './'
+        }
+      });
+      window.mspHaptic?.(12);
+    } catch {
+      window.mspToast?.("Impossible d'afficher la notif de test", "error");
+    }
+  };
   useEffect(() => {
     if (!selectedSpot) return;
     try {
@@ -19807,6 +19864,104 @@ function App() {
         }
       }, f, " ", n);
     }))))), React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16,
+        boxShadow: 'var(--shadow-sm)'
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        marginBottom: 8
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 20,
+        letterSpacing: '-0.01em'
+      }
+    }, "\uD83D\uDD14 Notifications"), notifPerm === 'granted' && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "activ\xE9es"), notifPerm === 'denied' && React.createElement("span", {
+      style: {
+        background: '#FDECEC',
+        color: '#C0392B',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "bloqu\xE9es")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        lineHeight: 1.45,
+        marginBottom: 12
+      }
+    }, "Un rappel quand un event approche, quand une de tes envies ouvre, ou quand un ami partage une liste. Toi seul d\xE9cides. \uD83D\uDD12"), notifPerm === 'default' && React.createElement("button", {
+      onClick: enableNotifs,
+      className: "press",
+      style: {
+        width: '100%',
+        padding: '13px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, "Activer les notifications"), notifPerm === 'granted' && React.createElement("button", {
+      onClick: testNotif,
+      className: "press",
+      style: {
+        width: '100%',
+        padding: '12px',
+        borderRadius: 999,
+        border: '1.5px solid var(--hairline)',
+        background: '#fff',
+        color: 'var(--ink-900)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13.5,
+        cursor: 'pointer'
+      }
+    }, "Envoyer une notif de test"), notifPerm === 'denied' && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, "R\xE9active-les dans les r\xE9glages de ton t\xE9l\xE9phone (R\xE9glages \u2192 Spotane \u2192 Notifications)."), notifPerm === 'unsupported' && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, "\uD83D\uDCF1 Sur iPhone : ajoute d'abord Spotane \xE0 ton \xE9cran d'accueil (Partager \u2192 \xAB Sur l'\xE9cran d'accueil \xBB), puis reviens ici."))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
