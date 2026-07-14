@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-14T13:36:20.260Z -->
+<!-- built 2026-07-14T13:58:47.960Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -15884,7 +15884,7 @@ function App() {
         zIndex: 5,
         background: 'var(--bg-cream)',
         overflow: 'hidden',
-        padding: 'calc(4px + env(safe-area-inset-top,0px)) 20px 6px',
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 14px',
         boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
         borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
@@ -15919,7 +15919,7 @@ function App() {
       style: {
         display: 'flex',
         gap: 10,
-        marginTop: 9,
+        marginTop: 12,
         justifyContent: 'center'
       }
     }, React.createElement("button", {
@@ -21387,7 +21387,7 @@ function App() {
     }, React.createElement("div", {
       style: {
         position: 'relative',
-        height: 120,
+        height: 90,
         background: CB[primaryCat(peekSpot)]
       }
     }, ph ? React.createElement("img", {
@@ -21414,7 +21414,7 @@ function App() {
     }, cat?.emoji), React.createElement("div", {
       style: {
         position: 'absolute',
-        top: 12,
+        top: 8,
         left: 12,
         display: 'flex',
         gap: 6,
@@ -21465,22 +21465,22 @@ function App() {
         setPeekSpot(null);
         peekSeenRef.current = [];
       },
-      size: 32,
+      size: 30,
       style: {
         position: 'absolute',
-        top: 12,
-        right: 12,
+        top: 8,
+        right: 10,
         zIndex: 2
       }
     })), React.createElement("div", {
       style: {
-        padding: '9px 14px 12px'
+        padding: '7px 14px 9px'
       }
     }, React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        fontSize: 20,
+        fontSize: 17,
         letterSpacing: '-0.01em',
         lineHeight: 1.05,
         whiteSpace: 'nowrap',
@@ -21541,15 +21541,15 @@ function App() {
         alignItems: 'center',
         gap: 8,
         width: '100%',
-        marginTop: 11,
-        padding: '10px 14px',
+        marginTop: 7,
+        padding: '7px 12px',
         borderRadius: 999,
         background: '#fff',
         border: '1.5px dashed var(--pop-pink)',
         color: 'var(--ink-900)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
-        fontSize: 12.5,
+        fontSize: 12,
         cursor: 'pointer'
       }
     }, "\uD83D\uDE87 ", tr("pk_metro"), React.createElement("span", {
@@ -21678,7 +21678,7 @@ function App() {
       style: {
         display: 'flex',
         gap: 8,
-        marginTop: 8,
+        marginTop: 6,
         alignItems: 'center'
       }
     }, React.createElement("button", {
@@ -21686,12 +21686,12 @@ function App() {
       "aria-label": "Spot pr\xE9c\xE9dent",
       className: "press",
       style: {
-        width: 46,
+        width: 44,
         flexShrink: 0,
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
-        padding: '10px 0',
+        padding: '8px 0',
         cursor: 'pointer',
         fontSize: 16,
         fontWeight: 700
@@ -21709,7 +21709,7 @@ function App() {
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '11px 0',
+        padding: '9px 0',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
         fontSize: 14,
@@ -21720,13 +21720,13 @@ function App() {
       "aria-label": "Ajouter \xE0 mes spots",
       className: "press",
       style: {
-        width: 46,
+        width: 44,
         flexShrink: 0,
         background: 'var(--ink-900)',
         color: '#fff',
         border: 'none',
         borderRadius: 999,
-        padding: '10px 0',
+        padding: '8px 0',
         cursor: 'pointer',
         fontSize: 18,
         fontWeight: 700,
@@ -21737,12 +21737,12 @@ function App() {
       "aria-label": "Spot le plus proche",
       className: "press",
       style: {
-        width: 46,
+        width: 44,
         flexShrink: 0,
         background: '#fff',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
-        padding: '10px 0',
+        padding: '8px 0',
         cursor: 'pointer',
         fontSize: 16,
         fontWeight: 700
