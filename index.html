@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T11:04:53.724Z -->
+<!-- built 2026-07-15T11:07:57.518Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -14267,13 +14267,15 @@ function App() {
         lists: setLists,
         collectifs: setCollectifs,
         events: setEvents,
-        contacts: setContacts
+        contacts: setContacts,
+        zones: setZones
       };
       const m = dsMetaRef.current;
       rows.forEach(r => {
         const remoteTs = Date.parse(r.updated_at) || 0;
         const localMod = (m[r.key] || {}).mod || 0;
-        if (remoteTs > localMod && apply[r.key] && Array.isArray(r.data)) {
+        const shapeOk = r.key === 'zones' ? r.data && typeof r.data === 'object' && !Array.isArray(r.data) : Array.isArray(r.data);
+        if (remoteTs > localMod && apply[r.key] && shapeOk) {
           apply[r.key](r.data);
           m[r.key] = {
             mod: remoteTs,
@@ -14296,6 +14298,9 @@ function App() {
   useEffect(() => {
     dsPush("contacts", contacts);
   }, [contacts]);
+  useEffect(() => {
+    dsPush("zones", zones);
+  }, [zones]);
   useEffect(() => {
     const shared = lists.filter(l => l.visibility === "friends" || l.visibility === "link").map(l => ({
       id: l.id,
