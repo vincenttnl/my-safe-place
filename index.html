@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T10:01:57.390Z -->
+<!-- built 2026-07-15T11:01:58.769Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2938,6 +2938,23 @@ const I18N = {
     btn_later: "Plus tard",
     lang_title: "🌍 Langue",
     lang_auto: "🪄 langue du téléphone",
+    nt_title: "🔔 Notifications",
+    nt_on: "activées",
+    nt_off: "bloquées",
+    nt_desc: "Un rappel quand un event approche, quand une de tes envies ouvre, ou quand un ami partage une liste. Toi seul décides. 🔒",
+    nt_enable: "Activer les notifications",
+    nt_test: "Envoyer une notif de test",
+    nt_denied: "Réactive-les dans les réglages de ton téléphone (Réglages → Spotane → Notifications).",
+    nt_ios: "📱 Sur iPhone : ajoute d'abord Spotane à ton écran d'accueil (Partager → « Sur l'écran d'accueil »), puis reviens ici.",
+    nt_unsupported: "Notifications non supportées ici — sur iPhone, ajoute Spotane à l'écran d'accueil d'abord",
+    nt_enabled: "Notifications activées 🔔",
+    nt_welcome_t: "Spotane 🔔",
+    nt_welcome_b: "C'est bon ! Tu recevras les bons plans au bon moment ✨",
+    nt_refused: "Notifications refusées",
+    nt_sw: "Service worker pas prêt — recharge l'app",
+    nt_test_t: "🎫 Un event t'attend ce soir",
+    nt_test_b: "Test Spotane — si tu vois ça, les notifications marchent parfaitement !",
+    nt_err: "Impossible d'afficher la notif de test",
     flt_btn: "Filtres",
     flt_reset: "Réinitialiser",
     flt_status: "Statut",
@@ -3262,6 +3279,23 @@ const I18N = {
     btn_later: "Later",
     lang_title: "🌍 Language",
     lang_auto: "🪄 phone language",
+    nt_title: "🔔 Notifications",
+    nt_on: "on",
+    nt_off: "blocked",
+    nt_desc: "A reminder when an event is coming up, when one of your wishes opens, or when a friend shares a list. You're in control. 🔒",
+    nt_enable: "Turn on notifications",
+    nt_test: "Send a test notification",
+    nt_denied: "Re-enable them in your phone settings (Settings → Spotane → Notifications).",
+    nt_ios: "📱 On iPhone: first add Spotane to your home screen (Share → “Add to Home Screen”), then come back here.",
+    nt_unsupported: "Notifications aren't supported here — on iPhone, add Spotane to your home screen first",
+    nt_enabled: "Notifications on 🔔",
+    nt_welcome_t: "Spotane 🔔",
+    nt_welcome_b: "You're all set! You'll get the good plans at the right time ✨",
+    nt_refused: "Notifications declined",
+    nt_sw: "Service worker not ready — reload the app",
+    nt_test_t: "🎫 An event is waiting tonight",
+    nt_test_b: "Spotane test — if you see this, notifications work perfectly!",
+    nt_err: "Couldn't show the test notification",
     flt_btn: "Filters",
     flt_reset: "Reset",
     flt_status: "Status",
@@ -3586,6 +3620,23 @@ const I18N = {
     btn_later: "Más tarde",
     lang_title: "🌍 Idioma",
     lang_auto: "🪄 idioma del teléfono",
+    nt_title: "🔔 Notificaciones",
+    nt_on: "activadas",
+    nt_off: "bloqueadas",
+    nt_desc: "Un aviso cuando se acerca un evento, cuando abre uno de tus antojos, o cuando un amigo comparte una lista. Tú decides. 🔒",
+    nt_enable: "Activar las notificaciones",
+    nt_test: "Enviar una notificación de prueba",
+    nt_denied: "Reactívalas en los ajustes de tu teléfono (Ajustes → Spotane → Notificaciones).",
+    nt_ios: "📱 En iPhone: añade primero Spotane a tu pantalla de inicio (Compartir → «Añadir a inicio»), y vuelve aquí.",
+    nt_unsupported: "Las notificaciones no funcionan aquí — en iPhone, añade Spotane a tu pantalla de inicio primero",
+    nt_enabled: "Notificaciones activadas 🔔",
+    nt_welcome_t: "Spotane 🔔",
+    nt_welcome_b: "¡Listo! Recibirás los buenos planes en el momento justo ✨",
+    nt_refused: "Notificaciones rechazadas",
+    nt_sw: "Service worker no listo — recarga la app",
+    nt_test_t: "🎫 Un evento te espera esta noche",
+    nt_test_b: "Prueba Spotane — ¡si ves esto, las notificaciones funcionan perfectamente!",
+    nt_err: "No se pudo mostrar la notificación de prueba",
     flt_btn: "Filtros",
     flt_reset: "Restablecer",
     flt_status: "Estado",
@@ -13766,7 +13817,7 @@ function App() {
   const [notifPerm, setNotifPerm] = useState(typeof Notification !== 'undefined' ? Notification.permission : 'unsupported');
   const enableNotifs = async () => {
     if (typeof Notification === 'undefined') {
-      window.mspToast?.("Notifications non supportées ici — sur iPhone, ajoute Spotane à l'écran d'accueil d'abord", "error");
+      window.mspToast?.(tr("nt_unsupported"), "error");
       return;
     }
     let p;
@@ -13781,11 +13832,11 @@ function App() {
         localStorage.setItem('myplace_notif_optin_v1', '1');
       } catch {}
       window.mspHaptic?.(15);
-      window.mspToast?.("Notifications activées 🔔", "success");
+      window.mspToast?.(tr("nt_enabled"), "success");
       try {
         const reg = await navigator.serviceWorker?.ready;
-        reg?.showNotification("Spotane 🔔", {
-          body: "C'est bon ! Tu recevras les bons plans au bon moment ✨",
+        reg?.showNotification(tr("nt_welcome_t"), {
+          body: tr("nt_welcome_b"),
           icon: './icon-192.png',
           badge: './icon-192.png',
           data: {
@@ -13797,18 +13848,18 @@ function App() {
       try {
         localStorage.removeItem('myplace_notif_optin_v1');
       } catch {}
-      window.mspToast?.("Notifications refusées", "error");
+      window.mspToast?.(tr("nt_refused"), "error");
     }
   };
   const testNotif = async () => {
     try {
       const reg = await navigator.serviceWorker?.ready;
       if (!reg) {
-        window.mspToast?.("Service worker pas prêt — recharge l'app", "error");
+        window.mspToast?.(tr("nt_sw"), "error");
         return;
       }
-      reg.showNotification("🎫 Un event t'attend ce soir", {
-        body: "Test Spotane — si tu vois ça, les notifications marchent parfaitement !",
+      reg.showNotification(tr("nt_test_t"), {
+        body: tr("nt_test_b"),
         icon: './icon-192.png',
         badge: './icon-192.png',
         data: {
@@ -13817,7 +13868,7 @@ function App() {
       });
       window.mspHaptic?.(12);
     } catch {
-      window.mspToast?.("Impossible d'afficher la notif de test", "error");
+      window.mspToast?.(tr("nt_err"), "error");
     }
   };
   useEffect(() => {
@@ -19918,7 +19969,7 @@ function App() {
         fontSize: 20,
         letterSpacing: '-0.01em'
       }
-    }, "\uD83D\uDD14 Notifications"), notifPerm === 'granted' && React.createElement("span", {
+    }, tr("nt_title")), notifPerm === 'granted' && React.createElement("span", {
       style: {
         background: '#EEF9F4',
         color: '#0E8A62',
@@ -19928,7 +19979,7 @@ function App() {
         fontWeight: 800,
         fontFamily: 'var(--font-body)'
       }
-    }, "activ\xE9es"), notifPerm === 'denied' && React.createElement("span", {
+    }, tr("nt_on")), notifPerm === 'denied' && React.createElement("span", {
       style: {
         background: '#FDECEC',
         color: '#C0392B',
@@ -19938,7 +19989,7 @@ function App() {
         fontWeight: 800,
         fontFamily: 'var(--font-body)'
       }
-    }, "bloqu\xE9es")), React.createElement("div", {
+    }, tr("nt_off"))), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
@@ -19946,7 +19997,7 @@ function App() {
         lineHeight: 1.45,
         marginBottom: 12
       }
-    }, "Un rappel quand un event approche, quand une de tes envies ouvre, ou quand un ami partage une liste. Toi seul d\xE9cides. \uD83D\uDD12"), notifPerm === 'default' && React.createElement("button", {
+    }, tr("nt_desc")), notifPerm === 'default' && React.createElement("button", {
       onClick: enableNotifs,
       className: "press",
       style: {
@@ -19961,7 +20012,7 @@ function App() {
         fontSize: 14,
         cursor: 'pointer'
       }
-    }, "Activer les notifications"), notifPerm === 'granted' && React.createElement("button", {
+    }, tr("nt_enable")), notifPerm === 'granted' && React.createElement("button", {
       onClick: testNotif,
       className: "press",
       style: {
@@ -19976,21 +20027,21 @@ function App() {
         fontSize: 13.5,
         cursor: 'pointer'
       }
-    }, "Envoyer une notif de test"), notifPerm === 'denied' && React.createElement("div", {
+    }, tr("nt_test")), notifPerm === 'denied' && React.createElement("div", {
       style: {
         fontSize: 12,
         color: 'var(--ink-400)',
         fontFamily: 'var(--font-body)',
         lineHeight: 1.4
       }
-    }, "R\xE9active-les dans les r\xE9glages de ton t\xE9l\xE9phone (R\xE9glages \u2192 Spotane \u2192 Notifications)."), notifPerm === 'unsupported' && React.createElement("div", {
+    }, tr("nt_denied")), notifPerm === 'unsupported' && React.createElement("div", {
       style: {
         fontSize: 12,
         color: 'var(--ink-400)',
         fontFamily: 'var(--font-body)',
         lineHeight: 1.4
       }
-    }, "\uD83D\uDCF1 Sur iPhone : ajoute d'abord Spotane \xE0 ton \xE9cran d'accueil (Partager \u2192 \xAB Sur l'\xE9cran d'accueil \xBB), puis reviens ici."))), React.createElement("div", {
+    }, tr("nt_ios")))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
