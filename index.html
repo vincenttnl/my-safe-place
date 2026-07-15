@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T19:43:00.871Z -->
+<!-- built 2026-07-15T21:59:33.616Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16901,7 +16901,55 @@ function App() {
     if (sort === "recent") arr.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "fav") arr.sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || (b.addedAt || 0) - (a.addedAt || 0));else if (sort === "alpha") arr.sort((a, b) => a.name.localeCompare(b.name, "fr"));else if (sort === "price-asc") arr.sort((a, b) => extractPrice(a.price) - extractPrice(b.price));else if (sort === "price-desc") arr.sort((a, b) => extractPrice(b.price) - extractPrice(a.price));else if (sort === "distance" && userPos) arr.sort((a, b) => distKm(userPos.lat, userPos.lng, a.lat, a.lng) - distKm(userPos.lat, userPos.lng, b.lat, b.lng));
     return arr;
   }, [visible, sort, userPos]);
-  const nlp = useMemo(() => parseNLQuery(search), [search]);
+  const nlpLocal = useMemo(() => parseNLQuery(search), [search]);
+  const [nlpAI, setNlpAI] = useState(null);
+  useEffect(() => {
+    const q = search.trim();
+    if (searchMode !== "discover" || q.length < 3 || !window.spotaneProxy) {
+      setNlpAI(null);
+      return;
+    }
+    let dead = false;
+    const t = setTimeout(async () => {
+      try {
+        const d = await window.spotaneProxy("nlSearch", {
+          q,
+          city: (CITIES[city] || CITIES.paris).label
+        });
+        if (!dead && d && d.nlp) setNlpAI({
+          q,
+          nlp: d.nlp
+        });
+      } catch (e) {
+        if (!dead) setNlpAI(null);
+      }
+    }, 600);
+    return () => {
+      dead = true;
+      clearTimeout(t);
+    };
+  }, [search, searchMode, city]);
+  const nlp = useMemo(() => {
+    if (!nlpAI || nlpAI.q !== search.trim()) return nlpLocal;
+    const a = nlpAI.nlp;
+    const named = searchNorm(a.name || "");
+    return {
+      cats: named ? [] : a.cats || [],
+      cuisine: a.cuisine || [],
+      vibe: a.vibe || [],
+      who: a.who || [],
+      when: a.when || [],
+      music: a.music || [],
+      budget: a.budget || [],
+      openNow: !!a.openNow,
+      nearMe: !!a.nearMe,
+      place: a.place || "",
+      terms: [],
+      raw: named,
+      active: true
+    };
+  }, [nlpAI, nlpLocal, search]);
+  const nlpFromAI = !!(nlpAI && nlpAI.q === search.trim());
   const [nlpPlace, setNlpPlace] = useState(null);
   useEffect(() => {
     if (searchMode !== "discover" || !nlp.place) {
