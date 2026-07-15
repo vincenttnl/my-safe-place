@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T17:06:11.326Z -->
+<!-- built 2026-07-15T17:25:37.081Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -190,18 +190,52 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* v10.43 : actif = OUTLINE (langage B1 №4 étendu à toutes les pastilles) */
 .pill-btn.active{border:1.5px solid var(--pop-pink);background:#fff;color:var(--pop-pink);font-weight:700}
 .pill-btn:active{transform:scale(.95)}
-/* v10.72 — bloc filtres « te ferait plaisir » style №1 (choix Vincent) : titre Fraunces italique souligné (couleur par groupe --acc, SANS emoji), « Tout » collé au titre, options en scroll horizontal (fondu crème à droite), Catégorie centrée 2 lignes, actif = teinte légère + couleur --acci. Emojis GARDÉS sur les options. */
-.pl-grp{position:relative;margin:0}
-.pl-row{display:flex;flex-wrap:nowrap;align-items:center;gap:7px;overflow-x:auto;scrollbar-width:none;padding:3px 0}
-.pl-row::-webkit-scrollbar{display:none}
-.pl-title{font-family:var(--font-display);font-weight:900;font-style:italic;font-size:16.5px;color:var(--ink-900);white-space:nowrap;flex:0 0 auto;margin-right:4px;line-height:1}
-.pl-title .t{text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:3px;text-decoration-thickness:2px}
-.pl-pill{font-family:var(--font-body);font-weight:600;font-size:12.5px;border:1px solid var(--hairline);background:#fff;color:var(--ink-600);border-radius:999px;padding:5px 12px;white-space:nowrap;cursor:pointer;flex:0 0 auto;line-height:1.1}
-.pl-pill.tout{color:var(--ink-900);font-weight:700}
-.pl-pill.active{border-color:var(--acci);color:var(--acci);background:color-mix(in srgb,var(--acc) 12%,#fff)}
-.pl-grp.cat .pl-row{flex-wrap:wrap;justify-content:center;overflow:visible;gap:7px 8px}
-.pl-grp.cat .pl-title{margin-right:6px}
-.pl-grp.scrollgrp::after{content:"";position:absolute;top:0;right:0;bottom:0;width:34px;background:linear-gradient(90deg,transparent,var(--bg-cream));pointer-events:none}
+/* v10.87 — Propositions « Stories » (variante №1 validée par Vincent le 15/07, ex-bloc .pl-* v10.72 remplacé) :
+   plein écran, un dégradé par question, 6 barres cliquables (cible tactile 21px, pas le trait de 3px),
+   « Tout » = groupe VIDE → le compteur monte, il ne chute jamais. + onglet ★ recherches enregistrées. */
+.pq-wrap{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;height:100dvh;overflow:hidden;background:var(--bg-cream)}
+.pq-in{position:relative;flex:1;display:flex;flex-direction:column;width:100%;max-width:600px;margin:0 auto;min-height:0;overflow:hidden}
+.pq-bg{position:absolute;inset:0;z-index:0;transition:background .35s var(--ease)}
+.pq-top{position:relative;z-index:2;flex:0 0 auto;padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px}
+.pq-body{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden;padding:0 18px}
+.pq-foot{position:relative;z-index:2;flex:0 0 auto;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px))}
+.pq-scy{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.pq-scy::-webkit-scrollbar{display:none}
+/* min-height:100% + justify-center : centré quand ça rentre, rien de rogné quand ça dépasse */
+.pq-fill{display:flex;flex-direction:column;justify-content:center;min-height:100%;gap:8px;padding:8px 0}
+.pq-h1{font-family:var(--font-display);font-weight:900;letter-spacing:-.03em;line-height:1.02;color:#fff;margin:0}
+.pq-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pq-bars{display:flex;gap:3px;margin:0 -4px 2px}
+.pq-bars .seg{flex:1;border:none;background:transparent;padding:9px 4px;display:block;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pq-bars .seg i{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.3);transition:background .2s var(--ease),height .2s var(--ease)}
+.pq-bars .seg.done i{background:rgba(255,255,255,.95)}
+.pq-bars .seg.here i{background:#fff;height:5px}
+.pq-sp{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.38);background:rgba(255,255,255,.12);color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-align:left;font-family:var(--font-body);transition:transform .12s var(--ease),background .18s var(--ease)}
+.pq-sp:active{transform:scale(.97)}
+.pq-sp .e{font-size:21px;line-height:1}
+.pq-sp .l{flex:1;font-size:16px;font-weight:800;min-width:0}
+.pq-sp.on{background:#fff;border-color:#fff}
+.pq-sp.off{opacity:.35;cursor:default}
+/* la pilule « Tout » : traitée à part, jamais confondue avec une option */
+.pq-sp.all{border-style:dashed;border-color:rgba(255,255,255,.6)}
+.pq-sp.all.on{border-style:solid}
+.pq-rnd{width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);background:rgba(255,255,255,.14);color:#fff;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto;cursor:pointer}
+.pq-rnd[disabled]{opacity:.25;cursor:default}
+.pq-skip{border:none;background:transparent;color:rgba(255,255,255,.82);font-family:var(--font-body);font-size:13px;font-weight:800;padding:8px 10px;border-radius:999px;white-space:nowrap;text-decoration:underline;text-underline-offset:3px;cursor:pointer;flex:0 0 auto}
+.pq-cta{width:100%;border:none;border-radius:999px;background:#fff;font-family:var(--font-body);font-weight:900;font-size:15px;padding:15px;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.pq-brand{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.7);white-space:nowrap}
+.pq-tabs{display:flex;gap:3px;background:rgba(255,255,255,.18);border-radius:999px;padding:3px;flex:0 0 auto}
+.pq-tab{border:none;background:transparent;color:rgba(255,255,255,.85);font-family:var(--font-body);font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:999px;white-space:nowrap;cursor:pointer}
+.pq-tab.on{background:#fff;color:var(--ink-900)}
+.pq-tabs.ink{background:var(--bg-soft);border:1px solid var(--hairline)}
+.pq-tabs.ink .pq-tab{color:var(--ink-400)}
+.pq-tabs.ink .pq-tab.on{background:var(--ink-900);color:var(--bg-primary)}
+/* cartes préréglages (★ mes recherches) */
+.pq-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;border-radius:20px;border:2px solid var(--hairline);background:var(--bg-primary);color:var(--ink-900);text-align:left;font-family:var(--font-body);cursor:pointer;transition:transform .12s var(--ease)}
+.pq-card:active{transform:scale(.985)}
+.pq-card .nm{display:block;font-family:var(--font-display);font-weight:900;font-size:19px;letter-spacing:-.02em;line-height:1.15}
+.pq-card .sm{display:block;font-size:11.5px;font-weight:600;color:var(--ink-400);margin-top:3px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.pq-edit{border:1px solid var(--hairline);background:var(--bg-soft);color:var(--ink-600);font-family:var(--font-body);font-size:11.5px;font-weight:800;border-radius:999px;padding:6px 11px;cursor:pointer;flex:0 0 auto}
 
 /* Inputs - Partiful */
 .input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:#fff;font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
@@ -2996,6 +3030,39 @@ const I18N = {
     flt_vibe: "Ambiance",
     flt_music: "Musique",
     flt_music_note: "🎵 Un genre = « y joue souvent ». Taggage en cours : {n} lieux tagués sur {t} — ça s'enrichit.",
+    pq_q_who: "Avec qui ?",
+    pq_q_when: "Quand ?",
+    pq_q_vibe: "Ambiance ?",
+    pq_q_cuisine: "Cuisine ?",
+    pq_q_budget: "Budget ?",
+    pq_q_music: "Musique ?",
+    pq_all: "Tout",
+    pq_all_sub: "aucun filtre",
+    pq_skip: "Passer ›",
+    pq_next: "Suivant →",
+    pq_see: "Voir {n} spots →",
+    pq_see_save: "Enregistrer · {n} spots →",
+    pq_tab_quiz: "✦ Parcours",
+    pq_tab_saved: "★ Mes recherches",
+    pq_saved_title: "Mes recherches\nenregistrées",
+    pq_saved_sub: "Un tap et c'est parti — modifiable quand tu veux.",
+    pq_back: "Retour",
+    pq_edit: "Modifier",
+    pq_custom: "⚙️ Régler moi-même",
+    pq_editing: "Tu modifies « {name} »",
+    pq_nspots: "{n} spots",
+    pq_res_title: "Notre sélection\npour toi",
+    pq_back_filters: "← Filtres",
+    pq_none_t: "Aucune proposition",
+    pq_none_s: "Élargis tes filtres pour découvrir d'autres spots.",
+    pq_none_b: "← Modifier les filtres",
+    pq_add: "+ Ajouter à mes spots",
+    pq_have: "Dans mes spots",
+    pq_more: "Voir 10 de plus ↓ ({n} en réserve)",
+    pq_loading: "📸 Chargement...",
+    pre_date_n: "Date qui claque",
+    pre_potes_n: "Grosse soirée potes",
+    pre_chill_n: "Café tranquille",
     spots_title: "Mes spots à {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "Où on va ce soir ? 🍸",
@@ -3352,6 +3419,39 @@ const I18N = {
     flt_vibe: "Vibe",
     flt_music: "Music",
     flt_music_note: "🎵 A genre = “often plays it”. Tagging in progress: {n} of {t} places tagged — growing.",
+    pq_q_who: "Who with?",
+    pq_q_when: "When?",
+    pq_q_vibe: "What vibe?",
+    pq_q_cuisine: "Food?",
+    pq_q_budget: "Budget?",
+    pq_q_music: "Music?",
+    pq_all: "Anything",
+    pq_all_sub: "no filter",
+    pq_skip: "Skip ›",
+    pq_next: "Next →",
+    pq_see: "See {n} spots →",
+    pq_see_save: "Save · {n} spots →",
+    pq_tab_quiz: "✦ Quiz",
+    pq_tab_saved: "★ Saved",
+    pq_saved_title: "My saved\nsearches",
+    pq_saved_sub: "One tap and you're off — edit them anytime.",
+    pq_back: "Back",
+    pq_edit: "Edit",
+    pq_custom: "⚙️ Set it myself",
+    pq_editing: "You're editing “{name}”",
+    pq_nspots: "{n} spots",
+    pq_res_title: "Our picks\nfor you",
+    pq_back_filters: "← Filters",
+    pq_none_t: "No suggestion",
+    pq_none_s: "Widen your filters to discover other spots.",
+    pq_none_b: "← Change filters",
+    pq_add: "+ Add to my spots",
+    pq_have: "In my spots",
+    pq_more: "See 10 more ↓ ({n} left)",
+    pq_loading: "📸 Loading...",
+    pre_date_n: "Date night",
+    pre_potes_n: "Big night with mates",
+    pre_chill_n: "Chill café",
     spots_title: "My spots in {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "Where to tonight? 🍸",
@@ -3708,6 +3808,39 @@ const I18N = {
     flt_vibe: "Ambiente",
     flt_music: "Música",
     flt_music_note: "🎵 Un género = «suele sonar ahí». Etiquetado en curso: {n} de {t} lugares — va creciendo.",
+    pq_q_who: "¿Con quién?",
+    pq_q_when: "¿Cuándo?",
+    pq_q_vibe: "¿Ambiente?",
+    pq_q_cuisine: "¿Cocina?",
+    pq_q_budget: "¿Presupuesto?",
+    pq_q_music: "¿Música?",
+    pq_all: "Todo",
+    pq_all_sub: "sin filtro",
+    pq_skip: "Saltar ›",
+    pq_next: "Siguiente →",
+    pq_see: "Ver {n} spots →",
+    pq_see_save: "Guardar · {n} spots →",
+    pq_tab_quiz: "✦ Recorrido",
+    pq_tab_saved: "★ Guardadas",
+    pq_saved_title: "Mis búsquedas\nguardadas",
+    pq_saved_sub: "Un toque y listo — las cambias cuando quieras.",
+    pq_back: "Atrás",
+    pq_edit: "Editar",
+    pq_custom: "⚙️ Lo ajusto yo",
+    pq_editing: "Estás editando «{name}»",
+    pq_nspots: "{n} spots",
+    pq_res_title: "Nuestra selección\npara ti",
+    pq_back_filters: "← Filtros",
+    pq_none_t: "Ninguna propuesta",
+    pq_none_s: "Amplía tus filtros para descubrir otros spots.",
+    pq_none_b: "← Cambiar los filtros",
+    pq_add: "+ Añadir a mis spots",
+    pq_have: "En mis spots",
+    pq_more: "Ver 10 más ↓ ({n} en reserva)",
+    pq_loading: "📸 Cargando...",
+    pre_date_n: "Cita que impacta",
+    pre_potes_n: "Fiestón con amigos",
+    pre_chill_n: "Café tranquilo",
     spots_title: "Mis spots en {city} 🎆",
     spots_pill: "★ {n} spots",
     home_title: "¿Salimos esta noche? 🍸",
@@ -4751,6 +4884,7 @@ const OBK = "myplace_onboarding_done_v1";
 const CITYK = "myplace_city_v1";
 const LSTK = "myplace_lists_v1";
 const COLK = "myplace_collectifs_v1";
+const PRK = "myplace_presets_v1";
 const FREE_LISTS_MAX = Infinity;
 const CITIES = {
   paris: {
@@ -7121,6 +7255,69 @@ function ContactPicker({
     }
   }, "\u2699\uFE0F Gerer mes contacts")));
 }
+const PQ_KEYS = ["who", "when", "vibe", "cuisine", "budget", "music"];
+const Q_MUSIC_WIZ = MUSIC.map(m => ({
+  k: m.k,
+  l: m.e + " " + m.l
+}));
+function pqSplit(l) {
+  const i = l.indexOf(" ");
+  if (i < 0) return {
+    e: "",
+    t: l
+  };
+  const head = l.slice(0, i);
+  return /\p{Extended_Pictographic}/u.test(head) ? {
+    e: head,
+    t: l.slice(i + 1)
+  } : {
+    e: "",
+    t: l
+  };
+}
+const PQ_SEED_PRESETS = [{
+  id: "pre_date",
+  nk: "pre_date_n",
+  emoji: "💑✨",
+  acc: "#E91E63",
+  acci: "#C2185B",
+  f: {
+    who: ["date"],
+    when: ["soiree"],
+    vibe: ["chic"],
+    cuisine: [],
+    budget: ["€€€"],
+    music: []
+  }
+}, {
+  id: "pre_potes",
+  nk: "pre_potes_n",
+  emoji: "👥🔥",
+  acc: "#8B5CF6",
+  acci: "#7C3AED",
+  f: {
+    who: ["potes"],
+    when: ["soiree"],
+    vibe: ["festif"],
+    cuisine: [],
+    budget: [],
+    music: ["techno"]
+  }
+}, {
+  id: "pre_chill",
+  nk: "pre_chill_n",
+  emoji: "☕😌",
+  acc: "#3DC8FF",
+  acci: "#1B9BD1",
+  f: {
+    who: ["solo", "potes"],
+    when: ["journee"],
+    vibe: ["decontracte"],
+    cuisine: ["brunch"],
+    budget: ["€€"],
+    music: []
+  }
+}];
 function PropositionsModal({
   userSpots,
   onAdd,
@@ -7131,8 +7328,9 @@ function PropositionsModal({
   proposals
 }) {
   const POOL = proposals && proposals.length ? proposals : STOCK_SPOTS;
+  const [tab, setTab] = useState("quiz");
   const [step, setStep] = useState("filter");
-  const [catFilter, setCatFilter] = useState([]);
+  const [qi, setQi] = useState(0);
   const [who, setWho] = useState([]);
   const [when, setWhen] = useState(() => {
     const h = new Date().getHours();
@@ -7142,97 +7340,195 @@ function PropositionsModal({
     return ["journee"];
   });
   const [vibe, setVibe] = useState([]);
-  const [zone, setZone] = useState([]);
   const [cuisine, setCuisine] = useState([]);
   const [budget, setBudget] = useState([]);
-  const toggleVal = setter => v => setter(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v]);
+  const [music, setMusic] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [addedIds, setAddedIds] = useState(new Set());
-  const [seenIds, setSeenIds] = useState(new Set());
   const [loadingPhotos, setLoadingPhotos] = useState(null);
   const [photoCache, setPhotoCache] = useState({});
-  const [currentPair, setCurrentPair] = useState([]);
-  const [noMore, setNoMore] = useState(false);
   const [topN, setTopN] = useState(5);
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
-  const allResults = useMemo(() => {
-    const cuisineExp = cuisine.flatMap(c => c === "streetfood" ? STREET_KEYS : [c]);
+  const [presets, setPresets] = useState(() => {
+    try {
+      const raw = localStorage.getItem(PRK);
+      const a = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(a) && a.length) return a;
+    } catch {}
+    return PQ_SEED_PRESETS;
+  });
+  const savePresets = next => {
+    setPresets(next);
+    try {
+      localStorage.setItem(PRK, JSON.stringify(next));
+    } catch {}
+  };
+  const filters = useMemo(() => ({
+    who,
+    when,
+    vibe,
+    cuisine,
+    budget,
+    music
+  }), [who, when, vibe, cuisine, budget, music]);
+  const runFilters = useCallback(f => {
+    const cuisineExp = (f.cuisine || []).flatMap(c => c === "streetfood" ? STREET_KEYS : [c]);
+    const anyFilter = !!((f.who || []).length || (f.when || []).length || (f.vibe || []).length || (f.cuisine || []).length || (f.music || []).length);
     return POOL.map(s => {
-      if (catFilter.length && !catFilter.some(c => s.cats.includes(c))) return null;
-      if (budget.length && !budget.includes(priceBucket(s.price))) return null;
+      if ((f.budget || []).length && !f.budget.includes(priceBucket(s.price))) return null;
       let score = 0;
       if (s.tags) {
-        if (who.length && who.some(w => s.tags.who?.includes(w))) score += 3;
-        if (when.length && when.some(w => s.tags.when?.includes(w))) score += 3;
-        if (vibe.length && vibe.some(v => s.tags.vibe?.includes(v))) score += 3;
-        if (zone.length && zone.includes(s.tags.zone)) score += 2;
-        if (cuisine.length && cuisineExp.some(c => s.tags.cuisine?.includes(c))) score += 4;
+        if ((f.who || []).length && f.who.some(w => s.tags.who?.includes(w))) score += 3;
+        if ((f.when || []).length && f.when.some(w => s.tags.when?.includes(w))) score += 3;
+        if ((f.vibe || []).length && f.vibe.some(v => s.tags.vibe?.includes(v))) score += 3;
+        if (cuisineExp.length && cuisineExp.some(c => s.tags.cuisine?.includes(c))) score += 4;
+        if ((f.music || []).length && f.music.some(m => s.tags.music?.includes(m))) score += 3;
       }
-      const anyFilter = who.length || when.length || vibe.length || zone.length || cuisine.length;
       if (anyFilter && score === 0) return null;
       return {
         s,
         score: anyFilter ? score : 1
       };
     }).filter(Boolean).sort((a, b) => b.score - a.score);
-  }, [catFilter, who, when, vibe, zone, cuisine, budget, POOL]);
+  }, [POOL]);
+  const allResults = useMemo(() => runFilters(filters), [runFilters, filters]);
+  const totalMatch = allResults.length;
   const pillCounts = useMemo(() => {
     const counts = {
       who: {},
       when: {},
       vibe: {},
-      zone: {},
       cuisine: {},
-      cat: {},
+      music: {},
       budget: {}
     };
     for (const s of POOL) {
-      const okCat = !catFilter.length || catFilter.some(c => s.cats.includes(c));
-      const okBud = !budget.length || budget.includes(priceBucket(s.price));
-      if (okBud) s.cats.forEach(c => counts.cat[c] = (counts.cat[c] || 0) + 1);
-      if (okCat) {
-        const b = priceBucket(s.price);
-        if (b) counts.budget[b] = (counts.budget[b] || 0) + 1;
-      }
-      if (!okCat || !okBud) continue;
+      const b = priceBucket(s.price);
+      if (b) counts.budget[b] = (counts.budget[b] || 0) + 1;
+      if (budget.length && !budget.includes(b)) continue;
       const t = s.tags || {};
       (t.who || []).forEach(k => counts.who[k] = (counts.who[k] || 0) + 1);
       (t.when || []).forEach(k => counts.when[k] = (counts.when[k] || 0) + 1);
       (t.vibe || []).forEach(k => counts.vibe[k] = (counts.vibe[k] || 0) + 1);
-      if (t.zone) counts.zone[t.zone] = (counts.zone[t.zone] || 0) + 1;
       (t.cuisine || []).forEach(k => counts.cuisine[k] = (counts.cuisine[k] || 0) + 1);
+      (t.music || []).forEach(k => counts.music[k] = (counts.music[k] || 0) + 1);
       if ((t.cuisine || []).some(k => STREET_KEYS.includes(k))) counts.cuisine.streetfood = (counts.cuisine.streetfood || 0) + 1;
     }
     return counts;
-  }, [POOL, catFilter, budget]);
-  const pickTwo = useCallback(() => {
-    const unseen = allResults.filter(r => !seenIds.has(r.s.id));
-    if (unseen.length === 0) {
-      setNoMore(true);
-      setCurrentPair([]);
-      return;
-    }
-    const pick = [];
-    if (unseen.length >= 2) {
-      pick.push(unseen[0]);
-      const rest = unseen.slice(1);
-      const pool = rest.slice(0, Math.min(6, rest.length));
-      const rnd = pool[Math.floor(Math.random() * pool.length)];
-      pick.push(rnd);
-    } else {
-      pick.push(unseen[0]);
-    }
-    setCurrentPair(pick);
-    setSeenIds(prev => {
-      const n = new Set(prev);
-      pick.forEach(p => n.add(p.s.id));
-      return n;
-    });
-    setNoMore(false);
-  }, [allResults, seenIds]);
-  const startResults = () => {
+  }, [POOL, budget]);
+  const GROUPS = useMemo(() => [{
+    id: "who",
+    q: tr("pq_q_who"),
+    c: "#E91E63",
+    ci: "#C2185B",
+    list: Q_WHO,
+    value: who,
+    set: setWho,
+    counts: pillCounts.who
+  }, {
+    id: "when",
+    q: tr("pq_q_when"),
+    c: "#3DC8FF",
+    ci: "#1B9BD1",
+    list: Q_WHEN,
+    value: when,
+    set: setWhen,
+    counts: pillCounts.when
+  }, {
+    id: "vibe",
+    q: tr("pq_q_vibe"),
+    c: "#8B5CF6",
+    ci: "#7C3AED",
+    list: Q_VIBE,
+    value: vibe,
+    set: setVibe,
+    counts: pillCounts.vibe
+  }, {
+    id: "cuisine",
+    q: tr("pq_q_cuisine"),
+    c: "#F59E0B",
+    ci: "#9A7B00",
+    list: Q_CUISINE_WIZ,
+    value: cuisine,
+    set: setCuisine,
+    counts: pillCounts.cuisine
+  }, {
+    id: "budget",
+    q: tr("pq_q_budget"),
+    c: "#FF6B2C",
+    ci: "#E85411",
+    list: Q_BUDGET,
+    value: budget,
+    set: setBudget,
+    counts: pillCounts.budget
+  }, {
+    id: "music",
+    q: tr("pq_q_music"),
+    c: "#7CB342",
+    ci: "#4E7A0E",
+    list: Q_MUSIC_WIZ,
+    value: music,
+    set: setMusic,
+    counts: pillCounts.music
+  }], [who, when, vibe, cuisine, budget, music, pillCounts]);
+  const LAST = GROUPS.length - 1;
+  const G = GROUPS[Math.min(qi, LAST)];
+  const applyFilters = f => {
+    setWho(f.who || []);
+    setWhen(f.when || []);
+    setVibe(f.vibe || []);
+    setCuisine(f.cuisine || []);
+    setBudget(f.budget || []);
+    setMusic(f.music || []);
+  };
+  const goResults = () => {
     setTopN(5);
     setStep("results");
   };
+  const runPreset = p => {
+    applyFilters(p.f);
+    setEditingId(null);
+    setTab("quiz");
+    goResults();
+  };
+  const editPreset = p => {
+    applyFilters(p.f);
+    setEditingId(p.id);
+    setQi(0);
+    setTab("quiz");
+    setStep("filter");
+  };
+  const finishQuiz = () => {
+    if (editingId) {
+      savePresets(presets.map(p => p.id === editingId ? {
+        ...p,
+        f: {
+          ...filters
+        }
+      } : p));
+      setEditingId(null);
+    }
+    goResults();
+  };
+  const nextQ = () => {
+    if (qi < LAST) setQi(qi + 1);else finishQuiz();
+  };
+  const skipQ = () => {
+    G.set([]);
+    nextQ();
+  };
+  const presetName = p => p.nk ? tr(p.nk) : p.name || "";
+  const labelOf = (gid, k) => {
+    if (gid === "budget" && k !== "free") return k;
+    const g = GROUPS.find(x => x.id === gid);
+    const o = g && g.list.find(x => x.k === k);
+    return o ? pqSplit(o.l).t : k;
+  };
+  const summaryOf = f => PQ_KEYS.map(gid => (f[gid] || []).map(k => labelOf(gid, k)).join(" · ")).filter(Boolean).join(" · ") || tr("pq_all");
+  const editing = editingId ? presets.find(p => p.id === editingId) : null;
+  const swipe = useSwipeBack(() => {
+    if (step === "results") setStep("filter");else if (tab === "saved") setTab("quiz");else if (qi > 0) setQi(qi - 1);else onClose();
+  });
   const alreadyHas = s => userNames.has(s.name.toLowerCase()) || addedIds.has(s.id);
   const fetchPhotosFor = async s => {
     if (photoCache[s.id]) return photoCache[s.id];
@@ -7270,265 +7566,343 @@ function PropositionsModal({
     });
     setAddedIds(prev => new Set([...prev, s.id]));
   };
-  const Pill = ({
-    list,
-    value: val,
-    onToggle: onT,
-    onAll,
-    counts
+  const Tabs = ({
+    ink
   }) => React.createElement("div", {
-    style: {
-      display: "flex",
-      flexWrap: "wrap",
-      gap: 5
-    }
-  }, onAll && React.createElement("button", {
-    onClick: onAll,
-    className: `pill-btn${val.length === 0 ? " active" : ""}`
-  }, "Tout"), list.map(o => {
-    const n = counts && o.k ? counts[o.k] || 0 : null;
-    const off = n === 0 && !val.includes(o.k);
-    return React.createElement("button", {
-      key: o.k,
-      onClick: () => !off && onT(o.k),
-      className: `pill-btn${val.includes(o.k) ? " active" : ""}`,
-      style: off ? {
-        opacity: .35,
-        cursor: 'default'
-      } : {},
-      "aria-disabled": off
-    }, o.l);
-  }));
-  const catOptions = CATS.filter(c => c.key !== "all");
-  const totalMatch = allResults.length;
-  const seenCount = seenIds.size;
-  return React.createElement("div", {
-    className: "modal-overlay",
-    role: "dialog",
-    "aria-modal": "true",
-    onClick: onClose
-  }, React.createElement("div", {
-    className: "modal-sheet slide-up",
-    onClick: e => e.stopPropagation(),
-    style: {
-      maxHeight: "95vh",
-      background: 'var(--bg-cream)',
-      paddingTop: 0
-    }
-  }, React.createElement("div", {
-    style: {
-      position: 'sticky',
-      top: 0,
-      padding: '20px 0 12px',
-      background: 'var(--bg-cream)',
-      zIndex: 6,
-      borderBottom: '1px solid var(--hairline)'
-    }
-  }, React.createElement("div", {
-    className: "sheet-handle"
-  }), React.createElement(SheetClose, {
-    onClose: onClose
-  }), React.createElement("div", {
-    style: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-      gap: 12,
-      paddingRight: 44
-    }
-  }, React.createElement("div", null, React.createElement("div", {
-    className: "mono-label",
-    style: {
-      marginBottom: 4
-    }
-  }, "Propositions"), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: step === "filter" ? 28 : 25,
-      lineHeight: 1.08,
-      letterSpacing: '-0.02em',
-      whiteSpace: 'pre-line',
-      paddingBottom: 2
-    }
-  }, step === "filter" ? "Qu'est-ce qui\nte ferait plaisir ?" : "Notre sélection\npour toi")), step === "results" && React.createElement("button", {
+    className: "pq-tabs" + (ink ? " ink" : ""),
+    role: "tablist"
+  }, React.createElement("button", {
+    role: "tab",
+    "aria-selected": tab === "quiz",
     onClick: () => {
+      setTab("quiz");
       setStep("filter");
-      setCurrentPair([]);
-      setSeenIds(new Set());
-      setNoMore(false);
     },
+    className: "pq-tab" + (tab === "quiz" ? " on" : "")
+  }, tr("pq_tab_quiz")), React.createElement("button", {
+    role: "tab",
+    "aria-selected": tab === "saved",
+    onClick: () => setTab("saved"),
+    className: "pq-tab" + (tab === "saved" ? " on" : "")
+  }, tr("pq_tab_saved")));
+  if (tab === "saved") {
+    return React.createElement("div", _extends({
+      className: "pq-wrap",
+      role: "dialog",
+      "aria-modal": "true"
+    }, swipe), React.createElement("div", {
+      className: "pq-in"
+    }, React.createElement("div", {
+      className: "pq-top"
+    }, React.createElement("div", {
+      className: "pq-row"
+    }, React.createElement(Tabs, {
+      ink: true
+    }), React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement(RedX, {
+      onClick: onClose,
+      size: 26
+    })), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 32,
+        lineHeight: 1.06,
+        letterSpacing: '-0.03em',
+        whiteSpace: 'pre-line',
+        color: 'var(--ink-900)'
+      }
+    }, tr("pq_saved_title")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-400)',
+        marginTop: 6
+      }
+    }, tr("pq_saved_sub"))), React.createElement("div", {
+      className: "pq-body"
+    }, React.createElement("div", {
+      className: "pq-scy"
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        padding: '8px 0'
+      }
+    }, presets.map(p => {
+      const n = runFilters(p.f).length;
+      return React.createElement("div", {
+        key: p.id,
+        className: "pq-card press",
+        onClick: () => runPreset(p),
+        style: {
+          borderColor: p.acc
+        }
+      }, React.createElement("span", {
+        style: {
+          fontSize: 26,
+          flex: '0 0 auto',
+          lineHeight: 1
+        }
+      }, p.emoji), React.createElement("span", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, React.createElement("span", {
+        className: "nm"
+      }, presetName(p)), React.createElement("span", {
+        className: "sm"
+      }, summaryOf(p.f)), React.createElement("span", {
+        style: {
+          display: 'block',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 10.5,
+          fontWeight: 700,
+          color: p.acci,
+          marginTop: 5
+        }
+      }, tr("pq_nspots", {
+        n
+      }))), React.createElement("span", {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 7,
+          alignItems: 'flex-end',
+          flex: '0 0 auto'
+        }
+      }, React.createElement("span", {
+        style: {
+          fontSize: 16,
+          fontWeight: 900,
+          color: p.acc
+        }
+      }, "\u2192"), React.createElement("button", {
+        className: "pq-edit",
+        onClick: e => {
+          e.stopPropagation();
+          editPreset(p);
+        }
+      }, tr("pq_edit"))));
+    })))), React.createElement("div", {
+      className: "pq-foot"
+    }, React.createElement("button", {
+      onClick: () => {
+        setEditingId(null);
+        setQi(0);
+        setTab("quiz");
+        setStep("filter");
+      },
+      className: "press",
+      style: {
+        width: '100%',
+        padding: 14,
+        borderRadius: 16,
+        border: '1.5px dashed var(--hairline)',
+        background: 'transparent',
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        fontWeight: 700,
+        cursor: 'pointer'
+      }
+    }, tr("pq_custom")))));
+  }
+  if (step === "filter") {
+    return React.createElement("div", _extends({
+      className: "pq-wrap",
+      role: "dialog",
+      "aria-modal": "true"
+    }, swipe), React.createElement("div", {
+      className: "pq-in"
+    }, React.createElement("div", {
+      className: "pq-bg",
+      style: {
+        background: `linear-gradient(165deg, ${G.c}, ${G.ci})`
+      }
+    }), React.createElement("div", {
+      className: "pq-top"
+    }, React.createElement("div", {
+      className: "pq-bars"
+    }, GROUPS.map((g, j) => React.createElement("button", {
+      key: g.id,
+      onClick: () => setQi(j),
+      className: "seg" + (j < qi ? " done" : j === qi ? " here" : ""),
+      "aria-label": g.q
+    }, React.createElement("i", null)))), React.createElement("div", {
+      className: "pq-row"
+    }, React.createElement("button", {
+      onClick: () => setQi(q => Math.max(0, q - 1)),
+      className: "pq-rnd",
+      disabled: qi === 0,
+      "aria-label": tr("pq_back")
+    }, "\u2039"), React.createElement(Tabs, null), React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }), React.createElement("span", {
+      className: "pq-brand"
+    }, qi + 1, "/", GROUPS.length), React.createElement(RedX, {
+      onClick: onClose,
+      size: 26
+    })), editing && React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        fontWeight: 800,
+        color: 'rgba(255,255,255,.9)',
+        background: 'rgba(255,255,255,.16)',
+        borderRadius: 999,
+        padding: '5px 11px',
+        display: 'inline-block',
+        marginBottom: 6
+      }
+    }, editing.emoji, " ", tr("pq_editing", {
+      name: presetName(editing)
+    })), React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'flex-end',
+        gap: 8
+      }
+    }, React.createElement("div", {
+      className: "pq-h1",
+      style: {
+        fontSize: 46,
+        flex: 1
+      }
+    }, G.q), React.createElement("button", {
+      onClick: skipQ,
+      className: "pq-skip",
+      style: {
+        marginBottom: 8
+      }
+    }, tr("pq_skip")))), React.createElement("div", {
+      className: "pq-body"
+    }, React.createElement("div", {
+      className: "pq-scy"
+    }, React.createElement("div", {
+      className: "pq-fill"
+    }, React.createElement("button", {
+      onClick: () => G.set([]),
+      className: "pq-sp all" + (G.value.length === 0 ? " on" : ""),
+      style: G.value.length === 0 ? {
+        color: G.ci
+      } : undefined
+    }, React.createElement("span", {
+      className: "e"
+    }, "\u2726"), React.createElement("span", {
+      className: "l"
+    }, tr("pq_all")), G.value.length === 0 ? React.createElement("span", {
+      style: {
+        fontWeight: 900
+      }
+    }, "\u2713") : React.createElement("span", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        opacity: .75
+      }
+    }, tr("pq_all_sub"))), React.createElement("div", {
+      style: {
+        height: 1,
+        background: 'rgba(255,255,255,.25)',
+        margin: '2px 14px'
+      }
+    }), G.list.map(o => {
+      const on = G.value.includes(o.k);
+      const n = G.counts ? G.counts[o.k] || 0 : null;
+      const off = n === 0 && !on;
+      const sp = pqSplit(o.l);
+      return React.createElement("button", {
+        key: o.k,
+        onClick: () => !off && G.set(p => p.includes(o.k) ? p.filter(x => x !== o.k) : [...p, o.k]),
+        className: "pq-sp" + (on ? " on" : "") + (off ? " off" : ""),
+        style: on ? {
+          color: G.ci
+        } : undefined,
+        "aria-pressed": on,
+        "aria-disabled": off
+      }, sp.e && React.createElement("span", {
+        className: "e"
+      }, sp.e), React.createElement("span", {
+        className: "l"
+      }, sp.t), on && React.createElement("span", {
+        style: {
+          fontWeight: 900
+        }
+      }, "\u2713"));
+    })))), React.createElement("div", {
+      className: "pq-foot"
+    }, React.createElement("button", {
+      onClick: nextQ,
+      className: "pq-cta press",
+      style: {
+        color: G.ci
+      }
+    }, qi === LAST ? tr(editingId ? "pq_see_save" : "pq_see", {
+      n: totalMatch
+    }) : tr("pq_next")))));
+  }
+  return React.createElement("div", _extends({
+    className: "pq-wrap",
+    role: "dialog",
+    "aria-modal": "true"
+  }, swipe), React.createElement("div", {
+    className: "pq-in"
+  }, React.createElement("div", {
+    className: "pq-top",
+    style: {
+      borderBottom: '1px solid var(--hairline)',
+      paddingBottom: 12
+    }
+  }, React.createElement("div", {
+    className: "pq-row"
+  }, React.createElement("button", {
+    onClick: () => setStep("filter"),
+    className: "press",
     style: {
       background: 'var(--ink-900)',
-      color: '#fff',
+      color: 'var(--bg-primary)',
       border: 'none',
       borderRadius: 999,
-      padding: '8px 16px',
+      padding: '8px 15px',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
+      fontWeight: 700,
       fontSize: 13,
       cursor: 'pointer'
     }
-  }, "\u2190 Filtres"))), step === "filter" && React.createElement("div", {
+  }, tr("pq_back_filters")), React.createElement("span", {
     style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: 16,
-      paddingTop: 12
+      flex: 1
     }
-  }, [{
-    id: 'cat',
-    title: 'Catégorie ?',
-    tout: 'Tout',
-    cat: true,
-    acc: '#FF3D8B',
-    acci: '#E01E6E',
-    list: catOptions.map(c => ({
-      k: c.key,
-      l: c.emoji + ' ' + c.label
-    })),
-    value: catFilter,
-    set: setCatFilter,
-    counts: pillCounts.cat
-  }, {
-    id: 'who',
-    title: 'Avec qui ?',
-    tout: 'Tout',
-    acc: '#E91E63',
-    acci: '#C2185B',
-    list: Q_WHO,
-    value: who,
-    set: setWho,
-    counts: pillCounts.who
-  }, {
-    id: 'when',
-    title: 'Quand ?',
-    tout: 'Tout',
-    acc: '#3DC8FF',
-    acci: '#1B9BD1',
-    list: Q_WHEN,
-    value: when,
-    set: setWhen,
-    counts: pillCounts.when
-  }, {
-    id: 'amb',
-    title: 'Ambiance ?',
-    tout: 'Tout',
-    acc: '#8B5CF6',
-    acci: '#7C3AED',
-    list: Q_VIBE,
-    value: vibe,
-    set: setVibe,
-    counts: pillCounts.vibe
-  }, {
-    id: 'bud',
-    title: 'Budget ?',
-    tout: 'Tout',
-    acc: '#FF6B2C',
-    acci: '#E85411',
-    list: Q_BUDGET,
-    value: budget,
-    set: setBudget,
-    counts: pillCounts.budget
-  }, {
-    id: 'zone',
-    title: 'Zone ?',
-    tout: 'Toutes',
-    acc: '#C6FF3D',
-    acci: '#5E7A00',
-    list: Q_ZONE.filter(z => z.k),
-    value: zone,
-    set: setZone,
-    counts: pillCounts.zone
-  }, {
-    id: 'cui',
-    title: 'Cuisine ?',
-    tout: 'Tout',
-    acc: '#FFD23F',
-    acci: '#9A7B00',
-    list: Q_CUISINE_WIZ,
-    value: cuisine,
-    set: setCuisine,
-    counts: pillCounts.cuisine
-  }].map(G => React.createElement("div", {
-    key: G.id,
-    className: "pl-grp " + (G.cat ? "cat" : "scrollgrp"),
+  }), React.createElement("button", {
+    role: "tab",
+    "aria-selected": "false",
+    onClick: () => setTab("saved"),
+    className: "pq-edit press"
+  }, tr("pq_tab_saved")), React.createElement(RedX, {
+    onClick: onClose,
+    size: 26
+  })), React.createElement("div", {
     style: {
-      "--acc": G.acc,
-      "--acci": G.acci
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 26,
+      lineHeight: 1.08,
+      letterSpacing: '-0.02em',
+      whiteSpace: 'pre-line',
+      color: 'var(--ink-900)'
     }
+  }, tr("pq_res_title"))), React.createElement("div", {
+    className: "pq-body"
   }, React.createElement("div", {
-    className: "pl-row"
-  }, React.createElement("span", {
-    className: "pl-title"
-  }, React.createElement("span", {
-    className: "t"
-  }, G.title)), React.createElement("button", {
-    onClick: () => G.set([]),
-    className: "pl-pill tout" + (G.value.length === 0 ? " active" : "")
-  }, G.tout), G.list.map(o => {
-    const n = G.counts && o.k ? G.counts[o.k] || 0 : null;
-    const off = n === 0 && !G.value.includes(o.k);
-    const active = G.value.includes(o.k);
-    return React.createElement("button", {
-      key: o.k,
-      onClick: () => !off && G.set(p => p.includes(o.k) ? p.filter(x => x !== o.k) : [...p, o.k]),
-      className: "pl-pill" + (active ? " active" : ""),
-      style: off ? {
-        opacity: .35,
-        cursor: 'default'
-      } : undefined,
-      "aria-disabled": off
-    }, o.l);
-  })))), React.createElement("div", {
-    style: {
-      position: 'sticky',
-      bottom: 0,
-      display: "flex",
-      gap: 8,
-      marginTop: 8,
-      paddingTop: 14,
-      paddingBottom: 'max(4px,env(safe-area-inset-bottom,0px))',
-      background: 'linear-gradient(to top, var(--bg-cream) 74%, transparent)',
-      zIndex: 4
-    }
-  }, React.createElement("button", {
-    onClick: startResults,
-    disabled: totalMatch === 0,
-    className: "press",
-    style: {
-      flex: 1,
-      padding: 16,
-      borderRadius: 'var(--radius-pill)',
-      border: 'none',
-      background: totalMatch > 0 ? 'var(--pop-pink)' : 'var(--hairline)',
-      color: totalMatch > 0 ? '#fff' : 'var(--ink-400)',
-      fontWeight: 700,
-      fontSize: 16,
-      fontFamily: 'var(--font-body)',
-      cursor: totalMatch > 0 ? 'pointer' : 'not-allowed',
-      boxShadow: totalMatch > 0 ? '0 12px 32px rgba(255,61,139,0.4)' : 'none'
-    }
-  }, totalMatch > 0 ? `Voir les propositions (${totalMatch}) →` : "Aucun match"), React.createElement("button", {
-    onClick: () => {
-      setCatFilter([]);
-      setWho([]);
-      setWhen([]);
-      setVibe([]);
-      setZone([]);
-      setCuisine([]);
-      setBudget([]);
-    },
-    className: "btn-secondary",
-    style: {
-      flex: 0,
-      padding: "14px 20px",
-      boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
-    }
-  }, "Reset"))), step === "results" && React.createElement("div", {
-    style: {
-      paddingTop: 8
-    }
+    className: "pq-scy"
   }, allResults.length === 0 && React.createElement("div", {
     style: {
       padding: '40px 0',
@@ -7546,14 +7920,14 @@ function PropositionsModal({
       fontSize: 24,
       letterSpacing: '-0.01em'
     }
-  }, "Aucune proposition"), React.createElement("div", {
+  }, tr("pq_none_t")), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
       color: 'var(--ink-400)',
       fontSize: 14,
       marginTop: 8
     }
-  }, "\xC9largis tes filtres pour d\xE9couvrir d'autres spots."), React.createElement("button", {
+  }, tr("pq_none_s")), React.createElement("button", {
     onClick: () => setStep("filter"),
     className: "btn-primary",
     style: {
@@ -7561,11 +7935,12 @@ function PropositionsModal({
       width: 'auto',
       padding: '14px 32px'
     }
-  }, "\u2190 Modifier les filtres")), allResults.length > 0 && React.createElement("div", {
+  }, tr("pq_none_b"))), allResults.length > 0 && React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
-      gap: 14
+      gap: 14,
+      paddingTop: 12
     }
   }, allResults.slice(0, topN).map(({
     s,
@@ -7585,7 +7960,7 @@ function PropositionsModal({
       className: "fade-in press",
       onClick: handleCardClick,
       style: {
-        background: '#fff',
+        background: 'var(--bg-primary)',
         border: '1px solid var(--hairline)',
         borderRadius: 22,
         padding: 0,
@@ -7613,7 +7988,7 @@ function PropositionsModal({
         fontWeight: 600,
         color: 'var(--ink-400)'
       }
-    }, "\uD83D\uDCF8 Chargement...")), React.createElement("div", {
+    }, tr("pq_loading"))), React.createElement("div", {
       style: {
         position: 'relative',
         height: 208,
@@ -7746,7 +8121,7 @@ function PropositionsModal({
         cursor: 'pointer',
         boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
       }
-    }, "+ Ajouter \xE0 mes spots"), has && React.createElement("div", {
+    }, tr("pq_add")), has && React.createElement("div", {
       style: {
         marginTop: 11,
         display: 'flex',
@@ -7762,7 +8137,7 @@ function PropositionsModal({
         color: '#2ECC71',
         fontWeight: 800
       }
-    }, "\u2713"), " Dans mes spots")));
+    }, "\u2713"), " ", tr("pq_have"))));
   })), topN < allResults.length && React.createElement("button", {
     onClick: () => setTopN(n => Math.min(allResults.length, n + 10)),
     className: "press",
@@ -7777,10 +8152,12 @@ function PropositionsModal({
       fontWeight: 700,
       fontSize: 15,
       cursor: 'pointer',
-      marginTop: 8,
+      marginTop: 14,
       marginBottom: 16
     }
-  }, "Voir 10 de plus \u2193 (", allResults.length - topN, " en r\xE9serve)"))));
+  }, tr("pq_more", {
+    n: allResults.length - topN
+  }))))));
 }
 function AddressAutocomplete({
   value,
