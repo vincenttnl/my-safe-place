@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T17:00:05.862Z -->
+<!-- built 2026-07-15T17:06:11.326Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2956,6 +2956,11 @@ const I18N = {
     wrapped_teaser_title: "Ton année en spots",
     wrapped_teaser_sub: "Ton Wrapped {year} est prêt — stats, coups de cœur ✨",
     btn_invite: "🤝 Inviter",
+    btn_ok: "OK",
+    d_perso: "Note",
+    d_ps_note: "note",
+    d_ps_people: "personnes",
+    d_ps_empty: "note, réaction, statut, avec qui",
     btn_see: "Voir →",
     btn_cancel: "Annuler",
     btn_later: "Plus tard",
@@ -3307,6 +3312,11 @@ const I18N = {
     wrapped_teaser_title: "Your year in spots",
     wrapped_teaser_sub: "Your {year} Wrapped is ready — stats & highlights ✨",
     btn_invite: "🤝 Invite",
+    btn_ok: "OK",
+    d_perso: "Note",
+    d_ps_note: "note",
+    d_ps_people: "people",
+    d_ps_empty: "note, reaction, status, with who",
     btn_see: "See →",
     btn_cancel: "Cancel",
     btn_later: "Later",
@@ -3658,6 +3668,11 @@ const I18N = {
     wrapped_teaser_title: "Tu año en spots",
     wrapped_teaser_sub: "Tu Wrapped {year} está listo — stats y favoritos ✨",
     btn_invite: "🤝 Invitar",
+    btn_ok: "OK",
+    d_perso: "Nota",
+    d_ps_note: "nota",
+    d_ps_people: "personas",
+    d_ps_empty: "nota, reacción, estado, con quién",
     btn_see: "Ver →",
     btn_cancel: "Cancelar",
     btn_later: "Más tarde",
@@ -8685,6 +8700,17 @@ function SpotDetail({
   };
   const swipeBack = useSwipeBack(onClose);
   const [mapChoice, setMapChoice] = useState(false);
+  const [showPerso, setShowPerso] = useState(false);
+  const persoScrollRef = useRef(null);
+  const persoSwipe = useSwipeDown(() => setShowPerso(false), () => !persoScrollRef.current || persoScrollRef.current.scrollTop <= 2);
+  const persoSummary = useMemo(() => {
+    const p = [];
+    if (spot.note) p.push(tr("d_ps_note"));
+    if (spot.reaction) p.push(spot.reaction);
+    if (spot.done) p.push(tr("st_done").toLowerCase());
+    if (spotContacts.length) p.push(spotContacts.length === 1 ? spotContacts[0].name : spotContacts.length + " " + tr("d_ps_people"));
+    return p.length ? p.join(" · ") : tr("d_ps_empty");
+  }, [spot.note, spot.reaction, spot.done, spotContacts]);
   return React.createElement("div", {
     style: {
       position: 'fixed',
@@ -9039,34 +9065,7 @@ function SpotDetail({
       fontWeight: 600,
       fontFamily: 'var(--font-body)'
     }
-  }, tr("d_menu"))), !preview && spot.done && React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 10,
-      marginTop: 10,
-      fontSize: 13,
-      color: 'var(--ink-400)',
-      fontFamily: 'var(--font-body)'
-    }
-  }, React.createElement("span", null, tr("d_lastvisit"), spot.lastVisitedAt ? ` : ${new Date(spot.lastVisitedAt).toLocaleDateString(__lang === 'en' ? 'en-GB' : __lang === 'es' ? 'es-ES' : 'fr-FR', {
-    day: 'numeric',
-    month: 'long'
-  })}` : '', spot.reaction ? ` · ${spot.reaction}` : ''), React.createElement("button", {
-    onClick: () => onRevisit(spot.id),
-    className: "press",
-    style: {
-      background: '#fff',
-      border: '1px solid var(--hairline)',
-      borderRadius: 999,
-      padding: '4px 11px',
-      fontSize: 11.5,
-      fontWeight: 700,
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      color: 'var(--ink-600)'
-    }
-  }, tr("d_revisit"))), (spot.tags?.work || spot.tags?.cuisine && spot.tags.cuisine.length > 0) && React.createElement("div", {
+  }, tr("d_menu"))), (spot.tags?.work || spot.tags?.cuisine && spot.tags.cuisine.length > 0) && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -9089,73 +9088,7 @@ function SpotDetail({
         color: "#b45309"
       }
     }, q.l);
-  })), spotContacts.length > 0 && React.createElement("div", {
-    style: {
-      marginTop: 18
-    }
-  }, React.createElement("div", {
-    className: "mono-label",
-    style: {
-      marginBottom: 8
-    }
-  }, "Avec"), React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 8,
-      flexWrap: "wrap"
-    }
-  }, spotContacts.map(c => React.createElement("div", {
-    key: c.id,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6,
-      background: '#fff',
-      border: '1px solid var(--hairline)',
-      borderRadius: 999,
-      padding: '4px 12px 4px 4px'
-    }
-  }, React.createElement("div", {
-    style: {
-      width: 26,
-      height: 26,
-      borderRadius: 999,
-      background: c.color,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: 13
-    }
-  }, c.emoji), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 12.5
-    }
-  }, c.name))))), spot.done && spot.reaction && React.createElement("div", {
-    style: {
-      marginTop: 18,
-      padding: '14px 16px',
-      background: 'var(--bg-cream)',
-      borderRadius: 'var(--radius-md)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12
-    }
-  }, React.createElement("div", {
-    style: {
-      fontSize: 34
-    }
-  }, spot.reaction), React.createElement("div", null, React.createElement("div", {
-    className: "mono-label"
-  }, "Ta reaction"), React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 14,
-      marginTop: 2
-    }
-  }, REACTIONS.find(r => r.emoji === spot.reaction)?.label))), preview && React.createElement("div", {
+  })), preview && React.createElement("div", {
     style: {
       marginTop: 24,
       display: 'flex',
@@ -9209,7 +9142,165 @@ function SpotDetail({
       textDecoration: 'none',
       textAlign: 'center'
     }
-  }, "\uD83C\uDF9F\uFE0F Voir les soir\xE9es")), !preview && React.createElement(React.Fragment, null, noteMode ? React.createElement("div", {
+  }, "\uD83C\uDFAB Voir les events")), !preview && React.createElement(React.Fragment, null, React.createElement("button", {
+    onClick: () => setShowPerso(true),
+    className: "press",
+    style: {
+      width: '100%',
+      marginTop: 16,
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9,
+      padding: '13px 15px',
+      borderRadius: 'var(--radius-md)',
+      border: '1.5px solid var(--pop-pink)',
+      background: '#fff',
+      cursor: 'pointer',
+      textAlign: 'left'
+    }
+  }, React.createElement("span", {
+    style: {
+      fontSize: 16,
+      lineHeight: 1
+    }
+  }, "\uD83D\uDCDD"), React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 14,
+      color: 'var(--pop-pink)',
+      flexShrink: 0
+    }
+  }, tr("d_perso")), React.createElement("span", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 11.5,
+      color: 'var(--ink-400)',
+      flex: 1,
+      minWidth: 0,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, persoSummary), React.createElement("span", {
+    style: {
+      color: 'var(--pop-pink)',
+      fontWeight: 800,
+      flexShrink: 0
+    }
+  }, "\u203A")), React.createElement("button", {
+    onClick: () => onShare(spot),
+    className: "press",
+    style: {
+      marginTop: 10,
+      width: '100%',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      border: 'none',
+      padding: '14px',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 14,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 8,
+      boxShadow: '0 6px 16px -8px rgba(255,61,139,0.6)'
+    }
+  }, "\uD83D\uDCE4 Envoyer"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: 6,
+      marginTop: 16
+    }
+  }, showPerso && React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      zIndex: 30
+    },
+    onClick: () => setShowPerso(false)
+  }, React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'rgba(10,10,10,.42)',
+      backdropFilter: 'blur(2px)',
+      WebkitBackdropFilter: 'blur(2px)'
+    }
+  }), React.createElement("div", _extends({
+    className: "slide-up",
+    onClick: e => e.stopPropagation()
+  }, persoSwipe, {
+    style: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      maxHeight: '88%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: 'var(--bg-primary)',
+      borderRadius: '24px 24px 0 0',
+      boxShadow: '0 -14px 40px rgba(0,0,0,.2)'
+    }
+  }), React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      padding: '10px 0 4px',
+      display: 'flex',
+      justifyContent: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      borderRadius: 999,
+      background: 'var(--hairline)'
+    }
+  })), React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '2px 20px 8px'
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 20,
+      letterSpacing: '-.02em'
+    }
+  }, "\uD83D\uDCDD ", tr("d_perso")), React.createElement("button", {
+    onClick: () => setShowPerso(false),
+    className: "press",
+    style: {
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      borderRadius: 999,
+      padding: '8px 16px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 12.5,
+      cursor: 'pointer'
+    }
+  }, tr("btn_ok"))), React.createElement("div", {
+    ref: persoScrollRef,
+    style: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      WebkitOverflowScrolling: 'touch',
+      padding: '0 22px calc(20px + env(safe-area-inset-bottom,0px))'
+    }
+  }, noteMode ? React.createElement("div", {
     style: {
       marginTop: 14
     }
@@ -9362,36 +9453,100 @@ function SpotDetail({
       color: 'var(--ink-900)',
       fontFamily: 'var(--font-body)'
     }
-  }, "+")), React.createElement("button", {
-    onClick: () => onShare(spot),
-    className: "press",
+  }, "+")), spot.done && spot.reaction && React.createElement("div", {
     style: {
-      marginTop: 10,
-      width: '100%',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      border: 'none',
-      padding: '14px',
-      borderRadius: 999,
-      cursor: 'pointer',
+      marginTop: 18,
+      padding: '14px 16px',
+      background: 'var(--bg-cream)',
+      borderRadius: 'var(--radius-md)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 34
+    }
+  }, spot.reaction), React.createElement("div", null, React.createElement("div", {
+    className: "mono-label"
+  }, "Ta reaction"), React.createElement("div", {
+    style: {
       fontFamily: 'var(--font-body)',
-      fontWeight: 700,
+      fontWeight: 600,
       fontSize: 14,
+      marginTop: 2
+    }
+  }, REACTIONS.find(r => r.emoji === spot.reaction)?.label))), spotContacts.length > 0 && React.createElement("div", {
+    style: {
+      marginTop: 18
+    }
+  }, React.createElement("div", {
+    className: "mono-label",
+    style: {
+      marginBottom: 8
+    }
+  }, "Avec"), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, spotContacts.map(c => React.createElement("div", {
+    key: c.id,
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6,
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '4px 12px 4px 4px'
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 26,
+      height: 26,
+      borderRadius: 999,
+      background: c.color,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: 8,
-      boxShadow: '0 6px 16px -8px rgba(255,61,139,0.6)'
+      fontSize: 13
     }
-  }, "\uD83D\uDCE4 Envoyer"), React.createElement("div", {
+  }, c.emoji), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 12.5
+    }
+  }, c.name))))), !preview && spot.done && React.createElement("div", {
     style: {
       display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      gap: 6,
-      marginTop: 16
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 10,
+      fontSize: 13,
+      color: 'var(--ink-400)',
+      fontFamily: 'var(--font-body)'
     }
-  }, React.createElement("button", {
+  }, React.createElement("span", null, tr("d_lastvisit"), spot.lastVisitedAt ? ` : ${new Date(spot.lastVisitedAt).toLocaleDateString(__lang === 'en' ? 'en-GB' : __lang === 'es' ? 'es-ES' : 'fr-FR', {
+    day: 'numeric',
+    month: 'long'
+  })}` : '', spot.reaction ? ` · ${spot.reaction}` : ''), React.createElement("button", {
+    onClick: () => onRevisit(spot.id),
+    className: "press",
+    style: {
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '4px 11px',
+      fontSize: 11.5,
+      fontWeight: 700,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      color: 'var(--ink-600)'
+    }
+  }, tr("d_revisit")))))), React.createElement("button", {
     onClick: () => setMapChoice(true),
     className: "press",
     style: rndWrap
@@ -9447,9 +9602,9 @@ function SpotDetail({
       color: '#fff',
       border: 'none'
     }
-  }, "\uD83C\uDF9F\uFE0F"), React.createElement("span", {
+  }, "\uD83C\uDFAB"), React.createElement("span", {
     style: rndLbl
-  }, "Soir\xE9es")))))), mapChoice && React.createElement("div", {
+  }, "Event")))))), mapChoice && React.createElement("div", {
     style: {
       position: 'absolute',
       inset: 0,
