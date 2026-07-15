@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T22:23:05.513Z -->
+<!-- built 2026-07-15T22:43:53.233Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -84,7 +84,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
 @keyframes haloPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.12)}}/* v10.72 : halo néon entête accueil (style №1) */
 @keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,61,139,.45)}70%{box-shadow:0 0 0 10px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
-@media (prefers-reduced-motion:reduce){.cta-pulse{animation:none!important}}
+/* v10.97 : fondu-glissé des exemples de recherche IA. Pas de transform persistant en fin
+   d'animation (fill both) — un transform figé ferait de l'élément un containing block, le piège
+   qui a coûté le bouton retour en v10.84. Ici l'animation se termine et rend la main. */
+@keyframes nlExIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.nl-ex{animation:nlExIn .34s var(--ease)}
+@media (prefers-reduced-motion:reduce){.cta-pulse,.nl-ex{animation:none!important}}
 
 .fade-in{animation:fadeIn .3s ease-out both}
 .slide-up{animation:slideUp .35s var(--ease) both}
@@ -3019,6 +3024,7 @@ const I18N = {
     nt_test_b: "Test Spotane — si tu vois ça, les notifications marchent parfaitement !",
     nt_err: "Impossible d'afficher la notif de test",
     flt_btn: "Filtres",
+    nlp_try: "Essaie :",
     nlp_reading: "Je lis ta phrase…",
     nlp_ai: "J'ai compris :",
     nlp_got: "J'ai compris :",
@@ -3413,6 +3419,7 @@ const I18N = {
     nt_test_b: "Spotane test — if you see this, notifications work perfectly!",
     nt_err: "Couldn't show the test notification",
     flt_btn: "Filters",
+    nlp_try: "Try:",
     nlp_reading: "Reading your sentence…",
     nlp_ai: "Got it:",
     nlp_got: "Got it:",
@@ -3807,6 +3814,7 @@ const I18N = {
     nt_test_b: "Prueba Spotane — ¡si ves esto, las notificaciones funcionan perfectamente!",
     nt_err: "No se pudo mostrar la notificación de prueba",
     flt_btn: "Filtros",
+    nlp_try: "Prueba:",
     nlp_reading: "Leyendo tu frase…",
     nlp_ai: "Entendido:",
     nlp_got: "Entendido:",
@@ -4182,6 +4190,12 @@ try {
     location.reload();
   };
 } catch {}
+const NL_EXAMPLES = {
+  fr: ["bar chill dans le 12e", "rooftop pour un date", "resto italien entre potes", "café pour bosser vers Bastille", "un verre pas cher ce soir", "club ouvert après 2h"],
+  en: ["chill bar in the 12th", "rooftop for a date", "italian place with friends", "cafe to work near Bastille", "cheap drink tonight", "club open after 2am"],
+  es: ["bar tranquilo en el distrito 12", "rooftop para una cita", "restaurante italiano con amigos", "café para trabajar cerca de Bastille", "una copa barata esta noche", "club abierto después de las 2"]
+};
+const nlExamples = () => NL_EXAMPLES[__lang] || NL_EXAMPLES.fr;
 const Q_WHO = [{
   k: "date",
   l: "💑 " + tr("who_date")
@@ -4779,7 +4793,7 @@ const NLP_RULES = [{
   v: "€€€",
   re: /\b(luxe|haut de gamme|premium)\b/
 }];
-const NLP_STOP = new Set(["pour", "avec", "dans", "chez", "les", "des", "une", "un", "de", "du", "le", "la", "et", "ou", "en", "sur", "mon", "ma", "mes", "ton", "ta", "tes", "qui", "que", "est", "tres", "tout", "bon", "bonne", "top", "truc", "endroit", "lieu", "spot", "sympa", "cool", "bien"]);
+const NLP_STOP = new Set(["pour", "avec", "dans", "chez", "les", "des", "une", "un", "de", "du", "le", "la", "et", "ou", "en", "sur", "mon", "ma", "mes", "ton", "ta", "tes", "qui", "que", "est", "tres", "tout", "bon", "bonne", "top", "truc", "endroit", "lieu", "spot", "sympa", "cool", "bien", "entre", "vers", "autour", "proche", "pres", "cote", "quelque", "chose", "envie", "genre", "style", "plutot", "comme", "sans", "aussi", "ce", "cet", "cette", "ces", "je", "tu", "on", "nous", "au", "aux", "par", "son", "sa", "ses", "leur", "ils", "elles"]);
 const searchNorm = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[«»"'’‘`]/g, " ").replace(/\s+/g, " ").trim();
 function parseNLQuery(raw) {
   const out = {
@@ -5566,43 +5580,9 @@ async function googleEnrich(name, address, apiKey, count = 4) {
       if (d && Array.isArray(d.photos) && d.photos.length) return d;
     } catch (e) {}
   }
-  if (!apiKey) return {
+  return {
     photos: []
   };
-  try {
-    const r = await fetch("https://places.googleapis.com/v1/places:searchText", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Goog-Api-Key": apiKey,
-        "X-Goog-FieldMask": "places.photos,places.displayName,places.rating,places.userRatingCount"
-      },
-      body: JSON.stringify({
-        textQuery: q,
-        languageCode: "fr",
-        maxResultCount: 1
-      })
-    });
-    if (!r.ok) return {
-      photos: []
-    };
-    const d = await r.json();
-    const place = d.places?.[0];
-    if (!place?.photos?.length) return {
-      photos: [],
-      rating: place?.rating || null,
-      ratingCount: place?.userRatingCount || null
-    };
-    return {
-      photos: place.photos.slice(0, count).map(p => `https://places.googleapis.com/v1/${p.name}/media?maxHeightPx=800&maxWidthPx=800&key=${apiKey}`),
-      rating: place.rating || null,
-      ratingCount: place.userRatingCount || null
-    };
-  } catch {
-    return {
-      photos: []
-    };
-  }
 }
 async function googlePlacePhotos(name, address, apiKey, count = 4) {
   const d = await googleEnrich(name, address, apiKey, count);
@@ -7544,7 +7524,7 @@ function PropositionsModal({
   const fetchPhotosFor = async s => {
     if (photoCache[s.id]) return photoCache[s.id];
     if (stockPhotoCache && stockPhotoCache[s.id]) return stockPhotoCache[s.id];
-    if (!gApiKey) return stockPhotos(s);
+    if (!gApiKey && !window.spotaneProxy) return stockPhotos(s);
     setLoadingPhotos(s.id);
     try {
       const urls = await googlePlacePhotos(s.name, s.adresse, gApiKey, 4);
@@ -14433,13 +14413,7 @@ function App() {
       return [];
     }
   });
-  const [gApiKey, setGApiKey] = useState(() => {
-    try {
-      return localStorage.getItem(GK) || "";
-    } catch {
-      return "";
-    }
-  });
+  const gApiKey = "";
   const [idfmKey, setIdfmKey] = useState(() => {
     try {
       return localStorage.getItem(IDFMK) || "";
@@ -14889,6 +14863,12 @@ function App() {
   const [evLink, setEvLink] = useState("");
   const [evSpotId, setEvSpotId] = useState("");
   const [searchMode, setSearchMode] = useState("discover");
+  const [nlEx, setNlEx] = useState(0);
+  useEffect(() => {
+    if (searchMode !== "discover" || search.trim()) return;
+    const t = setInterval(() => setNlEx(i => (i + 1) % nlExamples().length), 3800);
+    return () => clearInterval(t);
+  }, [searchMode, search]);
   const [discoverQ, setDiscoverQ] = useState("");
   const [discoverResults, setDiscoverResults] = useState([]);
   const [discoverLoading, setDiscoverLoading] = useState(false);
@@ -15098,7 +15078,7 @@ function App() {
     });
   };
   const calcMetro = async spot => {
-    if (!idfmKey) {
+    if (!idfmKey && !window.spotaneProxy) {
       window.mspToast?.(tr("t_43"), "warn");
       return;
     }
@@ -15852,9 +15832,9 @@ function App() {
   }, [contacts]);
   useEffect(() => {
     try {
-      localStorage.setItem(GK, gApiKey);
+      localStorage.removeItem(GK);
     } catch {}
-  }, [gApiKey]);
+  }, []);
   useEffect(() => {
     try {
       localStorage.setItem(IDFMK, idfmKey);
@@ -16968,8 +16948,8 @@ function App() {
   const nlpFromAI = !!(nlpAI && nlpAI.q === search.trim());
   const nlpHardTerms = useMemo(() => {
     if (searchMode !== "discover" || !nlp.active || !nlp.terms.length) return [];
-    const names = catalog.map(s => searchNorm(s.name));
-    return nlp.terms.filter(t => names.some(n => n.includes(t)));
+    const nameWords = catalog.map(s => searchNorm(s.name).split(/[^a-z0-9]+/).filter(Boolean));
+    return nlp.terms.filter(t => nameWords.some(ws => ws.some(w => w.startsWith(t))));
   }, [searchMode, nlp, catalog]);
   const [nlpPlace, setNlpPlace] = useState(null);
   useEffect(() => {
@@ -18470,39 +18450,60 @@ function App() {
     style: {
       padding: '0 20px',
       background: 'var(--bg-cream)',
-      maxHeight: hdrStuck ? 0 : 48,
+      maxHeight: hdrStuck || searchMode !== "discover" || search.trim() ? 0 : 48,
       overflow: 'hidden',
       transition: 'max-height .3s var(--ease)'
     }
-  }, React.createElement("div", {
+  }, React.createElement("button", {
+    onClick: () => {
+      setSearchMode("discover");
+      setSearch(nlExamples()[nlEx]);
+    },
+    className: "press",
+    "aria-label": tr("nlp_try") + " " + nlExamples()[nlEx],
     style: {
+      width: '100%',
       marginTop: 6,
       height: 32,
       display: 'flex',
       alignItems: 'center',
+      gap: 6,
       borderRadius: 16,
       padding: '0 12px',
+      border: 'none',
+      cursor: 'pointer',
+      textAlign: 'left',
       background: 'linear-gradient(95deg,#4A1D5E,#C2185B 55%,#E91E63)',
       color: '#fff',
-      fontFamily: 'var(--font-body)'
+      fontFamily: 'var(--font-body)',
+      boxShadow: '0 4px 12px rgba(194,24,91,.28)'
     }
-  }, React.createElement("div", {
+  }, React.createElement("span", {
     style: {
       fontSize: 12,
+      flexShrink: 0
+    }
+  }, "\uD83E\uDDE0"), React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      flexShrink: 0,
+      opacity: .85
+    }
+  }, tr("nlp_try")), React.createElement("span", {
+    key: nlEx,
+    className: "nl-ex",
+    style: {
+      fontSize: 12,
+      fontWeight: 500,
+      fontStyle: 'italic',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
-      minWidth: 0
+      minWidth: 0,
+      flex: 1
     }
-  }, "\uD83E\uDDE0 ", React.createElement("b", {
-    style: {
-      fontWeight: 700
-    }
-  }, "Recherche IA"), " ", React.createElement("span", {
-    style: {
-      fontWeight: 500
-    }
-  }, "\xB7 disponible avec Spotane+ \u2728")))), searchMode !== "lists" && React.createElement("div", {
+  }, "\xAB ", nlExamples()[nlEx], " \xBB"))), searchMode !== "lists" && React.createElement("div", {
     style: {
       background: 'var(--bg-cream)',
       padding: '8px 0 8px'
@@ -21585,7 +21586,7 @@ function App() {
     }, ...(devMode ? [{
       i: '📷',
       t: 'Google Places API',
-      s: gApiKey ? 'Cle configuree' : 'Ajouter une cle',
+      s: window.spotaneProxy ? 'Via proxy serveur' : 'Hors ligne',
       action: null
     }] : []), {
       i: '🗑️',
@@ -21745,24 +21746,21 @@ function App() {
         marginBottom: 10,
         fontFamily: 'var(--font-body)'
       }
-    }, "Remplis automatiquement les photos via Google"), React.createElement("input", {
-      value: gApiKey,
-      onChange: e => setGApiKey(e.target.value),
-      placeholder: "Colle ta cle API Google ici",
-      className: "input-v2",
-      style: {
-        marginBottom: 10,
-        fontSize: 13
-      },
-      type: "password"
-    }), React.createElement("button", {
+    }, "Remplis automatiquement les photos via Google (cl\xE9 c\xF4t\xE9 serveur)"), React.createElement("button", {
       onClick: fetchAllPhotos,
-      disabled: photoLoading || !gApiKey,
+      disabled: photoLoading || !window.spotaneProxy,
       className: "btn-primary",
       style: {
         fontSize: 13
       }
-    }, photoLoading ? "⏳ En cours..." : "📷 Récupérer toutes les photos"), photoProgress && React.createElement("div", {
+    }, photoLoading ? "⏳ En cours..." : "📷 Récupérer toutes les photos"), !window.spotaneProxy && React.createElement("div", {
+      style: {
+        fontSize: 11,
+        color: 'var(--ink-400)',
+        marginTop: 8,
+        fontFamily: 'var(--font-body)'
+      }
+    }, "Connecte-toi : l'enrichissement passe par le proxy serveur."), photoProgress && React.createElement("div", {
       style: {
         fontSize: 12,
         color: 'var(--pop-pink)',
