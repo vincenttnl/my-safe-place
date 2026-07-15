@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T22:13:32.473Z -->
+<!-- built 2026-07-15T22:23:05.513Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3019,6 +3019,9 @@ const I18N = {
     nt_test_b: "Test Spotane — si tu vois ça, les notifications marchent parfaitement !",
     nt_err: "Impossible d'afficher la notif de test",
     flt_btn: "Filtres",
+    nlp_reading: "Je lis ta phrase…",
+    nlp_ai: "J'ai compris :",
+    nlp_got: "J'ai compris :",
     flt_reset: "Réinitialiser",
     flt_see: "Voir les {n} spots",
     flt_cats: "Catégories",
@@ -3410,6 +3413,9 @@ const I18N = {
     nt_test_b: "Spotane test — if you see this, notifications work perfectly!",
     nt_err: "Couldn't show the test notification",
     flt_btn: "Filters",
+    nlp_reading: "Reading your sentence…",
+    nlp_ai: "Got it:",
+    nlp_got: "Got it:",
     flt_reset: "Reset",
     flt_see: "See the {n} spots",
     flt_cats: "Categories",
@@ -3801,6 +3807,9 @@ const I18N = {
     nt_test_b: "Prueba Spotane — ¡si ves esto, las notificaciones funcionan perfectamente!",
     nt_err: "No se pudo mostrar la notificación de prueba",
     flt_btn: "Filtros",
+    nlp_reading: "Leyendo tu frase…",
+    nlp_ai: "Entendido:",
+    nlp_got: "Entendido:",
     flt_reset: "Restablecer",
     flt_see: "Ver los {n} spots",
     flt_cats: "Categorías",
@@ -16903,14 +16912,18 @@ function App() {
   }, [visible, sort, userPos]);
   const nlpLocal = useMemo(() => parseNLQuery(search), [search]);
   const [nlpAI, setNlpAI] = useState(null);
+  const [nlpThinking, setNlpThinking] = useState(false);
   useEffect(() => {
     const q = search.trim();
     if (searchMode !== "discover" || q.length < 3 || !window.spotaneProxy) {
       setNlpAI(null);
+      setNlpThinking(false);
       return;
     }
     let dead = false;
     const t = setTimeout(async () => {
+      if (dead) return;
+      setNlpThinking(true);
       try {
         const d = await window.spotaneProxy("nlSearch", {
           q,
@@ -16922,11 +16935,14 @@ function App() {
         });
       } catch (e) {
         if (!dead) setNlpAI(null);
+      } finally {
+        if (!dead) setNlpThinking(false);
       }
     }, 600);
     return () => {
       dead = true;
       clearTimeout(t);
+      setNlpThinking(false);
     };
   }, [search, searchMode, city]);
   const nlp = useMemo(() => {
@@ -19281,7 +19297,7 @@ function App() {
     if (nlp.openNow) pills.push(P("o", "🟢 Ouvert maintenant"));
     if (nlp.nearMe) pills.push(P("n", "📍 Près de toi"));
     if (nlp.place) pills.push(P("p", "📍 Vers " + (nlpPlace ? nlpPlace.label : nlp.place)));
-    if (!pills.length) return null;
+    if (!pills.length && !nlpThinking) return null;
     return React.createElement("div", {
       style: {
         display: 'flex',
@@ -19293,10 +19309,23 @@ function App() {
     }, React.createElement("span", {
       style: {
         fontSize: 11.5,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-body)'
+        color: nlpFromAI ? 'var(--pop-violet)' : 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: nlpFromAI ? 700 : 400,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5
       }
-    }, "\uD83E\uDDE0 J'ai compris :"), pills);
+    }, "\uD83E\uDDE0 ", nlpThinking ? tr("nlp_reading") : nlpFromAI ? tr("nlp_ai") : tr("nlp_got"), nlpThinking && React.createElement("span", {
+      className: "cta-pulse",
+      style: {
+        width: 6,
+        height: 6,
+        borderRadius: 999,
+        background: 'var(--pop-violet)',
+        display: 'inline-block'
+      }
+    })), pills);
   })(), catalog.length === 0 ? React.createElement("div", {
     style: {
       marginBottom: 26
