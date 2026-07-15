@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T18:17:49.237Z -->
+<!-- built 2026-07-15T19:24:40.263Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4809,6 +4809,8 @@ function parseNLQuery(raw) {
     out.place = am[1] + "e arrondissement";
     q = q.replace(am[0], " ");
   }
+  const ar = out.place && out.place.match(/^(?:le\s+|la\s+|l['’]\s*)?(\d{1,2})\s*(?:eme|ere|er|e)?$/);
+  if (ar) out.place = ar[1] + (ar[1] === "1" ? "er" : "e") + " arrondissement";
   NLP_RULES.forEach(r => {
     if (r.re.test(q)) {
       if (!out[r.f].includes(r.v)) out[r.f].push(r.v);
@@ -7262,7 +7264,7 @@ function ContactPicker({
     }
   }, "\u2699\uFE0F Gerer mes contacts")));
 }
-const PQ_KEYS = ["who", "when", "vibe", "cuisine", "budget", "music"];
+const PQ_KEYS = ["who", "when", "vibe", "cuisine", "music"];
 const Q_MUSIC_WIZ = MUSIC.map(m => ({
   k: m.k,
   l: m.e + " " + m.l
@@ -7293,7 +7295,7 @@ const PQ_SEED_PRESETS = [{
     when: ["soiree"],
     vibe: ["chic"],
     cuisine: [],
-    budget: ["€€€"],
+    budget: [],
     music: []
   }
 }, {
@@ -7321,7 +7323,7 @@ const PQ_SEED_PRESETS = [{
     when: ["journee"],
     vibe: ["decontracte"],
     cuisine: ["brunch"],
-    budget: ["€€"],
+    budget: [],
     music: []
   }
 }];
@@ -7462,15 +7464,6 @@ function PropositionsModal({
     set: setCuisine,
     counts: pillCounts.cuisine
   }, {
-    id: "budget",
-    q: tr("pq_q_budget"),
-    c: "#FF6B2C",
-    ci: "#E85411",
-    list: Q_BUDGET,
-    value: budget,
-    set: setBudget,
-    counts: pillCounts.budget
-  }, {
     id: "music",
     q: tr("pq_q_music"),
     c: "#7CB342",
@@ -7479,7 +7472,7 @@ function PropositionsModal({
     value: music,
     set: setMusic,
     counts: pillCounts.music
-  }], [who, when, vibe, cuisine, budget, music, pillCounts]);
+  }], [who, when, vibe, cuisine, music, pillCounts]);
   const LAST = GROUPS.length - 1;
   const G = GROUPS[Math.min(qi, LAST)];
   const applyFilters = f => {
@@ -18246,12 +18239,12 @@ function App() {
     }
   }, [{
     k: "discover",
-    n: catalogVisible.length,
+    n: catalog.length,
     lab: tr("seg_discover") + " " + (CITIES[city] || CITIES.paris).label,
     go: () => setSearchMode("discover")
   }, {
     k: "local",
-    n: sortedVisible.length,
+    n: spots.length,
     lab: tr("seg_mine"),
     go: () => {
       setSearchMode("local");
