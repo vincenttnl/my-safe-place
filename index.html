@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T11:07:57.518Z -->
+<!-- built 2026-07-15T13:35:27.414Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4567,6 +4567,7 @@ const NLP_RULES = [{
   re: /\b(luxe|haut de gamme|premium)\b/
 }];
 const NLP_STOP = new Set(["pour", "avec", "dans", "chez", "les", "des", "une", "un", "de", "du", "le", "la", "et", "ou", "en", "sur", "mon", "ma", "mes", "ton", "ta", "tes", "qui", "que", "est", "tres", "tout", "bon", "bonne", "top", "truc", "endroit", "lieu", "spot", "sympa", "cool", "bien"]);
+const searchNorm = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[«»"'’‘`]/g, " ").replace(/\s+/g, " ").trim();
 function parseNLQuery(raw) {
   const out = {
     cats: [],
@@ -4580,10 +4581,12 @@ function parseNLQuery(raw) {
     nearMe: false,
     place: "",
     terms: [],
+    raw: "",
     active: false
   };
   let q = " " + (raw || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[«»"']/g, " ") + " ";
   if (q.trim().length < 3) return out;
+  out.raw = searchNorm(raw);
   if (/\b(pres de moi|autour de moi|proche de moi|a cote de moi|near me|vers moi|ouvert pres)\b/.test(q)) {
     out.nearMe = true;
     q = q.replace(/\b(pres de moi|autour de moi|proche de moi|a cote de moi|near me|vers moi)\b/g, " ");
@@ -4608,7 +4611,7 @@ function parseNLQuery(raw) {
       q = q.replace(new RegExp(r.re.source, "g"), " ");
     }
   });
-  out.terms = q.split(/[^a-z0-9]+/).filter(w => w.length > 2 && !NLP_STOP.has(w));
+  out.terms = q.split(/[^a-z0-9]+/).filter(w => w.length > 1 && !NLP_STOP.has(w));
   out.active = !!(out.cats.length || out.cuisine.length || out.vibe.length || out.who.length || out.when.length || out.music.length || out.budget.length || out.openNow || out.nearMe || out.place);
   return out;
 }
@@ -4751,41 +4754,52 @@ const APP_URL = (() => {
   }
 })();
 const supaEnabled = () => Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
-const isPlaceholderPhoto = u => typeof u === "string" && u.includes("images.unsplash.com");
+const isPlaceholderPhoto = u => typeof u === "string" && (u.includes("images.unsplash.com") || u.includes("places.googleapis.com"));
+const mapSpotRow = x => ({
+  id: x.id,
+  done: false,
+  fav: false,
+  note: "",
+  reaction: null,
+  addedAt: Date.now(),
+  name: x.name,
+  cats: x.cats || [],
+  photo: x.photo || "",
+  photos: x.photos || [],
+  desc: x.desc || "",
+  vibe: x.vibe || "",
+  adresse: x.adresse || "",
+  lat: x.lat,
+  lng: x.lng,
+  metro: x.metro || "",
+  price: x.price || "",
+  hours: x.hours || "",
+  website: x.website || "",
+  tags: x.tags || {}
+});
 async function fetchSpotsFrom(filter) {
   if (!supaEnabled()) return null;
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&${filter}&order=id`, {
-      headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`
-      }
-    });
-    if (!r.ok) return null;
-    const rows = await r.json();
-    if (!Array.isArray(rows)) return null;
-    return rows.map(x => ({
-      id: x.id,
-      done: false,
-      fav: false,
-      note: "",
-      reaction: null,
-      addedAt: Date.now(),
-      name: x.name,
-      cats: x.cats || [],
-      photo: x.photo || "",
-      photos: x.photos || [],
-      desc: x.desc || "",
-      vibe: x.vibe || "",
-      adresse: x.adresse || "",
-      lat: x.lat,
-      lng: x.lng,
-      metro: x.metro || "",
-      price: x.price || "",
-      hours: x.hours || "",
-      website: x.website || "",
-      tags: x.tags || {}
-    }));
+    const PAGE = 1000;
+    let from = 0,
+      rows = [];
+    for (;;) {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spots?select=*&${filter}&order=id`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          Range: `${from}-${from + PAGE - 1}`
+        }
+      });
+      if (!r.ok) return rows.length ? rows.map(mapSpotRow) : null;
+      const chunk = await r.json();
+      if (!Array.isArray(chunk)) return rows.length ? rows.map(mapSpotRow) : null;
+      rows = rows.concat(chunk);
+      if (chunk.length < PAGE) break;
+      from += PAGE;
+      if (from > 50000) break;
+    }
+    return rows.map(mapSpotRow);
   } catch {
     return null;
   }
@@ -8719,23 +8733,27 @@ function SpotDetail({
     }
   }, React.createElement("div", {
     style: {
-      display: 'inline-flex',
+      display: 'flex',
       alignItems: 'center',
-      gap: 10,
-      flexWrap: 'wrap',
+      gap: 7,
+      flexWrap: 'nowrap',
+      whiteSpace: 'nowrap',
       background: 'linear-gradient(90deg,rgba(255,61,139,.12),rgba(139,92,246,.12))',
       border: '1px solid rgba(139,92,246,.3)',
       borderRadius: 999,
-      padding: '9px 16px',
+      padding: '8px 13px',
       fontFamily: 'var(--font-body)',
-      fontSize: 12.5,
+      fontSize: 'clamp(10.5px,3.05vw,12.5px)',
       fontWeight: 700,
-      maxWidth: '100%'
+      maxWidth: '100%',
+      minWidth: 0,
+      width: 'fit-content'
     }
   }, [gRating(spot) && React.createElement("span", {
     key: "r",
     style: {
-      color: '#B45309'
+      color: '#B45309',
+      flexShrink: 0
     }
   }, "\u2B50 ", gRating(spot), gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ''), spot.metro && React.createElement("span", {
     key: "m",
@@ -8743,7 +8761,9 @@ function SpotDetail({
       display: 'inline-flex',
       alignItems: 'center',
       gap: 5,
-      color: 'var(--ink-900)'
+      color: 'var(--ink-900)',
+      minWidth: 0,
+      overflow: 'hidden'
     }
   }, mp ? React.createElement(React.Fragment, null, React.createElement("span", {
     style: {
@@ -8760,16 +8780,30 @@ function SpotDetail({
       padding: '0 3px',
       flexShrink: 0
     }
-  }, mp.line), mp.station) : React.createElement(React.Fragment, null, "\uD83D\uDCCD ", spot.metro)), spot.price && React.createElement("span", {
+  }, mp.line), React.createElement("span", {
+    style: {
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, mp.station)) : React.createElement("span", {
+    style: {
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, "\uD83D\uDCCD ", spot.metro)), spot.price && React.createElement("span", {
     key: "p",
     style: {
-      color: 'var(--pop-pink)'
+      color: 'var(--pop-pink)',
+      flexShrink: 0
     }
   }, "\uD83D\uDCB8 ", spot.price)].filter(Boolean).reduce((acc, el, i) => {
     if (acc.length) acc.push(React.createElement("span", {
       key: 'sep' + i,
       style: {
-        color: 'var(--hairline)'
+        color: 'var(--hairline)',
+        flexShrink: 0
       }
     }, "|"));
     acc.push(el);
@@ -15918,8 +15952,8 @@ function App() {
       const catOk = !catMulti.length || catMulti.some(k => hasCat(s, k));
       let fOk = true;
       if (filter === "all") fOk = s.status !== "rejected";else if (filter === "todo") fOk = !s.done && s.status !== "rejected";else if (filter === "done") fOk = s.done;else if (filter === "fav") fOk = s.fav;else if (filter === "wishlist") fOk = s.status === "wishlist";else if (filter === "rejected") fOk = s.status === "rejected";else if (filter === "work") fOk = s.tags?.work === true;
-      const q = search.trim().toLowerCase();
-      const sOk = !q || s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
+      const q = searchNorm(search);
+      const sOk = !q || searchNorm(s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).includes(q);
       const bOk = !budgetF.length || budgetF.includes(priceBucket(s.price));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
       const muOk = !musicF.length || musicF.some(m => s.tags?.music?.includes(m));
@@ -15971,18 +16005,21 @@ function App() {
     const useNlp = searchMode === "discover" && nlp.active;
     const q = search.trim().toLowerCase();
     const wantOpen = openNow || useNlp && nlp.openNow;
+    const catsHard = !!(useNlp && nlp.cats.length && !nlp.terms.length);
+    const nlpRaw = useNlp ? nlp.raw : "";
+    const qNorm = searchNorm(q);
     const pnow = wantOpen ? nowParis() : null;
     const filtered = catalog.filter(s => {
       if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
       if (wantOpen && isOpenNow(s.hours, pnow) !== true) return false;
       if (lateNight && !opensLate(s.hours)) return false;
-      const catOk = (!catMulti.length || catMulti.some(k => hasCat(s, k))) && (!useNlp || !nlp.cats.length || nlp.cats.some(c => hasCat(s, c)));
+      const catOk = (!catMulti.length || catMulti.some(k => hasCat(s, k))) && (!catsHard || nlp.cats.some(c => hasCat(s, c)));
       let sOk = true;
       if (useNlp) {
-        const hay = (s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-        sOk = nlp.terms.every(t => hay.includes(t));
+        const hay = searchNorm(s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || ""));
+        sOk = !!nlpRaw && searchNorm(s.name).includes(nlpRaw) || nlp.terms.every(t => hay.includes(t));
       } else if (q) {
-        sOk = s.name.toLowerCase().includes(q) || (s.desc || "").toLowerCase().includes(q) || (s.adresse || "").toLowerCase().includes(q) || (s.vibe || "").toLowerCase().includes(q);
+        sOk = searchNorm(s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).includes(qNorm);
       }
       const bOk = (!budgetF.length || budgetF.includes(priceBucket(s.price))) && (!useNlp || !nlp.budget.length || nlp.budget.includes(priceBucket(s.price)));
       const vbOk = !vibeF.length || vibeF.some(v => s.tags?.vibe?.includes(v));
@@ -15994,6 +16031,10 @@ function App() {
     const softScore = s => {
       let sc = 0;
       const t = s.tags || {};
+      if (nlpRaw && searchNorm(s.name).includes(nlpRaw)) sc += 10;
+      if (!catsHard) nlp.cats.forEach(c => {
+        if (hasCat(s, c)) sc++;
+      });
       nlp.vibe.forEach(v => {
         if (t.vibe && t.vibe.includes(v)) sc++;
       });
@@ -19844,7 +19885,6 @@ function App() {
     };
     const cityBg = k => CITYPHOTO[k] ? `center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
     const tileBg = k => CITYPHOTO[k] ? `linear-gradient(180deg,rgba(10,10,10,.12),rgba(10,10,10,.55)), center/cover no-repeat url("${CITYPHOTO[k]}"), ${CITYGRAD[k] || 'var(--bg-soft)'}` : CITYGRAD[k] || 'var(--bg-soft)';
-    const cityCount = k => allSpots.filter(s => spotCity(s) === k).length;
     const catCityCount = k => {
       if (k === city && catalog.length) return catalog.length;
       try {
@@ -20134,7 +20174,7 @@ function App() {
         fontSize: 12.5,
         whiteSpace: 'nowrap'
       }
-    }, (CITIES[city] || CITIES.paris).emoji, " ", cityCount(city), " spot", cityCount(city) > 1 ? 's' : ''), React.createElement("button", {
+    }, (CITIES[city] || CITIES.paris).emoji, " ", catCityCount(city), " spot", catCityCount(city) > 1 ? 's' : ''), React.createElement("button", {
       onClick: () => {
         setCityPickerOpen(true);
         window.mspHaptic?.(12);
