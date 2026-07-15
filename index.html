@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T14:53:17.757Z -->
+<!-- built 2026-07-15T16:51:11.703Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2941,9 +2941,9 @@ const I18N = {
     nav_map: "Carte",
     nav_events: "Events",
     nav_profile: "Profil",
-    seg_discover: "🌍 Full",
+    seg_discover: "🌍 Tout",
     seg_mine: "📍 Mes spots",
-    seg_lists: "📁 Listes",
+    seg_lists: "📁 Mes listes",
     search_ph_full: "Chercher dans tout {city}…",
     search_ph_mine: "Chercher dans tes spots…",
     si_t: "Recherche intelligente :",
@@ -2980,6 +2980,12 @@ const I18N = {
     nt_err: "Impossible d'afficher la notif de test",
     flt_btn: "Filtres",
     flt_reset: "Réinitialiser",
+    flt_see: "Voir les {n} spots",
+    flt_cats: "Catégories",
+    flt_allcats: "Toutes les catégories",
+    flt_more: "Plus de filtres (budget, ambiance, musique…)",
+    flt_hint90: "90 % des recherches s'arrêtent ici.",
+    flt_less: "Replier les filtres avancés",
     flt_status: "Statut",
     flt_budget: "Budget",
     flt_vibe: "Ambiance",
@@ -3286,9 +3292,9 @@ const I18N = {
     nav_map: "Map",
     nav_events: "Events",
     nav_profile: "Profile",
-    seg_discover: "🌍 Full",
+    seg_discover: "🌍 All of",
     seg_mine: "📍 My spots",
-    seg_lists: "📁 Lists",
+    seg_lists: "📁 My lists",
     search_ph_full: "Search all of {city}…",
     search_ph_mine: "Search your spots…",
     si_t: "Smart search:",
@@ -3325,6 +3331,12 @@ const I18N = {
     nt_err: "Couldn't show the test notification",
     flt_btn: "Filters",
     flt_reset: "Reset",
+    flt_see: "See the {n} spots",
+    flt_cats: "Categories",
+    flt_allcats: "All categories",
+    flt_more: "More filters (budget, vibe, music…)",
+    flt_hint90: "90% of searches stop here.",
+    flt_less: "Collapse advanced filters",
     flt_status: "Status",
     flt_budget: "Budget",
     flt_vibe: "Vibe",
@@ -3631,9 +3643,9 @@ const I18N = {
     nav_map: "Mapa",
     nav_events: "Eventos",
     nav_profile: "Perfil",
-    seg_discover: "🌍 Full",
+    seg_discover: "🌍 Todo",
     seg_mine: "📍 Mis spots",
-    seg_lists: "📁 Listas",
+    seg_lists: "📁 Mis listas",
     search_ph_full: "Busca en todo {city}…",
     search_ph_mine: "Busca en tus spots…",
     si_t: "Búsqueda inteligente:",
@@ -3670,6 +3682,12 @@ const I18N = {
     nt_err: "No se pudo mostrar la notificación de prueba",
     flt_btn: "Filtros",
     flt_reset: "Restablecer",
+    flt_see: "Ver los {n} spots",
+    flt_cats: "Categorías",
+    flt_allcats: "Todas las categorías",
+    flt_more: "Más filtros (presupuesto, ambiente, música…)",
+    flt_hint90: "El 90 % de las búsquedas acaba aquí.",
+    flt_less: "Plegar los filtros avanzados",
     flt_status: "Estado",
     flt_budget: "Presupuesto",
     flt_vibe: "Ambiente",
@@ -7867,6 +7885,32 @@ function useSwipeBack(onBack) {
         dx = t.clientX - s.x,
         dy = t.clientY - s.y;
       if (dx > 70 && Math.abs(dx) > Math.abs(dy) * 2 && Date.now() - s.t < 600) onBack();
+    }
+  };
+}
+function useSwipeDown(onClose, guard) {
+  const st = useRef(null);
+  return {
+    onTouchStart: e => {
+      if (guard && !guard(e)) {
+        st.current = null;
+        return;
+      }
+      const t = e.touches[0];
+      st.current = {
+        x: t.clientX,
+        y: t.clientY,
+        t: Date.now()
+      };
+    },
+    onTouchEnd: e => {
+      const s = st.current;
+      st.current = null;
+      if (!s || !onClose) return;
+      const t = e.changedTouches[0],
+        dx = t.clientX - s.x,
+        dy = t.clientY - s.y;
+      if (dy > 60 && Math.abs(dy) > Math.abs(dx) * 2 && Date.now() - s.t < 600) onClose();
     }
   };
 }
@@ -14026,8 +14070,9 @@ function App() {
   const [openNow, setOpenNow] = useState(false);
   const [lateNight, setLateNight] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [filtPanelH, setFiltPanelH] = useState(190);
-  const filtPanelRef = useRef(null);
+  const [filtMore, setFiltMore] = useState(false);
+  const filtScrollRef = useRef(null);
+  const filtSwipe = useSwipeDown(() => setShowFilters(false), () => !filtScrollRef.current || filtScrollRef.current.scrollTop <= 2);
   const spotsHdrRef = useRef(null);
   const homeHdrRef = useRef(null);
   const [hdrStuck, setHdrStuck] = useState(false);
@@ -14061,32 +14106,74 @@ function App() {
       if (raf) cancelAnimationFrame(raf);
     };
   }, []);
-  const startFiltDrag = e => {
-    const el = filtPanelRef.current;
-    if (!el) return;
-    e.preventDefault();
-    const t = e.currentTarget,
-      y0 = e.clientY,
-      h0 = el.offsetHeight;
-    el.style.transition = "none";
-    try {
-      t.setPointerCapture(e.pointerId);
-    } catch {}
-    const mv = ev => {
-      el.style.height = Math.min(440, Math.max(96, h0 + (ev.clientY - y0))) + "px";
-    };
-    const up = () => {
-      el.style.transition = "";
-      setFiltPanelH(el.offsetHeight);
-      t.removeEventListener("pointermove", mv);
-      t.removeEventListener("pointerup", up);
-      t.removeEventListener("pointercancel", up);
-    };
-    t.addEventListener("pointermove", mv);
-    t.addEventListener("pointerup", up);
-    t.addEventListener("pointercancel", up);
-  };
   const nActiveFilters = (openNow ? 1 : 0) + (lateNight ? 1 : 0) + (filter !== "all" ? 1 : 0) + catMulti.length + budgetF.length + vibeF.length + musicF.length;
+  const activeFilterChips = useMemo(() => {
+    const out = [];
+    catMulti.forEach(k => {
+      const c = CATS.find(x => x.key === k);
+      if (c) out.push({
+        id: "c" + k,
+        lab: c.emoji + " " + c.label,
+        col: CC[k] || "var(--pop-pink)",
+        off: () => setCatMulti(p => p.filter(x => x !== k))
+      });
+    });
+    if (openNow) out.push({
+      id: "open",
+      lab: tr("chip_open"),
+      col: "#16A34A",
+      off: () => setOpenNow(false)
+    });
+    if (lateNight) out.push({
+      id: "late",
+      lab: "🌙 +5h",
+      col: "#1E1B4B",
+      off: () => setLateNight(false)
+    });
+    if (filter !== "all") {
+      const L = {
+        todo: tr("f_todo"),
+        wishlist: tr("f_wish"),
+        done: tr("f_done"),
+        fav: tr("f_fav"),
+        work: "Workfriendly"
+      };
+      out.push({
+        id: "f",
+        lab: L[filter] || filter,
+        col: "var(--pop-pink)",
+        off: () => setFilter("all")
+      });
+    }
+    budgetF.forEach(k => {
+      const b = Q_BUDGET.find(x => x.k === k);
+      out.push({
+        id: "b" + k,
+        lab: b ? b.l : k,
+        col: "var(--pop-orange)",
+        off: () => setBudgetF(p => p.filter(x => x !== k))
+      });
+    });
+    vibeF.forEach(k => {
+      const v = Q_VIBE.find(x => x.k === k);
+      out.push({
+        id: "v" + k,
+        lab: v ? v.l : k,
+        col: "var(--pop-violet)",
+        off: () => setVibeF(p => p.filter(x => x !== k))
+      });
+    });
+    musicF.forEach(k => {
+      const m = MUSIC.find(x => x.k === k);
+      out.push({
+        id: "m" + k,
+        lab: m ? m.e + " " + m.l : k,
+        col: "#0EA5E9",
+        off: () => setMusicF(p => p.filter(x => x !== k))
+      });
+    });
+    return out;
+  }, [catMulti, openNow, lateNight, filter, budgetF, vibeF, musicF]);
   const resetFilters = () => {
     setOpenNow(false);
     setLateNight(false);
@@ -17540,177 +17627,121 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(6px + env(safe-area-inset-top,0px)) 20px 2px'
+      padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 0'
     }
-  }, React.createElement("h1", {
-    className: "hero-line",
+  }, React.createElement("div", {
     style: {
-      fontSize: 'clamp(19px,6.6vw,27px)'
+      fontFamily: 'var(--font-body)',
+      fontSize: 10.5,
+      fontWeight: 800,
+      letterSpacing: '.14em',
+      textTransform: 'uppercase',
+      color: 'var(--ink-400)'
     }
   }, tr("spots_title", {
     city: (CITIES[city] || CITIES.paris).label
   }))), React.createElement("div", {
     style: {
-      padding: '6px 20px 0',
+      padding: '8px 20px 0',
       background: 'var(--bg-cream)',
-      display: 'flex',
-      gap: 10,
-      alignItems: 'center',
-      overflowX: 'auto',
-      scrollbarWidth: 'none',
-      WebkitOverflowScrolling: 'touch'
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3,minmax(0,1fr))',
+      gap: 9
     }
-  }, React.createElement("button", {
-    onClick: () => setSearchMode("discover"),
-    className: "press",
-    style: {
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 5,
-      height: 36,
-      padding: '0 15px',
-      borderRadius: 999,
-      background: searchMode === "discover" ? 'var(--pop-pink)' : '#fff',
-      color: searchMode === "discover" ? '#fff' : 'var(--ink-600)',
-      border: searchMode === "discover" ? '1px solid transparent' : '1px solid var(--hairline)',
-      boxShadow: searchMode === "discover" ? 'var(--shadow-pop)' : 'none',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13,
-      cursor: 'pointer',
-      transition: 'all .18s var(--ease)'
-    }
-  }, tr("seg_discover"), catalogVisible.length > 0 && React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 11,
-      opacity: .85
-    }
-  }, "\xB7", catalogVisible.length)), React.createElement("button", {
-    onClick: () => {
+  }, [{
+    k: "discover",
+    n: catalogVisible.length,
+    lab: tr("seg_discover") + " " + (CITIES[city] || CITIES.paris).label,
+    go: () => setSearchMode("discover")
+  }, {
+    k: "local",
+    n: sortedVisible.length,
+    lab: tr("seg_mine"),
+    go: () => {
       setSearchMode("local");
       setDiscoverResults([]);
-    },
-    className: "press",
-    style: {
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 5,
-      height: 36,
-      padding: '0 15px',
-      borderRadius: 999,
-      background: searchMode === "local" ? 'var(--pop-pink)' : '#fff',
-      color: searchMode === "local" ? '#fff' : 'var(--ink-600)',
-      border: searchMode === "local" ? '1px solid transparent' : '1px solid var(--hairline)',
-      boxShadow: searchMode === "local" ? 'var(--shadow-pop)' : 'none',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13,
-      cursor: 'pointer',
-      transition: 'all .18s var(--ease)'
     }
-  }, tr("seg_mine"), sortedVisible.length > 0 && React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 11,
-      opacity: .85
-    }
-  }, "\xB7", sortedVisible.length)), React.createElement("button", {
-    onClick: () => {
+  }, {
+    k: "lists",
+    n: lists.length,
+    lab: tr("seg_lists"),
+    go: () => {
       setSearchMode("lists");
       setOpenListId(null);
-    },
-    className: "press",
-    style: {
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 5,
-      height: 36,
-      padding: '0 15px',
-      borderRadius: 999,
-      background: searchMode === "lists" ? 'var(--pop-pink)' : '#fff',
-      color: searchMode === "lists" ? '#fff' : 'var(--ink-600)',
-      border: searchMode === "lists" ? '1px solid transparent' : '1px solid var(--hairline)',
-      boxShadow: searchMode === "lists" ? 'var(--shadow-pop)' : 'none',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13,
-      cursor: 'pointer',
-      transition: 'all .18s var(--ease)'
     }
-  }, tr("seg_lists"), lists.length > 0 && React.createElement("span", {
-    style: {
-      fontFamily: 'var(--font-mono)',
-      fontSize: 11,
-      opacity: .85
-    }
-  }, "\xB7", lists.length)), React.createElement("button", {
-    onClick: () => {
-      if (!isPremium && lists.length >= FREE_LISTS_MAX) {
-        window.mspToast?.(`${FREE_LISTS_MAX} listes en gratuit — Spotane+ arrive bientôt ✨`, "error");
-        return;
+  }].map(o => {
+    const on = searchMode === o.k;
+    return React.createElement("button", {
+      key: o.k,
+      onClick: o.go,
+      className: "press",
+      "aria-current": on ? "true" : undefined,
+      style: {
+        minWidth: 0,
+        padding: '9px 6px 8px',
+        borderRadius: 16,
+        cursor: 'pointer',
+        background: on ? 'var(--pop-pink)' : '#fff',
+        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
+        boxShadow: on ? 'var(--shadow-pop)' : 'var(--shadow-sm)',
+        transition: 'all .18s var(--ease)'
       }
-      setSearchMode("lists");
-      setOpenListId(null);
-      setShowListForm(true);
-    },
-    className: "press",
-    "aria-label": tr("l_new"),
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 'clamp(21px,7vw,28px)',
+        lineHeight: 1,
+        letterSpacing: '-.02em',
+        color: on ? '#fff' : 'var(--ink-900)'
+      }
+    }, o.n), React.createElement("div", {
+      style: {
+        marginTop: 4,
+        fontFamily: 'var(--font-body)',
+        fontSize: 10.5,
+        fontWeight: 700,
+        color: on ? 'rgba(255,255,255,.95)' : 'var(--ink-600)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, o.lab));
+  })), React.createElement("div", {
     style: {
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      width: 35,
-      height: 35,
-      borderRadius: 999,
-      border: '1px solid var(--hairline)',
-      background: '#fff',
-      color: 'var(--pop-pink)',
-      fontWeight: 800,
-      fontSize: 17,
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 0
-    }
-  }, "+"), React.createElement("div", {
-    style: {
-      flex: 1
-    }
-  }), React.createElement("button", {
-    onClick: () => {
-      setEditingId(null);
-      setShowForm(true);
-    },
-    className: "press",
-    style: {
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      padding: '8px 16px',
-      borderRadius: 999,
-      border: 'none',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      fontWeight: 700,
-      fontSize: 13,
-      fontFamily: 'var(--font-body)',
-      cursor: 'pointer'
-    }
-  }, "+ Ajouter")), React.createElement("div", {
-    style: {
-      padding: '6px 20px 0',
+      padding: '8px 20px 0',
       background: 'var(--bg-cream)',
       display: 'flex',
       gap: 8,
       alignItems: 'center'
     }
-  }, React.createElement("div", {
+  }, React.createElement("button", {
+    onClick: () => {
+      setEditingId(null);
+      setShowForm(true);
+    },
+    className: "press",
+    "aria-label": "Ajouter un spot",
+    title: "Ajouter un spot",
+    style: {
+      flexShrink: 0,
+      width: 42,
+      height: 42,
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      fontWeight: 800,
+      fontSize: 20,
+      lineHeight: 1,
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "+"), React.createElement("div", {
     style: {
       flex: 1,
       minWidth: 0,
@@ -17821,74 +17852,70 @@ function App() {
   }, React.createElement("div", {
     style: {
       display: 'flex',
-      flexWrap: 'wrap',
-      gap: 4,
-      padding: '0 14px'
+      gap: 6,
+      padding: '0 20px',
+      alignItems: 'center',
+      overflowX: 'auto',
+      scrollbarWidth: 'none',
+      WebkitOverflowScrolling: 'touch'
     }
   }, React.createElement("button", {
-    onClick: () => setShowFilters(v => !v),
+    onClick: () => setShowFilters(true),
     className: "press",
     style: {
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 4,
-      border: '2px solid ' + (showFilters ? 'var(--pop-violet)' : 'var(--hairline)'),
-      background: '#fff',
+      gap: 5,
+      border: 'none',
+      background: nActiveFilters > 0 ? 'var(--pop-violet)' : 'var(--ink-900)',
+      color: '#fff',
       borderRadius: 999,
-      padding: '5px 8px',
+      padding: '8px 14px',
       fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 12,
-      color: 'var(--ink-900)',
+      fontWeight: 800,
+      fontSize: 12.5,
       cursor: 'pointer',
       flexShrink: 0
     }
   }, "\u2699\uFE0F ", tr("flt_btn"), nActiveFilters > 0 && React.createElement("span", {
     style: {
-      background: 'var(--pop-violet)',
-      color: '#fff',
-      minWidth: 15,
-      height: 15,
+      background: 'rgba(255,255,255,.28)',
+      minWidth: 16,
+      height: 16,
       borderRadius: 999,
       fontSize: 10,
-      fontWeight: 800,
+      fontWeight: 900,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '0 4px'
     }
-  }, nActiveFilters), React.createElement("span", {
+  }, nActiveFilters)), activeFilterChips.map(ch => React.createElement("button", {
+    key: ch.id,
+    onClick: ch.off,
+    className: "press",
     style: {
-      fontSize: 10,
-      color: 'var(--ink-400)',
-      display: 'inline-block',
-      transform: showFilters ? 'rotate(180deg)' : 'none',
-      transition: 'transform .25s var(--ease)'
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      padding: '7px 11px',
+      borderRadius: 999,
+      whiteSpace: 'nowrap',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 12,
+      border: '1.5px solid ' + ch.col,
+      background: '#fff',
+      color: ch.col,
+      cursor: 'pointer',
+      flexShrink: 0
     }
-  }, "\u25BC")), CATS.map(c => {
-    const active = c.key === "all" ? catMulti.length === 0 : catMulti.includes(c.key);
-    return React.createElement("button", {
-      key: c.key,
-      onClick: () => c.key === "all" ? setCatMulti([]) : setCatMulti(p => p.includes(c.key) ? p.filter(x => x !== c.key) : [...p, c.key]),
-      style: {
-        padding: '5px 8px',
-        borderRadius: 999,
-        whiteSpace: 'nowrap',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 12,
-        border: '2px solid ' + (active ? CC[c.key] || 'var(--pop-pink)' : 'var(--hairline)'),
-        background: active ? CB[c.key] || '#FFF0F6' : '#fff',
-        color: active ? CC[c.key] || 'var(--pop-pink)' : 'var(--ink-900)',
-        cursor: 'pointer',
-        flexShrink: 0
-      }
-    }, c.emoji, " ", c.label);
-  })), nActiveFilters > 0 && React.createElement("div", {
+  }, ch.lab, React.createElement("span", {
     style: {
-      padding: '6px 20px 0'
+      opacity: .7,
+      fontSize: 11
     }
-  }, React.createElement("button", {
+  }, "\u2715"))), nActiveFilters > 0 && React.createElement("button", {
     onClick: resetFilters,
     style: {
       border: 'none',
@@ -17898,26 +17925,186 @@ function App() {
       fontSize: 12.5,
       fontFamily: 'var(--font-body)',
       cursor: 'pointer',
-      padding: 0
+      padding: '0 4px',
+      flexShrink: 0,
+      whiteSpace: 'nowrap'
     }
-  }, tr("flt_reset"))), React.createElement("div", {
-    ref: filtPanelRef,
+  }, tr("flt_reset"))))), showFilters && searchMode !== "lists" && React.createElement("div", {
     style: {
-      height: showFilters ? filtPanelH : 0,
-      overflow: 'hidden',
-      transition: 'height .3s var(--ease)',
+      position: 'fixed',
+      inset: 0,
+      zIndex: 100,
+      background: 'rgba(10,10,10,0.5)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      display: 'flex',
+      alignItems: 'flex-end',
+      justifyContent: 'center'
+    },
+    onClick: () => setShowFilters(false)
+  }, React.createElement("div", {
+    className: "slide-up",
+    onClick: e => e.stopPropagation(),
+    style: {
+      width: '100%',
+      maxWidth: 600,
+      height: '62vh',
+      background: 'var(--bg-primary)',
+      borderRadius: '24px 24px 0 0',
+      position: 'relative',
       display: 'flex',
       flexDirection: 'column',
-      borderTop: showFilters ? '1px solid var(--hairline)' : 'none'
+      overflow: 'hidden'
+    }
+  }, React.createElement("div", _extends({}, filtSwipe, {
+    style: {
+      flexShrink: 0,
+      padding: '10px 0 6px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      cursor: 'grab',
+      touchAction: 'pan-y'
+    }
+  }), React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      borderRadius: 999,
+      background: 'var(--hairline)'
+    }
+  })), React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '2px 20px 10px'
     }
   }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 20,
+      letterSpacing: '-.02em'
+    }
+  }, "\u2699\uFE0F ", tr("flt_btn")), React.createElement("button", {
+    onClick: () => setShowFilters(false),
+    className: "press",
+    style: {
+      border: 'none',
+      background: 'var(--ink-900)',
+      color: '#fff',
+      borderRadius: 999,
+      padding: '8px 16px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 12.5,
+      cursor: 'pointer'
+    }
+  }, tr("flt_see", {
+    n: catalogVisible.length
+  }))), React.createElement("div", {
+    ref: filtScrollRef,
     style: {
       flex: 1,
       minHeight: 0,
       overflowY: 'auto',
-      paddingTop: 10
+      WebkitOverflowScrolling: 'touch',
+      paddingBottom: 'calc(14px + env(safe-area-inset-bottom,0px))'
     }
   }, React.createElement("div", {
+    className: "grad-lbl",
+    style: {
+      padding: '0 20px',
+      marginBottom: 8
+    }
+  }, tr("flt_cats")), React.createElement("div", {
+    style: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3,minmax(0,1fr))',
+      gap: 8,
+      padding: '0 20px 12px'
+    }
+  }, CATS.filter(c => c.key !== "all").map(c => {
+    const active = catMulti.includes(c.key);
+    return React.createElement("button", {
+      key: c.key,
+      onClick: () => setCatMulti(p => p.includes(c.key) ? p.filter(x => x !== c.key) : [...p, c.key]),
+      className: "press",
+      style: {
+        minWidth: 0,
+        padding: '12px 4px',
+        borderRadius: 14,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 11.5,
+        border: '2px solid ' + (active ? CC[c.key] || 'var(--pop-pink)' : 'var(--hairline)'),
+        background: active ? CB[c.key] || '#FFF0F6' : '#fff',
+        color: active ? CC[c.key] || 'var(--pop-pink)' : 'var(--ink-900)',
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 5
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 21,
+        lineHeight: 1
+      }
+    }, c.emoji), React.createElement("span", {
+      style: {
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        maxWidth: '100%'
+      }
+    }, c.label));
+  })), catMulti.length > 0 && React.createElement("div", {
+    style: {
+      padding: '0 20px 12px'
+    }
+  }, React.createElement("button", {
+    onClick: () => setCatMulti([]),
+    style: {
+      border: 'none',
+      background: 'transparent',
+      color: 'var(--pop-pink)',
+      fontWeight: 700,
+      fontSize: 12,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer',
+      padding: 0
+    }
+  }, tr("flt_allcats"))), !filtMore ? React.createElement("div", {
+    style: {
+      padding: '0 20px'
+    }
+  }, React.createElement("button", {
+    onClick: () => setFiltMore(true),
+    className: "press",
+    style: {
+      width: '100%',
+      background: 'var(--bg-soft)',
+      color: 'var(--ink-600)',
+      border: 'none',
+      borderRadius: 999,
+      padding: '13px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 12.5,
+      cursor: 'pointer'
+    }
+  }, "\uFF0B ", tr("flt_more")), React.createElement("p", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 11,
+      color: 'var(--ink-400)',
+      textAlign: 'center',
+      marginTop: 9
+    }
+  }, tr("flt_hint90"))) : React.createElement(React.Fragment, null, React.createElement("div", {
     className: "grad-lbl",
     style: {
       padding: '0 20px',
@@ -18157,25 +18344,23 @@ function App() {
   }, tr("flt_music_note", {
     n: musicStats.tagged,
     t: musicStats.total
-  }))), showFilters && React.createElement("div", {
-    onPointerDown: startFiltDrag,
+  })), React.createElement("div", {
     style: {
-      flexShrink: 0,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '6px 0 8px',
-      cursor: 'ns-resize',
-      touchAction: 'none'
+      padding: '4px 20px 8px'
     }
-  }, React.createElement("div", {
+  }, React.createElement("button", {
+    onClick: () => setFiltMore(false),
     style: {
-      width: 44,
-      height: 5,
-      borderRadius: 999,
-      background: 'var(--hairline)'
+      border: 'none',
+      background: 'transparent',
+      color: 'var(--ink-400)',
+      fontWeight: 700,
+      fontSize: 12,
+      fontFamily: 'var(--font-body)',
+      cursor: 'pointer',
+      padding: 0
     }
-  }))))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
+  }, "\u2212 ", tr("flt_less"))))))), searchMode === "lists" ? ListsView() : searchMode === "local" ? React.createElement("div", {
     style: {
       padding: '20px 20px 0'
     }
