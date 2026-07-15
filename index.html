@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T11:01:58.769Z -->
+<!-- built 2026-07-15T11:04:53.724Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3112,6 +3112,7 @@ const I18N = {
     ob_wait: " : les meilleurs spots du coin t'attendent.",
     d_site: "🌐 Site / Réserver",
     d_insta: "📸 Insta",
+    d_menu: "🍽️ Menu",
     d_lastvisit: "📅 Dernière visite",
     d_revisit: "↻ J'y suis retourné",
     d_addnote: "+ Ajouter une note perso",
@@ -3453,6 +3454,7 @@ const I18N = {
     ob_wait: ": the best local spots are waiting.",
     d_site: "🌐 Website / Book",
     d_insta: "📸 Insta",
+    d_menu: "🍽️ Menu",
     d_lastvisit: "📅 Last visit",
     d_revisit: "↻ I went back",
     d_addnote: "+ Add a personal note",
@@ -3794,6 +3796,7 @@ const I18N = {
     ob_wait: ": los mejores spots te esperan.",
     d_site: "🌐 Web / Reservar",
     d_insta: "📸 Insta",
+    d_menu: "🍽️ Menú",
     d_lastvisit: "📅 Última visita",
     d_revisit: "↻ He vuelto",
     d_addnote: "+ Añadir una nota personal",
@@ -8854,7 +8857,21 @@ function SpotDetail({
       fontWeight: 600,
       fontFamily: 'var(--font-body)'
     }
-  }, tr("d_insta"))), !preview && spot.done && React.createElement("div", {
+  }, tr("d_insta")), getCats(spot).some(c => ['resto', 'cafe', 'speakeasy', 'rooftop'].includes(c)) && React.createElement("a", {
+    href: `https://www.google.com/search?q=${encodeURIComponent((spot.name || "") + " " + ((spot.adresse || "").split(",").pop() || "") + " menu carte")}`,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "inline-block",
+      marginTop: 12,
+      marginLeft: 14,
+      fontSize: 14,
+      color: "var(--pop-cyan)",
+      textDecoration: "none",
+      fontWeight: 600,
+      fontFamily: 'var(--font-body)'
+    }
+  }, tr("d_menu"))), !preview && spot.done && React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
