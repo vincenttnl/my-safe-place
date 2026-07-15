@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T13:56:37.009Z -->
+<!-- built 2026-07-15T14:53:17.757Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -49,13 +49,14 @@
   --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
   --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,61,139,0.25);
   --ease:cubic-bezier(0.4,0,0.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);/* v10.85 : easing à dépassement — moteur de la lentille de la tab bar */
   /* legacy compat */
   --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--radius:var(--radius-md);
 }
 
 
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:80px;overflow-x:clip;max-width:100vw;touch-action:manipulation}
+body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:96px;overflow-x:clip;max-width:100vw;touch-action:manipulation}/* v10.85 : 80→96px — la tab bar №7 flotte détachée du bord, il lui faut plus de garde */
 textarea,input,select{font-family:var(--font-body);background:var(--input);color:var(--ink-900);border-color:var(--hairline)}
 
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -98,14 +99,34 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,61,139,.35)}}
 
 /* Bottom nav - Partiful style */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--hairline);display:flex;justify-content:space-around;padding:6px 0 env(safe-area-inset-bottom,8px);z-index:90}
-/* v10.49 — tab bar №2 « néon fort » (choix Vincent 13/07) : onglets TOUJOURS allumés (plus de gris),
-   l'actif = pill blanche bordure rose + glow néon. */
-.bottom-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:1.5px solid transparent;border-radius:14px;cursor:pointer;padding:4px 12px;font-size:10px;font-weight:700;font-family:var(--font-body);color:var(--ink-900);transition:all .2s}
-.bottom-nav button.active{background:#fff;border-color:var(--pop-pink);box-shadow:0 0 18px 4px rgba(255,45,158,.65)}
-/* v10.50 : émojis TOUJOURS lumineux (exit grayscale+opacity sur les inactifs — retour Vincent 13/07 : « qu'on ait envie de cliquer dessus ») */
-.bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:all .2s var(--ease)}
-.bottom-nav button.active .nav-icon{transform:scale(1.08) rotate(-4deg)}
+/* v10.85 — TAB BAR №7 « lentille qui grossit en transit » (choix Vincent 15/07, maquette
+   _explorations/local_tabbar-25.html). Remplace le néon rose v10.49/v10.50.
+   Barre flottante en verre détachée du bord + capsule qui GLISSE d'un onglet à l'autre en enflant
+   pendant le trajet, à la façon de la loupe WhatsApp/iOS 26.
+   ⚠️ L'effet EST le décalage des durées : la capsule enfle 340ms (classe .transit, posée en JS) alors
+   que son trajet dure 500ms → elle commence à dégonfler AVANT d'arriver. Ne pas aligner les deux.
+   ⚠️ isolation:isolate est obligatoire, sinon le backdrop-filter de la capsule va chercher le fond de
+   toute la page au lieu de celui de la barre. */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;padding:0 12px calc(10px + env(safe-area-inset-bottom,4px));z-index:90;isolation:isolate;pointer-events:none}
+.nav-inner{position:relative;display:flex;align-items:center;height:62px;max-width:600px;margin:0 auto;border-radius:31px;pointer-events:auto;
+  background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);
+  border:1px solid rgba(255,255,255,.65);box-shadow:0 12px 32px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.5)}
+.bottom-nav button{position:relative;z-index:2;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  background:none;border:0;cursor:pointer;padding:0;color:var(--ink-900);font-family:var(--font-body);font-size:9px;font-weight:800;
+  -webkit-tap-highlight-color:transparent;transition:color .3s var(--ease)}
+.bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:transform .4s var(--spring)}
+.bottom-nav button.active .nav-icon{transform:scale(1.08)}
+/* la capsule — position et largeur écrites en JS (placeNavInd), jamais en CSS */
+.nav-ind{position:absolute;z-index:1;left:0;top:9px;width:0;height:44px;border-radius:22px;pointer-events:none;
+  background:rgba(255,255,255,.42);backdrop-filter:blur(2px) saturate(1.6) brightness(1.14);-webkit-backdrop-filter:blur(2px) saturate(1.6) brightness(1.14);
+  border:1px solid rgba(255,255,255,.85);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 14px rgba(0,0,0,.14);
+  transition:left .5s var(--spring),width .5s var(--spring),transform .5s var(--spring)}
+.nav-ind.transit{transform:scale(1.22)}
+/* badge chiffré (onglet Events). z-index 3 > capsule : il reste lisible quand la lentille enfle dessous. */
+.nav-badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+  background:var(--pop-pink);color:#fff;font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(255,61,139,.5);z-index:3}
+@media(prefers-reduced-motion:reduce){.nav-ind{transition:none}.nav-ind.transit{transform:none}}
 
 /* Section titles - Partiful */
 .section-title{font-family:var(--font-display);font-weight:900;font-size:28px;letter-spacing:-0.015em;color:var(--ink-900);line-height:1.05}
@@ -247,6 +268,7 @@ function _extends() { return _extends = Object.assign ? Object.assign.bind() : f
 const {
   useState,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useCallback
@@ -3112,6 +3134,9 @@ const I18N = {
     ob_file: "File dans ",
     ob_wait: " : les meilleurs spots du coin t'attendent.",
     d_site: "🌐 Site / Réserver",
+    mc_title: "Voir sur ta carte",
+    mc_spotane: "Ouvrir Map Spotane",
+    mc_google: "ou ouvrir dans Google Maps",
     d_insta: "📸 Insta",
     d_menu: "🍽️ Menu",
     d_lastvisit: "📅 Dernière visite",
@@ -3454,6 +3479,9 @@ const I18N = {
     ob_file: "Go to ",
     ob_wait: ": the best local spots are waiting.",
     d_site: "🌐 Website / Book",
+    mc_title: "See it on your map",
+    mc_spotane: "Open Spotane Map",
+    mc_google: "or open in Google Maps",
     d_insta: "📸 Insta",
     d_menu: "🍽️ Menu",
     d_lastvisit: "📅 Last visit",
@@ -3796,6 +3824,9 @@ const I18N = {
     ob_file: "Ve a ",
     ob_wait: ": los mejores spots te esperan.",
     d_site: "🌐 Web / Reservar",
+    mc_title: "Verlo en tu mapa",
+    mc_spotane: "Abrir Mapa Spotane",
+    mc_google: "o abrir en Google Maps",
     d_insta: "📸 Insta",
     d_menu: "🍽️ Menú",
     d_lastvisit: "📅 Última visita",
@@ -4616,6 +4647,27 @@ function parseNLQuery(raw) {
   out.active = !!(out.cats.length || out.cuisine.length || out.vibe.length || out.who.length || out.when.length || out.music.length || out.budget.length || out.openNow || out.nearMe || out.place);
   return out;
 }
+const NAV_TABS = [{
+  key: "home",
+  icon: "🏠",
+  i18n: "nav_home"
+}, {
+  key: "spots",
+  icon: "📍",
+  i18n: "nav_spots"
+}, {
+  key: "map",
+  icon: "🗺️",
+  i18n: "nav_map"
+}, {
+  key: "events",
+  icon: "🎫",
+  i18n: "nav_events"
+}, {
+  key: "profile",
+  icon: "⚙️",
+  i18n: "nav_profile"
+}];
 const CB = {
   resto: "#D6F5E0",
   cafe: "#EAE0D6",
@@ -8534,7 +8586,8 @@ function SpotDetail({
   onSecret,
   preview,
   onAddPreview,
-  friendsWith
+  friendsWith,
+  onOpenInMap
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -8587,6 +8640,7 @@ function SpotDetail({
     fontFamily: 'var(--font-body)'
   };
   const swipeBack = useSwipeBack(onClose);
+  const [mapChoice, setMapChoice] = useState(false);
   return React.createElement("div", {
     style: {
       position: 'fixed',
@@ -9080,10 +9134,8 @@ function SpotDetail({
       cursor: 'pointer',
       boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
     }
-  }, "+ Ajouter \xE0 mes spots"), React.createElement("a", {
-    href: gmaps,
-    target: "_blank",
-    rel: "noopener noreferrer",
+  }, "+ Ajouter \xE0 mes spots"), React.createElement("button", {
+    onClick: () => setMapChoice(true),
     style: {
       width: '100%',
       background: 'transparent',
@@ -9093,9 +9145,9 @@ function SpotDetail({
       fontFamily: 'var(--font-body)',
       fontWeight: 600,
       fontSize: 13,
-      textDecoration: 'none',
       color: 'var(--ink-900)',
-      textAlign: 'center'
+      textAlign: 'center',
+      cursor: 'pointer'
     }
   }, "\u2197 Voir sur Maps"), isNight && React.createElement("a", {
     href: eventsUrl,
@@ -9295,10 +9347,8 @@ function SpotDetail({
       gap: 6,
       marginTop: 16
     }
-  }, React.createElement("a", {
-    href: gmaps,
-    target: "_blank",
-    rel: "noopener noreferrer",
+  }, React.createElement("button", {
+    onClick: () => setMapChoice(true),
     className: "press",
     style: rndWrap
   }, React.createElement("span", {
@@ -9355,7 +9405,93 @@ function SpotDetail({
     }
   }, "\uD83C\uDF9F\uFE0F"), React.createElement("span", {
     style: rndLbl
-  }, "Soir\xE9es"))))))));
+  }, "Soir\xE9es")))))), mapChoice && React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      zIndex: 30
+    },
+    onClick: () => setMapChoice(false)
+  }, React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'rgba(10,10,10,.42)',
+      backdropFilter: 'blur(2px)',
+      WebkitBackdropFilter: 'blur(2px)'
+    }
+  }), React.createElement("div", {
+    className: "slide-up",
+    onClick: e => e.stopPropagation(),
+    style: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      background: 'var(--bg-cream)',
+      borderRadius: '26px 26px 0 0',
+      padding: '10px 16px calc(18px + env(safe-area-inset-bottom,0px))',
+      boxShadow: '0 -14px 40px rgba(0,0,0,.2)'
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 38,
+      height: 4,
+      borderRadius: 999,
+      background: 'var(--hairline)',
+      margin: '2px auto 12px'
+    }
+  }), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontSize: 22,
+      fontWeight: 900,
+      letterSpacing: '-.02em',
+      textAlign: 'center',
+      color: 'var(--ink-900)'
+    }
+  }, tr("mc_title")), React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: 'var(--ink-400)',
+      textAlign: 'center',
+      marginTop: 3
+    }
+  }, spot.name, spot.metro ? " · " + (mp ? mp.station : spot.metro) : ""), React.createElement("button", {
+    onClick: () => {
+      setMapChoice(false);
+      onOpenInMap && onOpenInMap(spot);
+    },
+    className: "press",
+    style: {
+      width: '100%',
+      marginTop: 14,
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      border: 'none',
+      borderRadius: 999,
+      padding: 15,
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 14.5,
+      cursor: 'pointer',
+      boxShadow: 'var(--shadow-pop)'
+    }
+  }, "\uD83D\uDCCD ", tr("mc_spotane")), React.createElement("a", {
+    href: gmaps,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    onClick: () => setMapChoice(false),
+    style: {
+      display: 'block',
+      textAlign: 'center',
+      marginTop: 13,
+      fontSize: 12,
+      color: 'var(--ink-400)',
+      textDecoration: 'underline',
+      textUnderlineOffset: 3
+    }
+  }, tr("mc_google"), " \u2197")))));
 }
 function PosterSpotCard({
   spot,
@@ -13503,6 +13639,70 @@ function parseAuthHash() {
 }
 function App() {
   const [tab, setTab] = useState("home");
+  const openSpotInMap = useCallback(sp => {
+    if (!sp || !sp.lat || !sp.lng) return;
+    setSelectedSpot(null);
+    if (mapRef.current && tab === "map") {
+      try {
+        mapRef.current.setView([sp.lat, sp.lng], 16);
+      } catch {}
+      didFitRef.current = true;
+      setPeekSpot(sp);
+    } else {
+      pendingMapFocusRef.current = sp;
+      setTab("map");
+    }
+  }, [tab]);
+  const navInnerRef = useRef(null),
+    navIndRef = useRef(null),
+    navTabRefs = useRef({});
+  const placeNavInd = useCallback((key, animate) => {
+    const inner = navInnerRef.current,
+      ind = navIndRef.current,
+      btn = navTabRefs.current[key];
+    if (!inner || !ind || !btn) return;
+    const rb = btn.getBoundingClientRect(),
+      ri = inner.getBoundingClientRect();
+    if (!rb.width) return;
+    const w = Math.max(rb.width - 10, 34),
+      left = rb.left - ri.left + 5;
+    if (!animate) ind.style.transition = "none";
+    ind.style.left = left + "px";
+    ind.style.width = w + "px";
+    if (!animate) {
+      void ind.offsetWidth;
+      ind.style.transition = "";
+    }
+  }, []);
+  useEffect(() => {
+    const r = requestAnimationFrame(() => placeNavInd(tab, false));
+    return () => cancelAnimationFrame(r);
+  }, []);
+  useLayoutEffect(() => {
+    const ind = navIndRef.current;
+    if (!ind) return;
+    placeNavInd(tab, true);
+    ind.classList.add("transit");
+    const t = setTimeout(() => {
+      ind.classList.remove("transit");
+    }, 340);
+    return () => clearTimeout(t);
+  }, [tab, placeNavInd]);
+  useEffect(() => {
+    const inner = navInnerRef.current;
+    if (!inner) return;
+    const re = () => placeNavInd(tab, false);
+    window.addEventListener("resize", re);
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(re);
+      ro.observe(inner);
+    }
+    return () => {
+      window.removeEventListener("resize", re);
+      if (ro) ro.disconnect();
+    };
+  }, [tab, placeNavInd]);
   useEffect(() => {
     try {
       window.scrollTo(0, 0);
@@ -14029,8 +14229,8 @@ function App() {
   const SDJ_CATW = {
     rooftop: 1.5,
     speakeasy: 1.4,
-    club: 1.3,
-    cafe: 1.1,
+    cafe: 1.3,
+    club: 1.15,
     sortie: 1
   };
   const MOOD_BOOST = {
@@ -14928,6 +15128,7 @@ function App() {
   }, [allSpots, trash, session]);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
+  const pendingMapFocusRef = useRef(null);
   const userMarkerRef = useRef(null);
   const wantRecenterRef = useRef(false);
   const didFitRef = useRef(false);
@@ -15655,6 +15856,17 @@ function App() {
     didFitRef.current = false;
     userMarkerRef.current = null;
     selMarkerRef.current = null;
+    if (pendingMapFocusRef.current) {
+      const t = pendingMapFocusRef.current;
+      pendingMapFocusRef.current = null;
+      if (t.lat && t.lng) {
+        try {
+          map.setView([t.lat, t.lng], 16);
+        } catch {}
+        didFitRef.current = true;
+        setPeekSpot(t);
+      }
+    }
     const r1 = requestAnimationFrame(() => map.invalidateSize());
     const t1 = setTimeout(() => {
       try {
@@ -16093,9 +16305,7 @@ function App() {
     });
   }, [catalog, catMulti, search, budgetF, vibeF, musicF, openNow, lateNight, searchMode, nlp, nlpPlace, userPos, zoneFilter]);
   const doneCount = spots.filter(x => x.done).length;
-  const todoCount = spots.filter(x => !x.done).length;
   const favCount = spots.filter(x => x.fav).length;
-  const pct = spots.length ? Math.round(doneCount / spots.length * 100) : 0;
   const challengeSpots = spots.filter(s => challenge.ids.includes(s.id));
   const challengeDone = challengeSpots.filter(s => s.done).length;
   const HomeTab = () => {
@@ -16867,109 +17077,7 @@ function App() {
           marginTop: 4
         }
       }, "\uD83D\uDCCD ", ev.lieu)));
-    }))), React.createElement("div", {
-      style: {
-        padding: '26px 20px 16px'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 18,
-        boxShadow: 'var(--shadow-sm)'
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4,1fr)',
-        gap: 8
-      }
-    }, [{
-      v: spots.length,
-      l: 'spots',
-      f: 'all'
-    }, {
-      v: todoCount,
-      l: 'a faire',
-      f: 'todo'
-    }, {
-      v: doneCount,
-      l: 'faits',
-      f: 'done'
-    }, {
-      v: favCount,
-      l: 'favoris',
-      f: 'fav'
-    }].map((s, i) => React.createElement("button", {
-      key: i,
-      className: "press",
-      onClick: () => {
-        setCatMulti([]);
-        setFilter(s.f);
-        setSearch("");
-        setSearchMode("local");
-        setTab("spots");
-      },
-      style: {
-        textAlign: 'center',
-        background: 'transparent',
-        border: 'none',
-        padding: 0,
-        cursor: 'pointer'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 30,
-        lineHeight: 1,
-        letterSpacing: '-0.02em',
-        color: 'var(--ink-900)'
-      }
-    }, s.v), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-mono)',
-        fontSize: 9.5,
-        letterSpacing: '0.15em',
-        textTransform: 'uppercase',
-        color: 'var(--ink-400)',
-        marginTop: 6
-      }
-    }, s.l)))), React.createElement("div", {
-      style: {
-        marginTop: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        marginBottom: 6
-      }
-    }, React.createElement("span", null, "Progression"), React.createElement("span", {
-      style: {
-        fontWeight: 600,
-        color: 'var(--ink-900)'
-      }
-    }, pct, "%")), React.createElement("div", {
-      style: {
-        height: 8,
-        background: 'var(--bg-soft)',
-        borderRadius: 999,
-        overflow: 'hidden'
-      }
-    }, React.createElement("div", {
-      style: {
-        width: `${pct}%`,
-        height: '100%',
-        background: 'var(--pop-pink)',
-        borderRadius: 999,
-        transition: 'width .4s'
-      }
-    }))))));
+    }))));
   };
   const ListsView = () => {
     if (friendListOpen) return React.createElement(FriendListDetail, {
@@ -21529,7 +21637,8 @@ function App() {
     onShare: shareSpot,
     onRevisit: revisitSpot,
     onSecret: toggleSecret,
-    friendsWith: friendSpotMap.get(selectedSpot.id) || []
+    friendsWith: friendSpotMap.get(selectedSpot.id) || [],
+    onOpenInMap: openSpotInMap
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
@@ -22300,36 +22409,26 @@ function App() {
   }))), React.createElement("nav", {
     className: "bottom-nav",
     "aria-label": "Navigation principale"
-  }, [{
-    key: "home",
-    icon: "🏠",
-    label: tr("nav_home")
-  }, {
-    key: "spots",
-    icon: "📍",
-    label: tr("nav_spots")
-  }, {
-    key: "map",
-    icon: "🗺️",
-    label: tr("nav_map")
-  }, {
-    key: "events",
-    icon: "🎫",
-    label: tr("nav_events")
-  }, {
-    key: "profile",
-    icon: "⚙️",
-    label: tr("nav_profile")
-  }].map(it => React.createElement("button", {
+  }, React.createElement("div", {
+    className: "nav-inner",
+    ref: navInnerRef
+  }, React.createElement("span", {
+    className: "nav-ind",
+    ref: navIndRef,
+    "aria-hidden": "true"
+  }), NAV_TABS.map(it => React.createElement("button", {
     key: it.key,
+    ref: el => {
+      navTabRefs.current[it.key] = el;
+    },
     className: tab === it.key ? "active" : "",
     onClick: () => setTab(it.key),
-    "aria-label": it.label,
+    "aria-label": tr(it.i18n),
     "aria-current": tab === it.key ? "page" : undefined
   }, React.createElement("span", {
     className: "nav-icon",
     "aria-hidden": "true"
-  }, it.icon), it.label))), React.createElement(ToastStack, null));
+  }, it.icon), tr(it.i18n))))), React.createElement(ToastStack, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 requestAnimationFrame(() => {
