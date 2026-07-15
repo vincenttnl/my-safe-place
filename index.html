@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T16:51:11.703Z -->
+<!-- built 2026-07-15T17:00:05.862Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16016,12 +16016,6 @@ function App() {
       pts.push(s);
       bounds.push([s.lat, s.lng]);
     });
-    if (!map._spotCanvas) map._spotCanvas = L.canvas({
-      padding: 0.3,
-      tolerance: 12
-    });
-    map._spotCanvas.options.tolerance = 12;
-    const canvas = map._spotCanvas;
     const layer = L.layerGroup().addTo(map);
     const MINPTS = 8,
       RPX = 60;
@@ -16100,14 +16094,15 @@ function App() {
             const s = q.s;
             const col = s.done ? "#9aa0b4" : CC[primaryCat(s)] || "#888";
             const fw = friendSpotMap.has(s.id);
-            const m = L.circleMarker([s.lat, s.lng], {
-              renderer: canvas,
-              radius: fw ? 9 : s.done ? 6 : 8,
-              fillColor: col,
-              color: fw ? "#7C3AED" : "#fff",
-              weight: fw ? 3 : 2,
-              opacity: 1,
-              fillOpacity: s.done ? 0.5 : 0.9
+            const icon = L.divIcon({
+              className: '',
+              iconSize: [20, 26],
+              iconAnchor: [10, 26],
+              html: '<svg width="20" height="26" viewBox="0 0 16 20" style="display:block;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))">' + '<path d="M8 20 C0 11, 0 0, 8 0 C16 0, 16 11, 8 20 Z" fill="' + col + '" fill-opacity="' + (s.done ? .55 : 1) + '" stroke="' + (fw ? '#7C3AED' : '#fff') + '" stroke-width="' + (fw ? 2.2 : 1.6) + '"/>' + '<circle cx="8" cy="7" r="2.6" fill="#fff"/></svg>'
+            });
+            const m = L.marker([s.lat, s.lng], {
+              icon,
+              keyboard: false
             });
             m.on("click", () => {
               peekSeenRef.current = [s.id];
@@ -19735,50 +19730,41 @@ function App() {
       left: 0,
       right: 0,
       zIndex: 1000,
-      pointerEvents: "none"
-    }
-  }, React.createElement("div", {
-    style: {
-      position: 'relative',
-      background: "rgba(255,255,255,0.94)",
-      backdropFilter: 'blur(14px)',
-      WebkitBackdropFilter: 'blur(14px)',
-      padding: 'calc(6px + env(safe-area-inset-top,0px)) 12px 12px',
-      boxShadow: "0 8px 24px -10px rgba(0,0,0,0.18)",
-      borderBottom: '1px solid var(--hairline)',
-      pointerEvents: "auto"
-    }
-  }, !mapReduced && React.createElement("div", {
-    style: {
+      pointerEvents: "none",
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
-      gap: 6,
-      overflowX: 'auto',
-      scrollbarWidth: 'none',
-      padding: '8px 0 0'
+      paddingTop: 'calc(10px + env(safe-area-inset-top,0px))'
+    }
+  }, !mapReduced ? React.createElement("div", {
+    style: {
+      pointerEvents: 'auto',
+      width: 'min(94%,420px)',
+      borderRadius: 26,
+      padding: '12px 12px 11px',
+      background: 'rgba(255,255,255,.62)',
+      backdropFilter: 'blur(22px) saturate(1.7)',
+      WebkitBackdropFilter: 'blur(22px) saturate(1.7)',
+      border: '1px solid rgba(255,255,255,.75)',
+      boxShadow: '0 14px 38px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9)'
     }
   }, React.createElement("div", {
     style: {
       display: 'flex',
-      background: 'var(--bg-soft,#F3F1F6)',
+      background: 'rgba(120,120,128,.10)',
       borderRadius: 999,
       padding: 3,
-      gap: 3,
-      flexShrink: 0
+      gap: 3
     }
   }, [{
     k: 'discover',
-    l: tr("seg_discover"),
+    l: tr("seg_discover") + " " + (CITIES[city] || CITIES.paris).label,
     n: mapCount.discover
   }, {
     k: 'mine',
     l: tr("seg_mine"),
     n: mapCount.mine
-  }, ...(mapCount.friends > 0 ? [{
-    k: 'friends',
-    l: "👥 " + tr("map_friends"),
-    n: mapCount.friends
-  }] : [])].map(o => {
+  }].map(o => {
     const on = mapMode === o.k;
     return React.createElement("button", {
       key: o.k,
@@ -19790,328 +19776,243 @@ function App() {
       "aria-pressed": on,
       style: {
         position: 'relative',
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
+        flex: 1,
+        minWidth: 0,
         border: 'none',
         cursor: 'pointer',
         borderRadius: 999,
-        padding: '6px 11px',
+        padding: '10px 8px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 12,
+        fontWeight: 800,
+        fontSize: 15,
         background: on ? 'var(--pop-pink)' : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
-        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
-        transition: 'all .15s var(--ease)'
+        boxShadow: on ? '0 6px 16px rgba(255,61,139,0.36)' : 'none',
+        transition: 'all .16s var(--ease)'
       }
-    }, o.l, o.n > 0 && React.createElement("span", {
+    }, React.createElement("span", {
+      style: {
+        display: 'block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, o.l.replace(/^[^\p{L}]+/u, '')), o.n > 0 && React.createElement("span", {
       style: {
         position: 'absolute',
-        top: -8,
-        right: -4,
-        minWidth: 18,
-        height: 18,
+        top: -7,
+        right: 0,
+        minWidth: 19,
+        height: 19,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: 10,
-        fontWeight: 800,
+        fontWeight: 900,
         borderRadius: 999,
-        padding: '0 4px',
+        padding: '0 5px',
         background: 'var(--pop-violet)',
         color: '#fff',
-        border: '2px solid var(--bg-cream)',
-        boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+        border: '2px solid #fff',
+        boxShadow: '0 2px 6px rgba(0,0,0,.2)',
+        pointerEvents: 'none'
       }
     }, o.n));
-  })), React.createElement("button", {
-    onClick: () => setOpenNow(v => !v),
-    className: "press",
-    "aria-pressed": openNow,
-    "aria-label": "Ouvert maintenant",
+  })), React.createElement("div", {
     style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      cursor: 'pointer',
-      borderRadius: 999,
-      padding: '6px 10px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 11.5,
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      background: openNow ? '#16A34A' : '#fff',
-      color: openNow ? '#fff' : 'var(--ink-600)',
-      border: openNow ? '1px solid transparent' : '1px solid var(--hairline)',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83D\uDD50 Ouvert"), React.createElement("button", {
-    onClick: () => setLateNight(v => !v),
-    className: "press",
-    "aria-pressed": lateNight,
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      cursor: 'pointer',
-      borderRadius: 999,
-      padding: '6px 10px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 11.5,
-      whiteSpace: 'nowrap',
-      flexShrink: 0,
-      background: lateNight ? '#1E1B4B' : '#fff',
-      color: lateNight ? '#fff' : 'var(--ink-600)',
-      border: lateNight ? '1px solid transparent' : '1px solid var(--hairline)',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83C\uDF19 +5h")), !mapReduced && React.createElement("button", {
-    onClick: () => setMapReduced(true),
-    className: "press",
-    "aria-label": "R\xE9duire les filtres",
-    style: {
-      position: 'absolute',
-      bottom: -13,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: 2,
-      width: 26,
-      height: 26,
-      borderRadius: '50%',
-      border: '2px solid #fff',
-      cursor: 'pointer',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      fontSize: 11,
-      boxShadow: '0 4px 12px rgba(255,61,139,0.45)',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      padding: 0
-    }
-  }, React.createElement("span", {
-    style: {
-      display: 'inline-block'
-    }
-  }, "\u25BE")), !mapReduced ? React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: "1fr 1fr 1fr",
-      gap: 6,
-      marginTop: 8
+      gap: 4,
+      marginTop: 9
     }
   }, CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
+    const filtering = mapCats.size < 6;
     return React.createElement("button", {
       key: c.key,
-      onClick: () => setMapCats(prev => {
-        const n = new Set(prev);
-        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
-        return n;
-      }),
-      className: "press",
-      "aria-pressed": on,
-      style: {
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 5,
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        cursor: "pointer",
-        borderRadius: 999,
-        padding: '6px 6px',
-        fontFamily: 'var(--font-body)',
-        fontSize: 11.5,
-        fontWeight: 600,
-        background: on ? CC[c.key] : '#fff',
-        color: on ? '#fff' : 'var(--ink-600)',
-        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
-        boxShadow: on ? '0 0 0 2px #fff, 0 0 0 3.5px #FF3D8B, 0 6px 18px rgba(255,61,139,.35)' : 'none',
-        transition: 'all .15s var(--ease)'
-      }
-    }, c.emoji, " ", c.label);
-  })) : React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7,
-      height: 44
-    }
-  }, React.createElement("div", {
-    className: "hide-scroll",
-    style: {
-      flex: 1,
-      minWidth: 0,
-      overflowX: 'auto'
-    }
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 7,
-      width: 'max-content'
-    }
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      background: 'var(--bg-soft,#F3F1F6)',
-      borderRadius: 999,
-      padding: 3,
-      gap: 3,
-      flexShrink: 0
-    }
-  }, [{
-    k: 'discover',
-    l: tr("seg_discover")
-  }, {
-    k: 'mine',
-    l: tr("seg_mine")
-  }, ...(mapCount.friends > 0 ? [{
-    k: 'friends',
-    l: "👥 " + tr("map_friends")
-  }] : [])].map(o => {
-    const on = mapMode === o.k;
-    return React.createElement("button", {
-      key: o.k,
       onClick: () => {
-        setMapMode(o.k);
-        setPeekSpot(null);
+        setMapCats(prev => {
+          const n = new Set(prev);
+          n.has(c.key) ? n.delete(c.key) : n.add(c.key);
+          return n;
+        });
+        setMapReduced(true);
       },
       className: "press",
       "aria-pressed": on,
+      title: c.label,
       style: {
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-        border: 'none',
+        flex: 1,
+        minWidth: 0,
         cursor: 'pointer',
         borderRadius: 999,
-        padding: '5px 10px',
+        padding: '7px 1px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 12,
-        background: on ? 'var(--pop-pink)' : 'transparent',
+        fontSize: 9.5,
+        fontWeight: 800,
+        letterSpacing: '-.01em',
+        background: on ? CC[c.key] : 'rgba(255,255,255,.72)',
         color: on ? '#fff' : 'var(--ink-600)',
-        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none'
+        border: on && filtering ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+        boxShadow: on && filtering ? '0 4px 12px rgba(255,61,139,.3)' : 'none',
+        transition: 'all .16s var(--ease)'
       }
-    }, o.l);
-  })), CATS.filter(c => c.key !== "all").map(c => {
-    const on = mapCats.has(c.key);
-    return React.createElement("button", {
-      key: c.key,
-      onClick: () => setMapCats(prev => {
-        const n = new Set(prev);
-        n.has(c.key) ? n.delete(c.key) : n.add(c.key);
-        return n;
-      }),
-      className: "press",
-      "aria-pressed": on,
-      "aria-label": c.label,
+    }, React.createElement("span", {
       style: {
-        position: 'relative',
-        width: 34,
-        height: 34,
-        borderRadius: 999,
-        flexShrink: 0,
-        cursor: 'pointer',
-        fontSize: 16,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: on ? CC[c.key] : CB[c.key],
-        border: 'none',
-        boxShadow: on ? '0 3px 8px rgba(10,10,10,.22)' : 'none',
-        filter: on ? 'none' : 'grayscale(1) opacity(.7)',
-        transition: 'all .15s var(--ease)'
+        display: 'block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
       }
-    }, c.emoji);
-  }), React.createElement("button", {
+    }, c.label));
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 6,
+      marginTop: 9
+    }
+  }, React.createElement("button", {
     onClick: () => setOpenNow(v => !v),
     className: "press",
     "aria-pressed": openNow,
-    "aria-label": "Ouvert maintenant",
     style: {
-      position: 'relative',
-      width: 34,
-      height: 34,
-      borderRadius: 999,
-      flexShrink: 0,
       cursor: 'pointer',
-      fontSize: 16,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: openNow ? '#2ECC71' : 'var(--bg-soft)',
-      boxShadow: openNow ? '0 3px 8px rgba(46,204,113,.35)' : 'none',
-      border: 'none',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83D\uDD50", openNow && React.createElement("span", {
-    style: {
-      position: 'absolute',
-      right: -1,
-      top: -1,
-      width: 9,
-      height: 9,
       borderRadius: 999,
-      background: '#FF3D8B',
-      border: '1.5px solid #fff'
+      padding: '7px 14px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 10.5,
+      whiteSpace: 'nowrap',
+      background: openNow ? '#16A34A' : 'rgba(255,255,255,.72)',
+      color: openNow ? '#fff' : 'var(--ink-600)',
+      border: openNow ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      transition: 'all .16s var(--ease)'
     }
-  })), React.createElement("button", {
+  }, "\uD83D\uDFE2 Ouvert"), React.createElement("button", {
     onClick: () => setLateNight(v => !v),
     className: "press",
     "aria-pressed": lateNight,
-    "aria-label": "Ouvert +5h",
+    style: {
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '7px 14px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 10.5,
+      whiteSpace: 'nowrap',
+      background: lateNight ? '#1E1B4B' : 'rgba(255,255,255,.72)',
+      color: lateNight ? '#fff' : 'var(--ink-600)',
+      border: lateNight ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      transition: 'all .16s var(--ease)'
+    }
+  }, "\uD83C\uDF19 +5h"), React.createElement("button", {
+    onClick: () => setMapReduced(true),
+    className: "press",
+    "aria-label": "Fermer les filtres",
+    style: {
+      width: 30,
+      height: 30,
+      borderRadius: 999,
+      border: 'none',
+      cursor: 'pointer',
+      background: 'rgba(120,120,128,.14)',
+      color: 'var(--ink-600)',
+      fontSize: 12,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      flexShrink: 0
+    }
+  }, "\u25B2"))) : React.createElement("div", {
+    style: {
+      pointerEvents: 'auto',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, React.createElement("button", {
+    onClick: () => setOpenNow(v => !v),
+    className: "press",
+    "aria-pressed": openNow,
+    style: {
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '8px 15px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 11.5,
+      whiteSpace: 'nowrap',
+      background: openNow ? '#16A34A' : 'rgba(255,255,255,.92)',
+      color: openNow ? '#fff' : 'var(--ink-600)',
+      border: openNow ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      boxShadow: '0 6px 18px rgba(0,0,0,.16)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      transition: 'all .16s var(--ease)'
+    }
+  }, "\uD83D\uDFE2 Ouvert"), React.createElement("button", {
+    onClick: () => setLateNight(v => !v),
+    className: "press",
+    "aria-pressed": lateNight,
+    style: {
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '8px 15px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 11.5,
+      whiteSpace: 'nowrap',
+      background: lateNight ? '#1E1B4B' : 'rgba(255,255,255,.92)',
+      color: lateNight ? '#fff' : 'var(--ink-600)',
+      border: lateNight ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      boxShadow: '0 6px 18px rgba(0,0,0,.16)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
+      transition: 'all .16s var(--ease)'
+    }
+  }, "\uD83C\uDF19 +5h"), React.createElement("button", {
+    onClick: () => setMapReduced(false),
+    className: "press",
+    "aria-label": "Rouvrir les filtres",
     style: {
       position: 'relative',
       width: 34,
       height: 34,
       borderRadius: 999,
-      flexShrink: 0,
-      cursor: 'pointer',
-      fontSize: 16,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#1E1B4B',
-      filter: lateNight ? 'none' : 'grayscale(.4) opacity(.75)',
-      boxShadow: lateNight ? '0 3px 8px rgba(30,27,75,.35)' : 'none',
-      border: 'none',
-      transition: 'all .15s var(--ease)'
-    }
-  }, "\uD83C\uDF19", lateNight && React.createElement("span", {
-    style: {
-      position: 'absolute',
-      right: -1,
-      top: -1,
-      width: 9,
-      height: 9,
-      borderRadius: 999,
-      background: '#FF3D8B',
-      border: '1.5px solid #fff'
-    }
-  })))), React.createElement("button", {
-    onClick: () => setMapReduced(false),
-    className: "press",
-    "aria-label": "D\xE9plier les filtres",
-    style: {
-      marginLeft: 'auto',
-      flexShrink: 0,
-      width: 34,
-      height: 34,
-      borderRadius: 999,
       border: 'none',
       cursor: 'pointer',
-      background: 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))',
+      background: 'var(--pop-pink)',
       color: '#fff',
       fontSize: 13,
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      padding: 0,
+      flexShrink: 0,
+      boxShadow: '0 6px 18px rgba(255,61,139,.45)'
     }
-  }, "\u25BE")))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
+  }, "\u25BE", mapCats.size < 6 && React.createElement("span", {
+    style: {
+      position: 'absolute',
+      top: -4,
+      right: -4,
+      minWidth: 16,
+      height: 16,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 9,
+      fontWeight: 900,
+      borderRadius: 999,
+      padding: '0 4px',
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      border: '2px solid #fff'
+    }
+  }, mapCats.size)))), mapSource.filter(s => s.lat && mapCats.has(primaryCat(s)) && (!openNow || isOpenNow(s.hours, nowParis()) === true) && (!lateNight || opensLate(s.hours))).length === 0 && React.createElement("div", {
     style: {
       position: 'absolute',
       top: '50%',
