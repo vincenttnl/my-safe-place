@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T21:59:33.616Z -->
+<!-- built 2026-07-15T22:13:32.473Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16950,6 +16950,11 @@ function App() {
     };
   }, [nlpAI, nlpLocal, search]);
   const nlpFromAI = !!(nlpAI && nlpAI.q === search.trim());
+  const nlpHardTerms = useMemo(() => {
+    if (searchMode !== "discover" || !nlp.active || !nlp.terms.length) return [];
+    const names = catalog.map(s => searchNorm(s.name));
+    return nlp.terms.filter(t => names.some(n => n.includes(t)));
+  }, [searchMode, nlp, catalog]);
   const [nlpPlace, setNlpPlace] = useState(null);
   useEffect(() => {
     if (searchMode !== "discover" || !nlp.place) {
@@ -16977,13 +16982,9 @@ function App() {
     const useNlp = searchMode === "discover" && nlp.active;
     const q = search.trim().toLowerCase();
     const wantOpen = openNow || useNlp && nlp.openNow;
-    const catsHard = !!(useNlp && nlp.cats.length && !nlp.terms.length);
+    const catsHard = !!(useNlp && nlp.cats.length && !nlpHardTerms.length);
     const nlpRaw = useNlp ? nlp.raw : "";
     const qNorm = searchNorm(q);
-    const nlpHardTerms = !useNlp || !nlp.terms.length ? [] : (() => {
-      const names = catalog.map(s => searchNorm(s.name));
-      return nlp.terms.filter(t => names.some(n => n.includes(t)));
-    })();
     const pnow = wantOpen ? nowParis() : null;
     const filtered = catalog.filter(s => {
       if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
@@ -19264,7 +19265,7 @@ function App() {
       "€€€": "💎 Haut de gamme"
     };
     const pills = [];
-    if (!nlp.terms.length) nlp.cats.forEach(c => {
+    if (!nlpHardTerms.length) nlp.cats.forEach(c => {
       const ci = CATS.find(x => x.key === c);
       if (ci) pills.push(P("c" + c, ci.emoji + " " + ci.label));
     });
