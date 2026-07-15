@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T17:25:37.081Z -->
+<!-- built 2026-07-15T18:06:32.822Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -7376,20 +7376,22 @@ function PropositionsModal({
     const anyFilter = !!((f.who || []).length || (f.when || []).length || (f.vibe || []).length || (f.cuisine || []).length || (f.music || []).length);
     return POOL.map(s => {
       if ((f.budget || []).length && !f.budget.includes(priceBucket(s.price))) return null;
+      const t = s.tags || {};
+      if ((f.who || []).length && !f.who.some(w => t.who?.includes(w))) return null;
+      if ((f.when || []).length && !f.when.some(w => t.when?.includes(w))) return null;
+      if ((f.vibe || []).length && !f.vibe.some(v => t.vibe?.includes(v))) return null;
+      if (cuisineExp.length && !cuisineExp.some(c => t.cuisine?.includes(c))) return null;
       let score = 0;
-      if (s.tags) {
-        if ((f.who || []).length && f.who.some(w => s.tags.who?.includes(w))) score += 3;
-        if ((f.when || []).length && f.when.some(w => s.tags.when?.includes(w))) score += 3;
-        if ((f.vibe || []).length && f.vibe.some(v => s.tags.vibe?.includes(v))) score += 3;
-        if (cuisineExp.length && cuisineExp.some(c => s.tags.cuisine?.includes(c))) score += 4;
-        if ((f.music || []).length && f.music.some(m => s.tags.music?.includes(m))) score += 3;
-      }
-      if (anyFilter && score === 0) return null;
+      if ((f.who || []).length) score += 3;
+      if ((f.when || []).length) score += 3;
+      if ((f.vibe || []).length) score += 3;
+      if (cuisineExp.length) score += 4;
+      if ((f.music || []).length && f.music.some(m => t.music?.includes(m))) score += 3;
       return {
         s,
         score: anyFilter ? score : 1
       };
-    }).filter(Boolean).sort((a, b) => b.score - a.score);
+    }).filter(Boolean).sort((a, b) => b.score - a.score || (gRating(b.s) || 0) - (gRating(a.s) || 0));
   }, [POOL]);
   const allResults = useMemo(() => runFilters(filters), [runFilters, filters]);
   const totalMatch = allResults.length;
