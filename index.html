@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T19:24:40.263Z -->
+<!-- built 2026-07-15T19:43:00.871Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4608,7 +4608,7 @@ const MUSIC = [{
 const NLP_RULES = [{
   f: "cats",
   v: "speakeasy",
-  re: /\b(bars?|pubs?|bieres?|cocktails?|pintes?|speakeasy)\b/
+  re: /\b(bars?|pubs?|bieres?|cocktails?|pintes?|speakeasy|(?:boire|prendre) un verre|un verre|apero dinatoire)\b/
 }, {
   f: "cats",
   v: "club",
@@ -4684,11 +4684,11 @@ const NLP_RULES = [{
 }, {
   f: "who",
   v: "date",
-  re: /\b(dates?|rencard|romantiques?|amoureux|couple|seduire)\b/
+  re: /\b(dates?|rencard|romantiques?|amoureux|couple|seduire|copine|copain|meuf|mec|cheri\w*|crush|tinder)\b/
 }, {
   f: "who",
   v: "potes",
-  re: /\b(potes?|amis?|groupes?|bandes?)\b/
+  re: /\b(potes?|amis?|copains?|groupes?|bandes?|entre nous)\b/
 }, {
   f: "who",
   v: "famille",
@@ -4799,7 +4799,7 @@ function parseNLQuery(raw) {
     out.openNow = true;
     q = q.replace(/\b(ouverts?( maintenant| la)?|open now)\b/g, " ");
   }
-  const pm = q.match(/(?:vers|proche de|pres de|autour de|quartier|dans le)\s+([a-z0-9][a-z0-9' -]{2,28}?)\s*$/);
+  const pm = q.match(/(?:vers|proche de|pres de|autour de|quartier|dans le)\s+([a-z0-9][a-z0-9' -]{1,28}?)(?=\s+(?:pour|avec|entre|et|ou|le|la|les|ce|cette|en|a)\s|\s*$)/);
   if (pm) {
     out.place = pm[1].trim();
     q = q.replace(pm[0], " ");
@@ -16932,6 +16932,10 @@ function App() {
     const catsHard = !!(useNlp && nlp.cats.length && !nlp.terms.length);
     const nlpRaw = useNlp ? nlp.raw : "";
     const qNorm = searchNorm(q);
+    const nlpHardTerms = !useNlp || !nlp.terms.length ? [] : (() => {
+      const names = catalog.map(s => searchNorm(s.name));
+      return nlp.terms.filter(t => names.some(n => n.includes(t)));
+    })();
     const pnow = wantOpen ? nowParis() : null;
     const filtered = catalog.filter(s => {
       if (zoneFilter && !(s.lat >= zoneFilter.s && s.lat <= zoneFilter.n && s.lng >= zoneFilter.w && s.lng <= zoneFilter.e)) return false;
@@ -16941,7 +16945,7 @@ function App() {
       let sOk = true;
       if (useNlp) {
         const hay = searchNorm(s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || ""));
-        sOk = !!nlpRaw && searchNorm(s.name).includes(nlpRaw) || nlp.terms.every(t => hay.includes(t));
+        sOk = !!nlpRaw && searchNorm(s.name).includes(nlpRaw) || nlpHardTerms.every(t => hay.includes(t));
       } else if (q) {
         sOk = searchNorm(s.name + " " + (s.desc || "") + " " + (s.adresse || "") + " " + (s.vibe || "")).includes(qNorm);
       }
