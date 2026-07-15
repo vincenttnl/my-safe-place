@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T01:32:26.695Z -->
+<!-- built 2026-07-15T10:01:57.390Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9395,7 +9395,25 @@ function PosterSpotCard({
     style: {
       fontSize: 13
     }
-  }, cat?.emoji), " ", cat?.label), spot.fav && React.createElement("div", {
+  }, cat?.emoji), " ", cat?.label), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      alignItems: 'center'
+    }
+  }, spot.reaction && React.createElement("div", {
+    style: {
+      background: 'rgba(255,255,255,.94)',
+      width: 30,
+      height: 30,
+      borderRadius: 999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: 16,
+      boxShadow: '0 2px 8px rgba(0,0,0,.25)'
+    }
+  }, spot.reaction), spot.fav && React.createElement("div", {
     style: {
       background: 'var(--pop-pink)',
       color: '#fff',
@@ -9407,7 +9425,7 @@ function PosterSpotCard({
       justifyContent: 'center',
       fontSize: 14
     }
-  }, "\u2665")), React.createElement("div", {
+  }, "\u2665"))), React.createElement("div", {
     style: {
       position: 'absolute',
       left: 14,
@@ -9474,7 +9492,18 @@ function PosterSpotCard({
         flexShrink: 0
       }
     }, "\xB7 \uD83D\uDCCF ", fmtKm(dist)));
-  })())));
+  })(), spot.note && React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 10.5,
+      opacity: .9,
+      marginTop: 4,
+      fontStyle: 'italic',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }
+  }, "\uD83D\uDCDD ", spot.note))));
 }
 function CleanSpotCard({
   s,
