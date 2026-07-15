@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T18:06:32.822Z -->
+<!-- built 2026-07-15T18:17:49.237Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -2974,6 +2974,7 @@ const I18N = {
     nav_spots: "Spots",
     nav_map: "Carte",
     nav_events: "Events",
+    nav_new: "nouvelles",
     nav_profile: "Profil",
     seg_discover: "🌍 Tout",
     seg_mine: "📍 Mes spots",
@@ -3268,6 +3269,7 @@ const I18N = {
     hm_cta: "Prévoir →",
     map_friends: "Amis",
     mapempty_friends: "Pas encore de spots d'amis ici",
+    map_changecity: "Tu changes de ville ?",
     mapempty_friends_h: "Importe les listes de tes amis : leurs spots s'affichent avec un anneau violet 👥",
     chip_open: "🟢 Ouvert",
     search_ph: "Chercher un spot, une vibe...",
@@ -3363,6 +3365,7 @@ const I18N = {
     nav_spots: "Spots",
     nav_map: "Map",
     nav_events: "Events",
+    nav_new: "new",
     nav_profile: "Profile",
     seg_discover: "🌍 All of",
     seg_mine: "📍 My spots",
@@ -3657,6 +3660,7 @@ const I18N = {
     hm_cta: "Plan it →",
     map_friends: "Friends",
     mapempty_friends: "No friend spots here yet",
+    map_changecity: "Changing city?",
     mapempty_friends_h: "Import your friends' lists: their spots show up with a purple ring 👥",
     chip_open: "🟢 Open",
     search_ph: "Search a spot, a vibe...",
@@ -3752,6 +3756,7 @@ const I18N = {
     nav_spots: "Spots",
     nav_map: "Mapa",
     nav_events: "Eventos",
+    nav_new: "nuevas",
     nav_profile: "Perfil",
     seg_discover: "🌍 Todo",
     seg_mine: "📍 Mis spots",
@@ -4046,6 +4051,7 @@ const I18N = {
     hm_cta: "Planéalo →",
     map_friends: "Amigos",
     mapempty_friends: "Aún no hay spots de amigos aquí",
+    map_changecity: "¿Cambias de ciudad?",
     mapempty_friends_h: "Importa las listas de tus amigos: sus spots aparecen con un anillo violeta 👥",
     chip_open: "🟢 Abierto",
     search_ph: "Busca un spot, una vibe...",
@@ -4884,6 +4890,7 @@ const OBK = "myplace_onboarding_done_v1";
 const CITYK = "myplace_city_v1";
 const LSTK = "myplace_lists_v1";
 const COLK = "myplace_collectifs_v1";
+const EVSEEN = "myplace_events_seen_v1";
 const PRK = "myplace_presets_v1";
 const FREE_LISTS_MAX = Infinity;
 const CITIES = {
@@ -9431,7 +9438,7 @@ function SpotDetail({
       fontFamily: 'var(--font-body)'
     }
   }, tr("d_insta")), getCats(spot).some(c => ['resto', 'cafe', 'speakeasy', 'rooftop'].includes(c)) && React.createElement("a", {
-    href: `https://www.google.com/search?q=${encodeURIComponent((spot.name || "") + " " + ((spot.adresse || "").split(",").pop() || "") + " menu carte")}`,
+    href: spot.website || `https://www.google.com/search?q=${encodeURIComponent((spot.name || "") + " " + ((spot.adresse || "").split(",").pop() || "") + " menu carte")}`,
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
@@ -14231,6 +14238,35 @@ function App() {
       setTab("map");
     }
   }, [tab]);
+  const tabSwipeRef = useRef(null);
+  const tabSwipe = useMemo(() => ({
+    onTouchStart: e => {
+      if (tab === "map") {
+        tabSwipeRef.current = null;
+        return;
+      }
+      const t = e.touches[0];
+      tabSwipeRef.current = {
+        x: t.clientX,
+        y: t.clientY,
+        t: Date.now()
+      };
+    },
+    onTouchEnd: e => {
+      const s = tabSwipeRef.current;
+      tabSwipeRef.current = null;
+      if (!s) return;
+      const t = e.changedTouches[0],
+        dx = t.clientX - s.x,
+        dy = t.clientY - s.y;
+      if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 2 || Date.now() - s.t > 600) return;
+      const order = NAV_TABS.map(o => o.key).filter(k => k !== "map");
+      const i = order.indexOf(tab);
+      if (i < 0) return;
+      const next = order[i + (dx < 0 ? 1 : -1)];
+      if (next) setTab(next);
+    }
+  }), [tab]);
   const navInnerRef = useRef(null),
     navIndRef = useRef(null),
     navTabRefs = useRef({});
@@ -14501,6 +14537,37 @@ function App() {
     }
   });
   const [raEvents, setRaEvents] = useState([]);
+  const [evSeenIds, setEvSeenIds] = useState(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(EVSEEN) || "[]"));
+    } catch {
+      return new Set();
+    }
+  });
+  const evUpcoming = useMemo(() => {
+    if (!collectifs.length || !raEvents.length) return [];
+    const followed = new Set(collectifs.map(c => c.id));
+    const t0 = new Date(new Date().toDateString()).getTime();
+    return raEvents.filter(e => {
+      if (!(e.promoters || []).some(p => followed.has(p.id))) return false;
+      const d = new Date(e.date).getTime();
+      return !isNaN(d) && d >= t0;
+    });
+  }, [raEvents, collectifs]);
+  const evBadge = useMemo(() => evUpcoming.filter(e => !evSeenIds.has(e.id)).length, [evUpcoming, evSeenIds]);
+  const markEventsSeen = useCallback(() => {
+    setEvSeenIds(prev => {
+      const n = new Set(prev);
+      evUpcoming.forEach(e => n.add(e.id));
+      try {
+        localStorage.setItem(EVSEEN, JSON.stringify([...n].slice(-300)));
+      } catch {}
+      return n;
+    });
+  }, [evUpcoming]);
+  useEffect(() => {
+    if (tab === "events" && evBadge > 0) markEventsSeen();
+  }, [tab, evBadge, markEventsSeen]);
   const [raLoading, setRaLoading] = useState(false);
   const [showCollectifSearch, setShowCollectifSearch] = useState(false);
   const [showPremium, setShowPremium] = useState(false);
@@ -20584,6 +20651,29 @@ function App() {
     }
   }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
     onClick: () => {
+      setTab("profile");
+      setCityPickerOpen(true);
+    },
+    className: "press",
+    style: {
+      position: 'absolute',
+      bottom: 52,
+      right: 16,
+      zIndex: 1000,
+      background: 'transparent',
+      border: 'none',
+      padding: '4px 2px',
+      cursor: 'pointer',
+      pointerEvents: 'auto',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 12,
+      color: 'var(--pop-pink)',
+      textShadow: '0 1px 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7)',
+      whiteSpace: 'nowrap'
+    }
+  }, tr("map_changecity"), " \u203A"), React.createElement("button", {
+    onClick: () => {
       if (userPos && mapRef.current) {
         mapRef.current.setView([userPos.lat, userPos.lng], 14, {
           animate: true
@@ -22990,11 +23080,11 @@ function App() {
       fontSize: 14,
       color: 'var(--ink-400)'
     }
-  }, tr("btn_cancel")))), React.createElement("div", {
+  }, tr("btn_cancel")))), React.createElement("div", _extends({
     style: {
       paddingBottom: 20
     }
-  }, tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), tab !== "map" && React.createElement("div", {
+  }, tabSwipe), tab === "home" && HomeTab(), tab === "spots" && SpotsTab(), tab === "events" && EventsTab(), tab === "map" && MapTab(), tab === "profile" && ProfileTab()), tab !== "map" && React.createElement("div", {
     style: {
       position: 'fixed',
       top: 0,
@@ -23043,12 +23133,15 @@ function App() {
     },
     className: tab === it.key ? "active" : "",
     onClick: () => setTab(it.key),
-    "aria-label": tr(it.i18n),
+    "aria-label": tr(it.i18n) + (it.key === "events" && evBadge > 0 ? ` — ${evBadge} ${tr("nav_new")}` : ""),
     "aria-current": tab === it.key ? "page" : undefined
   }, React.createElement("span", {
     className: "nav-icon",
     "aria-hidden": "true"
-  }, it.icon), tr(it.i18n))))), React.createElement(ToastStack, null));
+  }, it.icon), tr(it.i18n), it.key === "events" && evBadge > 0 && React.createElement("span", {
+    className: "nav-badge",
+    "aria-hidden": "true"
+  }, evBadge > 99 ? "99+" : evBadge))))), React.createElement(ToastStack, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 requestAnimationFrame(() => {
