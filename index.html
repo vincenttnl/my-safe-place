@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T13:35:27.414Z -->
+<!-- built 2026-07-15T13:56:37.009Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -243,6 +243,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 </div>
 <div id="root"></div>
 <script>
+function _extends() { return _extends = Object.assign ? Object.assign.bind() : function (n) { for (var e = 1; e < arguments.length; e++) { var t = arguments[e]; for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]); } return n; }, _extends.apply(null, arguments); }
 const {
   useState,
   useEffect,
@@ -7795,6 +7796,28 @@ function AddressAutocomplete({
     }, o.sub));
   })));
 }
+function useSwipeBack(onBack) {
+  const st = useRef(null);
+  return {
+    onTouchStart: e => {
+      const t = e.touches[0];
+      st.current = {
+        x: t.clientX,
+        y: t.clientY,
+        t: Date.now()
+      };
+    },
+    onTouchEnd: e => {
+      const s = st.current;
+      st.current = null;
+      if (!s || !onBack) return;
+      const t = e.changedTouches[0],
+        dx = t.clientX - s.x,
+        dy = t.clientY - s.y;
+      if (dx > 70 && Math.abs(dx) > Math.abs(dy) * 2 && Date.now() - s.t < 600) onBack();
+    }
+  };
+}
 function PhotoCarousel({
   photos,
   catColor
@@ -7811,6 +7834,7 @@ function PhotoCarousel({
     if (next >= 0 && next < photos.length) setIdx(next);
   };
   const onTouchStart = e => {
+    e.stopPropagation();
     touchRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
@@ -7818,6 +7842,7 @@ function PhotoCarousel({
     };
   };
   const onTouchEnd = e => {
+    e.stopPropagation();
     if (!touchRef.current.swiping) return;
     const dx = e.changedTouches[0].clientX - touchRef.current.x;
     const dy = e.changedTouches[0].clientY - touchRef.current.y;
@@ -8561,6 +8586,7 @@ function SpotDetail({
     fontWeight: 500,
     fontFamily: 'var(--font-body)'
   };
+  const swipeBack = useSwipeBack(onClose);
   return React.createElement("div", {
     style: {
       position: 'fixed',
@@ -8580,11 +8606,30 @@ function SpotDetail({
       width: '100%',
       maxWidth: 600,
       maxHeight: '94vh',
-      overflowY: 'auto',
       background: 'var(--bg-primary)',
-      borderRadius: '24px 24px 0 0'
+      borderRadius: '24px 24px 0 0',
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
     }
-  }, React.createElement("div", {
+  }, React.createElement(RedX, {
+    onClick: onClose,
+    size: 36,
+    style: {
+      position: 'absolute',
+      top: 14,
+      right: 14,
+      zIndex: 20
+    }
+  }), React.createElement("div", _extends({
+    style: {
+      overflowY: 'auto',
+      WebkitOverflowScrolling: 'touch',
+      flex: 1,
+      minHeight: 0
+    }
+  }, swipeBack), React.createElement("div", {
     style: {
       position: 'relative'
     }
@@ -8668,16 +8713,7 @@ function SpotDetail({
       boxShadow: spot.fav ? '0 10px 26px -8px rgba(255,61,139,0.7)' : '0 4px 14px -4px rgba(0,0,0,0.4)',
       backdropFilter: 'blur(4px)'
     }
-  }, spot.fav ? '♥' : '♡'))), React.createElement(RedX, {
-    onClick: onClose,
-    size: 36,
-    style: {
-      position: 'fixed',
-      top: 14,
-      right: 14,
-      zIndex: 20
-    }
-  }), React.createElement("div", {
+  }, spot.fav ? '♥' : '♡'))), React.createElement("div", {
     style: {
       padding: '22px 22px 24px'
     }
@@ -9319,7 +9355,7 @@ function SpotDetail({
     }
   }, "\uD83C\uDF9F\uFE0F"), React.createElement("span", {
     style: rndLbl
-  }, "Soir\xE9es")))))));
+  }, "Soir\xE9es"))))))));
 }
 function PosterSpotCard({
   spot,
@@ -18294,7 +18330,7 @@ function App() {
       "€€€": "💎 Haut de gamme"
     };
     const pills = [];
-    nlp.cats.forEach(c => {
+    if (!nlp.terms.length) nlp.cats.forEach(c => {
       const ci = CATS.find(x => x.key === c);
       if (ci) pills.push(P("c" + c, ci.emoji + " " + ci.label));
     });
