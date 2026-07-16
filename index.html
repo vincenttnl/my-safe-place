@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-16T17:13:38.319Z -->
+<!-- built 2026-07-16T17:21:17.792Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -230,11 +230,11 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .pq-cta{width:100%;border:none;border-radius:999px;background:#fff;font-family:var(--font-body);font-weight:900;font-size:15px;padding:15px;cursor:pointer;box-shadow:0 10px 26px rgba(0,0,0,.18)}
 .pq-brand{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.7);white-space:nowrap}
 .pq-tabs{display:flex;gap:3px;background:rgba(255,255,255,.18);border-radius:999px;padding:3px;flex:0 0 auto}
-.pq-tab{border:none;background:transparent;color:rgba(255,255,255,.85);font-family:var(--font-body);font-size:11.5px;font-weight:800;padding:6px 10px;border-radius:999px;white-space:nowrap;cursor:pointer}
+.pq-tab{border:none;background:rgba(255,255,255,.16);color:#fff;font-family:var(--font-body);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;cursor:pointer}/* v10.99 : l'inactif garde une pastille visible (avant : transparent → invisible) */
 .pq-tab.on{background:#fff;color:var(--ink-900)}
 .pq-tabs.ink{background:var(--bg-soft);border:1px solid var(--hairline)}
-.pq-tabs.ink .pq-tab{color:var(--ink-400)}
-.pq-tabs.ink .pq-tab.on{background:var(--ink-900);color:var(--bg-primary)}
+.pq-tabs.ink .pq-tab{color:var(--pop-pink);background:#FFF0F6;border:1.5px solid rgba(255,61,139,.3)}/* v10.99 (Vincent) : « Mes recherches » = pastille ROSE contrastée, ne se fond plus dans le fond */
+.pq-tabs.ink .pq-tab.on{background:var(--ink-900);color:var(--bg-primary);border-color:transparent}
 /* cartes préréglages (★ mes recherches) */
 .pq-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;border-radius:20px;border:2px solid var(--hairline);background:var(--bg-primary);color:var(--ink-900);text-align:left;font-family:var(--font-body);cursor:pointer;transition:transform .12s var(--ease)}
 .pq-card:active{transform:scale(.985)}
@@ -14352,27 +14352,67 @@ function App() {
     }
   }, [tab]);
   const tabSwipeRef = useRef(null);
+  const tabWrapRef = useRef(null);
+  const startsInHScroller = el => {
+    for (let n = el; n && n !== document.body && n.nodeType === 1; n = n.parentElement) {
+      if (n.scrollWidth - n.clientWidth > 4) {
+        const ov = getComputedStyle(n).overflowX;
+        if (ov === 'auto' || ov === 'scroll') return true;
+      }
+    }
+    return false;
+  };
   const tabSwipe = useMemo(() => ({
     onTouchStart: e => {
+      const t = e.touches[0];
       if (tab === "map") {
+        const w = window.innerWidth || 390,
+          edge = 26;
+        if (t.clientX > edge && t.clientX < w - edge) {
+          tabSwipeRef.current = null;
+          return;
+        }
+      } else if (startsInHScroller(e.target)) {
         tabSwipeRef.current = null;
         return;
       }
-      const t = e.touches[0];
       tabSwipeRef.current = {
         x: t.clientX,
         y: t.clientY,
-        t: Date.now()
+        t: Date.now(),
+        moved: false
       };
+    },
+    onTouchMove: e => {
+      const s = tabSwipeRef.current;
+      if (!s) return;
+      const t = e.touches[0],
+        dx = t.clientX - s.x,
+        dy = t.clientY - s.y;
+      if (!s.moved) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        if (Math.abs(dy) > Math.abs(dx)) {
+          tabSwipeRef.current = null;
+          return;
+        }
+        s.moved = true;
+        if (tabWrapRef.current) tabWrapRef.current.style.transition = 'none';
+      }
+      if (tabWrapRef.current) tabWrapRef.current.style.transform = `translateX(${dx * 0.35}px)`;
     },
     onTouchEnd: e => {
       const s = tabSwipeRef.current;
       tabSwipeRef.current = null;
+      if (tabWrapRef.current) {
+        tabWrapRef.current.style.transition = 'transform .22s var(--ease)';
+        tabWrapRef.current.style.transform = '';
+      }
       if (!s) return;
       const t = e.changedTouches[0],
         dx = t.clientX - s.x,
-        dy = t.clientY - s.y;
-      if (Math.abs(dx) < 70 || Math.abs(dx) <= Math.abs(dy) * 2 || Date.now() - s.t > 600) return;
+        dy = t.clientY - s.y,
+        dt = Date.now() - s.t;
+      if (Math.abs(dx) < 80 || Math.abs(dx) <= Math.abs(dy) * 2 || dt > 500) return;
       const order = NAV_TABS.map(o => o.key);
       const i = order.indexOf(tab);
       if (i < 0) return;
@@ -23623,6 +23663,7 @@ function App() {
       color: 'var(--ink-400)'
     }
   }, tr("btn_cancel")))), React.createElement("div", _extends({
+    ref: tabWrapRef,
     style: {
       paddingBottom: 20
     }
