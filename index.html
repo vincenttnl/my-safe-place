@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-16T17:21:17.792Z -->
+<!-- built 2026-07-16T18:20:29.325Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -5871,20 +5871,12 @@ function FriendListDetail({
     style: {
       padding: '18px 20px 0'
     }
-  }, React.createElement("button", {
+  }, React.createElement(BackBtn, {
     onClick: onBack,
     style: {
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 14,
-      color: 'var(--ink-400)',
-      padding: '4px 0',
-      marginBottom: 6
+      marginBottom: 8
     }
-  }, "\u2190 Listes"), React.createElement("div", {
+  }), React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
@@ -6580,6 +6572,48 @@ function CatPill({
       fontSize: fs + 1
     }
   }, c.emoji), " ", c.label);
+}
+function BackBtn({
+  onClick,
+  label,
+  style
+}) {
+  return React.createElement("button", {
+    onClick: onClick,
+    className: "press",
+    "aria-label": label || "Retour",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      background: 'rgba(255,255,255,.92)',
+      color: 'var(--ink-900)',
+      border: '1px solid var(--hairline)',
+      cursor: 'pointer',
+      borderRadius: 999,
+      padding: '7px 15px 7px 8px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 13.5,
+      lineHeight: 1,
+      boxShadow: '0 2px 8px rgba(0,0,0,.08)',
+      ...(style || {})
+    }
+  }, React.createElement("span", {
+    style: {
+      width: 20,
+      height: 20,
+      borderRadius: 999,
+      background: 'var(--pop-pink)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#fff',
+      fontSize: 13,
+      fontWeight: 900,
+      flexShrink: 0
+    }
+  }, "\u2190"), label || "Retour");
 }
 function RedX({
   onClick,
@@ -9399,37 +9433,46 @@ function SpotDetail({
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: 7,
-      flexWrap: 'nowrap',
-      whiteSpace: 'nowrap',
       background: 'linear-gradient(90deg,rgba(255,61,139,.12),rgba(139,92,246,.12))',
       border: '1px solid rgba(139,92,246,.3)',
       borderRadius: 999,
-      padding: '9px 14px',
+      padding: '9px 6px',
       fontFamily: 'var(--font-body)',
       fontSize: 12,
       fontWeight: 700,
-      width: '100%',
-      maxWidth: '100%',
-      minWidth: 0
-    }
-  }, [gRating(spot) && React.createElement("span", {
-    key: "r",
-    style: {
-      color: '#B45309',
-      flexShrink: 0
-    }
-  }, "\u2B50 ", gRating(spot), gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ''), spot.metro && React.createElement("span", {
-    key: "m",
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      color: 'var(--ink-900)',
-      minWidth: 0,
-      overflow: 'hidden'
+      width: '100%'
     }
   }, React.createElement("span", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      color: '#B45309',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden'
+    }
+  }, gRating(spot) ? `⭐ ${gRating(spot)}${gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ''}` : ''), React.createElement("span", {
+    style: {
+      width: 1,
+      height: 15,
+      background: 'rgba(139,92,246,.28)',
+      flexShrink: 0
+    }
+  }), React.createElement("span", {
+    style: {
+      flex: 1.5,
+      minWidth: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 5,
+      color: 'var(--ink-900)',
+      overflow: 'hidden'
+    }
+  }, mp ? React.createElement(React.Fragment, null, React.createElement("span", {
     style: {
       display: 'inline-flex',
       alignItems: 'center',
@@ -9437,36 +9480,40 @@ function SpotDetail({
       minWidth: 16,
       height: 16,
       borderRadius: 99,
-      background: mp ? mp.color : '#9AA0A6',
-      color: mp ? mp.fg : '#fff',
+      background: mp.color,
+      color: mp.fg,
       fontWeight: 800,
       fontSize: 9.5,
       padding: '0 3px',
       flexShrink: 0
     }
-  }, mp ? mp.line : 'M'), React.createElement("span", {
+  }, mp.line), React.createElement("span", {
     style: {
       minWidth: 0,
       overflow: 'hidden',
-      textOverflow: 'ellipsis'
+      textOverflow: 'ellipsis',
+      whiteSpace: 'nowrap'
     }
-  }, mp ? mp.station : spot.metro)), spot.price && React.createElement("span", {
-    key: "p",
+  }, mp.station)) : ''), React.createElement("span", {
     style: {
-      color: 'var(--pop-pink)',
+      width: 1,
+      height: 15,
+      background: 'rgba(139,92,246,.28)',
       flexShrink: 0
     }
-  }, "\uD83D\uDCB8 ", spot.price)].filter(Boolean).reduce((acc, el, i) => {
-    if (acc.length) acc.push(React.createElement("span", {
-      key: 'sep' + i,
-      style: {
-        color: 'var(--hairline)',
-        flexShrink: 0
-      }
-    }, "|"));
-    acc.push(el);
-    return acc;
-  }, [])), spot.hours && React.createElement("div", {
+  }), React.createElement("span", {
+    style: {
+      flex: 1,
+      minWidth: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 4,
+      color: 'var(--pop-pink)',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden'
+    }
+  }, spot.price ? `💸 ${spot.price}` : '')), spot.hours && React.createElement("div", {
     style: {
       marginTop: 8,
       fontSize: 11.5,
@@ -10457,7 +10504,7 @@ function PosterSpotCard({
         alignItems: 'center',
         minWidth: 0
       }
-    }, spot.metro ? React.createElement(React.Fragment, null, React.createElement("span", {
+    }, mp ? React.createElement(React.Fragment, null, React.createElement("span", {
       style: {
         display: 'inline-flex',
         alignItems: 'center',
@@ -10465,20 +10512,20 @@ function PosterSpotCard({
         minWidth: 16,
         height: 16,
         borderRadius: 99,
-        background: mp ? mp.color : '#9AA0A6',
-        color: mp ? mp.fg : '#fff',
+        background: mp.color,
+        color: mp.fg,
         fontWeight: 800,
         fontSize: 9.5,
         padding: '0 3px',
         flexShrink: 0
       }
-    }, mp ? mp.line : 'M'), React.createElement("span", {
+    }, mp.line), React.createElement("span", {
       style: {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
       }
-    }, mp ? mp.station : spot.metro)) : null, dist != null && React.createElement("span", {
+    }, mp.station)) : null, dist != null && React.createElement("span", {
       style: {
         fontWeight: 700,
         whiteSpace: 'nowrap',
@@ -18074,20 +18121,12 @@ function App() {
         style: {
           padding: '16px 20px 0'
         }
-      }, React.createElement("button", {
+      }, React.createElement(BackBtn, {
         onClick: () => setOpenListId(null),
         style: {
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 600,
-          fontSize: 14,
-          color: 'var(--ink-400)',
-          padding: '4px 0',
-          marginBottom: 6
+          marginBottom: 8
         }
-      }, "\u2190 Listes"), React.createElement("div", {
+      }), React.createElement("div", {
         style: {
           display: 'flex',
           alignItems: 'center',
@@ -19295,23 +19334,15 @@ function App() {
       style: {
         padding: '16px 20px 0'
       }
-    }, React.createElement("button", {
+    }, React.createElement(BackBtn, {
       onClick: () => {
         setFavView(false);
         setFavViewCats(new Set());
       },
       style: {
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 600,
-        fontSize: 14,
-        color: 'var(--ink-400)',
-        padding: '4px 0',
-        marginBottom: 6
+        marginBottom: 8
       }
-    }, "\u2190 Mes spots"), React.createElement("div", {
+    }), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
