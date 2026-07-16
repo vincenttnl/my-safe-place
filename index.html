@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-15T22:43:53.233Z -->
+<!-- built 2026-07-16T00:07:50.867Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -6608,6 +6608,27 @@ function RedX({
     d: "M15 5l-7 7 7 7"
   })));
 }
+function StickyX({
+  onClick
+}) {
+  return React.createElement("div", {
+    style: {
+      position: 'sticky',
+      top: 10,
+      height: 0,
+      zIndex: 20,
+      display: 'flex',
+      justifyContent: 'flex-end',
+      pointerEvents: 'none'
+    }
+  }, React.createElement(RedX, {
+    onClick: onClick,
+    size: 32,
+    style: {
+      pointerEvents: 'auto'
+    }
+  }));
+}
 function SheetClose({
   onClose
 }) {
@@ -6637,15 +6658,8 @@ function ReactionModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(RedX, {
-    onClick: onSkip,
-    size: 32,
-    style: {
-      position: 'fixed',
-      top: 10,
-      right: 10,
-      zIndex: 20
-    }
+  }, React.createElement(StickyX, {
+    onClick: onSkip
   }), React.createElement("div", {
     style: {
       textAlign: "center"
@@ -7157,15 +7171,8 @@ function ContactPicker({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(RedX, {
-    onClick: onClose,
-    size: 32,
-    style: {
-      position: 'fixed',
-      top: 10,
-      right: 10,
-      zIndex: 20
-    }
+  }, React.createElement(StickyX, {
+    onClick: onClose
   }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
@@ -11981,15 +11988,8 @@ function ListFormModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(RedX, {
-    onClick: onClose,
-    size: 32,
-    style: {
-      position: 'fixed',
-      top: 10,
-      right: 10,
-      zIndex: 20
-    }
+  }, React.createElement(StickyX, {
+    onClick: onClose
   }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
@@ -12086,15 +12086,8 @@ function ListPickerModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(RedX, {
-    onClick: onClose,
-    size: 32,
-    style: {
-      position: 'fixed',
-      top: 10,
-      right: 10,
-      zIndex: 20
-    }
+  }, React.createElement(StickyX, {
+    onClick: onClose
   }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
@@ -12358,15 +12351,8 @@ function CollectifSearchModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(RedX, {
-    onClick: onClose,
-    size: 32,
-    style: {
-      position: 'fixed',
-      top: 10,
-      right: 10,
-      zIndex: 20
-    }
+  }, React.createElement(StickyX, {
+    onClick: onClose
   }), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
