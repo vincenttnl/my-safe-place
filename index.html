@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-16T18:20:29.325Z -->
+<!-- built 2026-07-16T22:56:22.979Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -13318,7 +13318,8 @@ function AuthCard({
   avatar,
   onUpdateProfile,
   onDeleteAccount,
-  flush
+  flush,
+  hideActions
 }) {
   const [mode, setMode] = useState("login");
   const [pseudo, setPseudo] = useState("");
@@ -13881,7 +13882,7 @@ function AuthCard({
         fontSize: 13,
         cursor: 'pointer'
       }
-    }, "\u21BB Resynchroniser"), React.createElement("button", {
+    }, "\u21BB Resynchroniser"), !hideActions && React.createElement("button", {
       onClick: onSignOut,
       className: "press",
       style: {
@@ -14535,6 +14536,7 @@ function App() {
     } catch {}
   }, [city]);
   const [cityPickerOpen, setCityPickerOpen] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [allSpots, setAllSpots] = useState(() => {
     try {
       const raw = localStorage.getItem(SK);
@@ -21380,9 +21382,32 @@ function App() {
     })();
     return React.createElement("div", {
       style: {
-        paddingBottom: 100
+        paddingBottom: 100,
+        position: 'relative'
       }
-    }, React.createElement("div", {
+    }, React.createElement("button", {
+      onClick: () => setShowAdvanced(true),
+      "aria-label": "R\xE9glages avanc\xE9s",
+      title: "R\xE9glages avanc\xE9s",
+      className: "press",
+      style: {
+        position: 'absolute',
+        top: 'calc(18px + env(safe-area-inset-top,0px))',
+        right: 18,
+        zIndex: 10,
+        width: 38,
+        height: 38,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        boxShadow: 'var(--shadow-sm)',
+        cursor: 'pointer',
+        fontSize: 18,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }
+    }, "\u2699\uFE0F"), React.createElement("div", {
       style: {
         padding: 'calc(16px + env(safe-area-inset-top,0px)) 20px 0',
         background: 'var(--bg-cream)'
@@ -21409,7 +21434,8 @@ function App() {
       avatar: avatar,
       onUpdateProfile: updateAccount,
       onDeleteAccount: deleteAccount,
-      flush: true
+      flush: true,
+      hideActions: true
     })), React.createElement("div", {
       style: {
         borderTop: '1px solid var(--hairline)',
@@ -21472,104 +21498,6 @@ function App() {
         }
       }, f, " ", n);
     }))))), React.createElement("div", {
-      style: {
-        padding: '24px 20px 0'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 16,
-        boxShadow: 'var(--shadow-sm)'
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 9,
-        marginBottom: 8
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 20,
-        letterSpacing: '-0.01em'
-      }
-    }, tr("nt_title")), notifPerm === 'granted' && React.createElement("span", {
-      style: {
-        background: '#EEF9F4',
-        color: '#0E8A62',
-        borderRadius: 999,
-        padding: '3px 9px',
-        fontSize: 10.5,
-        fontWeight: 800,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("nt_on")), notifPerm === 'denied' && React.createElement("span", {
-      style: {
-        background: '#FDECEC',
-        color: '#C0392B',
-        borderRadius: 999,
-        padding: '3px 9px',
-        fontSize: 10.5,
-        fontWeight: 800,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("nt_off"))), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-600)',
-        lineHeight: 1.45,
-        marginBottom: 12
-      }
-    }, tr("nt_desc")), notifPerm === 'default' && React.createElement("button", {
-      onClick: enableNotifs,
-      className: "press",
-      style: {
-        width: '100%',
-        padding: '13px',
-        borderRadius: 999,
-        border: 'none',
-        background: 'var(--pop-pink)',
-        color: '#fff',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 14,
-        cursor: 'pointer'
-      }
-    }, tr("nt_enable")), notifPerm === 'granted' && React.createElement("button", {
-      onClick: testNotif,
-      className: "press",
-      style: {
-        width: '100%',
-        padding: '12px',
-        borderRadius: 999,
-        border: '1.5px solid var(--hairline)',
-        background: '#fff',
-        color: 'var(--ink-900)',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 13.5,
-        cursor: 'pointer'
-      }
-    }, tr("nt_test")), notifPerm === 'denied' && React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-body)',
-        lineHeight: 1.4
-      }
-    }, tr("nt_denied")), notifPerm === 'unsupported' && React.createElement("div", {
-      style: {
-        fontSize: 12,
-        color: 'var(--ink-400)',
-        fontFamily: 'var(--font-body)',
-        lineHeight: 1.4
-      }
-    }, tr("nt_ios")))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -21760,141 +21688,6 @@ function App() {
         className: "m-c"
       }, " \xB7 ", catCityCount(k)))));
     })))), React.createElement("div", {
-      style: {
-        padding: '14px 20px 0'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        padding: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 18,
-        marginBottom: 12
-      }
-    }, "\uD83C\uDFAD Ce soir t'es plut\xF4t\u2026"), React.createElement("div", {
-      style: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8
-      }
-    }, [["danser", "🕺 Danser"], ["tranquille", "🍷 Tranquille"], ["chiller", "🌿 Chiller"], ["surprise", "🎲 Surprends-moi"]].map(([k, l]) => {
-      const on = mood === k;
-      return React.createElement("button", {
-        key: k,
-        onClick: () => {
-          window.mspHaptic?.(12);
-          const today = new Date().toISOString().slice(0, 10);
-          const nv = on ? null : k;
-          setMood(nv);
-          try {
-            localStorage.setItem("myplace_mood_v1", JSON.stringify({
-              mood: nv,
-              date: today
-            }));
-          } catch {}
-        },
-        className: "press",
-        style: {
-          padding: '8px 14px',
-          borderRadius: 999,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 700,
-          fontSize: 13,
-          border: on ? '1.5px solid transparent' : '1.5px solid var(--hairline)',
-          background: on ? 'var(--pop-pink)' : '#fff',
-          color: on ? '#fff' : 'var(--ink-900)'
-        }
-      }, l);
-    })), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-400)',
-        marginTop: 12
-      }
-    }, "\u2192 ton Spot du jour s'adapte."))), React.createElement("div", {
-      style: {
-        padding: '14px 20px 0'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-lg)',
-        overflow: 'hidden'
-      }
-    }, React.createElement("div", {
-      style: {
-        position: 'relative',
-        height: 110,
-        background: 'linear-gradient(135deg,#EDF8FF,#F7FFE3)'
-      }
-    }, React.createElement("span", {
-      style: {
-        position: 'absolute',
-        left: '14%',
-        top: '22%',
-        fontSize: 26
-      }
-    }, "\uD83D\uDCCD"), React.createElement("span", {
-      style: {
-        position: 'absolute',
-        left: '52%',
-        top: '44%',
-        fontSize: 34
-      }
-    }, "\uD83D\uDCCD"), React.createElement("span", {
-      style: {
-        position: 'absolute',
-        left: '30%',
-        top: '62%',
-        fontSize: 20
-      }
-    }, "\uD83D\uDCCD"), React.createElement("span", {
-      style: {
-        position: 'absolute',
-        left: '74%',
-        top: '28%',
-        fontSize: 22
-      }
-    }, "\uD83D\uDCCD"), React.createElement("span", {
-      style: {
-        position: 'absolute',
-        right: 10,
-        bottom: 10,
-        background: 'var(--pop-pink)',
-        color: '#fff',
-        fontSize: 10,
-        fontWeight: 800,
-        borderRadius: 999,
-        padding: '4px 9px',
-        fontFamily: 'var(--font-body)'
-      }
-    }, "TON TERRITOIRE")), React.createElement("div", {
-      style: {
-        padding: '12px 16px'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 14,
-        marginBottom: 4
-      }
-    }, "Tes quartiers chauds \uD83D\uDD25"), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        color: 'var(--ink-600)'
-      }
-    }, zoneTop.length >= 2 ? zoneTop.map(z => ZL[z] || z).join(' · ') : 'Ajoute des adresses pour révéler ta carte')))), React.createElement("div", {
       style: {
         padding: '10px 20px 0'
       }
@@ -22093,7 +21886,168 @@ function App() {
         fontSize: 10.5,
         opacity: 0.6
       }
-    }, c.label)))))), React.createElement("div", {
+    }, c.label)))))), showAdvanced && React.createElement("div", {
+      style: {
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1400,
+        background: 'rgba(10,10,10,.5)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'flex-end',
+        justifyContent: 'center'
+      },
+      onClick: () => setShowAdvanced(false)
+    }, React.createElement("div", {
+      className: "slide-up",
+      onClick: e => e.stopPropagation(),
+      style: {
+        width: '100%',
+        maxWidth: 600,
+        maxHeight: '92vh',
+        background: 'var(--bg-primary)',
+        borderRadius: '24px 24px 0 0',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden'
+      }
+    }, React.createElement("div", {
+      style: {
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px 20px 12px',
+        borderBottom: '1px solid var(--hairline)'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 22,
+        letterSpacing: '-.02em'
+      }
+    }, "\u2699\uFE0F R\xE9glages avanc\xE9s"), React.createElement("button", {
+      onClick: () => setShowAdvanced(false),
+      className: "press",
+      style: {
+        border: 'none',
+        background: 'var(--ink-900)',
+        color: '#fff',
+        borderRadius: 999,
+        padding: '8px 16px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12.5,
+        cursor: 'pointer'
+      }
+    }, tr("btn_ok"))), React.createElement("div", {
+      style: {
+        flex: 1,
+        minHeight: 0,
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch',
+        paddingBottom: 'calc(20px + env(safe-area-inset-bottom,0px))'
+      }
+    }, React.createElement("div", {
+      style: {
+        padding: '20px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16,
+        boxShadow: 'var(--shadow-sm)'
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9,
+        marginBottom: 8
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 20,
+        letterSpacing: '-0.01em'
+      }
+    }, tr("nt_title")), notifPerm === 'granted' && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("nt_on")), notifPerm === 'denied' && React.createElement("span", {
+      style: {
+        background: '#FDECEC',
+        color: '#C0392B',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("nt_off"))), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13,
+        color: 'var(--ink-600)',
+        lineHeight: 1.45,
+        marginBottom: 12
+      }
+    }, tr("nt_desc")), notifPerm === 'default' && React.createElement("button", {
+      onClick: enableNotifs,
+      className: "press",
+      style: {
+        width: '100%',
+        padding: '13px',
+        borderRadius: 999,
+        border: 'none',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        cursor: 'pointer'
+      }
+    }, tr("nt_enable")), notifPerm === 'granted' && React.createElement("button", {
+      onClick: testNotif,
+      className: "press",
+      style: {
+        width: '100%',
+        padding: '12px',
+        borderRadius: 999,
+        border: '1.5px solid var(--hairline)',
+        background: '#fff',
+        color: 'var(--ink-900)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13.5,
+        cursor: 'pointer'
+      }
+    }, tr("nt_test")), notifPerm === 'denied' && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, tr("nt_denied")), notifPerm === 'unsupported' && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        fontFamily: 'var(--font-body)',
+        lineHeight: 1.4
+      }
+    }, tr("nt_ios")))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -22114,11 +22068,6 @@ function App() {
       t: 'Zones',
       s: zones ? `Resto ${zones.resto?.length || 0} · Sortie ${zones.sortie?.length || 0}` : 'Non configure',
       action: () => setShowZones(true)
-    }, {
-      i: '🫂',
-      t: 'Contacts',
-      s: `${contacts.length} potes ajoutes`,
-      action: () => setShowContacts(true)
     }, ...(devMode ? [{
       i: '📷',
       t: 'Google Places API',
@@ -22506,7 +22455,41 @@ function App() {
           fontSize: 12
         }
       }, "\uD83D\uDDD1")));
-    })))), React.createElement("div", {
+    })))), session && React.createElement("div", {
+      style: {
+        padding: '18px 20px 4px'
+      }
+    }, React.createElement("button", {
+      onClick: signOut,
+      className: "press",
+      style: {
+        width: '100%',
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '13px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14,
+        color: 'var(--ink-900)',
+        cursor: 'pointer'
+      }
+    }, "Se d\xE9connecter"), React.createElement("button", {
+      onClick: () => {
+        if (confirm("Supprimer définitivement ton compte ? Tes spots restent sur cet appareil.")) deleteAccount();
+      },
+      style: {
+        marginTop: 12,
+        width: '100%',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        color: 'var(--pop-pink)',
+        fontWeight: 600
+      }
+    }, "Supprimer mon compte"))))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
