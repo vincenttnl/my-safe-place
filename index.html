@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T01:52:22.770Z -->
+<!-- built 2026-07-17T02:16:12.727Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -20978,7 +20978,7 @@ function App() {
       position: 'absolute',
       left: 0,
       right: 0,
-      bottom: 'calc(12px + env(safe-area-inset-bottom,0px))',
+      bottom: 46,
       zIndex: 1050,
       pointerEvents: 'none',
       display: 'flex',
@@ -21317,12 +21317,11 @@ function App() {
     style: {
       position: 'absolute',
       right: 16,
-      bottom: 'calc(68px + env(safe-area-inset-bottom,0px))',
+      bottom: 12,
       zIndex: 1000,
       display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'flex-end',
-      gap: 7,
+      alignItems: 'center',
+      gap: 8,
       pointerEvents: 'none'
     }
   }, React.createElement("button", {
@@ -21334,12 +21333,12 @@ function App() {
     style: {
       background: 'transparent',
       border: 'none',
-      padding: '4px 2px',
+      padding: '3px 2px',
       cursor: 'pointer',
       pointerEvents: 'auto',
       fontFamily: 'var(--font-body)',
       fontWeight: 600,
-      fontSize: 12,
+      fontSize: 10,
       color: 'var(--pop-pink)',
       textShadow: '0 1px 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7)',
       whiteSpace: 'nowrap'
@@ -21360,16 +21359,17 @@ function App() {
       color: '#fff',
       border: 'none',
       borderRadius: 999,
-      padding: '6px 11px',
+      padding: '4px 9px',
       fontFamily: 'var(--font-body)',
       fontWeight: 600,
-      fontSize: 11,
+      fontSize: 9.5,
       cursor: 'pointer',
       boxShadow: 'var(--shadow-pop)',
       display: 'flex',
       alignItems: 'center',
-      gap: 5,
-      pointerEvents: 'auto'
+      gap: 4,
+      pointerEvents: 'auto',
+      whiteSpace: 'nowrap'
     }
   }, geoLoading ? '⏳' : '📍', " Autour de moi")));
   const ProfileTab = () => {
@@ -23689,7 +23689,7 @@ function App() {
     style: {
       position: 'fixed',
       left: 16,
-      bottom: 'calc(128px + env(safe-area-inset-bottom,0px))',
+      bottom: 'calc(72px + env(safe-area-inset-bottom,0px))',
       zIndex: 1100,
       pointerEvents: 'none'
     }
@@ -23715,12 +23715,13 @@ function App() {
       color: 'var(--ink-900)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
-      padding: '6px 11px',
+      padding: '4px 9px',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
-      fontSize: 11,
+      fontSize: 9.5,
       cursor: 'pointer',
-      boxShadow: '0 6px 20px rgba(0,0,0,.15)'
+      boxShadow: '0 6px 20px rgba(0,0,0,.15)',
+      whiteSpace: 'nowrap'
     }
   }, "\uD83D\uDCCB Lister cette zone")), sharedRef && React.createElement(SharedSpotLanding, {
     shared: sharedRef,
