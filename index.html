@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T02:24:33.948Z -->
+<!-- built 2026-07-17T18:25:44.645Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3124,7 +3124,8 @@ const I18N = {
     t_21: "Lien expiré ou invalide — refais une demande",
     t_22: "Lien de la liste copié !",
     t_23: "Lien d'invitation copié !",
-    t_24: "Le partage de listes arrive bientôt — réglage enregistré ✨",
+    t_24: "Liste partagée avec tes amis 👥",
+    t_47: "Liste partageable par lien 🔗 — tes amis la voient aussi",
     t_25: "Impossible de créer le lien",
     t_26: "Impossible de copier",
     t_27: "Impossible d'envoyer la demande",
@@ -3520,7 +3521,8 @@ const I18N = {
     t_21: "Link expired or invalid — request a new one",
     t_22: "List link copied!",
     t_23: "Invite link copied!",
-    t_24: "List sharing is coming soon — setting saved ✨",
+    t_24: "List shared with your friends 👥",
+    t_47: "List shareable by link 🔗 — your friends can see it too",
     t_25: "Couldn't create the link",
     t_26: "Couldn't copy",
     t_27: "Couldn't send the request",
@@ -3916,7 +3918,8 @@ const I18N = {
     t_21: "Enlace caducado o inválido — pide otro",
     t_22: "¡Enlace de la lista copiado!",
     t_23: "¡Enlace de invitación copiado!",
-    t_24: "Compartir listas llega pronto — ajuste guardado ✨",
+    t_24: "Lista compartida con tus amigos 👥",
+    t_47: "Lista compartible por enlace 🔗 — tus amigos también la ven",
     t_25: "No se pudo crear el enlace",
     t_26: "No se pudo copiar",
     t_27: "No se pudo enviar la solicitud",
@@ -15552,6 +15555,9 @@ function App() {
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
+  useEffect(() => {
+    if (mapMode === "friends" && !(sessionRef.current && friends.length > 0)) setMapMode("discover");
+  }, [friends, session, mapMode]);
   const fetchFriends = async () => {
     const sess = sessionRef.current;
     if (!sess) return;
@@ -15638,6 +15644,38 @@ function App() {
       }
       if (!r.ok) throw new Error("req " + r.status);
       window.mspToast?.(tr("t_33"), "success");
+      fetchFriends();
+      return true;
+    } catch (e) {
+      window.mspToast?.(tr("t_27"), "error");
+      return false;
+    }
+  };
+  const acceptInvite = async uid => {
+    const sess = sessionRef.current;
+    if (!sess) {
+      window.mspToast?.(tr("t_37"), "warn");
+      return false;
+    }
+    if (uid === sess.user.id) {
+      window.mspToast?.(tr("t_42"), "warn");
+      return false;
+    }
+    try {
+      const tok = await validToken(sess);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/accept_invite`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inviter: uid
+        })
+      });
+      if (!r.ok) throw new Error("accept " + r.status);
+      window.mspToast?.(tr("t_4"), "success");
       fetchFriends();
       return true;
     } catch (e) {
@@ -17093,9 +17131,9 @@ function App() {
       try {
         parisRingRef.current = L.polygon(CITY_RINGS[city], {
           renderer: map._spotCanvas,
-          color: "#0A0A0A",
-          weight: 1.5,
-          opacity: 0.5,
+          color: "#FF3D8B",
+          weight: 1.8,
+          opacity: 0.6,
           dashArray: "5 5",
           fill: false,
           interactive: false
@@ -18236,7 +18274,7 @@ function App() {
           updateList(li.id, {
             visibility: k
           });
-          if (k !== "private") window.mspToast?.(tr("t_24"), "success");
+          if (k !== "private") window.mspToast?.(tr(k === "link" ? "t_47" : "t_24"), "success");
         },
         style: {
           padding: '6px 12px',
@@ -20979,8 +21017,13 @@ function App() {
     k: 'mine',
     l: tr("seg_mine"),
     n: mapCount.mine
-  }].map(o => {
+  }, ...(session && friends.length > 0 ? [{
+    k: 'friends',
+    l: "👥 " + tr("map_friends"),
+    n: mapCount.friends
+  }] : [])].map((o, _i, _arr) => {
     const on = mapMode === o.k;
+    const trio = _arr.length > 2;
     return React.createElement("button", {
       key: o.k,
       onClick: () => {
@@ -20994,7 +21037,7 @@ function App() {
         border: 'none',
         cursor: 'pointer',
         borderRadius: 999,
-        padding: '11px 20px',
+        padding: trio ? '11px 13px' : '11px 20px',
         fontFamily: 'var(--font-body)',
         fontWeight: 800,
         fontSize: 14.5,
@@ -23061,7 +23104,7 @@ function App() {
     }
   }, "Les amis voient uniquement les listes que chacun choisit de partager. Rien d'autre \u2014 tes spots restent \xE0 toi. \uD83D\uDD12"), React.createElement("button", {
     onClick: async () => {
-      const ok = await sendFriendRequest(friendInvite.id);
+      const ok = await acceptInvite(friendInvite.id);
       if (ok) setFriendInvite(null);
     },
     className: "press",
