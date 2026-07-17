@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T02:16:12.727Z -->
+<!-- built 2026-07-17T02:24:33.948Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18608,48 +18608,10 @@ function App() {
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 0'
-    }
-  }, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 'clamp(23px,6.8vw,31px)',
-      letterSpacing: '-.02em',
-      lineHeight: 1.08,
-      textAlign: 'center',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }
-  }, searchMode === "discover" ? tr("seg_discover") + " " + (CITIES[city] || CITIES.paris).label : tr("spots_title", {
-    city: (CITIES[city] || CITIES.paris).label
-  })), React.createElement("div", {
-    style: {
-      marginTop: 1,
-      textAlign: 'center',
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 'clamp(24px,7vw,30px)',
-      lineHeight: 1.1,
-      color: '#FF1493',
-      textShadow: '0 0 14px rgba(255,20,147,.5),0 0 34px rgba(255,20,147,.25)'
-    }
-  }, searchMode === "discover" ? catalog.length : spots.length)), React.createElement("div", {
-    style: {
-      padding: '9px 20px 0',
-      display: 'flex',
-      justifyContent: 'center'
-    }
-  }, React.createElement("div", {
-    style: {
-      display: 'flex',
-      background: '#fff',
-      border: '1px solid var(--hairline)',
-      borderRadius: 999,
-      padding: 3,
-      gap: 3,
-      boxShadow: 'var(--shadow-sm)'
+      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 0',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
+      gap: 12
     }
   }, [{
     k: "discover",
@@ -18672,28 +18634,40 @@ function App() {
       className: "press",
       "aria-current": on ? "true" : undefined,
       style: {
-        border: 'none',
+        minWidth: 0,
+        padding: '15px 8px 13px',
+        borderRadius: 18,
         cursor: 'pointer',
-        borderRadius: 999,
-        padding: '7px 15px',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 12.5,
-        whiteSpace: 'nowrap',
-        background: on ? 'var(--pop-pink)' : 'transparent',
-        color: on ? '#fff' : 'var(--ink-600)',
-        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
-        transition: 'all .16s var(--ease)'
+        textAlign: 'center',
+        background: on ? 'var(--ink-900)' : '#fff',
+        border: '1px solid ' + (on ? 'var(--ink-900)' : 'var(--hairline)'),
+        boxShadow: on ? '0 0 0 4px rgba(255,61,139,.25), 0 10px 26px rgba(23,22,43,.4)' : '0 2px 8px rgba(23,22,43,.06)',
+        transition: 'all .18s var(--ease)'
       }
-    }, o.lab.replace(/^[^\p{L}]+/u, ''), o.n > 0 && React.createElement("span", {
+    }, React.createElement("div", {
       style: {
-        marginLeft: 6,
+        fontFamily: 'var(--font-display)',
         fontWeight: 900,
-        opacity: on ? .95 : .55,
-        fontSize: 11
+        fontSize: 'clamp(17px,5.4vw,22px)',
+        letterSpacing: '-.01em',
+        lineHeight: 1.05,
+        color: on ? '#fff' : 'var(--ink-900)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, o.lab.replace(/^[^\p{L}]+/u, '')), React.createElement("div", {
+      style: {
+        marginTop: 3,
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 'clamp(19px,5.8vw,24px)',
+        letterSpacing: '-.02em',
+        lineHeight: 1,
+        color: '#FF1493'
       }
     }, o.n));
-  }))), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
       padding: '10px 20px 0',
       display: 'flex',
