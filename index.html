@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T19:26:39.701Z -->
+<!-- built 2026-07-17T19:29:13.731Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -7931,17 +7931,24 @@ function PropositionsModal({
       className: "pq-foot"
     }, React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13,
-        fontWeight: 800,
+        fontFamily: 'var(--font-display)',
+        fontSize: 26,
+        fontWeight: 900,
         textAlign: 'center',
-        marginBottom: 8,
-        color: 'var(--ink-600)'
+        marginBottom: 10,
+        color: '#fff',
+        letterSpacing: '-.01em',
+        lineHeight: 1.05
       }
     }, totalMatch < POOL.length ? React.createElement(React.Fragment, null, POOL.length, " \u2192 ", React.createElement("span", {
       style: {
-        color: 'var(--pop-pink)',
-        fontWeight: 900
+        display: 'inline-block',
+        background: '#fff',
+        color: G.ci,
+        padding: '1px 13px',
+        borderRadius: 999,
+        fontWeight: 900,
+        boxShadow: '0 4px 14px rgba(0,0,0,.18)'
       }
     }, totalMatch), " spots") : React.createElement(React.Fragment, null, POOL.length, " spots")), React.createElement("button", {
       onClick: nextQ,
