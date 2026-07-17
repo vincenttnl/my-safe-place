@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T18:57:18.772Z -->
+<!-- built 2026-07-17T19:09:15.107Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18684,13 +18684,17 @@ function App() {
       "aria-current": on ? "true" : undefined,
       style: {
         minWidth: 0,
-        padding: '15px 8px 13px',
-        borderRadius: 18,
+        padding: '14px 8px 12px',
+        borderRadius: 10,
         cursor: 'pointer',
         textAlign: 'center',
-        background: on ? 'var(--ink-900)' : '#fff',
-        border: '1px solid ' + (on ? 'var(--ink-900)' : 'var(--hairline)'),
-        boxShadow: on ? '0 0 0 4px rgba(255,61,139,.25), 0 10px 26px rgba(23,22,43,.4)' : '0 2px 8px rgba(23,22,43,.06)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 6,
+        background: '#fff',
+        border: on ? '2px solid var(--ink-900)' : '1.5px dashed #D9B8C8',
+        boxShadow: on ? '0 5px 16px -4px rgba(23,22,43,.28)' : 'none',
         transition: 'all .18s var(--ease)'
       }
     }, React.createElement("div", {
@@ -18700,20 +18704,23 @@ function App() {
         fontSize: 'clamp(17px,5.4vw,22px)',
         letterSpacing: '-.01em',
         lineHeight: 1.05,
-        color: on ? '#fff' : 'var(--ink-900)',
+        color: 'var(--ink-900)',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
-        textOverflow: 'ellipsis'
+        textOverflow: 'ellipsis',
+        maxWidth: '100%'
       }
     }, o.lab.replace(/^[^\p{L}]+/u, '')), React.createElement("div", {
       style: {
-        marginTop: 3,
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 'clamp(19px,5.8vw,24px)',
-        letterSpacing: '-.02em',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 'clamp(14px,4.4vw,18px)',
+        letterSpacing: '2px',
         lineHeight: 1,
-        color: '#FF1493'
+        color: '#FF1493',
+        background: '#FFE0EC',
+        padding: '3px 11px',
+        borderRadius: 6
       }
     }, o.n));
   })), React.createElement("div", {
