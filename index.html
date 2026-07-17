@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-16T22:56:22.979Z -->
+<!-- built 2026-07-17T00:02:37.920Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8409,7 +8409,10 @@ function useSwipeDown(onClose, guard) {
 }
 function PhotoCarousel({
   photos,
-  catColor
+  catColor,
+  onSwipeDown,
+  fill,
+  compact
 }) {
   const [idx, setIdx] = useState(0);
   const touchRef = useRef({
@@ -8438,6 +8441,8 @@ function PhotoCarousel({
     touchRef.current.swiping = false;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
       dx < 0 ? go(1) : go(-1);
+    } else if (onSwipeDown && dy > 70 && Math.abs(dy) > Math.abs(dx) * 2) {
+      onSwipeDown();
     }
   };
   const handleTap = e => {
@@ -8447,7 +8452,12 @@ function PhotoCarousel({
     style: {
       position: "relative",
       overflow: "hidden",
-      aspectRatio: '4/3',
+      ...(fill ? {
+        width: '100%',
+        height: '100%'
+      } : {
+        aspectRatio: '4/3'
+      }),
       background: catColor || 'var(--bg-soft)'
     },
     onTouchStart: onTouchStart,
@@ -8456,6 +8466,9 @@ function PhotoCarousel({
   }, React.createElement("div", {
     style: {
       display: "flex",
+      ...(fill ? {
+        height: '100%'
+      } : {}),
       transition: "transform .35s var(--ease)",
       transform: `translateX(-${idx * 100}%)`
     }
@@ -8464,7 +8477,9 @@ function PhotoCarousel({
     style: {
       minWidth: "100%",
       height: "100%",
-      aspectRatio: '4/3',
+      ...(fill ? {} : {
+        aspectRatio: '4/3'
+      }),
       backgroundSize: "cover",
       backgroundPosition: "center",
       background: `url(${url}) center/cover no-repeat, var(--bg-soft)`
@@ -8472,16 +8487,16 @@ function PhotoCarousel({
   }))), photos.length > 1 && React.createElement(React.Fragment, null, React.createElement("div", {
     style: {
       position: "absolute",
-      bottom: 14,
+      bottom: compact ? 7 : 14,
       left: '50%',
       transform: 'translateX(-50%)',
       display: "flex",
-      gap: 6
+      gap: compact ? 4 : 6
     }
   }, photos.map((_, i) => React.createElement("div", {
     key: i,
     style: {
-      width: idx === i ? 22 : 6,
+      width: idx === i ? compact ? 16 : 22 : 6,
       height: 6,
       borderRadius: 999,
       background: '#fff',
@@ -8493,7 +8508,7 @@ function PhotoCarousel({
       e.stopPropagation();
       setIdx(i);
     }
-  }))), React.createElement("div", {
+  }))), !compact && React.createElement("div", {
     style: {
       position: "absolute",
       top: 14,
@@ -8508,7 +8523,7 @@ function PhotoCarousel({
       fontWeight: 700,
       color: "#fff"
     }
-  }, idx + 1, "/", photos.length), React.createElement("button", {
+  }, idx + 1, "/", photos.length), !compact && React.createElement("button", {
     onClick: e => {
       e.stopPropagation();
       go(-1);
@@ -8535,7 +8550,7 @@ function PhotoCarousel({
       zIndex: 5,
       cursor: "pointer"
     }
-  }, "\u2039"), React.createElement("button", {
+  }, "\u2039"), !compact && React.createElement("button", {
     onClick: e => {
       e.stopPropagation();
       go(1);
@@ -9297,7 +9312,8 @@ function SpotDetail({
     }
   }, photos.length > 0 ? React.createElement(PhotoCarousel, {
     photos: photos,
-    catColor: CB[primaryCat(spot)]
+    catColor: CB[primaryCat(spot)],
+    onSwipeDown: onClose
   }) : React.createElement("div", {
     style: {
       aspectRatio: '4/3',
@@ -9377,7 +9393,7 @@ function SpotDetail({
     }
   }, spot.fav ? '♥' : '♡'))), React.createElement("div", {
     style: {
-      padding: '22px 22px 24px'
+      padding: '22px 22px 38px'
     }
   }, React.createElement("div", {
     style: {
@@ -13745,34 +13761,12 @@ function AuthCard({
         ...card,
         position: 'relative'
       }
-    }, React.createElement("button", {
-      onClick: openEdit,
-      "aria-label": "Modifier mon profil",
-      title: "Modifier mon profil",
-      className: "press",
-      style: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 34,
-        height: 34,
-        borderRadius: 999,
-        border: '1px solid var(--hairline)',
-        background: '#fff',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 15,
-        color: 'var(--ink-600)',
-        cursor: 'pointer',
-        padding: 0
-      }
-    }, "\u2699\uFE0F"), React.createElement("div", {
+    }, React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
         gap: 13,
-        marginBottom: 14,
+        marginBottom: hideActions ? 2 : 14,
         paddingRight: 42
       }
     }, React.createElement("div", {
@@ -13835,6 +13829,13 @@ function AuthCard({
       }
     }, React.createElement("div", {
       style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        minWidth: 0
+      }
+    }, React.createElement("span", {
+      style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 700,
         fontSize: 19,
@@ -13842,9 +13843,30 @@ function AuthCard({
         lineHeight: 1.15,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        minWidth: 0
       }
-    }, curPseudo || "Mon compte"), React.createElement("div", {
+    }, curPseudo || "Mon compte"), React.createElement("button", {
+      onClick: openEdit,
+      "aria-label": "Modifier mon profil",
+      title: "Modifier mon profil",
+      className: "press",
+      style: {
+        flexShrink: 0,
+        width: 26,
+        height: 26,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 12,
+        color: 'var(--ink-600)',
+        cursor: 'pointer',
+        padding: 0
+      }
+    }, "\u270E")), React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: 'var(--ink-400)',
@@ -13854,7 +13876,7 @@ function AuthCard({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
       }
-    }, session.user && session.user.email))), React.createElement("div", {
+    }, session.user && session.user.email))), !hideActions && React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: col,
@@ -13882,7 +13904,7 @@ function AuthCard({
         fontSize: 13,
         cursor: 'pointer'
       }
-    }, "\u21BB Resynchroniser"), !hideActions && React.createElement("button", {
+    }, "\u21BB Resynchroniser"), React.createElement("button", {
       onClick: onSignOut,
       className: "press",
       style: {
@@ -13897,7 +13919,7 @@ function AuthCard({
         color: 'var(--ink-600)',
         cursor: 'pointer'
       }
-    }, "Se d\xE9connecter")), info && React.createElement("div", {
+    }, "Se d\xE9connecter"))), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
         color: '#2ECC71',
@@ -18578,33 +18600,56 @@ function App() {
       position: 'sticky',
       top: 0,
       zIndex: 5,
-      background: 'var(--bg-cream)',
+      background: '#F7E7C3',
+      paddingBottom: 12,
       boxShadow: hdrStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
       borderBottom: '1px solid ' + (hdrStuck ? 'var(--hairline)' : 'transparent'),
       transition: 'box-shadow .25s,border-color .25s'
     }
   }, React.createElement("div", {
     style: {
-      padding: 'calc(8px + env(safe-area-inset-top,0px)) 20px 0'
+      padding: 'calc(10px + env(safe-area-inset-top,0px)) 20px 0'
     }
   }, React.createElement("div", {
     style: {
-      fontFamily: 'var(--font-body)',
-      fontSize: 10.5,
-      fontWeight: 800,
-      letterSpacing: '.14em',
-      textTransform: 'uppercase',
-      color: 'var(--ink-400)'
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 'clamp(23px,6.8vw,31px)',
+      letterSpacing: '-.02em',
+      lineHeight: 1.08,
+      textAlign: 'center',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
     }
-  }, tr("spots_title", {
+  }, searchMode === "discover" ? tr("seg_discover") + " " + (CITIES[city] || CITIES.paris).label : tr("spots_title", {
     city: (CITIES[city] || CITIES.paris).label
-  }))), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
-      padding: '8px 20px 0',
-      background: 'var(--bg-cream)',
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2,minmax(0,1fr))',
-      gap: 12
+      marginTop: 1,
+      textAlign: 'center',
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 'clamp(24px,7vw,30px)',
+      lineHeight: 1.1,
+      color: '#FF1493',
+      textShadow: '0 0 14px rgba(255,20,147,.5),0 0 34px rgba(255,20,147,.25)'
+    }
+  }, searchMode === "discover" ? catalog.length : spots.length)), React.createElement("div", {
+    style: {
+      padding: '9px 20px 0',
+      display: 'flex',
+      justifyContent: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      background: '#fff',
+      border: '1px solid var(--hairline)',
+      borderRadius: 999,
+      padding: 3,
+      gap: 3,
+      boxShadow: 'var(--shadow-sm)'
     }
   }, [{
     k: "discover",
@@ -18627,44 +18672,30 @@ function App() {
       className: "press",
       "aria-current": on ? "true" : undefined,
       style: {
-        minWidth: 0,
-        padding: '13px 8px 11px',
-        borderRadius: 18,
+        border: 'none',
         cursor: 'pointer',
-        background: on ? 'var(--pop-pink)' : '#fff',
-        border: on ? '1px solid transparent' : '1px solid var(--hairline)',
-        boxShadow: on ? 'var(--shadow-pop)' : 'var(--shadow-sm)',
-        transition: 'all .18s var(--ease)'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 'clamp(16px,5.1vw,21px)',
-        lineHeight: 1.05,
-        letterSpacing: '-.01em',
-        color: on ? '#fff' : 'var(--ink-900)',
+        borderRadius: 999,
+        padding: '7px 15px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12.5,
         whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        textAlign: 'center'
+        background: on ? 'var(--pop-pink)' : 'transparent',
+        color: on ? '#fff' : 'var(--ink-600)',
+        boxShadow: on ? '0 4px 12px rgba(255,61,139,0.32)' : 'none',
+        transition: 'all .16s var(--ease)'
       }
-    }, o.lab.replace(/^[^\p{L}]+/u, '')), React.createElement("div", {
+    }, o.lab.replace(/^[^\p{L}]+/u, ''), o.n > 0 && React.createElement("span", {
       style: {
-        marginTop: 2,
-        fontFamily: 'var(--font-display)',
+        marginLeft: 6,
         fontWeight: 900,
-        fontSize: 'clamp(14px,4.2vw,17px)',
-        lineHeight: 1,
-        letterSpacing: '-.02em',
-        color: on ? 'rgba(255,255,255,.9)' : 'var(--ink-400)',
-        textAlign: 'center'
+        opacity: on ? .95 : .55,
+        fontSize: 11
       }
     }, o.n));
-  })), React.createElement("div", {
+  }))), React.createElement("div", {
     style: {
-      padding: '8px 20px 0',
-      background: 'var(--bg-cream)',
+      padding: '10px 20px 0',
       display: 'flex',
       gap: 8,
       alignItems: 'center'
@@ -18790,7 +18821,6 @@ function App() {
   }, "+")), React.createElement("div", {
     style: {
       padding: '0 20px',
-      background: 'var(--bg-cream)',
       maxHeight: hdrStuck || searchMode !== "discover" || search.trim() ? 0 : 48,
       overflow: 'hidden',
       transition: 'max-height .3s var(--ease)'
@@ -18846,7 +18876,6 @@ function App() {
     }
   }, "\xAB ", nlExamples()[nlEx], " \xBB"))), searchMode !== "lists" && nActiveFilters > 0 && React.createElement("div", {
     style: {
-      background: 'var(--bg-cream)',
       padding: '8px 0 8px'
     }
   }, React.createElement("div", {
@@ -20949,7 +20978,7 @@ function App() {
       position: 'absolute',
       left: 0,
       right: 0,
-      bottom: 'calc(74px + env(safe-area-inset-bottom,0px))',
+      bottom: 'calc(42px + env(safe-area-inset-bottom,0px))',
       zIndex: 1050,
       pointerEvents: 'none',
       display: 'flex',
@@ -21026,20 +21055,24 @@ function App() {
     style: {
       pointerEvents: 'auto',
       width: 'min(94%,420px)',
-      borderRadius: 26,
-      padding: '12px 12px 11px',
-      background: 'rgba(255,255,255,.62)',
-      backdropFilter: 'blur(22px) saturate(1.7)',
-      WebkitBackdropFilter: 'blur(22px) saturate(1.7)',
-      border: '1px solid rgba(255,255,255,.75)',
-      boxShadow: '0 14px 38px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.9)'
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 8
     }
   }, React.createElement("div", {
     style: {
       display: 'flex',
       alignItems: 'center',
       gap: 4,
-      marginTop: 9
+      width: '100%',
+      background: 'rgba(255,255,255,.94)',
+      border: '1px solid rgba(0,0,0,.06)',
+      borderRadius: 18,
+      padding: 5,
+      boxShadow: '0 10px 28px rgba(0,0,0,.16)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)'
     }
   }, CATS.filter(c => c.key !== "all").map(c => {
     const on = mapCats.has(c.key);
@@ -21060,21 +21093,31 @@ function App() {
         flex: 1,
         minWidth: 0,
         cursor: 'pointer',
-        borderRadius: 999,
-        padding: '7px 1px',
+        borderRadius: 13,
+        padding: '6px 1px 5px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 1,
         fontFamily: 'var(--font-body)',
-        fontSize: 9.5,
+        fontSize: 8.5,
         fontWeight: 800,
         letterSpacing: '-.01em',
-        background: on ? CC[c.key] : 'rgba(255,255,255,.72)',
+        background: on ? CC[c.key] : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
-        border: on && filtering ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+        border: on && filtering ? '2px solid var(--pop-pink)' : '1px solid transparent',
         boxShadow: on && filtering ? '0 4px 12px rgba(255,61,139,.3)' : 'none',
         transition: 'all .16s var(--ease)'
       }
     }, React.createElement("span", {
       style: {
+        fontSize: 14,
+        lineHeight: 1
+      }
+    }, c.emoji), React.createElement("span", {
+      style: {
         display: 'block',
+        maxWidth: '100%',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
@@ -21084,9 +21127,7 @@ function App() {
     style: {
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      gap: 6,
-      marginTop: 9
+      gap: 6
     }
   }, React.createElement("button", {
     onClick: () => setOpenNow(v => !v),
@@ -21100,9 +21141,12 @@ function App() {
       fontWeight: 800,
       fontSize: 10.5,
       whiteSpace: 'nowrap',
-      background: openNow ? '#16A34A' : 'rgba(255,255,255,.72)',
+      background: openNow ? '#16A34A' : 'rgba(255,255,255,.92)',
       color: openNow ? '#fff' : 'var(--ink-600)',
       border: openNow ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      boxShadow: '0 6px 18px rgba(0,0,0,.14)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
       transition: 'all .16s var(--ease)'
     }
   }, "\uD83D\uDFE2 Ouvert"), React.createElement("button", {
@@ -21117,9 +21161,12 @@ function App() {
       fontWeight: 800,
       fontSize: 10.5,
       whiteSpace: 'nowrap',
-      background: lateNight ? '#1E1B4B' : 'rgba(255,255,255,.72)',
+      background: lateNight ? '#1E1B4B' : 'rgba(255,255,255,.92)',
       color: lateNight ? '#fff' : 'var(--ink-600)',
       border: lateNight ? '2px solid var(--pop-pink)' : '1px solid rgba(0,0,0,.07)',
+      boxShadow: '0 6px 18px rgba(0,0,0,.14)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
       transition: 'all .16s var(--ease)'
     }
   }, "\uD83C\uDF19 +5h"), React.createElement("button", {
@@ -21130,16 +21177,19 @@ function App() {
       width: 30,
       height: 30,
       borderRadius: 999,
-      border: 'none',
+      border: '1px solid rgba(0,0,0,.07)',
       cursor: 'pointer',
-      background: 'rgba(120,120,128,.14)',
+      background: 'rgba(255,255,255,.92)',
       color: 'var(--ink-600)',
       fontSize: 12,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: 0,
-      flexShrink: 0
+      flexShrink: 0,
+      boxShadow: '0 6px 18px rgba(0,0,0,.14)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)'
     }
   }, "\u25B2"))) : React.createElement("div", {
     style: {
@@ -21263,17 +21313,25 @@ function App() {
       color: 'var(--ink-400)',
       lineHeight: 1.45
     }
-  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("button", {
+  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("div", {
+    style: {
+      position: 'absolute',
+      right: 16,
+      bottom: 'calc(104px + env(safe-area-inset-bottom,0px))',
+      zIndex: 1000,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-end',
+      gap: 7,
+      pointerEvents: 'none'
+    }
+  }, React.createElement("button", {
     onClick: () => {
       setTab("profile");
       setCityPickerOpen(true);
     },
     className: "press",
     style: {
-      position: 'absolute',
-      bottom: 52,
-      right: 16,
-      zIndex: 1000,
       background: 'transparent',
       border: 'none',
       padding: '4px 2px',
@@ -21298,10 +21356,6 @@ function App() {
       }
     },
     style: {
-      position: 'absolute',
-      bottom: 12,
-      right: 16,
-      zIndex: 1000,
       background: 'var(--ink-900)',
       color: '#fff',
       border: 'none',
@@ -21317,7 +21371,7 @@ function App() {
       gap: 5,
       pointerEvents: 'auto'
     }
-  }, geoLoading ? '⏳' : '📍', " Autour de moi"));
+  }, geoLoading ? '⏳' : '📍', " Autour de moi")));
   const ProfileTab = () => {
     const counts = Object.fromEntries(CATS.filter(c => c.key !== 'all').map(c => [c.key, spots.filter(s => hasCat(s, c.key)).length]));
     const devMode = (() => {
@@ -21436,68 +21490,7 @@ function App() {
       onDeleteAccount: deleteAccount,
       flush: true,
       hideActions: true
-    })), React.createElement("div", {
-      style: {
-        borderTop: '1px solid var(--hairline)',
-        padding: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 15
-      }
-    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
-      style: {
-        background: '#EEF9F4',
-        color: '#0E8A62',
-        borderRadius: 999,
-        padding: '3px 9px',
-        fontSize: 10.5,
-        fontWeight: 800,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("lang_auto"))), React.createElement("div", {
-      style: {
-        display: 'flex',
-        gap: 6,
-        flexWrap: 'wrap'
-      }
-    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
-      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
-      return React.createElement("button", {
-        key: k,
-        onClick: () => {
-          if (on) return;
-          window.mspHaptic?.(12);
-          if (k === "auto") {
-            try {
-              localStorage.removeItem(LANGK);
-            } catch {}
-            location.reload();
-          } else window.mspSetLang(k);
-        },
-        className: "press",
-        style: {
-          padding: '8px 13px',
-          borderRadius: 999,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 700,
-          fontSize: 12.5,
-          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
-          background: on ? 'var(--pop-pink)' : '#fff',
-          color: on ? '#fff' : 'var(--ink-900)'
-        }
-      }, f, " ", n);
-    }))))), React.createElement("div", {
+    })))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
@@ -21814,6 +21807,74 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-sm)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15
+      }
+    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("lang_auto"))), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
+      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          if (on) return;
+          window.mspHaptic?.(12);
+          if (k === "auto") {
+            try {
+              localStorage.removeItem(LANGK);
+            } catch {}
+            location.reload();
+          } else window.mspSetLang(k);
+        },
+        className: "press",
+        style: {
+          padding: '8px 13px',
+          borderRadius: 999,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 12.5,
+          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
+          background: on ? 'var(--pop-pink)' : '#fff',
+          color: on ? '#fff' : 'var(--ink-900)'
+        }
+      }, f, " ", n);
+    })))), React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
         background: 'var(--ink-900)',
         color: '#fff',
         borderRadius: 'var(--radius-lg)',
@@ -21949,7 +22010,50 @@ function App() {
         WebkitOverflowScrolling: 'touch',
         paddingBottom: 'calc(20px + env(safe-area-inset-bottom,0px))'
       }
+    }, session && React.createElement("div", {
+      style: {
+        padding: '20px 20px 0'
+      }
     }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 16,
+        boxShadow: 'var(--shadow-sm)'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 20,
+        letterSpacing: '-0.01em',
+        marginBottom: 6
+      }
+    }, "\u2601\uFE0F Synchronisation"), React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        fontWeight: 600,
+        fontFamily: 'var(--font-body)',
+        color: syncState === "error" ? 'var(--pop-pink)' : syncState === "syncing" ? 'var(--ink-400)' : '#2ECC71',
+        marginBottom: 12
+      }
+    }, syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "✓ Synchronisé sur tous tes appareils"), React.createElement("button", {
+      onClick: () => fullSync(sessionRef.current),
+      disabled: syncState === "syncing",
+      className: "press",
+      style: {
+        width: '100%',
+        background: 'var(--bg-soft,#F3F1F6)',
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '12px 0',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, "\u21BB Resynchroniser"))), React.createElement("div", {
       style: {
         padding: '20px 20px 0'
       }
@@ -23113,7 +23217,7 @@ function App() {
       }
     };
     const cat = CATS.find(c => c.key === primaryCat(peekSpot));
-    const ph = firstPhoto(peekSpot);
+    const pkPhotos = getPhotos(peekSpot);
     const pkDist = userPos && peekSpot.lat && peekSpot.lng ? distKm(userPos.lat, userPos.lng, peekSpot.lat, peekSpot.lng) : null;
     const walkMin = pkDist != null ? Math.max(1, Math.round(pkDist * 14)) : null;
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&${userPos ? `origin=${userPos.lat},${userPos.lng}&` : ''}destination=${peekSpot.lat},${peekSpot.lng}&travelmode=transit`;
@@ -23142,18 +23246,11 @@ function App() {
         minHeight: 0,
         background: CB[primaryCat(peekSpot)]
       }
-    }, ph ? React.createElement("img", {
-      src: ph,
-      alt: peekSpot.name,
-      style: {
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        display: 'block'
-      },
-      onError: e => {
-        e.target.style.display = 'none';
-      }
+    }, pkPhotos.length ? React.createElement(PhotoCarousel, {
+      photos: pkPhotos,
+      catColor: CB[primaryCat(peekSpot)],
+      fill: true,
+      compact: true
     }) : React.createElement("div", {
       style: {
         width: '100%',
@@ -23163,16 +23260,61 @@ function App() {
         justifyContent: 'center',
         fontSize: 52
       }
-    }, cat?.emoji), React.createElement("div", {
+    }, cat?.emoji), React.createElement("button", {
+      onClick: () => {
+        setPeekSpot(null);
+        peekSeenRef.current = [];
+      },
+      className: "press",
+      "aria-label": "Retour",
       style: {
         position: 'absolute',
         top: 8,
-        left: 12,
+        left: 10,
+        zIndex: 3,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        background: 'rgba(255,255,255,.92)',
+        color: 'var(--ink-900)',
+        border: 'none',
+        cursor: 'pointer',
+        borderRadius: 999,
+        padding: '5px 12px 5px 6px',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 12,
+        lineHeight: 1,
+        boxShadow: '0 3px 11px rgba(0,0,0,.18)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)'
+      }
+    }, React.createElement("span", {
+      style: {
+        width: 17,
+        height: 17,
+        borderRadius: 999,
+        background: 'var(--pop-pink)',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#fff',
+        fontSize: 11,
+        fontWeight: 900,
+        flexShrink: 0
+      }
+    }, "\u2190"), "Retour"), React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: 8,
+        right: 10,
         display: 'flex',
         gap: 6,
         alignItems: 'center',
+        justifyContent: 'flex-end',
         flexWrap: 'wrap',
-        maxWidth: '72%'
+        maxWidth: '58%',
+        pointerEvents: 'none'
       }
     }, cat && React.createElement("span", {
       style: {
@@ -23212,19 +23354,7 @@ function App() {
         boxShadow: '0 2px 8px rgba(0,0,0,.25)',
         fontFamily: 'var(--font-body)'
       }
-    }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`)), React.createElement(RedX, {
-      onClick: () => {
-        setPeekSpot(null);
-        peekSeenRef.current = [];
-      },
-      size: 30,
-      style: {
-        position: 'absolute',
-        top: 8,
-        right: 10,
-        zIndex: 2
-      }
-    })), React.createElement("div", {
+    }, "\uD83D\uDC65 ", friendSpotMap.get(peekSpot.id).length === 1 ? `Chez ${friendSpotMap.get(peekSpot.id)[0]}` : `${friendSpotMap.get(peekSpot.id).length} amis`))), React.createElement("div", {
       style: {
         padding: '7px 14px 9px',
         flex: '1 1 50%',
