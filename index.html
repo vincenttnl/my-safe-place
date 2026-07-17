@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T18:25:44.645Z -->
+<!-- built 2026-07-17T18:40:49.418Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -42,7 +42,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg-primary:#FFFFFF;--bg-cream:#FFF8EC;--bg-soft:#F5F2EB;
+  --bg-primary:#FFF2F7;--bg-cream:#FFE8F1;--bg-soft:#F5F2EB;/* v11.05 (Vincent) : fond rose pâle n°8 — corps #FFF2F7, entête #FFE8F1 (ex #FFFFFF / #FFF8EC). Les surfaces blanches sont sur --card:#fff, inchangées. */
   --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#E8E4DB;
   --pop-pink:#FF3D8B;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#8B5CF6;--pop-cyan:#3DC8FF;
   --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
@@ -9384,17 +9384,28 @@ function SpotDetail({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: 30,
-      lineHeight: 1,
-      fontFamily: 'var(--font-body)',
-      transition: 'transform .14s var(--ease),background .18s',
-      background: spot.fav ? 'var(--pop-pink)' : 'rgba(255,255,255,0.16)',
-      color: '#fff',
-      border: spot.fav ? '2px solid transparent' : '2.5px solid #fff',
-      boxShadow: spot.fav ? '0 10px 26px -8px rgba(255,61,139,0.7)' : '0 4px 14px -4px rgba(0,0,0,0.4)',
-      backdropFilter: 'blur(4px)'
+      padding: 0,
+      border: 'none',
+      transition: 'transform .14s var(--ease),box-shadow .2s,background .2s',
+      background: spot.fav ? '#1A0A12' : 'rgba(0,0,0,0.34)',
+      boxShadow: spot.fav ? '0 0 20px rgba(255,61,139,0.9),0 8px 20px -6px rgba(0,0,0,0.5)' : '0 4px 14px -4px rgba(0,0,0,0.45)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)'
     }
-  }, spot.fav ? '♥' : '♡'))), React.createElement("div", {
+  }, React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    style: {
+      width: 30,
+      height: 30,
+      display: 'block'
+    }
+  }, React.createElement("path", {
+    d: "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
+    fill: spot.fav ? '#FF3D8B' : 'none',
+    stroke: spot.fav ? 'none' : '#fff',
+    strokeWidth: "2.4",
+    strokeLinejoin: "round"
+  }))))), React.createElement("div", {
     style: {
       padding: '22px 22px 38px'
     }
