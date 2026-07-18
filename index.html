@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T16:55:05.220Z -->
+<!-- built 2026-07-18T17:09:03.762Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4522,6 +4522,19 @@ function _normHours(raw) {
   h = h.replace(/(\d{1,2}):(\d{2})/g, "$1h$2").replace(/;/g, ",");
   return h;
 }
+function frHours(raw) {
+  if (!raw) return raw;
+  let h = String(raw);
+  [["Monday", "Lundi"], ["Tuesday", "Mardi"], ["Wednesday", "Mercredi"], ["Thursday", "Jeudi"], ["Friday", "Vendredi"], ["Saturday", "Samedi"], ["Sunday", "Dimanche"]].forEach(([e, f]) => {
+    h = h.replace(new RegExp(e, "gi"), f);
+  });
+  [["Mo", "Lun"], ["Tu", "Mar"], ["We", "Mer"], ["Th", "Jeu"], ["Fr", "Ven"], ["Sa", "Sam"], ["Su", "Dim"]].forEach(([e, f]) => {
+    h = h.replace(new RegExp("\\b" + e + "\\b", "g"), f);
+  });
+  h = h.replace(/\bClosed\b/gi, "Fermé").replace(/\bOpen 24 hours\b/gi, "24h/24").replace(/\bMidnight\b/gi, "minuit").replace(/\bNoon\b/gi, "midi");
+  h = h.replace(/\s*(AM|PM)\b/g, "").replace(/(\d{1,2}):(\d{2})/g, "$1h$2").replace(/\s+–\s+/g, " – ");
+  return h;
+}
 function isOpenNow(hoursRaw, now) {
   if (!hoursRaw || !hoursRaw.trim()) return null;
   let h = _normHours(hoursRaw);
@@ -5741,7 +5754,7 @@ async function googleEnrich(name, address, apiKey, count = 4) {
         query: q,
         count
       });
-      if (d && Array.isArray(d.photos) && d.photos.length) return d;
+      if (d && (Array.isArray(d.photos) && d.photos.length || d.price || d.rating || d.hours || d.desc)) return d;
     } catch (e) {}
   }
   return {
@@ -6271,7 +6284,7 @@ function SharedSpotLanding({
   const photos = getPhotos(spot);
   const cat = getCats(spot)[0] || "sortie";
   const ci = CATS.find(c => c.key === cat) || {};
-  const meta = [gRating(spot) ? `⭐ ${gRating(spot)}${gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ""} · Google` : "", spot.metro, spot.price, spot.hours].filter(Boolean);
+  const meta = [gRating(spot) ? `⭐ ${gRating(spot)}${gRatingCount(spot) ? ` (${gRatingCount(spot)})` : ""} · Google` : "", spot.metro, spot.price, frHours(spot.hours)].filter(Boolean);
   const who = shared.from || spot.sharedBy || "";
   return React.createElement("div", {
     style: {
@@ -8790,6 +8803,11 @@ function SpotFormModal({
       }).filter(Boolean);
       if (mapped.length) setNCuisine(p => p.length ? p : mapped);
     }
+    if (found.amenity) {
+      const am = found.amenity;
+      const gc = ["restaurant", "fast_food"].includes(am) ? "resto" : am === "cafe" ? "cafe" : ["bar", "pub", "biergarten"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : null;
+      if (gc) setNCats(p => p.length ? p : [gc]);
+    }
   };
   const stepGeo = async found => {
     const q = nName + (nAddr ? " " + nAddr : "") + " " + (cityLabel || "Paris");
@@ -8826,6 +8844,7 @@ function SpotFormModal({
     if (!best) best = els.find(e => e.tags.opening_hours) || els[0];
     if (best) {
       const t = best.tags || {};
+      if (t.amenity) found.amenity = t.amenity;
       if (t.opening_hours && !found.hours) found.hours = t.opening_hours;
       if (t.cuisine) found.cuisine = t.cuisine;
       if (t.website || t["contact:website"]) found.website = found.website || t.website || t["contact:website"];
@@ -9769,7 +9788,7 @@ function SpotDetail({
   const spotContacts = (spot.contacts || []).map(id => contacts.find(c => c.id === id)).filter(Boolean);
   const gr = spot.grating || spot.tags && spot.tags.grating || null;
   const grc = spot.gratingCount || spot.tags && spot.tags.gratingCount || 0;
-  const meta = [gr ? `⭐ ${gr}${grc ? ` (${grc})` : ""} · Google` : "", spot.metro ? `🚇 ${spot.metro}` : "", spot.price ? `💸 ${spot.price}` : "", spot.hours ? `🕐 ${spot.hours}` : ""].filter(Boolean);
+  const meta = [gr ? `⭐ ${gr}${grc ? ` (${grc})` : ""} · Google` : "", spot.metro ? `🚇 ${spot.metro}` : "", spot.price ? `💸 ${spot.price}` : "", spot.hours ? `🕐 ${frHours(spot.hours)}` : ""].filter(Boolean);
   const photos = getPhotos(spot);
   const cat = CATS.find(c => c.key === primaryCat(spot));
   const isNight = getCats(spot).some(c => ["club", "speakeasy", "rooftop", "sortie"].includes(c));
@@ -9944,10 +9963,36 @@ function SpotDetail({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: 60,
       position: 'relative'
     }
-  }, cat?.emoji), React.createElement("div", {
+  }, MOOD_COVER[primaryCat(spot)] && React.createElement("img", {
+    src: MOOD_COVER[primaryCat(spot)],
+    alt: "",
+    loading: "lazy",
+    decoding: "async",
+    onError: e => {
+      e.target.style.display = 'none';
+    },
+    style: {
+      position: 'absolute',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
+    }
+  }), React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'linear-gradient(180deg,rgba(10,10,10,.12),rgba(10,10,10,.42))'
+    }
+  }), React.createElement("span", {
+    style: {
+      position: 'relative',
+      fontSize: 52,
+      filter: 'drop-shadow(0 2px 8px rgba(0,0,0,.5))'
+    }
+  }, cat?.emoji)), React.createElement("div", {
     style: {
       position: 'absolute',
       inset: 0,
@@ -10203,7 +10248,7 @@ function SpotDetail({
       color: 'var(--ink-400)',
       fontWeight: 500
     }
-  }, openSt === null ? '🕐 ' : ' · ', spot.hours))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  }, openSt === null ? '🕐 ' : ' · ', frHours(spot.hours)))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
