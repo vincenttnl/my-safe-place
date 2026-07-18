@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T21:17:53.457Z -->
+<!-- built 2026-07-18T21:32:49.139Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -12572,6 +12572,61 @@ async function wrappedImageBlob(st, year) {
   x.fillText(tr("w_card_sub"), W / 2, 1856);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
+async function tasteProfileImageBlob(p) {
+  const W = 1080,
+    H = 1920;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const x = c.getContext('2d');
+  const rr = (px, py, pw, ph, r) => {
+    x.beginPath();
+    if (x.roundRect) x.roundRect(px, py, pw, ph, r);else x.rect(px, py, pw, ph);
+  };
+  const g = x.createLinearGradient(0, 0, W * 0.7, H);
+  g.addColorStop(0, '#FF006E');
+  g.addColorStop(0.55, '#0A0A0A');
+  g.addColorStop(1, '#17162B');
+  x.fillStyle = g;
+  x.fillRect(0, 0, W, H);
+  x.textAlign = 'center';
+  x.fillStyle = 'rgba(255,255,255,.8)';
+  x.font = '600 40px -apple-system,"Segoe UI",sans-serif';
+  x.fillText('MON ADN DE SORTIES', W / 2, 180);
+  x.font = '220px -apple-system,"Segoe UI",sans-serif';
+  x.fillText(p.persona.e, W / 2, 470);
+  x.fillStyle = '#fff';
+  x.font = '900 82px Georgia,serif';
+  const pl = p.persona.l;
+  if (x.measureText(pl).width > W - 140) {
+    const ws = pl.split(' ');
+    const mid = Math.ceil(ws.length / 2);
+    x.fillText(ws.slice(0, mid).join(' '), W / 2, 600);
+    x.fillText(ws.slice(mid).join(' '), W / 2, 700);
+  } else x.fillText(pl, W / 2, 650);
+  let y = 880;
+  (p.topCats || []).slice(0, 3).forEach(tc => {
+    x.fillStyle = 'rgba(255,255,255,.14)';
+    rr(120, y, 840, 120, 28);
+    x.fill();
+    x.textAlign = 'left';
+    x.fillStyle = '#fff';
+    x.font = '60px -apple-system,"Segoe UI",sans-serif';
+    x.fillText(tc.cat ? tc.cat.emoji : '✨', 155, y + 82);
+    x.font = '700 48px -apple-system,"Segoe UI",sans-serif';
+    x.fillText(tc.cat ? tc.cat.label : tc.key, 250, y + 80);
+    x.textAlign = 'right';
+    x.font = '900 62px Georgia,serif';
+    x.fillStyle = '#FF3D96';
+    x.fillText(tc.pct + '%', 930, y + 82);
+    y += 150;
+  });
+  x.textAlign = 'center';
+  x.fillStyle = 'rgba(255,255,255,.85)';
+  x.font = '700 44px -apple-system,"Segoe UI",sans-serif';
+  x.fillText("Et toi, t'es quoi ? · Spotane", W / 2, 1800);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
 function WrappedModal({
   spots,
   lists,
@@ -16722,6 +16777,82 @@ function App() {
     });
     return m;
   }, [friends, friendLists, allSpots, catalog]);
+  const tasteProfile = useMemo(() => {
+    const cats = {};
+    allSpots.forEach(s => {
+      const c = primaryCat(s);
+      cats[c] = (cats[c] || 0) + 1;
+    });
+    const top = (o, n) => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, n);
+    const total = allSpots.length || 1;
+    const topCats = top(cats, 3).map(([k, v]) => ({
+      key: k,
+      count: v,
+      pct: Math.round(v / total * 100),
+      cat: CATS.find(c => c.key === k)
+    }));
+    const P = {
+      rooftop: {
+        e: '🌆',
+        l: 'Chasseur de couchers de soleil'
+      },
+      speakeasy: {
+        e: '🍸',
+        l: 'Créature de la nuit'
+      },
+      club: {
+        e: '🪩',
+        l: 'Danseur infatigable'
+      },
+      resto: {
+        e: '🍽️',
+        l: 'Fine bouche'
+      },
+      cafe: {
+        e: '☕',
+        l: 'Âme de café'
+      },
+      sortie: {
+        e: '🎭',
+        l: 'Explorateur urbain'
+      }
+    };
+    const persona = topCats[0] && P[topCats[0].key] || {
+      e: '✨',
+      l: 'Aventurier de sorties'
+    };
+    return {
+      topCats,
+      persona,
+      total
+    };
+  }, [allSpots]);
+  const shareTaste = async () => {
+    try {
+      const blob = await tasteProfileImageBlob(tasteProfile);
+      if (!blob) throw new Error("img");
+      const file = new File([blob], 'mon-adn-spotane.png', {
+        type: 'image/png'
+      });
+      if (navigator.canShare && navigator.canShare({
+        files: [file]
+      })) await navigator.share({
+        files: [file],
+        title: "Mon ADN de sorties"
+      });else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mon-adn-spotane.png';
+        a.click();
+        URL.revokeObjectURL(url);
+        window.mspToast?.("Image enregistrée 📸", "success");
+      }
+      window.mspHaptic?.(15);
+    } catch (e) {
+      if (e && e.name !== 'AbortError') window.mspToast?.(tr("t_27"), "error");
+    }
+  };
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
@@ -24964,7 +25095,105 @@ function App() {
         color: 'var(--pop-pink)',
         fontWeight: 600
       }
-    }, "Supprimer mon compte"))))), React.createElement("div", {
+    }, "Supprimer mon compte"))))), allSpots.length >= 3 && React.createElement("div", {
+      style: {
+        padding: '24px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
+        borderRadius: 'var(--radius-lg)',
+        padding: 18,
+        color: '#fff'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 11.5,
+        opacity: .85,
+        letterSpacing: '.5px'
+      }
+    }, "\uD83E\uDDEC TON ADN DE SORTIES"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 21,
+        margin: '8px 0 2px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 28
+      }
+    }, tasteProfile.persona.e), tasteProfile.persona.l), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+        margin: '14px 0'
+      }
+    }, tasteProfile.topCats.map(tc => React.createElement("div", {
+      key: tc.key,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 9
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 16
+      }
+    }, tc.cat ? tc.cat.emoji : '✨'), React.createElement("span", {
+      style: {
+        width: 78,
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 12.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, tc.cat ? tc.cat.label : tc.key), React.createElement("div", {
+      style: {
+        flex: 1,
+        height: 8,
+        borderRadius: 99,
+        background: 'rgba(255,255,255,.22)',
+        overflow: 'hidden'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: tc.pct + '%',
+        height: '100%',
+        background: '#fff'
+      }
+    })), React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 14,
+        width: 44,
+        textAlign: 'right'
+      }
+    }, tc.pct, "%")))), React.createElement("button", {
+      onClick: shareTaste,
+      className: "press",
+      style: {
+        width: '100%',
+        padding: '11px 0',
+        borderRadius: 999,
+        border: 'none',
+        background: '#fff',
+        color: '#0A0A0A',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13.5,
+        cursor: 'pointer'
+      }
+    }, "\uD83D\uDCF8 Partager mon profil"))), React.createElement("div", {
       style: {
         padding: '24px 20px 0'
       }
