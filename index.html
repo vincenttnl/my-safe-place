@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T21:08:53.993Z -->
+<!-- built 2026-07-18T21:17:53.457Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16676,6 +16676,52 @@ function App() {
     dsReadyRef.current = true;
   }, []);
   const [friends, setFriends] = useState([]);
+  const matchMap = useMemo(() => {
+    const KEYS = ["rooftop", "speakeasy", "club", "sortie", "cafe", "resto"];
+    const resolve = id => allSpots.find(x => x.id === id) || catalog.find(x => x.id === id);
+    const vec = ids => {
+      const v = {};
+      ids.forEach(id => {
+        const s = resolve(id);
+        if (s) {
+          const c = primaryCat(s);
+          v[c] = (v[c] || 0) + 1;
+        }
+      });
+      return v;
+    };
+    const cos = (a, b) => {
+      let d = 0,
+        na = 0,
+        nb = 0;
+      KEYS.forEach(k => {
+        const x = a[k] || 0,
+          y = b[k] || 0;
+        d += x * y;
+        na += x * x;
+        nb += y * y;
+      });
+      return na && nb ? d / (Math.sqrt(na) * Math.sqrt(nb)) : 0;
+    };
+    const myIds = allSpots.map(s => s.id);
+    const myVec = vec(myIds);
+    const mySet = new Set(myIds);
+    const m = {};
+    friends.forEach(f => {
+      const fids = [...new Set(friendLists.filter(fl => fl.by === f.name).flatMap(fl => fl.ids))];
+      if (!fids.length) {
+        m[f.id] = null;
+        return;
+      }
+      const common = fids.filter(id => mySet.has(id)).length;
+      const pct = Math.max(52, Math.min(96, Math.round(55 + 40 * cos(myVec, vec(fids)) + Math.min(common * 4, 12))));
+      m[f.id] = {
+        pct,
+        common
+      };
+    });
+    return m;
+  }, [friends, friendLists, allSpots, catalog]);
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
@@ -25128,7 +25174,20 @@ function App() {
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap'
       }
-    }, f.name), React.createElement("button", {
+    }, f.name), matchMap[f.id] && React.createElement("span", {
+      title: "Compatibilit\xE9 de go\xFBts",
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 900,
+        fontSize: 12,
+        color: 'var(--pop-pink)',
+        background: '#FFF0F6',
+        border: '1px solid var(--pop-pink)',
+        borderRadius: 999,
+        padding: '3px 8px',
+        whiteSpace: 'nowrap'
+      }
+    }, "\uD83D\uDC9E ", matchMap[f.id].pct, "%"), React.createElement("button", {
       onClick: () => {
         if (confirm(`Retirer ${f.name} de tes amis ?`)) respondFriend(f.fid, false);
       },
