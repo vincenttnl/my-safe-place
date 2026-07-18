@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T15:57:18.667Z -->
+<!-- built 2026-07-18T16:33:38.174Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3167,10 +3167,15 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Kiffés par tes amis",
     sm_friends_n: "{n} amis",
-    go_btn: "👋 J'y vais",
-    go_on: "✓ Tu y vas",
+    go_btn: "👋 Dire à mes amis que j'y vais ce soir",
+    go_on: "✓ Tes amis savent que tu y vas",
     go_one: "{name} y va",
     go_n: "{n} amis y vont",
+    go_toast: "Tes amis verront que tu comptes y aller 👀",
+    go_propose: "📣 Proposer à des amis de venir",
+    go_propose_note: "Je suis là ce soir, tu viens ? 👀",
+    map_amis_label: "Amis · Listes partagées",
+    map_amis_nudge: "Ajoute des amis pour voir leurs spots ici 👀",
     wl_name: "À tester",
     wl_share: "Partager ma liste « À tester »",
     wl_share_sub: "Tes amis voient les spots que tu veux tester 🔥",
@@ -3609,10 +3614,15 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Loved by your friends",
     sm_friends_n: "{n} friends",
-    go_btn: "👋 I'm going",
-    go_on: "✓ You're going",
+    go_btn: "👋 Tell my friends I'm going tonight",
+    go_on: "✓ Your friends know you're going",
     go_one: "{name} is going",
     go_n: "{n} friends going",
+    go_toast: "Your friends will see you're planning to go 👀",
+    go_propose: "📣 Invite friends to join",
+    go_propose_note: "I'm there tonight, coming? 👀",
+    map_amis_label: "Friends · Shared lists",
+    map_amis_nudge: "Add friends to see their spots here 👀",
     wl_name: "To try",
     wl_share: "Share my « To try » list",
     wl_share_sub: "Your friends see the spots you want to try 🔥",
@@ -4051,10 +4061,15 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Los favoritos de tus amigos",
     sm_friends_n: "{n} amigos",
-    go_btn: "👋 Voy",
-    go_on: "✓ Vas a ir",
+    go_btn: "👋 Decir a mis amigos que voy esta noche",
+    go_on: "✓ Tus amigos saben que vas",
     go_one: "{name} va",
     go_n: "{n} amigos van",
+    go_toast: "Tus amigos verán que piensas ir 👀",
+    go_propose: "📣 Proponer a amigos que vengan",
+    go_propose_note: "Estoy aquí esta noche, ¿vienes? 👀",
+    map_amis_label: "Amigos · Listas compartidas",
+    map_amis_nudge: "Añade amigos para ver sus spots aquí 👀",
     wl_name: "Para probar",
     wl_share: "Compartir mi lista « Para probar »",
     wl_share_sub: "Tus amigos ven los spots que quieres probar 🔥",
@@ -9745,7 +9760,8 @@ function SpotDetail({
   onNearest,
   iGo,
   goingWith,
-  onGoing
+  onGoing,
+  onProposeGoing
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -10379,12 +10395,30 @@ function SpotDetail({
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
       fontWeight: 800,
-      fontSize: 14,
+      fontSize: 13,
+      whiteSpace: 'nowrap',
       border: iGo ? 'none' : '1.5px solid var(--pop-pink)',
       background: iGo ? 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))' : 'transparent',
       color: iGo ? '#fff' : 'var(--pop-pink)'
     }
-  }, iGo ? tr("go_on") : tr("go_btn"))), false && React.createElement(React.Fragment, null, React.createElement("button", {
+  }, iGo ? tr("go_on") : tr("go_btn")), onGoing && iGo && onProposeGoing && React.createElement("button", {
+    onClick: () => onProposeGoing(spot),
+    className: "press",
+    style: {
+      width: '100%',
+      marginTop: 8,
+      padding: '11px 0',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 13,
+      whiteSpace: 'nowrap',
+      border: '1.5px dashed var(--pop-violet)',
+      background: 'transparent',
+      color: 'var(--pop-violet)'
+    }
+  }, tr("go_propose"))), false && React.createElement(React.Fragment, null, React.createElement("button", {
     onClick: () => setShowPerso(true),
     className: "press",
     style: {
@@ -16557,6 +16591,7 @@ function App() {
     }
     const going = myGoing.has(spotId);
     const me = sess.user.id;
+    if (!going) window.mspToast?.(tr("go_toast"), "info");
     setGoingRows(rows => going ? rows.filter(g => !(g.user_id === me && g.spot_id === spotId)) : [...rows, {
       user_id: me,
       spot_id: spotId
@@ -16589,6 +16624,11 @@ function App() {
       window.mspToast?.(tr("t_27"), "error");
       fetchGoing();
     }
+  };
+  const proposeGoing = spot => {
+    setSendSpot(spot);
+    setSendSel([]);
+    setSendNote(tr("go_propose_note"));
   };
   const [collabLists, setCollabLists] = useState([]);
   const [collabOpen, setCollabOpen] = useState(null);
@@ -18494,7 +18534,7 @@ function App() {
         whiteSpace: 'nowrap',
         boxShadow: '0 8px 22px rgba(139,92,246,.45)'
       }
-    }, "\uD83C\uDFB2 Surprise")))), session && friends.length === 0 && React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise")))), session && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -22459,7 +22499,9 @@ function App() {
       zIndex: 1050,
       pointerEvents: 'none',
       display: 'flex',
-      justifyContent: 'center'
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 0
     }
   }, React.createElement("div", {
     style: {
@@ -22472,7 +22514,9 @@ function App() {
       borderRadius: 999,
       padding: 4,
       gap: 3,
-      boxShadow: '0 12px 34px rgba(0,0,0,.22)'
+      boxShadow: '0 12px 34px rgba(0,0,0,.22)',
+      position: 'relative',
+      zIndex: 2
     }
   }, [{
     k: 'discover',
@@ -22482,13 +22526,8 @@ function App() {
     k: 'mine',
     l: tr("seg_mine"),
     n: mapCount.mine
-  }, ...(session && friends.length > 0 ? [{
-    k: 'friends',
-    l: "👥 " + tr("map_friends"),
-    n: mapCount.friends
-  }] : [])].map((o, _i, _arr) => {
+  }].map(o => {
     const on = mapMode === o.k;
-    const trio = _arr.length > 2;
     return React.createElement("button", {
       key: o.k,
       onClick: () => {
@@ -22502,10 +22541,11 @@ function App() {
         border: 'none',
         cursor: 'pointer',
         borderRadius: 999,
-        padding: trio ? '11px 13px' : '11px 20px',
+        padding: '14px 26px',
         fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 14.5,
+        fontWeight: 900,
+        fontSize: 16.5,
+        letterSpacing: '-.01em',
         whiteSpace: 'nowrap',
         background: on ? 'var(--pop-pink)' : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
@@ -22517,10 +22557,50 @@ function App() {
         marginLeft: 7,
         fontWeight: 900,
         opacity: on ? .95 : .6,
-        fontSize: 12.5
+        fontSize: 13.5
       }
     }, o.n));
-  }))), React.createElement("div", {
+  })), React.createElement("button", {
+    onClick: () => {
+      if (session && friends.length > 0) {
+        setMapMode("friends");
+        setPeekSpot(null);
+      } else {
+        window.mspToast?.(tr("map_amis_nudge"), "info");
+      }
+    },
+    className: "press",
+    style: {
+      pointerEvents: 'auto',
+      marginTop: -1,
+      zIndex: 1,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6,
+      borderRadius: 999,
+      padding: '7px 15px',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 12.5,
+      whiteSpace: 'nowrap',
+      border: mapMode === "friends" ? '1.6px solid transparent' : '1.6px dashed var(--pop-pink)',
+      background: mapMode === "friends" ? 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))' : 'rgba(255,255,255,.92)',
+      color: mapMode === "friends" ? '#fff' : 'var(--pop-pink)',
+      boxShadow: '0 6px 14px -6px rgba(255,61,139,.5)'
+    }
+  }, "\uD83D\uDC65 ", tr("map_amis_label"), " ", React.createElement("span", {
+    style: {
+      fontSize: 9,
+      fontWeight: 900,
+      letterSpacing: '.2px',
+      padding: '1px 6px',
+      borderRadius: 999,
+      background: mapMode === "friends" ? 'rgba(255,255,255,.25)' : '#FFF0F6',
+      color: mapMode === "friends" ? '#fff' : 'var(--pop-pink)',
+      border: mapMode === "friends" ? 'none' : '1px solid var(--pop-pink)'
+    }
+  }, "New"))), React.createElement("div", {
     style: {
       position: "absolute",
       top: 0,
@@ -24558,7 +24638,8 @@ function App() {
     onNearest: openNearestSpot,
     iGo: myGoing.has(selectedSpot.id),
     goingWith: goingMap.get(selectedSpot.id) || [],
-    onGoing: toggleGoing
+    onGoing: session && friends.length > 0 ? toggleGoing : undefined,
+    onProposeGoing: proposeGoing
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
@@ -25384,7 +25465,7 @@ function App() {
     style: {
       position: 'fixed',
       inset: 0,
-      zIndex: 200,
+      zIndex: 1400,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'flex-end'
