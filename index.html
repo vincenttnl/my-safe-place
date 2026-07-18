@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T19:39:07.323Z -->
+<!-- built 2026-07-18T19:54:32.836Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8940,6 +8940,31 @@ function SpotFormModal({
     }
     return false;
   };
+  const stepOG = async found => {
+    const site = (nWebsite || found.website || "").trim();
+    if (!site || found.photo) return;
+    const u = site.startsWith("http") ? site : "https://" + site;
+    try {
+      const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(u), {
+        signal: AbortSignal.timeout(9000)
+      });
+      const d = await r.json();
+      const html = d && d.contents || "";
+      const m = html.match(/<meta[^>]+property=["']og:image(?::url)?["'][^>]+content=["']([^"']+)["']/i) || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i) || html.match(/<meta[^>]+name=["']twitter:image["'][^>]+content=["']([^"']+)["']/i);
+      if (m && m[1]) {
+        let img = m[1].replace(/&amp;/g, "&");
+        if (img.startsWith("//")) img = "https:" + img;else if (img.startsWith("/")) {
+          try {
+            img = new URL(u).origin + img;
+          } catch {}
+        }
+        if (/^https?:\/\//.test(img)) {
+          found.photo = img;
+          found.photos = [img];
+        }
+      }
+    } catch (e) {}
+  };
   const runEnrich = async only => {
     if (!nName.trim() && !nWebsite.trim()) return;
     setEnriching(true);
@@ -8947,7 +8972,7 @@ function SpotFormModal({
     const st = {
       ...(enrichSteps || {})
     };
-    const want = typeof only === "string" ? [only] : ["geo", "poi", "google"];
+    const want = typeof only === "string" ? [only] : ["geo", "poi", "og", "google"];
     for (const k of want) {
       try {
         if (k === "geo") {
@@ -8962,8 +8987,15 @@ function SpotFormModal({
             await stepPoi(found, la, ln);
             st.poi = "ok";
           } else st.poi = "skip";
+        } else if (k === "og") {
+          if ((nWebsite || found.website) && !found.photo) {
+            await stepOG(found);
+            st.og = found.photo ? "ok" : "skip";
+          } else st.og = "skip";
         } else if (k === "google") {
-          if (gApiKey || window.spotaneProxy) {
+          if (found.photo) {
+            st.google = "skip";
+          } else if (gApiKey || window.spotaneProxy) {
             if (!window.mspIsPremium && enrichUsed() >= FREE_ENRICH_MAX) {
               st.google = "quota";
               window.mspToast?.(tr("q_reached"), "warn");
