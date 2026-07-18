@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-17T19:29:13.731Z -->
+<!-- built 2026-07-18T15:16:25.657Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3147,6 +3147,15 @@ const I18N = {
     t_44: "Ajoute ta clé Google API dans Profil d'abord",
     t_45: "Ajouté à Mes spots !",
     t_46: "Active ta position pour calculer le trajet",
+    t_sent: "Spot envoyé à {name} 📤",
+    sm_title: "Envoyer « {name} »",
+    sm_sub: "Touche un pote, c'est parti",
+    sm_noteph: "Ajoute un mot… (facultatif)",
+    sm_bylink: "🔗 ou partager par lien",
+    sm_send: "Envoyer",
+    sm_new: "Quoi de neuf",
+    sm_sentyou: "t'a envoyé",
+    sm_add: "＋ Ajouter",
     t_enrich_part: "Enrichissement partiel — tu peux relancer chaque étape ⚠️",
     ev_mine: "📫 Tes events",
     ev_upcoming: "a venir",
@@ -3544,6 +3553,15 @@ const I18N = {
     t_44: "Add your Google API key in Profile first",
     t_45: "Added to My spots!",
     t_46: "Enable your location to compute the route",
+    t_sent: "Spot sent to {name} 📤",
+    sm_title: "Send “{name}”",
+    sm_sub: "Tap a friend, done",
+    sm_noteph: "Add a note… (optional)",
+    sm_bylink: "🔗 or share by link",
+    sm_send: "Send",
+    sm_new: "What's new",
+    sm_sentyou: "sent you",
+    sm_add: "＋ Add",
     t_enrich_part: "Partial enrichment — you can retry each step ⚠️",
     ev_mine: "📫 Your events",
     ev_upcoming: "upcoming",
@@ -3941,6 +3959,15 @@ const I18N = {
     t_44: "Añade tu clave Google API en Perfil primero",
     t_45: "¡Añadido a Mis spots!",
     t_46: "Activa tu ubicación para calcular la ruta",
+    t_sent: "Spot enviado a {name} 📤",
+    sm_title: "Enviar «{name}»",
+    sm_sub: "Toca a un amigo, listo",
+    sm_noteph: "Añade una nota… (opcional)",
+    sm_bylink: "🔗 o compartir por enlace",
+    sm_send: "Enviar",
+    sm_new: "Novedades",
+    sm_sentyou: "te envió",
+    sm_add: "＋ Añadir",
     t_enrich_part: "Enriquecimiento parcial — puedes reintentar cada paso ⚠️",
     ev_mine: "📫 Tus eventos",
     ev_upcoming: "próximos",
@@ -15573,6 +15600,11 @@ function App() {
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
+  const [sendSpot, setSendSpot] = useState(null);
+  const [sendSel, setSendSel] = useState([]);
+  const [sendNote, setSendNote] = useState("");
+  const [sending, setSending] = useState(false);
+  const [recvMsgs, setRecvMsgs] = useState([]);
   useEffect(() => {
     if (mapMode === "friends" && !(sessionRef.current && friends.length > 0)) setMapMode("discover");
   }, [friends, session, mapMode]);
@@ -15746,6 +15778,108 @@ function App() {
       text,
       url
     }).catch(() => {});else navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_23"), "success")).catch(() => window.mspToast?.(tr("t_26"), "error"));
+  };
+  const toggleSendSel = id => setSendSel(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+  const sendSpotToFriends = async () => {
+    const sess = sessionRef.current;
+    if (!sess || !sendSpot || !sendSel.length) return;
+    setSending(true);
+    try {
+      const tok = await validToken(sess);
+      const payload = {
+        note: (sendNote || "").trim() || null
+      };
+      if (isCatalogId(sendSpot.id)) payload.spot_id = sendSpot.id;else payload.spot_blob = miniSpot(sendSpot);
+      const rows = sendSel.map(rid => ({
+        recipient: rid,
+        ...payload
+      }));
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spot_messages`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify(rows)
+      });
+      if (!r.ok) throw new Error("send " + r.status);
+      const names = sendSel.map(id => friends.find(f => f.id === id)?.name).filter(Boolean);
+      const label = names.length <= 2 ? names.join(" & ") : `${names.length} 👥`;
+      window.mspHaptic?.(20);
+      window.mspPopEmoji?.("📤");
+      window.mspToast?.(tr("t_sent", {
+        name: label
+      }), "success");
+      setSendSpot(null);
+      setSendSel([]);
+      setSendNote("");
+    } catch (e) {
+      window.mspToast?.(tr("t_27"), "error");
+    }
+    setSending(false);
+  };
+  const fetchRecvMsgs = async () => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    try {
+      const tok = await validToken(sess);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spot_messages?select=id,sender,spot_id,spot_blob,note,created_at&recipient=eq.${sess.user.id}&read=eq.false&order=created_at.desc&limit=30`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`
+        }
+      });
+      if (!r.ok) return;
+      const rows = await r.json();
+      const out = [];
+      for (const m of Array.isArray(rows) ? rows : []) {
+        let spot = null;
+        if (m.spot_blob) spot = expandMiniSpot(m.spot_blob);else if (m.spot_id) spot = {
+          ...(spots.find(s => s.id === m.spot_id) || (await fetchSpotById(m.spot_id)) || {}),
+          id: m.spot_id
+        };
+        if (spot && spot.name) out.push({
+          id: m.id,
+          sender: m.sender,
+          note: m.note || "",
+          created_at: m.created_at,
+          spot
+        });
+      }
+      setRecvMsgs(out);
+    } catch {}
+  };
+  useEffect(() => {
+    if (session) fetchRecvMsgs();
+  }, [session, friends]);
+  const senderName = uid => friends.find(f => f.id === uid)?.name || "Un ami";
+  const dismissRecv = async m => {
+    setRecvMsgs(list => list.filter(x => x.id !== m.id));
+    try {
+      const tok = await validToken(sessionRef.current);
+      await fetch(`${SUPABASE_URL}/rest/v1/spot_messages?id=eq.${m.id}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          read: true
+        })
+      });
+    } catch {}
+  };
+  const acceptRecv = m => {
+    addSharedSpot(m.spot);
+    dismissRecv(m);
+  };
+  const viewRecv = m => {
+    setSelectedSpot(m.spot);
+    dismissRecv(m);
   };
   useEffect(() => {
     if (!session) return;
@@ -16302,7 +16436,7 @@ function App() {
     });
     return sp ? firstPhoto(sp) : "";
   };
-  const shareSpot = spot => {
+  const shareSpotByLink = spot => {
     if (!myName) {
       setPendingShareSpot(spot);
       setShowNamePrompt(true);
@@ -16318,6 +16452,15 @@ function App() {
     }).catch(() => {});else {
       navigator.clipboard.writeText(url).then(() => window.mspToast?.(tr("t_2"), "success")).catch(() => window.mspToast?.(tr("t_1"), "error"));
     }
+  };
+  const shareSpot = spot => {
+    if (sessionRef.current && friends.length > 0) {
+      setSendSpot(spot);
+      setSendSel([]);
+      setSendNote("");
+      return;
+    }
+    shareSpotByLink(spot);
   };
   const finishNameAndShare = name => {
     setMyName(name);
@@ -17488,7 +17631,162 @@ function App() {
         whiteSpace: 'nowrap',
         boxShadow: '0 8px 22px rgba(139,92,246,.45)'
       }
-    }, "\uD83C\uDFB2 Surprise")))), React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise")))), recvMsgs.length > 0 && React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 10
+      }
+    }, React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 15,
+        letterSpacing: '-.01em'
+      }
+    }, "\uD83D\uDCEC ", tr("sm_new")), React.createElement("span", {
+      style: {
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontSize: 11,
+        fontWeight: 800,
+        borderRadius: 999,
+        padding: '1px 8px'
+      }
+    }, recvMsgs.length)), recvMsgs.map(m => {
+      const ph = firstPhoto(m.spot);
+      const cat = getCats(m.spot)[0] || "sortie";
+      const emo = (CATS.find(c => c.key === cat) || {}).emoji || "📍";
+      const nm = senderName(m.sender);
+      return React.createElement("div", {
+        key: m.id,
+        style: {
+          border: '1px solid var(--hairline)',
+          borderRadius: 'var(--radius-md)',
+          padding: 12,
+          marginBottom: 11,
+          background: 'var(--bg-primary)',
+          boxShadow: '0 4px 16px -10px rgba(255,61,139,.5)'
+        }
+      }, React.createElement("div", {
+        style: {
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 9
+        }
+      }, React.createElement("div", {
+        style: {
+          width: 26,
+          height: 26,
+          borderRadius: 999,
+          background: 'linear-gradient(135deg,var(--pop-violet),var(--pop-pink))',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 800,
+          fontSize: 12,
+          flexShrink: 0
+        }
+      }, (nm[0] || "?").toUpperCase()), React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontSize: 12.5,
+          fontWeight: 600,
+          color: 'var(--ink-600)'
+        }
+      }, React.createElement("b", {
+        style: {
+          color: 'var(--ink-900)'
+        }
+      }, nm), " ", tr("sm_sentyou"))), React.createElement("div", {
+        style: {
+          display: 'flex',
+          gap: 10,
+          alignItems: 'center'
+        }
+      }, React.createElement("div", {
+        style: {
+          width: 46,
+          height: 46,
+          borderRadius: 12,
+          flexShrink: 0,
+          background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-violet),var(--pop-pink))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 20
+        }
+      }, ph ? '' : emo), React.createElement("div", {
+        style: {
+          flex: 1,
+          minWidth: 0
+        }
+      }, React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontWeight: 800,
+          fontSize: 14,
+          color: 'var(--ink-900)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, m.spot.name), m.note && React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontSize: 11.5,
+          fontStyle: 'italic',
+          color: 'var(--ink-400)',
+          marginTop: 2,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, "\xAB ", m.note, " \xBB"))), React.createElement("div", {
+        style: {
+          display: 'flex',
+          gap: 8,
+          marginTop: 10
+        }
+      }, React.createElement("button", {
+        onClick: () => acceptRecv(m),
+        className: "press",
+        style: {
+          flex: 1,
+          border: 'none',
+          borderRadius: 999,
+          padding: '9px 0',
+          background: 'var(--pop-pink)',
+          color: '#fff',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 800,
+          fontSize: 12.5,
+          cursor: 'pointer'
+        }
+      }, tr("sm_add")), React.createElement("button", {
+        onClick: () => viewRecv(m),
+        className: "press",
+        style: {
+          flex: 1,
+          border: '1px solid var(--hairline)',
+          borderRadius: 999,
+          padding: '9px 0',
+          background: 'var(--bg-primary)',
+          color: 'var(--ink-900)',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 800,
+          fontSize: 12.5,
+          cursor: 'pointer'
+        }
+      }, tr("btn_see"))));
+    })), React.createElement("div", {
       style: {
         padding: '6px 20px 0'
       }
@@ -23850,7 +24148,213 @@ function App() {
       fontSize: 14,
       color: 'var(--ink-400)'
     }
-  }, tr("btn_cancel")))), React.createElement("div", _extends({
+  }, tr("btn_cancel")))), sendSpot && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 200,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-end'
+    },
+    onClick: () => setSendSpot(null)
+  }, React.createElement("div", {
+    style: {
+      position: 'absolute',
+      inset: 0,
+      background: 'rgba(10,10,10,.5)',
+      backdropFilter: 'blur(3px)',
+      WebkitBackdropFilter: 'blur(3px)'
+    }
+  }), React.createElement("div", {
+    className: "slide-up",
+    onClick: e => e.stopPropagation(),
+    style: {
+      position: 'relative',
+      background: 'var(--bg-primary)',
+      borderRadius: '24px 24px 0 0',
+      padding: '0 18px calc(18px + env(safe-area-inset-bottom,0px))',
+      boxShadow: '0 -14px 40px rgba(0,0,0,.25)',
+      maxHeight: '88%',
+      display: 'flex',
+      flexDirection: 'column'
+    }
+  }, React.createElement("button", {
+    onClick: () => setSendSpot(null),
+    className: "press",
+    style: {
+      position: 'absolute',
+      top: 12,
+      right: 14,
+      width: 28,
+      height: 28,
+      borderRadius: 999,
+      border: '1px solid var(--hairline)',
+      background: 'var(--bg-cream)',
+      color: 'var(--ink-900)',
+      fontSize: 13,
+      cursor: 'pointer',
+      zIndex: 5
+    }
+  }, "\u2715"), React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      padding: '12px 0 8px',
+      display: 'flex',
+      justifyContent: 'center'
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 40,
+      height: 4,
+      borderRadius: 999,
+      background: 'var(--hairline)'
+    }
+  })), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 18,
+      letterSpacing: '-.01em',
+      paddingRight: 34
+    }
+  }, tr("sm_title", {
+    name: sendSpot.name
+  })), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontSize: 12,
+      color: 'var(--ink-400)',
+      margin: '2px 0 12px'
+    }
+  }, tr("sm_sub")), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 14,
+      overflowX: 'auto',
+      padding: '2px 2px 6px'
+    }
+  }, friends.map(f => {
+    const on = sendSel.includes(f.id);
+    return React.createElement("button", {
+      key: f.id,
+      onClick: () => toggleSendSel(f.id),
+      className: "press",
+      style: {
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        textAlign: 'center',
+        flexShrink: 0,
+        width: 60,
+        position: 'relative'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 52,
+        height: 52,
+        borderRadius: 999,
+        margin: '0 auto 5px',
+        background: 'linear-gradient(135deg,var(--pop-violet),var(--pop-pink))',
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 800,
+        fontSize: 19,
+        boxShadow: on ? '0 0 0 3px var(--bg-primary),0 0 0 5px var(--pop-pink)' : 'none',
+        transition: 'box-shadow .15s'
+      }
+    }, (f.name[0] || "?").toUpperCase()), on && React.createElement("div", {
+      style: {
+        position: 'absolute',
+        top: -2,
+        right: 6,
+        width: 20,
+        height: 20,
+        borderRadius: 999,
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 900,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        border: '2px solid var(--bg-primary)'
+      }
+    }, "\u2713"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11,
+        fontWeight: 700,
+        color: 'var(--ink-900)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, f.name));
+  })), React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 9,
+      background: 'var(--bg-cream)',
+      border: '1px solid var(--hairline)',
+      borderRadius: 14,
+      padding: '4px 5px 4px 13px',
+      margin: '10px 0 6px'
+    }
+  }, React.createElement("input", {
+    value: sendNote,
+    onChange: e => setSendNote(e.target.value),
+    placeholder: tr("sm_noteph"),
+    style: {
+      flex: 1,
+      background: 'none',
+      border: 'none',
+      outline: 'none',
+      fontFamily: 'var(--font-body)',
+      fontSize: 13,
+      color: 'var(--ink-900)',
+      padding: '9px 0'
+    }
+  }), React.createElement("button", {
+    onClick: sendSpotToFriends,
+    disabled: !sendSel.length || sending,
+    className: "press",
+    style: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      border: 'none',
+      flexShrink: 0,
+      cursor: sendSel.length && !sending ? 'pointer' : 'default',
+      background: sendSel.length ? 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))' : 'var(--hairline)',
+      color: '#fff',
+      fontSize: 19,
+      fontWeight: 800,
+      opacity: sending ? .6 : 1
+    }
+  }, "\u2191")), React.createElement("button", {
+    onClick: () => {
+      const s = sendSpot;
+      setSendSpot(null);
+      shareSpotByLink(s);
+    },
+    className: "press",
+    style: {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      width: '100%',
+      textAlign: 'center',
+      fontFamily: 'var(--font-body)',
+      fontSize: 12,
+      fontWeight: 700,
+      color: 'var(--ink-400)',
+      padding: '8px 0 2px'
+    }
+  }, tr("sm_bylink")))), React.createElement("div", _extends({
     ref: tabWrapRef,
     style: {
       paddingBottom: 20
