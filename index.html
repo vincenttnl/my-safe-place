@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T20:28:58.395Z -->
+<!-- built 2026-07-18T20:39:43.768Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3182,6 +3182,14 @@ const I18N = {
     go2_car: "Voiture",
     q_reached: "Quota du mois atteint — passe à Spotane+ pour enrichir plus de spots ✨",
     q_left: "Il te reste {n} spots enrichis ce mois-ci",
+    mo_dup: "Ce spot est déjà au catalogue 👍",
+    mo_thanks: "Merci ! Proposé au catalogue, on vérifie 🙌",
+    mo_approved: "Ajouté au catalogue ✅",
+    mo_title: "Modération",
+    mo_empty: "Aucune suggestion en attente 🎉",
+    mo_suggest: "🏆 Proposer au catalogue",
+    mo_approve: "✅ Valider",
+    mo_reject: "✕ Rejeter",
     wl_name: "À tester",
     wl_share: "Partager ma liste « À tester »",
     wl_share_sub: "Tes amis voient les spots que tu veux tester 🔥",
@@ -3635,6 +3643,14 @@ const I18N = {
     go2_car: "Drive",
     q_reached: "Monthly limit reached — go Spotane+ to enrich more spots ✨",
     q_left: "{n} enriched spots left this month",
+    mo_dup: "This spot is already in the catalog 👍",
+    mo_thanks: "Thanks! Suggested to the catalog, we'll review it 🙌",
+    mo_approved: "Added to the catalog ✅",
+    mo_title: "Moderation",
+    mo_empty: "No pending suggestions 🎉",
+    mo_suggest: "🏆 Suggest to catalog",
+    mo_approve: "✅ Approve",
+    mo_reject: "✕ Reject",
     wl_name: "To try",
     wl_share: "Share my « To try » list",
     wl_share_sub: "Your friends see the spots you want to try 🔥",
@@ -4088,6 +4104,14 @@ const I18N = {
     go2_car: "Coche",
     q_reached: "Límite mensual alcanzado — pasa a Spotane+ para enriquecer más spots ✨",
     q_left: "Te quedan {n} spots enriquecidos este mes",
+    mo_dup: "Este spot ya está en el catálogo 👍",
+    mo_thanks: "¡Gracias! Propuesto al catálogo, lo revisamos 🙌",
+    mo_approved: "Añadido al catálogo ✅",
+    mo_title: "Moderación",
+    mo_empty: "Sin sugerencias pendientes 🎉",
+    mo_suggest: "🏆 Proponer al catálogo",
+    mo_approve: "✅ Aprobar",
+    mo_reject: "✕ Rechazar",
     wl_name: "Para probar",
     wl_share: "Compartir mi lista « Para probar »",
     wl_share_sub: "Tus amigos ven los spots que quieres probar 🔥",
@@ -5155,6 +5179,7 @@ const bumpEnrich = () => {
     }));
   } catch {}
 };
+const ADMIN_ID = "d44d604e-a38d-4d30-a5e0-409427e5c07b";
 const CITIES = {
   paris: {
     label: "Paris",
@@ -9908,7 +9933,8 @@ function SpotDetail({
   userPos,
   onTransit,
   metroJ,
-  metroLoading
+  metroLoading,
+  onSuggest
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -10529,7 +10555,23 @@ function SpotDetail({
         fontWeight: 900
       }
     }, "\u203A"));
-  })(), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  })(), onSuggest && React.createElement("button", {
+    onClick: onSuggest,
+    className: "press",
+    style: {
+      marginTop: 14,
+      width: '100%',
+      padding: '11px 0',
+      borderRadius: 999,
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 12.5,
+      border: '1.5px dashed var(--hairline)',
+      background: 'transparent',
+      color: 'var(--ink-600)'
+    }
+  }, tr("mo_suggest")), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -16960,6 +17002,139 @@ function App() {
     setSendSpot(spot);
     setSendSel([]);
     setSendNote(tr("go_propose_note"));
+  };
+  const isAdmin = session?.user?.id === ADMIN_ID;
+  const [suggestions, setSuggestions] = useState([]);
+  const [showModeration, setShowModeration] = useState(false);
+  const _norm = x => (x || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const suggestSpot = async spot => {
+    const sess = sessionRef.current;
+    if (!sess) {
+      window.mspToast?.(tr("t_37"), "warn");
+      return;
+    }
+    if (!spot.lat || !spot.lng) {
+      window.mspToast?.(tr("t_27"), "warn");
+      return;
+    }
+    const nn = _norm(spot.name);
+    const dup = catalog.find(c => c.lat && Math.abs(c.lat - spot.lat) < 0.0009 && Math.abs(c.lng - spot.lng) < 0.0012 && _norm(c.name).includes(nn.slice(0, 6)));
+    if (dup) {
+      window.mspToast?.(tr("mo_dup"), "info");
+      return;
+    }
+    try {
+      const tok = await validToken(sess);
+      const body = {
+        name: spot.name,
+        lat: spot.lat,
+        lng: spot.lng,
+        adresse: spot.adresse || "",
+        cats: getCats(spot),
+        tags: spot.tags || {},
+        note: spot.note || "",
+        website: spot.website || ""
+      };
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spot_suggestions`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error("sug " + r.status);
+      window.mspHaptic?.(18);
+      window.mspPopEmoji?.("🙌");
+      window.mspToast?.(tr("mo_thanks"), "success");
+    } catch (e) {
+      window.mspToast?.(tr("t_27"), "error");
+    }
+  };
+  const fetchSuggestions = async () => {
+    const sess = sessionRef.current;
+    if (!sess || sess.user.id !== ADMIN_ID) return;
+    try {
+      const tok = await validToken(sess);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spot_suggestions?select=*&status=eq.pending&order=created_at.desc&limit=100`, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`
+        }
+      });
+      if (!r.ok) return;
+      const d = await r.json();
+      setSuggestions(Array.isArray(d) ? d : []);
+    } catch {}
+  };
+  useEffect(() => {
+    if (session && session.user.id === ADMIN_ID) fetchSuggestions();
+  }, [session]);
+  const rejectSuggestion = async s => {
+    setSuggestions(l => l.filter(x => x.id !== s.id));
+    try {
+      const tok = await validToken(sessionRef.current);
+      await fetch(`${SUPABASE_URL}/rest/v1/spot_suggestions?id=eq.${s.id}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          status: "rejected"
+        })
+      });
+    } catch {}
+  };
+  const approveSuggestion = async s => {
+    setSuggestions(l => l.filter(x => x.id !== s.id));
+    try {
+      const tok = await validToken(sessionRef.current);
+      const spot = {
+        name: s.name,
+        cats: s.cats && s.cats.length ? s.cats : ["sortie"],
+        lat: s.lat,
+        lng: s.lng,
+        adresse: s.adresse || "",
+        metro: nearestStation(s.lat, s.lng) || "",
+        tags: s.tags || {},
+        website: s.website || "",
+        desc: s.note || ""
+      };
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/spots`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify(spot)
+      });
+      if (!r.ok) throw new Error("cat " + r.status);
+      await fetch(`${SUPABASE_URL}/rest/v1/spot_suggestions?id=eq.${s.id}`, {
+        method: "PATCH",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify({
+          status: "approved"
+        })
+      });
+      window.mspHaptic?.(20);
+      window.mspPopEmoji?.("✅");
+      window.mspToast?.(tr("mo_approved"), "success");
+    } catch (e) {
+      window.mspToast?.(tr("t_27"), "error");
+      fetchSuggestions();
+    }
   };
   const [collabLists, setCollabLists] = useState([]);
   const [collabOpen, setCollabOpen] = useState(null);
@@ -24361,7 +24536,58 @@ function App() {
       style: {
         display: "none"
       }
-    })))), devMode && React.createElement("div", {
+    })), isAdmin && React.createElement("button", {
+      onClick: () => {
+        fetchSuggestions();
+        setShowModeration(true);
+      },
+      className: "press",
+      style: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '14px 16px',
+        cursor: 'pointer',
+        border: 'none',
+        background: '#fff',
+        textAlign: 'left'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        background: '#FFF0F6',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 16
+      }
+    }, "\uD83D\uDEE1\uFE0F"), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 14.5
+      }
+    }, tr("mo_title"), suggestions.length ? ` (${suggestions.length})` : ''), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 2
+      }
+    }, "Valider les spots propos\xE9s au catalogue")), React.createElement("div", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontSize: 18,
+        fontWeight: 900
+      }
+    }, "\u203A")))), devMode && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -25132,7 +25358,8 @@ function App() {
     userPos: userPos,
     onTransit: calcMetro,
     metroJ: metroJ,
-    metroLoading: metroLoading
+    metroLoading: metroLoading,
+    onSuggest: session && !isCatalogId(selectedSpot.id) ? () => suggestSpot(selectedSpot) : undefined
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
@@ -25954,7 +26181,135 @@ function App() {
       fontSize: 14,
       color: 'var(--ink-400)'
     }
-  }, tr("btn_cancel")))), sendSpot && React.createElement("div", {
+  }, tr("btn_cancel")))), showModeration && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1500,
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      flexDirection: 'column'
+    }
+  }, React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      padding: 'calc(14px + env(safe-area-inset-top,0px)) 16px 12px',
+      borderBottom: '1px solid var(--hairline)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, React.createElement("button", {
+    onClick: () => setShowModeration(false),
+    className: "press",
+    style: {
+      border: 'none',
+      background: 'var(--bg-cream)',
+      borderRadius: 999,
+      width: 34,
+      height: 34,
+      fontSize: 16,
+      cursor: 'pointer'
+    }
+  }, "\u2039"), React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 19
+    }
+  }, "\uD83D\uDEE1\uFE0F ", tr("mo_title"), suggestions.length ? ` · ${suggestions.length}` : '')), React.createElement("div", {
+    style: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      padding: '16px 16px calc(24px + env(safe-area-inset-bottom,0px))'
+    }
+  }, suggestions.length === 0 ? React.createElement("div", {
+    style: {
+      textAlign: 'center',
+      color: 'var(--ink-400)',
+      marginTop: 40,
+      fontFamily: 'var(--font-body)',
+      fontSize: 14
+    }
+  }, tr("mo_empty")) : suggestions.map(s => {
+    const cat = CATS.find(c => c.key === (s.cats && s.cats[0]));
+    return React.createElement("div", {
+      key: s.id,
+      style: {
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: 13,
+        marginBottom: 11
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 15
+      }
+    }, cat ? cat.emoji + ' ' : '', s.name), React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 3
+      }
+    }, cat ? cat.label : '?', " \xB7 ", s.adresse || '—'), s.note && React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: 'var(--ink-600)',
+        fontStyle: 'italic',
+        marginTop: 4
+      }
+    }, "\xAB ", s.note, " \xBB"), s.website && React.createElement("a", {
+      href: s.website,
+      target: "_blank",
+      rel: "noopener noreferrer",
+      style: {
+        fontSize: 11,
+        color: 'var(--pop-pink)',
+        display: 'block',
+        marginTop: 4,
+        wordBreak: 'break-all'
+      }
+    }, "\uD83D\uDD17 ", String(s.website).slice(0, 50)), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        marginTop: 10
+      }
+    }, React.createElement("button", {
+      onClick: () => approveSuggestion(s),
+      className: "press",
+      style: {
+        flex: 1,
+        border: 'none',
+        borderRadius: 999,
+        padding: '10px 0',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, tr("mo_approve")), React.createElement("button", {
+      onClick: () => rejectSuggestion(s),
+      className: "press",
+      style: {
+        flex: 1,
+        border: '1px solid var(--hairline)',
+        borderRadius: 999,
+        padding: '10px 0',
+        background: '#fff',
+        color: 'var(--ink-600)',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13,
+        cursor: 'pointer'
+      }
+    }, tr("mo_reject"))));
+  }))), sendSpot && React.createElement("div", {
     style: {
       position: 'fixed',
       inset: 0,
