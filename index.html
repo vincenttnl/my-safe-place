@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T19:54:32.836Z -->
+<!-- built 2026-07-18T20:23:10.068Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -8943,6 +8943,18 @@ function SpotFormModal({
   const stepOG = async found => {
     const site = (nWebsite || found.website || "").trim();
     if (!site || found.photo) return;
+    if (window.spotaneProxy) {
+      try {
+        const d = await window.spotaneProxy("ogimage", {
+          url: site
+        });
+        if (d && d.image) {
+          found.photo = d.image;
+          found.photos = [d.image];
+          return;
+        }
+      } catch (e) {}
+    }
     const u = site.startsWith("http") ? site : "https://" + site;
     try {
       const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(u), {
