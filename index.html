@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T21:37:18.666Z -->
+<!-- built 2026-07-18T23:15:20.376Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -276,7 +276,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 }
 
 /* Splash screen — affiché avant que React monte */
-#msp-splash{position:fixed;inset:0;z-index:99999;background:linear-gradient(180deg,#FFF8EC 0%,#FFE4EE 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
+#msp-splash{position:fixed;inset:0;z-index:99999;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
 #msp-splash.msp-splash-out{opacity:0;pointer-events:none}
 #msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(255,0,110,0.25);animation:mspBob 1.4s ease-in-out infinite}
 #msp-splash .msp-splash-title{font-weight:900;font-size:28px;letter-spacing:-0.015em;color:#0A0A0A;margin:0}
@@ -3167,6 +3167,8 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Kiffés par tes amis",
     sm_friends_n: "{n} amis",
+    sm_foryou: "Pour toi",
+    sm_foryou_sub: "Vu que tu aimes {cat}",
     go_btn: "👋 Dire à mes amis que j'y vais ce soir",
     go_on: "✓ Tes amis savent que tu y vas",
     go_one: "{name} y va",
@@ -3628,6 +3630,8 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Loved by your friends",
     sm_friends_n: "{n} friends",
+    sm_foryou: "For you",
+    sm_foryou_sub: "Since you love {cat}",
     go_btn: "👋 Tell my friends I'm going tonight",
     go_on: "✓ Your friends know you're going",
     go_one: "{name} is going",
@@ -4089,6 +4093,8 @@ const I18N = {
     sm_spots_n: "{n} spots",
     sm_picks: "Los favoritos de tus amigos",
     sm_friends_n: "{n} amigos",
+    sm_foryou: "Para ti",
+    sm_foryou_sub: "Como te gustan {cat}",
     go_btn: "👋 Decir a mis amigos que voy esta noche",
     go_on: "✓ Tus amigos saben que vas",
     go_one: "{name} va",
@@ -19735,6 +19741,98 @@ function App() {
             textOverflow: 'ellipsis'
           }
         }, "\uD83D\uDC65 ", wl)));
+      })));
+    })(), allSpots.length >= 8 && (() => {
+      const myIds = new Set(allSpots.map(s => s.id));
+      const topKeys = tasteProfile.topCats.slice(0, 2).map(t => t.key);
+      if (!topKeys.length) return null;
+      const recos = catalog.filter(s => topKeys.includes(primaryCat(s)) && !myIds.has(s.id) && firstPhoto(s)).sort((a, b) => (parseFloat(gRating(b)) || 0) - (parseFloat(gRating(a)) || 0)).slice(0, 10);
+      if (recos.length < 3) return null;
+      const topLabel = tasteProfile.topCats[0] && tasteProfile.topCats[0].cat && tasteProfile.topCats[0].cat.label || "";
+      return React.createElement("div", {
+        style: {
+          padding: '16px 0 0'
+        }
+      }, React.createElement("h2", {
+        style: {
+          fontFamily: 'var(--font-display)',
+          fontWeight: 900,
+          fontSize: 22,
+          letterSpacing: '-.015em',
+          margin: '0 20px 2px'
+        }
+      }, "\u2728 ", tr("sm_foryou")), React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontSize: 12,
+          color: 'var(--ink-400)',
+          margin: '0 20px 10px'
+        }
+      }, tr("sm_foryou_sub", {
+        cat: topLabel.toLowerCase()
+      })), React.createElement("div", {
+        style: {
+          display: 'flex',
+          gap: 12,
+          overflowX: 'auto',
+          padding: '0 20px 4px',
+          scrollSnapType: 'x proximity'
+        }
+      }, recos.map(s => {
+        const ph = firstPhoto(s);
+        const emo = (CATS.find(c => c.key === primaryCat(s)) || {}).emoji || "📍";
+        const gr = gRating(s);
+        return React.createElement("button", {
+          key: s.id,
+          onClick: () => setSelectedSpot(s),
+          className: "press",
+          style: {
+            flexShrink: 0,
+            width: 150,
+            scrollSnapAlign: 'start',
+            textAlign: 'left',
+            border: '1px solid var(--hairline)',
+            borderRadius: 'var(--radius-md)',
+            overflow: 'hidden',
+            background: 'var(--bg-primary)',
+            cursor: 'pointer',
+            padding: 0
+          }
+        }, React.createElement("div", {
+          style: {
+            height: 92,
+            background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 30
+          }
+        }, ph ? '' : emo), React.createElement("div", {
+          style: {
+            padding: '8px 10px 10px'
+          }
+        }, React.createElement("div", {
+          style: {
+            fontFamily: 'var(--font-body)',
+            fontWeight: 800,
+            fontSize: 13,
+            color: 'var(--ink-900)',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }
+        }, s.name), React.createElement("div", {
+          style: {
+            fontFamily: 'var(--font-body)',
+            fontSize: 11,
+            fontWeight: 700,
+            color: 'var(--ink-400)',
+            marginTop: 3,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }
+        }, emo, " ", (CATS.find(c => c.key === primaryCat(s)) || {}).label, gr ? ` · ⭐ ${gr}` : '')));
       })));
     })(), React.createElement("div", {
       style: {
