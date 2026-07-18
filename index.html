@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T17:55:15.997Z -->
+<!-- built 2026-07-18T18:08:40.377Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
 <meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#FF3D8B"/>
+<meta name="theme-color" content="#FF006E"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Spotane"/>
@@ -42,12 +42,12 @@
 *{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg-primary:#FFF2F7;--bg-cream:#FFE8F1;--bg-soft:#F5F2EB;/* v11.05 (Vincent) : fond rose pâle n°8 — corps #FFF2F7, entête #FFE8F1 (ex #FFFFFF / #FFF8EC). Les surfaces blanches sont sur --card:#fff, inchangées. */
-  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#E8E4DB;
-  --pop-pink:#FF3D8B;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#8B5CF6;--pop-cyan:#3DC8FF;
+  --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
+  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#E4E4E7;
+  --pop-pink:#FF006E;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#0A0A0A;--pop-cyan:#3DC8FF;/* A2a : pink→magenta flashy, violet→noir (dégradés magenta→noir) */
   --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
   --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
-  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,61,139,0.25);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,0,110,0.3);
   --ease:cubic-bezier(0.4,0,0.2,1);
   --spring:cubic-bezier(.34,1.56,.64,1);/* v10.85 : easing à dépassement — moteur de la lentille de la tab bar */
   /* legacy compat */
@@ -83,7 +83,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
 @keyframes haloPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.12)}}/* v10.72 : halo néon entête accueil (style №1) */
-@keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,61,139,.45)}70%{box-shadow:0 0 0 10px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
+@keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,0,110,.45)}70%{box-shadow:0 0 0 10px rgba(255,0,110,0)}100%{box-shadow:0 0 0 0 rgba(255,0,110,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
 /* v10.97 : fondu-glissé des exemples de recherche IA. Pas de transform persistant en fin
    d'animation (fill both) — un transform figé ferait de l'élément un containing block, le piège
    qui a coûté le bouton retour en v10.84. Ici l'animation se termine et rend la main. */
@@ -98,10 +98,10 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 
 /* ✕ rouge « Cerise bordée » (choix Vincent 11/07) — croix de fermeture unifiée */
 /* Pastille retour v10.42 (choix Vincent B3 v2 №8) : cercle blanc bordure rose, flèche rose */
-.msp-x{background:#fff;border:2px solid var(--pop-pink);box-shadow:0 4px 12px rgba(255,61,139,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
+.msp-x{background:#fff;border:2px solid var(--pop-pink);box-shadow:0 4px 12px rgba(255,0,110,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
 .msp-x svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
 .msp-x:active{transform:scale(.82)}
-@media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,61,139,.35)}}
+@media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,0,110,.35)}}
 
 /* Bottom nav - Partiful style */
 /* v10.85 — TAB BAR №7 « lentille qui grossit en transit » (choix Vincent 15/07, maquette
@@ -130,7 +130,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* badge chiffré (onglet Events). z-index 3 > capsule : il reste lisible quand la lentille enfle dessous. */
 .nav-badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;
   background:var(--pop-pink);color:#fff;font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;
-  border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(255,61,139,.5);z-index:3}
+  border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(255,0,110,.5);z-index:3}
 @media(prefers-reduced-motion:reduce){.nav-ind{transition:none}.nav-ind.transit{transform:none}}
 
 /* Section titles - Partiful */
@@ -140,12 +140,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .mono-label{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)}
 .mono-label::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 /* DA v10.39 — en-têtes dynamiques : pastille dégradée (remplace le mono-label gris des heros) + titres 1 ligne */
-.grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,61,139,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),var(--pop-violet));color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,0,110,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)} /* v10.63 : homogénéisé sur le style label ✦ №26 (retour Vincent) */
 .grad-lbl::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 .hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px);text-align:center;width:100%}/* v10.72 : titre centré + pleine largeur sur chaque onglet (retour Vincent) */
 /* v10.52 — bouton ↑ ROSE LÉGER (retour Vincent 13/07 : exit le noir agressif), plus bas, chevron SVG centré */
-.msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,61,139,0.25);animation:totopIn .25s var(--ease) both;padding:0}
+.msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,0,110,0.25);animation:totopIn .25s var(--ease) both;padding:0}
 @keyframes totopIn{from{opacity:0;transform:translateY(14px) scale(.85)}to{opacity:1;transform:none}}
 
 /* Category grid - Partiful */
@@ -170,7 +170,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 @keyframes mspPulseDot{0%,100%{opacity:.35}50%{opacity:1}}
-.pm-dot{width:7px;height:7px;border-radius:999px;background:#FF2D9E;flex-shrink:0;animation:mspPulseDot 1.4s infinite}
+.pm-dot{width:7px;height:7px;border-radius:999px;background:#FF006E;flex-shrink:0;animation:mspPulseDot 1.4s infinite}
 
 /* Spot cards */
 .spot-card-v2{background:var(--card);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-sm);transition:transform .2s var(--ease),box-shadow .2s var(--ease);cursor:pointer;border:1px solid var(--hairline)}
@@ -233,7 +233,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .pq-tab{border:none;background:rgba(255,255,255,.16);color:#fff;font-family:var(--font-body);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;cursor:pointer}/* v10.99 : l'inactif garde une pastille visible (avant : transparent → invisible) */
 .pq-tab.on{background:#fff;color:var(--ink-900)}
 .pq-tabs.ink{background:var(--bg-soft);border:1px solid var(--hairline)}
-.pq-tabs.ink .pq-tab{color:var(--pop-pink);background:#FFF0F6;border:1.5px solid rgba(255,61,139,.3)}/* v10.99 (Vincent) : « Mes recherches » = pastille ROSE contrastée, ne se fond plus dans le fond */
+.pq-tabs.ink .pq-tab{color:var(--pop-pink);background:#FFF0F6;border:1.5px solid rgba(255,0,110,.3)}/* v10.99 (Vincent) : « Mes recherches » = pastille ROSE contrastée, ne se fond plus dans le fond */
 .pq-tabs.ink .pq-tab.on{background:var(--ink-900);color:var(--bg-primary);border-color:transparent}
 /* cartes préréglages (★ mes recherches) */
 .pq-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;border-radius:20px;border:2px solid var(--hairline);background:var(--bg-primary);color:var(--ink-900);text-align:left;font-family:var(--font-body);cursor:pointer;transition:transform .12s var(--ease)}
@@ -278,7 +278,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* Splash screen — affiché avant que React monte */
 #msp-splash{position:fixed;inset:0;z-index:99999;background:linear-gradient(180deg,#FFF8EC 0%,#FFE4EE 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
 #msp-splash.msp-splash-out{opacity:0;pointer-events:none}
-#msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(255,61,139,0.25);animation:mspBob 1.4s ease-in-out infinite}
+#msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(255,0,110,0.25);animation:mspBob 1.4s ease-in-out infinite}
 #msp-splash .msp-splash-title{font-weight:900;font-size:28px;letter-spacing:-0.015em;color:#0A0A0A;margin:0}
 #msp-splash .msp-splash-sub{font-family:"Inter",system-ui,sans-serif;font-size:13px;color:#7A7A7A;margin-top:-12px}
 @keyframes mspBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
@@ -4627,7 +4627,7 @@ const TIME_SLOTS = [{
   boost: ["cafe", "sortie"]
 }, {
   id: "apero",
-  accent: "#FF3D8B",
+  accent: "#FF006E",
   accent2: "#8C224C",
   boost: ["rooftop", "speakeasy"]
 }, {
@@ -4764,7 +4764,7 @@ const CATS = [{
   key: "speakeasy",
   label: tr("cat_speakeasy"),
   emoji: "🍸",
-  color: "#7C3AED"
+  color: "#0A0A0A"
 }, {
   key: "club",
   label: tr("cat_club"),
@@ -4790,7 +4790,7 @@ const CC = {
   resto: "#16A34A",
   cafe: "#6F4E37",
   rooftop: "#2563EB",
-  speakeasy: "#7C3AED",
+  speakeasy: "#0A0A0A",
   club: "#DB2777",
   sortie: "#EA580C"
 };
@@ -5561,7 +5561,7 @@ const spotContentKey = s => {
   }
 };
 const spotTs = s => s && (s.updatedAt || s.addedAt) || 0;
-const CT_COLORS = ["#FF3D8B", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
+const CT_COLORS = ["#FF006E", "#8B5CF6", "#FFD23F", "#3DC8FF", "#FF6B2C", "#C6FF3D", "#E91E63", "#6C63FF"];
 const TRASH_DAYS = 7;
 const DC = {
   italien: "italian",
@@ -6945,7 +6945,7 @@ function ReactionModal({
       padding: "14px 18px",
       borderRadius: 'var(--radius-md)',
       border: `2px solid ${sel === r.emoji ? "var(--pop-pink)" : "var(--hairline)"}`,
-      background: sel === r.emoji ? "rgba(255,61,139,0.08)" : "#fff"
+      background: sel === r.emoji ? "rgba(255,0,110,0.08)" : "#fff"
     }
   }, React.createElement("span", {
     style: {
@@ -7050,7 +7050,7 @@ function ZonesModal({
       alignItems: "center",
       gap: 8,
       padding: "10px 12px",
-      background: hasAny75(list) ? "rgba(255,61,139,0.08)" : "var(--bg-soft)",
+      background: hasAny75(list) ? "rgba(255,0,110,0.08)" : "var(--bg-soft)",
       borderRadius: 10,
       cursor: "pointer",
       border: `1.5px solid ${hasAny75(list) ? "var(--pop-pink)" : "transparent"}`
@@ -7121,7 +7121,7 @@ function ZonesModal({
       alignItems: "center",
       gap: 8,
       padding: "10px 12px",
-      background: list.includes(d.k) ? "rgba(255,61,139,0.08)" : "var(--bg-soft)",
+      background: list.includes(d.k) ? "rgba(255,0,110,0.08)" : "var(--bg-soft)",
       borderRadius: 10,
       cursor: "pointer",
       border: `1.5px solid ${list.includes(d.k) ? "var(--pop-pink)" : "transparent"}`
@@ -7542,7 +7542,7 @@ const PQ_SEED_PRESETS = [{
   nk: "pre_potes_n",
   emoji: "👥🔥",
   acc: "#8B5CF6",
-  acci: "#7C3AED",
+  acci: "#0A0A0A",
   f: {
     who: ["potes"],
     when: ["soiree"],
@@ -7683,7 +7683,7 @@ function PropositionsModal({
     const g = [{
       id: "cat",
       q: tr("pq_q_cat"),
-      c: "#FF3D8B",
+      c: "#FF006E",
       ci: "#C2185B",
       list: CATS.filter(c => c.key !== "all").map(c => ({
         k: c.key,
@@ -7714,7 +7714,7 @@ function PropositionsModal({
       id: "vibe",
       q: tr("pq_q_vibe"),
       c: "#8B5CF6",
-      ci: "#7C3AED",
+      ci: "#0A0A0A",
       list: Q_VIBE,
       value: vibe,
       set: setVibe,
@@ -8425,7 +8425,7 @@ function PropositionsModal({
         fontWeight: 700,
         fontSize: 14,
         cursor: 'pointer',
-        boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
+        boxShadow: '0 8px 22px -6px rgba(255,0,110,0.55)'
       }
     }, tr("pq_add")), has && React.createElement("div", {
       style: {
@@ -10097,7 +10097,7 @@ function SpotDetail({
       border: 'none',
       transition: 'transform .14s var(--ease),box-shadow .2s,background .2s',
       background: spot.fav ? '#1A0A12' : 'rgba(0,0,0,0.34)',
-      boxShadow: spot.fav ? '0 0 20px rgba(255,61,139,0.9),0 8px 20px -6px rgba(0,0,0,0.5)' : '0 4px 14px -4px rgba(0,0,0,0.45)',
+      boxShadow: spot.fav ? '0 0 20px rgba(255,0,110,0.9),0 8px 20px -6px rgba(0,0,0,0.5)' : '0 4px 14px -4px rgba(0,0,0,0.45)',
       backdropFilter: 'blur(4px)',
       WebkitBackdropFilter: 'blur(4px)'
     }
@@ -10110,7 +10110,7 @@ function SpotDetail({
     }
   }, React.createElement("path", {
     d: "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z",
-    fill: spot.fav ? '#FF3D8B' : 'none',
+    fill: spot.fav ? '#FF006E' : 'none',
     stroke: spot.fav ? 'none' : '#fff',
     strokeWidth: "2.4",
     strokeLinejoin: "round"
@@ -10155,7 +10155,7 @@ function SpotDetail({
       display: 'inline-flex',
       background: '#F3EEFF',
       border: '1px solid #E4D9FF',
-      color: '#7C3AED',
+      color: '#0A0A0A',
       padding: '8px 12px',
       borderRadius: 999,
       fontFamily: 'var(--font-body)',
@@ -10192,7 +10192,7 @@ function SpotDetail({
     style: {
       display: 'flex',
       alignItems: 'center',
-      background: 'linear-gradient(90deg,rgba(255,61,139,.12),rgba(139,92,246,.12))',
+      background: 'linear-gradient(90deg,rgba(255,0,110,.12),rgba(139,92,246,.12))',
       border: '1px solid rgba(139,92,246,.3)',
       borderRadius: 999,
       padding: '9px 6px',
@@ -10516,7 +10516,7 @@ function SpotDetail({
       fontWeight: 700,
       fontSize: 14.5,
       cursor: 'pointer',
-      boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
+      boxShadow: '0 8px 22px -6px rgba(255,0,110,0.55)'
     }
   }, "\u2795 Ajouter \xE0 mes spots") : React.createElement("div", {
     style: {
@@ -10529,7 +10529,7 @@ function SpotDetail({
       fontWeight: 700,
       fontSize: 14.5,
       textAlign: 'center',
-      boxShadow: '0 8px 22px -6px rgba(255,61,139,0.55)'
+      boxShadow: '0 8px 22px -6px rgba(255,0,110,0.55)'
     }
   }, "\u2713 Dans mes spots"), React.createElement("div", {
     style: {
@@ -10675,7 +10675,7 @@ function SpotDetail({
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
-      boxShadow: '0 6px 16px -8px rgba(255,61,139,0.6)'
+      boxShadow: '0 6px 16px -8px rgba(255,0,110,0.6)'
     }
   }, "\uD83D\uDCE4 Envoyer"), React.createElement("div", {
     style: {
@@ -12040,7 +12040,7 @@ function SpotaneLogo({
     opacity: ".72"
   }), React.createElement("path", {
     d: "M39 40 A21 21 0 1 1 81 40 C79.9 56.8 64.6 69.6 60 81.6 C55.4 69.6 40.1 56.8 39 40 Z",
-    fill: "#FF2D9E"
+    fill: "#FF006E"
   }), React.createElement("circle", {
     cx: "60",
     cy: "40",
@@ -12095,7 +12095,7 @@ function PremiumModal({
       right: '-15%',
       width: '55%',
       height: '120%',
-      background: 'radial-gradient(circle,rgba(255,45,158,.12),transparent 70%)',
+      background: 'radial-gradient(circle,rgba(255,0,110,.12),transparent 70%)',
       pointerEvents: 'none'
     }
   }), React.createElement("div", {
@@ -12116,7 +12116,7 @@ function PremiumModal({
     }
   }, "Spotane", React.createElement("span", {
     style: {
-      color: '#FF2D9E',
+      color: '#FF006E',
       marginLeft: 6
     }
   }, "+"))), React.createElement("div", {
@@ -12169,7 +12169,7 @@ function PremiumModal({
       width: 74,
       textAlign: 'center',
       color: '#fff',
-      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+      background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
       borderRadius: '8px 8px 0 0',
       padding: '4px 0'
     }
@@ -12231,7 +12231,7 @@ function PremiumModal({
       textAlign: 'center',
       fontSize: 11.5,
       fontWeight: 800,
-      color: '#FF2D9E'
+      color: '#FF006E'
     }
   }, p)), openRow === i && React.createElement("div", {
     style: {
@@ -12270,13 +12270,13 @@ function PremiumModal({
       padding: 15,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+      background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 800,
       fontSize: 15.5,
       cursor: 'pointer',
-      boxShadow: '0 10px 24px -8px rgba(255,45,158,.6)'
+      boxShadow: '0 10px 24px -8px rgba(255,0,110,.6)'
     }
   }, "Je passe \xE0 Spotane + \xB7 2,99 \u20AC/mois"), React.createElement("button", {
     onClick: onClose,
@@ -12336,8 +12336,8 @@ async function wrappedImageBlob(st, year) {
     }
   };
   const g = x.createLinearGradient(0, 0, W * 0.7, H);
-  g.addColorStop(0, '#FF2D9E');
-  g.addColorStop(0.55, '#7C3AED');
+  g.addColorStop(0, '#FF006E');
+  g.addColorStop(0.55, '#0A0A0A');
   g.addColorStop(1, '#17162B');
   x.fillStyle = g;
   x.fillRect(0, 0, W, H);
@@ -12539,7 +12539,7 @@ function WrappedModal({
     }, tr("w_tap")))
   });
   if (st.nAdded > 0) slides.push({
-    bg: "linear-gradient(135deg,#FF2D9E,#7C3AED)",
+    bg: "linear-gradient(135deg,#FF006E,#0A0A0A)",
     wall: st.wAdded,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -12604,7 +12604,7 @@ function WrappedModal({
     }, tr("w_cat_sub")))
   });
   if (st.topVibe) slides.push({
-    bg: "linear-gradient(135deg,#7C3AED,#2D7DFF)",
+    bg: "linear-gradient(135deg,#0A0A0A,#2D7DFF)",
     wall: st.wVibe,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -12622,7 +12622,7 @@ function WrappedModal({
     }, tr("w_vibe_lbl")))
   });
   if (st.topMonth) slides.push({
-    bg: "linear-gradient(135deg,#F59E0B,#FF2D9E)",
+    bg: "linear-gradient(135deg,#F59E0B,#FF006E)",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 56
@@ -12744,7 +12744,7 @@ function WrappedModal({
     }, tr("w_explore_sub")))
   });
   slides.push({
-    bg: "linear-gradient(150deg,#FF2D9E 0%,#7C3AED 55%,#17162B 100%)",
+    bg: "linear-gradient(150deg,#FF006E 0%,#0A0A0A 55%,#17162B 100%)",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: sKick
     }, tr("w_persona_kick", {
@@ -18241,7 +18241,7 @@ function App() {
           const n = grp.length,
             size = n < 10 ? 36 : n < 50 ? 44 : 52;
           const icon = L.divIcon({
-            html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:999px;background:rgba(255,61,139,0.94);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,sans-serif);font-weight:900;font-size:' + (n < 10 ? 14 : 16) + 'px;box-shadow:0 3px 12px rgba(0,0,0,0.28);border:2.5px solid #fff">' + n + '</div>',
+            html: '<div style="width:' + size + 'px;height:' + size + 'px;border-radius:999px;background:rgba(255,0,110,0.94);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--font-display,sans-serif);font-weight:900;font-size:' + (n < 10 ? 14 : 16) + 'px;box-shadow:0 3px 12px rgba(0,0,0,0.28);border:2.5px solid #fff">' + n + '</div>',
             className: '',
             iconSize: [size, size]
           });
@@ -18267,7 +18267,7 @@ function App() {
               className: '',
               iconSize: [20, 26],
               iconAnchor: [10, 26],
-              html: '<svg width="20" height="26" viewBox="0 0 16 20" style="display:block;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))">' + '<path d="M8 20 C0 11, 0 0, 8 0 C16 0, 16 11, 8 20 Z" fill="' + col + '" fill-opacity="' + (s.done ? .55 : 1) + '" stroke="' + (fw ? '#7C3AED' : '#fff') + '" stroke-width="' + (fw ? 2.2 : 1.6) + '"/>' + '<circle cx="8" cy="7" r="2.6" fill="#fff"/></svg>'
+              html: '<svg width="20" height="26" viewBox="0 0 16 20" style="display:block;overflow:visible;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3))">' + '<path d="M8 20 C0 11, 0 0, 8 0 C16 0, 16 11, 8 20 Z" fill="' + col + '" fill-opacity="' + (s.done ? .55 : 1) + '" stroke="' + (fw ? '#0A0A0A' : '#fff') + '" stroke-width="' + (fw ? 2.2 : 1.6) + '"/>' + '<circle cx="8" cy="7" r="2.6" fill="#fff"/></svg>'
             });
             const m = L.marker([s.lat, s.lng], {
               icon,
@@ -18387,7 +18387,7 @@ function App() {
       try {
         parisRingRef.current = L.polygon(CITY_RINGS[city], {
           renderer: map._spotCanvas,
-          color: "#FF3D8B",
+          color: "#FF006E",
           weight: 1.8,
           opacity: 0.6,
           dashArray: "5 5",
@@ -18737,7 +18737,7 @@ function App() {
         borderRadius: 'var(--radius-lg)',
         padding: '18px 16px',
         textAlign: 'center',
-        boxShadow: '0 4px 18px -10px rgba(255,61,139,.5)'
+        boxShadow: '0 4px 18px -10px rgba(255,0,110,.5)'
       }
     }, React.createElement("div", {
       style: {
@@ -18773,7 +18773,7 @@ function App() {
         fontWeight: 800,
         fontSize: 14,
         cursor: 'pointer',
-        boxShadow: '0 8px 20px -6px rgba(124,58,237,.5)'
+        boxShadow: '0 8px 20px -6px rgba(10,10,10,.5)'
       }
     }, tr("fe_invite")))), (recvMsgs.length > 0 || session && friendLists.length > 0) && React.createElement("div", {
       style: {
@@ -18815,7 +18815,7 @@ function App() {
           padding: 12,
           marginBottom: 11,
           background: 'var(--bg-primary)',
-          boxShadow: '0 4px 16px -10px rgba(255,61,139,.5)'
+          boxShadow: '0 4px 16px -10px rgba(255,0,110,.5)'
         }
       }, React.createElement("div", {
         style: {
@@ -19071,7 +19071,7 @@ function App() {
             fontFamily: 'var(--font-body)',
             fontSize: 11,
             fontWeight: 700,
-            color: '#7C3AED',
+            color: '#0A0A0A',
             marginTop: 3,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -19284,7 +19284,7 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontWeight: 800,
         fontSize: 11,
-        color: hmPick.why === "wish" ? "#E05252" : "#7C3AED"
+        color: hmPick.why === "wish" ? "#E05252" : "#0A0A0A"
       }
     }, tr(hmPick.why === "wish" ? "hm_wish" : "hm_gem")), React.createElement("div", {
       style: {
@@ -19395,7 +19395,7 @@ function App() {
         padding: '5px 10px',
         borderRadius: 999,
         fontFamily: 'var(--font-body)',
-        boxShadow: '0 3px 10px rgba(255,61,139,.4)'
+        boxShadow: '0 3px 10px rgba(255,0,110,.4)'
       }
     }, {
       danser: "🕺 Pour danser",
@@ -21711,7 +21711,7 @@ function App() {
       }
     }, friendSpotMap.has(s.id) && React.createElement("span", {
       style: {
-        color: '#7C3AED',
+        color: '#0A0A0A',
         fontWeight: 700
       }
     }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
@@ -21756,7 +21756,7 @@ function App() {
         fontSize: 26,
         lineHeight: 1,
         cursor: 'pointer',
-        boxShadow: '0 3px 8px rgba(255,61,139,.35)'
+        boxShadow: '0 3px 8px rgba(255,0,110,.35)'
       }
     }, "+"));
   }), catalogVisible.length === 0 && React.createElement("div", {
@@ -22384,7 +22384,7 @@ function App() {
       day: "numeric",
       month: "long"
     });
-    const accent = ['#FF3D8B', '#FFD23F', '#C6FF3D', '#8B5CF6'][i % 4];
+    const accent = ['#FF006E', '#FFD23F', '#C6FF3D', '#8B5CF6'][i % 4];
     const tilt = stableTilt(ev.id || i, 1.2);
     return React.createElement("div", {
       key: ev.id,
@@ -22741,7 +22741,7 @@ function App() {
         whiteSpace: 'nowrap',
         background: on ? 'var(--pop-pink)' : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
-        boxShadow: on ? '0 6px 16px rgba(255,61,139,0.36)' : 'none',
+        boxShadow: on ? '0 6px 16px rgba(255,0,110,0.36)' : 'none',
         transition: 'all .16s var(--ease)'
       }
     }, o.l, o.n > 0 && React.createElement("span", {
@@ -22779,7 +22779,7 @@ function App() {
       border: mapMode === "friends" ? '1.6px solid transparent' : '1.6px dashed var(--pop-pink)',
       background: mapMode === "friends" ? 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))' : 'rgba(255,255,255,.92)',
       color: mapMode === "friends" ? '#fff' : 'var(--pop-pink)',
-      boxShadow: '0 6px 14px -6px rgba(255,61,139,.5)'
+      boxShadow: '0 6px 14px -6px rgba(255,0,110,.5)'
     }
   }, "\uD83D\uDC65 ", tr("map_amis_label"), " ", React.createElement("span", {
     style: {
@@ -22860,7 +22860,7 @@ function App() {
         background: on ? CC[c.key] : 'transparent',
         color: on ? '#fff' : 'var(--ink-600)',
         border: on && filtering ? '2px solid var(--pop-pink)' : '1px solid transparent',
-        boxShadow: on && filtering ? '0 4px 12px rgba(255,61,139,.3)' : 'none',
+        boxShadow: on && filtering ? '0 4px 12px rgba(255,0,110,.3)' : 'none',
         transition: 'all .16s var(--ease)'
       }
     }, React.createElement("span", {
@@ -23011,7 +23011,7 @@ function App() {
       justifyContent: 'center',
       padding: 0,
       flexShrink: 0,
-      boxShadow: '0 6px 18px rgba(255,61,139,.45)'
+      boxShadow: '0 6px 18px rgba(255,0,110,.45)'
     }
   }, "\u25BE", mapCats.size < 6 && React.createElement("span", {
     style: {
@@ -23136,15 +23136,15 @@ function App() {
       }
     })();
     const CITYGRAD = {
-      paris: 'linear-gradient(135deg,#FF3D8B,#8B5CF6)',
+      paris: 'linear-gradient(135deg,#FF006E,#8B5CF6)',
       lyon: 'linear-gradient(135deg,#FF6B2C,#FFD23F)',
       marseille: 'linear-gradient(135deg,#3DC8FF,#8B5CF6)',
       toulouse: 'linear-gradient(135deg,#8B5CF6,#E91E63)',
       nice: 'linear-gradient(135deg,#C6FF3D,#3DC8FF)',
-      bordeaux: 'linear-gradient(135deg,#E91E63,#FF3D8B)'
+      bordeaux: 'linear-gradient(135deg,#E91E63,#FF006E)'
     };
     const CITYCOLOR = {
-      paris: '#FF3D8B',
+      paris: '#FF006E',
       lyon: '#FF6B2C',
       marseille: '#3DC8FF',
       toulouse: '#8B5CF6',
@@ -23509,13 +23509,13 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         gap: 13,
-        background: 'linear-gradient(135deg,#FF2D9E,#7C3AED)',
+        background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
         color: '#fff',
         border: 'none',
         borderRadius: 'var(--radius-lg)',
         padding: '16px 18px',
         cursor: 'pointer',
-        boxShadow: '0 8px 22px rgba(124,58,237,.35)'
+        boxShadow: '0 8px 22px rgba(10,10,10,.35)'
       }
     }, React.createElement("span", {
       style: {
@@ -24866,7 +24866,7 @@ function App() {
       justifyContent: 'center',
       fontWeight: 900,
       fontSize: 28,
-      boxShadow: '0 8px 22px -6px rgba(124,58,237,.55)'
+      boxShadow: '0 8px 22px -6px rgba(10,10,10,.55)'
     }
   }, ((friendInvite.name || "?")[0] || "?").toUpperCase()), React.createElement("div", {
     style: {
@@ -25196,7 +25196,7 @@ function App() {
     }, "\u2665"), friendSpotMap.has(peekSpot.id) && React.createElement("span", {
       style: {
         background: 'rgba(255,255,255,.94)',
-        color: '#7C3AED',
+        color: '#0A0A0A',
         fontSize: 10.5,
         fontWeight: 700,
         borderRadius: 999,
@@ -25920,7 +25920,7 @@ function App() {
     }
   }, React.createElement("path", {
     d: "M5 14.5L12 8l7 6.5",
-    stroke: "#FF3D8B",
+    stroke: "#FF006E",
     strokeWidth: "3",
     strokeLinecap: "round",
     strokeLinejoin: "round"
@@ -25985,7 +25985,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       label.textContent = '✨ Nouvelle version dispo';
       const btn = document.createElement('button');
       btn.textContent = 'Mettre à jour';
-      btn.style.cssText = 'border:none;border-radius:999px;padding:9px 15px;background:linear-gradient(135deg,#FF2D9E,#7C3AED);color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;';
+      btn.style.cssText = 'border:none;border-radius:999px;padding:9px 15px;background:linear-gradient(135deg,#FF006E,#0A0A0A);color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;';
       btn.onclick = () => { b.remove(); location.reload(); };
       b.appendChild(label); b.appendChild(btn);
       document.body.appendChild(b);
