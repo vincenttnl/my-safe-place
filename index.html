@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T17:09:03.762Z -->
+<!-- built 2026-07-18T17:53:53.209Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3176,6 +3176,10 @@ const I18N = {
     go_propose_note: "Je suis là ce soir, tu viens ? 👀",
     map_amis_label: "Amis · Listes partagées",
     map_amis_nudge: "Ajoute des amis pour voir leurs spots ici 👀",
+    go2_how: "Comment y aller ?",
+    go2_walk: "À pied",
+    go2_transit: "Transports",
+    go2_car: "Voiture",
     wl_name: "À tester",
     wl_share: "Partager ma liste « À tester »",
     wl_share_sub: "Tes amis voient les spots que tu veux tester 🔥",
@@ -3623,6 +3627,10 @@ const I18N = {
     go_propose_note: "I'm there tonight, coming? 👀",
     map_amis_label: "Friends · Shared lists",
     map_amis_nudge: "Add friends to see their spots here 👀",
+    go2_how: "How to get there?",
+    go2_walk: "Walk",
+    go2_transit: "Transit",
+    go2_car: "Drive",
     wl_name: "To try",
     wl_share: "Share my « To try » list",
     wl_share_sub: "Your friends see the spots you want to try 🔥",
@@ -4070,6 +4078,10 @@ const I18N = {
     go_propose_note: "Estoy aquí esta noche, ¿vienes? 👀",
     map_amis_label: "Amigos · Listas compartidas",
     map_amis_nudge: "Añade amigos para ver sus spots aquí 👀",
+    go2_how: "¿Cómo llegar?",
+    go2_walk: "A pie",
+    go2_transit: "Transporte",
+    go2_car: "Coche",
     wl_name: "Para probar",
     wl_share: "Compartir mi lista « Para probar »",
     wl_share_sub: "Tus amigos ven los spots que quieres probar 🔥",
@@ -4691,6 +4703,24 @@ function metroParse(raw) {
     fg: lum > 150 ? "#1A1A1A" : "#fff"
   };
 }
+function nearestStation(lat, lng, maxM) {
+  maxM = maxM || 2000;
+  if (!lat || !lng || typeof STATIONS_IDF === "undefined") return "";
+  const r = x => x * Math.PI / 180;
+  let best = "",
+    bd = Infinity;
+  for (const s of STATIONS_IDF) {
+    const dφ = r(s[0] - lat),
+      dλ = r(s[1] - lng);
+    const a = Math.sin(dφ / 2) ** 2 + Math.cos(r(lat)) * Math.cos(r(s[0])) * Math.sin(dλ / 2) ** 2;
+    const d = 12742000 * Math.asin(Math.sqrt(a));
+    if (d < bd) {
+      bd = d;
+      best = s[2];
+    }
+  }
+  return bd <= maxM ? best : "";
+}
 const DEPTS = [{
   k: "75",
   l: "75 Paris",
@@ -5059,6 +5089,7 @@ const MOOD_COVER = {
   cafe: MOOD_SB + "57-1.jpg",
   resto: MOOD_SB + "129-2.jpg"
 };
+const STATIONS_IDF = [[48.87361, 2.32762, "M3 Havre-Caumartin"], [48.86252, 2.34579, "M4 Les Halles"], [48.86909, 2.38054, "M2 Couronnes"], [48.87761, 2.37081, "M2 Colonel Fabien"], [48.85806, 2.39086, "M2 Philippe Auguste"], [48.84751, 2.30297, "M6 Cambronne"], [48.8493, 2.29873, "M6 La Motte Picquet-Grenelle"], [48.84274, 2.32222, "M4 Montparnasse-Bienvenüe"], [48.83863, 2.32249, "M13 Gaîté"], [48.83423, 2.31862, "M13 Pernety"], [48.83183, 2.31412, "M13 Plaisance"], [48.90609, 2.33183, "M13 Garibaldi"], [48.90453, 2.32219, "M14 Saint-Ouen"], [48.8402, 2.37973, "M6 Bercy"], [48.91258, 2.33429, "M13 Mairie de Saint-Ouen"], [48.86765, 2.36375, "M3 République"], [48.85573, 2.42298, "M9 Robespierre"], [48.86394, 2.27844, "M9 Rue de la Pompe"], [48.86334, 2.28691, "M6 Trocadéro"], [48.84715, 2.26914, "M10 Église d'Auteuil"], [48.84654, 2.286, "M10 Charles Michels"], [48.84707, 2.3074, "M10 Ségur"], [48.84882, 2.32126, "M10 Vaneau"], [48.84797, 2.25774, "M10 Porte d'Auteuil"], [48.86545, 2.35673, "M3 Arts et Métiers"], [48.86525, 2.37458, "M3 Parmentier"], [48.8704, 2.3614, "M5 Jacques Bonsergent"], [48.88686, 2.38591, "M5 Ourcq"], [48.83111, 2.35578, "M5 Place d'Italie"], [48.86397, 2.34962, "M4 Étienne Marcel"], [48.84446, 2.44044, "M1 Château de Vincennes"], [48.86434, 2.33013, "M1 Tuileries"], [48.78, 2.45936, "M8 Créteil–Préfecture"], [48.8148, 2.42238, "M8 École Vétérinaire de Maisons-Alfort"], [48.87547, 2.39887, "M11 Télégraphe"], [48.81013, 2.36226, "M7 Le Kremlin-Bicêtre"], [48.87644, 2.35836, "M4 Gare de l'Est"], [48.80469, 2.36395, "M7 Villejuif - Léo Lagrange"], [48.89145, 2.34972, "M4 Marcadet-Poissonniers"], [48.84277, 2.31263, "M6 Pasteur"], [48.87605, 2.3375, "M12 Notre-Dame-de-Lorette"], [48.8585, 2.32317, "M12 Solférino"], [48.84846, 2.32778, "M12 Rennes"], [48.87817, 2.33786, "M12 Saint-Georges"], [48.88459, 2.33795, "M12 Abbesses"], [48.82708, 2.27941, "M12 Corentin Celton"], [48.82431, 2.27367, "M12 Mairie d'Issy"], [48.83629, 2.27833, "M8 Balard"], [48.87601, 2.34457, "M7 Cadet"], [48.85623, 2.39468, "M2 Alexandre Dumas"], [48.85191, 2.398, "M2 Avron"], [48.87207, 2.37666, "M2 Belleville"], [48.88032, 2.30877, "M2 Monceau"], [48.8839, 2.32789, "M2 Place de Clichy"], [48.88447, 2.36759, "M2 Stalingrad"], [48.88233, 2.3218, "M2 Rome"], [48.8844, 2.3604, "M2 La Chapelle"], [48.88356, 2.33338, "M2 Blanche"], [48.8097, 2.31745, "M4 Barbara"], [48.87303, 2.3342, "M7 Chaussée d'Antin - La Fayette"], [48.87126, 2.34456, "M8 Grands Boulevards"], [48.87194, 2.33866, "M8 Richelieu-Drouot"], [48.89315, 2.41276, "M5 Église de Pantin"], [48.85296, 2.36897, "M1 Bastille"], [48.75955, 2.36648, "M14 Chevilly - Larue"], [48.93678, 2.35937, "M13 Basilique de Saint-Denis"], [48.88314, 2.44082, "M11 Romainville - Carnot"], [48.88224, 2.46736, "M11 Coteaux Beauclair"], [48.88089, 2.35687, "M4 Gare du Nord"], [48.89222, 2.23784, "M1 La Défense"], [48.84812, 2.39556, "M1 Nation"], [48.84441, 2.37369, "M1 Gare de Lyon"], [48.87594, 2.32523, "M3 Saint-Lazare"], [48.85394, 2.28933, "M6 Bir-Hakeim"], [48.84134, 2.40092, "M6 Bel-Air"], [48.83904, 2.38962, "M6 Dugommier"], [48.84066, 2.32639, "M6 Edgar Quinet"], [48.91638, 2.29468, "M13 Gabriel Péri"], [48.8278, 2.30553, "M13 Porte de Vanves"], [48.9231, 2.28628, "M13 Les Agnettes"], [48.82258, 2.29846, "M13 Malakoff - Plateau de Vanves"], [48.86907, 2.30906, "M1 Franklin D. Roosevelt"], [48.85272, 2.40609, "M9 Maraîchers"], [48.84515, 2.26168, "M9 Michel Ange-Molitor"], [48.82975, 2.23103, "M9 Pont de Sèvres"], [48.85377, 2.41189, "M9 Porte de Montreuil"], [48.847, 2.29502, "M10 Avenue Émile Zola"], [48.84605, 2.35498, "M7 Jussieu"], [48.84702, 2.31671, "M10 Duroc"], [48.8452, 2.26644, "M10 Chardon Lagache"], [48.8424, 2.36538, "M5 Gare d'Austerlitz"], [48.88871, 2.28808, "M3 Louise Michel"], [48.86662, 2.35209, "M3 Réaumur Sébastopol"], [48.86429, 2.37974, "M3 Rue Saint-Maur"], [48.86534, 2.4167, "M3 Gallieni"], [48.8646, 2.40803, "M3 Porte de Bagnolet"], [48.84649, 2.36591, "M5 Quai de la Rapée"], [48.85494, 2.34732, "M4 Cité"], [48.85212, 2.34017, "M4 Odéon"], [48.84688, 2.32679, "M4 Saint-Placide"], [48.81868, 2.31974, "M4 Mairie de Montrouge"], [48.8974, 2.34485, "M4 Porte de Clignancourt"], [48.86642, 2.32273, "M1 Concorde"], [48.88102, 2.27224, "M1 Les Sablons"], [48.85524, 2.36096, "M1 Saint-Paul"], [48.84642, 2.41876, "M1 Saint-Mandé"], [48.87949, 2.38857, "M7b Botzaris"], [48.87851, 2.38162, "M7b Buttes-Chaumont"], [48.88107, 2.36469, "M7 Louis Blanc"], [48.86326, 2.36666, "M8 Filles du Calvaire"], [48.85773, 2.31057, "M8 La Tour Maubourg"], [48.84407, 2.39048, "M8 Montgallet"], [48.86996, 2.37109, "M11 Goncourt"], [48.87511, 2.38942, "M11 Jourdain"], [48.81593, 2.37727, "M7 Pierre et Marie Curie"], [48.84287, 2.35222, "M7 Place Monge"], [48.87058, 2.33176, "M3 Opéra"], [48.82136, 2.36929, "M7 Porte d'Ivry"], [48.79648, 2.36827, "M7 Villejuif Paul Vaillant-Couturier"], [48.89739, 2.38551, "M7 Porte de la Villette"], [48.88967, 2.33876, "M12 Lamarck-Caulaincourt"], [48.83952, 2.30111, "M12 Vaugirard"], [48.90657, 2.36592, "M12 Front Populaire"], [48.8552, 2.32582, "M12 Rue du Bac"], [48.87633, 2.33311, "M12 Trinité d'Estienne d'Orves"], [48.86507, 2.39783, "M3 Gambetta"], [48.87714, 2.4066, "M3bis Porte des Lilas"], [48.89091, 2.37709, "M7 Crimée"], [48.85863, 2.34705, "M1 Châtelet"], [48.90808, 2.37774, "M12 Aimé Césaire"], [48.87448, 2.322, "M9 Saint-Augustin"], [48.85509, 2.3847, "M9 Charonne"], [48.86948, 2.35404, "M4 Strasbourg-Saint-Denis"], [48.91747, 2.34654, "M14 Saint-Denis – Pleyel"], [48.88109, 2.31472, "M2 Villiers"], [48.83361, 2.3326, "M4 Denfert-Rochereau"], [48.87473, 2.29551, "M1 Charles De Gaulle-Étoile"], [48.88547, 2.2985, "M3 Pereire-Levallois"], [48.8611, 2.31377, "M8 Invalides"], [48.82979, 2.35041, "M6 Corvisart"], [48.83495, 2.36813, "M6 Chevaleret"], [48.83113, 2.34351, "M6 Glacière"], [48.83322, 2.36286, "M6 Nationale"], [48.84506, 2.40129, "M6 Picpus"], [48.83896, 2.33075, "M4 Raspail"], [48.8329, 2.33713, "M6 Saint-Jacques"], [48.87126, 2.29324, "M6 Kléber"], [48.91901, 2.34261, "M13 Carrefour Pleyel"], [48.92994, 2.35604, "M13 Saint-Denis - Porte de Paris"], [48.94587, 2.36464, "M13 Saint-Denis - Université"], [48.85144, 2.31441, "M13 Saint-François-Xavier"], [48.85687, 2.31506, "M13 Varenne"], [48.87018, 2.32573, "M8 Madeleine"], [48.82943, 2.37672, "M14 Bibliothèque François Mitterrand"], [48.86479, 2.29416, "M9 Iéna"], [48.84792, 2.26415, "M9 Michel Ange-Auteuil"], [48.87375, 2.3146, "M9 Miromesnil"], [48.87205, 2.31002, "M9 Saint-Philippe du Roule"], [48.85549, 2.27011, "M9 Ranelagh"], [48.86148, 2.37394, "M9 Saint-Ambroise"], [48.85788, 2.38002, "M9 Voltaire"], [48.84666, 2.35162, "M10 Cardinal Lemoine"], [48.85009, 2.34821, "M10 Maubert-Mutualité"], [48.86964, 2.33623, "M3 Quatre Septembre"], [48.86499, 2.36796, "M5 Oberkampf"], [48.89545, 2.42533, "M5 Bobigny-Pantin - Raymond Queneau"], [48.83111, 2.32971, "M4 Mouton-Duvernet"], [48.85372, 2.33378, "M4 Saint-Germain-des-Prés"], [48.84222, 2.32901, "M4 Vavin"], [48.85107, 2.3307, "M4 Saint-Sulpice"], [48.87534, 2.29013, "M1 Argentine"], [48.87202, 2.30056, "M1 George V"], [48.8395, 2.39594, "M6 Daumesnil"], [48.84275, 2.29191, "M8 Félix Faure"], [48.85152, 2.3751, "M8 Ledru Rollin"], [48.80336, 2.44557, "M8 Maisons-Alfort-Les Juilliottes"], [48.8612, 2.3535, "M11 Rambuteau"], [48.81052, 2.38429, "M7 Mairie d'Ivry"], [48.86259, 2.33669, "M1 Palais Royal - Musée du Louvre"], [48.86582, 2.33431, "M7 Pyramides"], [48.88797, 2.37346, "M7 Riquet"], [48.84447, 2.31785, "M12 Falguière"], [48.84494, 2.32878, "M12 Notre-Dame-des-Champs"], [48.8514, 2.32646, "M10 Sèvres-Babylone"], [48.83245, 2.28802, "M12 Porte de Versailles"], [48.89724, 2.35951, "M12 Porte de la Chapelle"], [48.86079, 2.321, "M12 Assemblée Nationale"], [48.86844, 2.40156, "M3bis Pelleport"], [48.8219, 2.41313, "M8 Charenton-Écoles"], [48.8571, 2.36818, "M8 Chemin Vert"], [48.84023, 2.35161, "M7 Censier-Daubenton"], [48.89466, 2.38216, "M7 Corentin Cariou"], [48.84616, 2.2784, "M10 Javel - André Citroën"], [48.91371, 2.38074, "M12 Mairie d'Aubervilliers"], [48.87933, 2.30407, "M2 Courcelles"], [48.85198, 2.40193, "M9 Buzenval"], [48.88243, 2.37078, "M2 Jaurès"], [48.88497, 2.37872, "M5 Laumière"], [48.74698, 2.37284, "M14 Thiais - Orly"], [48.89221, 2.32722, "M13 Guy Môquet"], [48.85805, 2.27415, "M9 La Muette"], [48.85294, 2.3442, "M4 Saint-Michel"], [48.86265, 2.38686, "M2 Père Lachaise"], [48.87147, 2.27708, "M2 Porte Dauphine"], [48.86698, 2.29006, "M6 Boissière"], [48.85043, 2.29361, "M6 Dupleix"], [48.83705, 2.37283, "M6 Quai de la Gare"], [48.89447, 2.31405, "M13 Porte de Clichy"], [48.81075, 2.30168, "M13 Châtillon-Montrouge"], [48.87964, 2.32702, "M13 Liège"], [48.90323, 2.30601, "M13 Mairie de Clichy"], [48.93076, 2.28417, "M13 Les Courtilles"], [48.85217, 2.38963, "M9 Rue des Boulets"], [48.86477, 2.30099, "M9 Alma-Marceau"], [48.84201, 2.23889, "M10 Boulogne - Jean Jaurès"], [48.84074, 2.22854, "M10 Boulogne - Pont de Saint-Cloud"], [48.86865, 2.34138, "M3 Bourse"], [48.89208, 2.28501, "M3 Anatole France"], [48.86651, 2.3608, "M3 Temple"], [48.88601, 2.29353, "M3 Porte de Champerret"], [48.58824, 2.35509, "M3 Malesherbes"], [48.88842, 2.39178, "M5 Porte de Pantin"], [48.85987, 2.37191, "M5 Richard Lenoir"], [48.82819, 2.32716, "M4 Alésia"], [48.89434, 2.34743, "M4 Simplon"], [48.84547, 2.42921, "M1 Bérault"], [48.88471, 2.26051, "M1 Pont de Neuilly"], [48.87774, 2.28307, "M1 Porte Maillot"], [48.88067, 2.3745, "M7b Bolivar"], [48.88182, 2.39401, "M7b Danube"], [48.84109, 2.28795, "M8 Boucicaut"], [48.84479, 2.29395, "M8 Commerce"], [48.85018, 2.38409, "M8 Faidherbe Chaligny"], [48.83712, 2.40233, "M8 Michel Bizot"], [48.82662, 2.40585, "M8 Liberté"], [48.84715, 2.38613, "M1 Reuilly-Diderot"], [48.80914, 2.43451, "M8 Maisons-Alfort-Stade"], [48.83873, 2.28214, "M8 Lourmel"], [48.83274, 2.40031, "M8 Porte de Charenton"], [48.87976, 2.41648, "M11 Mairie des Lilas"], [48.87688, 2.39302, "M7b Place des Fêtes"], [48.87388, 2.38532, "M11 Pyrénées"], [48.90378, 2.39222, "M7 Aubervilliers Pantin - Quatre Chemins"], [48.87497, 2.34058, "M7 Le Peletier"], [48.83593, 2.35254, "M7 Les Gobelins"], [48.85357, 2.35716, "M7 Pont Marie"], [48.78756, 2.3678, "M7 Villejuif - Louis Aragon"], [48.82643, 2.35725, "M7 Tolbiac"], [48.89242, 2.34477, "M12 Jules Joffrin"], [48.89048, 2.36, "M12 Marx Dormoy"], [48.84151, 2.30795, "M12 Volontaires"], [48.84374, 2.32435, "M12 Montparnasse Bienvenüe"], [48.71859, 2.47356, "M3bis Saint-Fargeau"], [48.85489, 2.3064, "M8 École Militaire"], [48.87844, 2.36197, "M7 Château-Landon"], [48.88297, 2.34467, "M2 Anvers"], [48.88224, 2.3377, "M2 Pigalle"], [48.87262, 2.35615, "M4 Château d'Eau"], [48.80363, 2.31805, "M4 Bagneux - Lucie Aubrac"], [48.84241, 2.25961, "M9 Exelmans"], [48.87059, 2.34849, "M8 Bonne Nouvelle"], [48.83515, 2.35857, "M5 Campo Formio"], [48.77531, 2.35437, "M14 L'Haÿ - les - Roses"], [48.72808, 2.36259, "M14 Aéroport d'Orly"], [48.88132, 2.42719, "M11 Serge Gainsbourg"], [48.85105, 2.34427, "M10 Cluny-La Sorbonne"], [48.88361, 2.35014, "M2 Barbès-Rochechouart"], [48.86645, 2.3836, "M2 Ménilmontant"], [48.87797, 2.29831, "M2 Ternes"], [48.8698, 2.28533, "M2 Victor Hugo"], [48.85745, 2.28581, "M6 Passy"], [48.84563, 2.30953, "M6 Sèvres-Lecourbe"], [48.89059, 2.32017, "M13 Brochant"], [48.86775, 2.31372, "M1 Champs-Élysées – Clemenceau"], [48.81531, 2.29708, "M13 Malakoff - Rue Étienne Dolet"], [48.88718, 2.32578, "M13 La Fourche"], [48.89737, 2.32894, "M13 Porte de Saint-Ouen"], [48.83334, 2.38663, "M14 Cour Saint-Émilion"], [48.88956, 2.31518, "M14 Pont Cardinet"], [48.8525, 2.26818, "M9 Jasmin"], [48.83363, 2.24358, "M9 Marcel Sembat"], [48.83796, 2.25712, "M9 Porte de Saint-Cloud"], [48.8623, 2.44152, "M9 Mairie de Montreuil"], [48.84713, 2.27276, "M10 Mirabeau"], [48.85302, 2.3355, "M10 Mabillon"], [48.87877, 2.32226, "M3 Europe"], [48.86751, 2.34655, "M3 Sentier"], [48.88381, 2.30467, "M3 Wagram"], [48.89715, 2.28041, "M3 Pont de Levallois"], [48.85614, 2.37021, "M5 Bréguet-Sabin"], [48.90637, 2.44919, "M5 Bobigny Pablo Picasso"], [48.83843, 2.36097, "M5 Saint-Marcel"], [48.89123, 2.40235, "M5 Hoche"], [48.82341, 2.32558, "M4 Porte d'Orléans"], [48.85746, 2.35129, "M1 Hôtel de Ville"], [48.86081, 2.34111, "M1 Louvre-Rivoli"], [48.84734, 2.40809, "M1 Porte de Vincennes"], [48.88027, 2.39847, "M7b Pré Saint-Gervais"], [48.78992, 2.45051, "M8 Créteil-Université"], [48.86117, 2.36721, "M8 Saint-Sébastien-Froissart"], [48.83478, 2.40538, "M8 Porte Dorée"], [48.81988, 2.36453, "M7 Porte de Choisy"], [48.85162, 2.36152, "M7 Sully-Morland"], [48.81922, 2.3597, "M7 Porte d'Italie"], [48.92079, 2.4106, "M7 La Courneuve 8 Mai 1945"], [48.8218, 2.3588, "M7 Maison Blanche"], [48.85855, 2.34223, "M7 Pont Neuf"], [48.91495, 2.40441, "M7 Fort d'Aubervilliers"], [48.8771, 2.34878, "M7 Poissonnière"], [48.79668, 2.44941, "M8 Créteil–L’Échat"], [48.76881, 2.46428, "M8 Créteil - Pointe du Lac"], [48.8371, 2.29623, "M12 Convention"], [48.88671, 2.34956, "M4 Château Rouge"], [48.85778, 2.43454, "M9 Croix de Chavaux"], [48.83174, 2.23744, "M9 Billancourt"], [48.88814, 2.24979, "M1 Esplanade de la Défense"], [48.82727, 2.36803, "M14 Olympiades"], [48.80981, 2.34975, "M14 Hôpital Bicêtre"], [48.79306, 2.34937, "M14 Villejuif - Gustave Roussy"], [48.88264, 2.48086, "M11 Rosny-Bois-Perrier"], [48.87834, 2.45471, "M11 Montreuil - Hôpital"], [48.87799, 2.46547, "M11 La Dhuys"], [48.96375, 2.3721, "RER D Pierrefitte Stains"], [48.97675, 2.39059, "RER D Garges-Sarcelles"], [48.60556, 2.46246, "RER D Essonnes-Robinson"], [49.04933, 2.50176, "RER D Louvres"], [48.91757, 2.35039, "RER D Stade de France-Saint-Denis"], [48.70661, 2.48424, "RER D Yerres"], [48.59281, 2.46155, "RER D Villabé"], [48.65485, 2.39678, "RER D Grigny-Centre"], [48.95349, 2.30235, "RER C Épinay-sur-Seine"], [48.57751, 2.19206, "RER C Breuillet"], [48.76379, 2.41139, "RER C Choisy-le-Roi"], [48.78223, 2.40959, "RER C Les Ardoines"], [48.74507, 2.41752, "RER C Les Saules"], [49.04665, 2.09519, "RER C Pontoise"], [48.79871, 2.07185, "RER C Saint-Cyr"], [48.96359, 2.28593, "RER C Saint-Gratien"], [48.42736, 2.14525, "RER C Saint-Martin-d'Étampes"], [48.80021, 2.40271, "RER C Vitry-sur-Seine"], [48.86035, 2.32676, "RER C Musée d'Orsay"], [49.00976, 2.56123, "RER B Aéroport Charles De Gaulle 1"], [48.79334, 2.3222, "RER B Bagneux"], [48.70122, 2.09798, "RER B Courcelle-sur-Yvette"], [48.93271, 2.45477, "RER B Drancy"], [48.69625, 2.16438, "RER B Bures-sur-Yvette"], [48.8083, 2.33435, "RER B Laplace"], [48.78136, 2.29765, "RER B Sceaux"], [48.93628, 2.53471, "RER B Sevran-Livry"], [48.75495, 2.30099, "MORL Antony"], [48.7257, 2.25886, "RER B Massy-Palaiseau"], [48.82109, 2.33898, "RER B Cité Universitaire"], [48.88521, 2.1559, "RER A Châtou-Croissy"], [48.80538, 2.48635, "RER A Le Parc de Saint-Maur"], [48.89009, 2.1346, "RER A Le Vésinet-Centre"], [48.83654, 2.70898, "RER A Bussy-Saint-Georges"], [49.04788, 2.011, "RER A Cergy Le Haut"], [48.74645, 2.72723, "RER E Gretz-Armainvilliers"], [48.88373, 2.52543, "RER E Gagny"], [48.82485, 2.51186, "RER E Les Boullereaux-Champigny"], [48.84253, 2.36543, "RER C Paris Austerlitz"], [48.6259, 2.43016, "RER D Évry Courcouronnes"], [48.59112, 2.26621, "RER C La Norville"], [48.37138, 2.38721, "RER D Buno-Gironville"], [49.02316, 2.46217, "RER D Goussainville"], [48.53878, 2.62552, "RER D Le Mée"], [48.53514, 2.54435, "RER D Ponthierry-Pringy"], [48.73064, 2.44623, "RER D Villeneuve-Saint-Georges"], [48.62333, 2.45141, "RER D Le Bras-de-Fer"], [48.64849, 2.43533, "RER D Grand-Bourg"], [48.77127, 2.43531, "RER D Créteil Pompadour"], [48.83909, 2.27046, "RER C Pont du Garigliano"], [48.53289, 2.29008, "RER C Bouray"], [48.60674, 2.30206, "RER C Brétigny"], [48.58601, 2.24107, "RER C Arpajon"], [49.03399, 2.12826, "RER C Saint-Ouen-l'Aumône-Liesse"], [48.65281, 2.31274, "RER C Sainte-Geneviève-des-Bois"], [48.85697, 2.27479, "RER C Boulainvilliers"], [48.86983, 2.27481, "RER C Avenue Foch"], [48.85646, 2.2898, "RER C Champ de Mars"], [48.86182, 2.34701, "RER A Châtelet-Les Halles"], [48.69526, 2.15164, "RER B La Hacquinière"], [48.93074, 2.42579, "RER B Le Bourget"], [48.7054, 2.19273, "RER B Le Guichet"], [48.97342, 2.51436, "RER B Parc des Expositions"], [48.70275, 2.07124, "RER B Saint-Rémy-lès-Chevreuse"], [48.78024, 2.28143, "RER B Robinson"], [48.74302, 2.29592, "RER B Fontaine-Michalon"], [48.9455, 2.14502, "RER A Maisons-Laffitte"], [48.89513, 2.19536, "RER A Nanterre-Ville"], [48.83429, 2.47168, "RER A Nogent-sur-Marne"], [48.85482, 2.77243, "RER A Val d'Europe"], [48.85418, 2.48893, "RER A Val de Fontenay"], [48.87414, 2.58333, "RER E Chelles-Gournay"], [48.88887, 2.51316, "RER E Le Raincy-Villemomble-Montfermeil"], [48.89811, 2.40036, "RER E Pantin"], [48.83934, 2.49419, "RER E Nogent-le-Perreux"], [48.82327, 2.54268, "RER E Villiers-sur-Marne - Le Plessis-Trévise"], [48.84519, 2.52562, "RER A Bry-sur-Marne"], [48.99087, 2.07443, "RER A Conflans-Fin-d'Oise"], [48.78757, 2.29299, "RER B Fontenay-aux-Roses"], [48.91801, 2.36247, "RER B La Plaine-Stade de France"], [48.56612, 2.49271, "RER D Le Coudray-Montceaux"], [48.63427, 2.45257, "RER D Évry"], [48.52724, 2.65499, "RER D Melun"], [48.57381, 2.47947, "RER D Le Plessis-Chenet"], [48.78847, 2.43224, "RER D Le Vert-de-Maisons"], [48.58715, 2.47349, "RER D Moulin-Galant"], [48.63635, 2.4078, "RER D Orangis-Bois de l'Epine"], [48.67609, 2.38678, "RER D Viry-Châtillon"], [48.7445, 2.43867, "RER D Villeneuve-Triage"], [48.68967, 2.38334, "RER C Juvisy"], [48.72554, 2.41956, "RER C Ablon"], [48.71263, 2.40363, "RER C Athis-Mons"], [48.66948, 2.33262, "RER C Épinay-sur-Orge"], [48.9329, 2.30794, "RER C Gennevilliers"], [48.43692, 2.15953, "RER C Étampes"], [48.56559, 2.29092, "RER C Marolles-en-Hurepoix"], [48.92087, 2.31384, "RER C Les Grésillons"], [48.74188, 2.40291, "RER C Orly Ville"], [48.86266, 2.30099, "RER C Pont de l'Alma"], [48.67645, 2.35248, "RER C Savigny-sur-Orge"], [48.53581, 2.06938, "RER C Sermaise"], [48.73983, 2.4264, "RER C Villeneuve-le-Roi"], [48.80022, 2.12904, "RER C Versailles Château"], [48.51425, 2.21552, "RER C Chamarande"], [48.81934, 2.25789, "RER C Issy"], [48.8306, 2.26407, "RER C Issy-Val-de-Seine"], [48.9323, 2.47567, "RER B Le Blanc-Mesnil"], [48.70597, 2.21226, "RER B Lozère"], [48.71695, 2.24567, "RER B Palaiseau"], [48.95315, 2.60313, "RER B Villeparisis-Mitry-le-Neuf"], [48.94689, 2.52478, "RER B Sevran-Beaudottes"], [48.73968, 2.28767, "RER B Les Baconnets"], [49.03646, 2.07953, "RER A Cergy-Préfecture"], [49.04965, 2.03429, "RER A Cergy-Saint-Christophe"], [48.80698, 2.51031, "RER A Champigny"], [48.86995, 2.78223, "RER A Marne-la-Vallée-Chessy"], [48.77171, 2.50748, "RER A Sucy-Bonneuil"], [48.85291, 2.51431, "RER A Neuilly-Plaisance"], [48.87716, 2.55288, "RER E Le Chénay-Gagny"], [48.77078, 2.69025, "RER E Ozoir-la-Ferrière"], [48.73949, 2.75882, "RER E Tournan"], [48.87503, 2.32672, "RER E Haussmann-Saint-Lazare"], [48.84084, 2.5499, "RER A Noisy-le-Grand-Mont d'Est"], [48.89759, 2.22374, "RER E Nanterre - La Folie"], [49.12621, 2.50701, "RER D La Borne Blanche"], [48.84716, 2.27804, "RER C Javel"], [48.68102, 2.53313, "RER D Boussy-Saint-Antoine"], [48.43449, 2.37667, "RER D Boutigny"], [48.52975, 2.57207, "RER D Boissise-le-Roi"], [48.56495, 2.59455, "RER D Cesson"], [48.39364, 2.39341, "RER D Maisse"], [48.5706, 2.4321, "RER D Mennecy"], [48.62838, 2.56958, "RER D Lieusaint-Moissy"], [48.80205, 2.42648, "RER D Maisons-Alfort-Alfortville"], [48.59556, 2.58395, "RER D Savigny-le-Temple-Nandy"], [48.65897, 2.41521, "RER D Ris-Orangis"], [48.93446, 2.3456, "RER D Saint-Denis"], [48.51515, 2.5993, "RER D Vosves"], [48.70812, 2.41387, "RER D Vigneux-sur-Seine"], [49.26394, 2.46891, "RER D Creil"], [48.70824, 2.46228, "RER D Montgeron-Crosne"], [48.34166, 2.37881, "RER D Boigneville"], [48.53373, 2.00877, "RER C Dourdan"], [48.98051, 2.2711, "RER C Ermont-Eaubonne"], [48.99371, 2.23428, "RER C Franconville-Le Plessis-Bouchard"], [48.49365, 2.19458, "RER C Étréchy"], [48.74835, 2.37311, "RER C Pont de Rungis"], [49.04531, 2.10511, "RER C Saint-Ouen-l'Aumône"], [48.74019, 2.35163, "RER C Rungis-La Fraternelle"], [49.00777, 2.1965, "RER C Montigny-Beauchamp"], [48.86546, 2.27216, "RER C Avenue Henri Martin"], [48.58273, 2.22345, "RER C Égly"], [48.56433, 2.17038, "RER C Breuillet-Village"], [48.73489, 2.274, "RER B Massy-Verrières"], [48.79514, 2.13516, "RER C Versailles-Chantiers"], [48.78031, 2.31231, "RER B Bourg-la-Reine"], [48.81523, 2.34089, "RER B Gentilly"], [48.6982, 2.13657, "RER B Gif-sur-Yvette"], [48.92435, 2.38639, "RER B La Courneuve-Aubervilliers"], [48.69751, 2.18105, "RER B Orsay-Ville"], [48.84003, 2.3371, "RER B Port Royal"], [48.9554, 2.09352, "RER A Achères-Grand-Cormier"], [48.83922, 2.63321, "RER A Lognes"], [48.84289, 2.58009, "RER A Noisy-Champs"], [48.93326, 2.04107, "RER A Poissy"], [49.01413, 2.07831, "RER A Neuville Université"], [48.84734, 2.43243, "RER A Vincennes"], [48.80584, 2.61919, "RER E Émerainville-Pontault-Combault"], [48.82315, 2.57984, "RER E Les Yvris-Noisy-le-Grand"], [48.89665, 2.45836, "RER E Noisy-le-Sec"], [48.86991, 2.48576, "RER E Rosny-sous-Bois"], [49.18709, 2.45955, "RER D Chantilly-Gouvieux"], [48.69911, 2.50668, "RER D Brunoy"], [48.6679, 2.54755, "RER D Combs-la-Ville - Quincy"], [48.61343, 2.47293, "RER D Corbeil-Essonnes"], [49.03318, 2.47803, "RER D Les Noues"], [49.13829, 2.49018, "RER D Orry-la-Ville-Coye-la-Forêt"], [49.09959, 2.52553, "RER D Survilliers-Fosses"], [48.99378, 2.41619, "RER D Villiers-le-Bel-Gonesse-Arnouville"], [48.5315, 2.37052, "RER D Ballancourt"], [48.85365, 2.27949, "RER C Avenue du Président Kennedy"], [48.53562, 1.9959, "RER C Dourdan-la-Forêt"], [48.79973, 2.18368, "RER C Chaville-Vélizy"], [48.74794, 2.31271, "RER C Chemin d'Antony"], [48.81399, 2.39169, "RER C Ivry-sur-Seine"], [48.80749, 2.24088, "RER C Meudon-Val-Fleury"], [48.5204, 2.25474, "RER C Lardy"], [49.01914, 2.15466, "RER C Pierrelaye"], [48.79653, 2.15238, "RER C Porchefontaine"], [48.63588, 2.30683, "RER C Saint-Michel-sur-Orge"], [48.78739, 2.04462, "RER C Saint-Quentin-en-Yvelines"], [48.80072, 2.17139, "RER C Viroflay Rive Gauche"], [48.98501, 2.25747, "RER C Cernay"], [48.87791, 2.28443, "RER C Neuilly Porte Maillot"], [48.55093, 2.12494, "RER C Saint-Chéron"], [48.79889, 2.32814, "RER B Arcueil-Cachan"], [48.9322, 2.49551, "RER B Aulnay-sous-Bois"], [48.76169, 2.30423, "RER B La Croix-de-Berny-Fresnes"], [48.97586, 2.64241, "RER B Mitry-Claye"], [48.84543, 2.33976, "RER B Luxembourg"], [48.70814, 2.23731, "RER B Palaiseau-Villebon"], [48.94418, 2.56645, "RER B Vert-Galant"], [48.96271, 2.51265, "RER B Villepinte"], [48.76956, 2.30991, "RER B Parc de Sceaux"], [49.00469, 2.57059, "RER B Aéroport Charles De Gaulle 2-TGV"], [48.75219, 2.50456, "RER A Boissy-Saint-Léger"], [48.97066, 2.07773, "RER A Achères-Ville"], [48.87216, 2.32993, "RER A Auber"], [48.84379, 2.4635, "RER A Fontenay-sous-Bois"], [48.92038, 2.18535, "RER A Houilles-Carrières-sur-Seine"], [48.82104, 2.46386, "RER A Joinville-le-Pont"], [48.79538, 2.51342, "RER A La Varenne-Chennevières"], [48.89797, 2.12212, "RER A Le Vésinet-Le Pecq"], [48.89574, 2.22321, "RER A Nanterre-Préfecture"], [48.93774, 2.15709, "RER A Sartrouville"], [48.88757, 2.17258, "RER A Rueil-Malmaison"], [48.8062, 2.47272, "RER A Saint-Maur-Créteil"], [48.83965, 2.65513, "RER A Torcy"], [48.84351, 2.61668, "RER A Noisiel"], [48.89808, 2.09484, "RER A Saint-Germain-en-Laye"], [48.88077, 2.35873, "RER E Magenta"], [48.79565, 2.65039, "RER E Roissy-en-Brie"], [48.89658, 2.37382, "RER E Rosa Parks"], [48.90116, 2.21343, "RER A Nanterre-Université"], [48.89395, 2.48021, "RER E Bondy"], [48.48551, 2.35219, "RER D La Ferté-Alais"], [49.03531, 2.21025, "Transilien H Bessancourt"], [49.02321, 2.36222, "Transilien H Écouen-Ézanville"], [48.9581, 2.32846, "Transilien H Épinay-Villetaneuse"], [48.98432, 2.35341, "Transilien H Groslay"], [49.04543, 2.19709, "Transilien H Frépillon"], [48.99601, 2.36869, "Transilien H Sarcelles-Saint-Brice"], [49.11663, 2.36825, "Transilien H Viarmes"], [49.15513, 2.32483, "Transilien H Bruyères-sur-Oise"], [48.92392, 2.25935, "Transilien J Colombes"], [48.97929, 1.78397, "Transilien J Issou-Porcheville"], [48.99261, 1.95548, "Transilien J Les Clairières de Verneuil"], [48.98417, 1.74779, "Transilien J Limay"], [49.03876, 1.58153, "Transilien J Bonnières"], [48.80865, 2.99311, "Transilien P Faremoutiers-Pommeuse"], [48.88219, 2.70601, "Transilien P Lagny-Thorigny"], [48.51376, 3.25004, "Transilien P Longueville"], [48.64437, 2.82517, "Transilien P Verneuil-l'Etang"], [48.96023, 2.95006, "Transilien P Trilport"], [48.88822, 2.31373, "Transilien L Pont-Cardinet"], [48.80948, 2.13509, "Transilien L Versailles Rive Droite"], [49.4262, 2.08851, "Transilien GL Beauvais"], [48.60508, 1.68165, "Transilien GL Épernon"], [49.09612, 2.74469, "Transilien K Le Plessis-Belleville"], [48.22955, 2.70394, "Transilien R Bagneaux-sur-Loing"], [48.51026, 2.67897, "Transilien R Livry-sur-Seine"], [48.33648, 2.738, "Transilien R Montigny-sur-Loing"], [48.96334, 1.80909, "Transilien J Épône-Mézières"], [48.81424, 2.27449, "Transilien N Clamart"], [48.64422, 1.83293, "Transilien N Rambouillet"], [48.81839, 2.29206, "Transilien N Vanves-Malakoff"], [48.81047, 1.76458, "Transilien N Garancières-La Queue"], [48.7748, 2.00657, "Transilien N Trappes"], [48.82724, 2.20072, "Transilien L Sèvres-Ville-d'Avray"], [49.28539, 1.78491, "Transilien J Gisors"], [49.2612, 1.8731, "Transilien J Chaumont-en-Vexin"], [48.44267, 2.76072, "Transilien R Héricy"], [48.40728, 2.79892, "Transilien R Champagne-sur-Seine"], [48.44806, 1.4802, "Transilien GL Chartres"], [48.13758, 3.29032, "Transilien GL Étigny-Veron"], [48.02664, 3.30279, "Transilien GL Saint-Julien-du-Sault"], [48.62604, 1.77325, "Transilien GL Gazeran"], [48.73118, 1.37047, "Transilien N Dreux"], [48.99189, 3.36438, "Transilien P Chézy-sur-Marne"], [47.96089, 3.51289, "Transilien GL Laroche-Migennes"], [48.97605, 2.33852, "Transilien H Deuil-Montmagny"], [48.97275, 2.30714, "Transilien H Enghien-Les-Bains"], [49.11478, 2.21002, "Transilien H L'Isle-Adam-Parmain"], [49.06629, 2.32292, "Transilien H Montsoult-Maffliers"], [49.06115, 2.13154, "Transilien H Pont-Petit"], [49.11406, 2.28791, "Transilien H Presles-Courcelles"], [49.16678, 2.3623, "Transilien H Boran-sur-Oise"], [48.77163, 2.14697, "Transilien V Petit-Jouy-les-Loges"], [48.75884, 2.19301, "Transilien V Vauboyen"], [48.76478, 2.16395, "Transilien V Jouy-en-Josas"], [48.98298, 1.80891, "Transilien J Gargenville"], [48.99224, 1.84513, "Transilien J Juziers"], [49.00576, 1.90178, "Transilien J Meulan-Hardricourt"], [48.99259, 1.91353, "Transilien J Les Mureaux"], [49.0067, 1.91924, "Transilien J Thun-le-Paradis"], [48.97214, 1.84835, "Transilien J Aubergenville-Élisabethville"], [48.93949, 1.9996, "Transilien J Villennes-sur-Seine"], [49.09188, 3.06269, "Transilien P Crouy-sur-Ourcq"], [48.90307, 2.81025, "Transilien P Esbly"], [48.73494, 2.86896, "Transilien P Marles-en-Brie"], [48.56195, 3.01201, "Transilien P Nangis"], [48.55543, 3.3018, "Transilien P Provins"], [48.3113, 2.00352, "Transilien GL Angerville"], [48.99139, 2.66506, "Transilien K Compans"], [49.00811, 2.68025, "Transilien K Thieux-Nantouillet"], [48.37953, 2.94252, "Transilien R Montereau"], [48.37864, 2.89638, "Transilien R La Grande Paroisse"], [48.3786, 2.79931, "Transilien R Moret-Veneux-les-Sablons"], [48.4305, 2.753, "Transilien R Vulaines-sur-Seine-Samoreau"], [48.74348, 1.92104, "Transilien N Coignières"], [48.89298, 1.87184, "Transilien N Mareil-sur-Mauldre"], [48.8026, 1.81647, "Transilien N Montfort-L'Amaury-Méré"], [48.93872, 1.84052, "Transilien N Nézel-Aulnay"], [48.82943, 1.66901, "Transilien N Tacoignières-Richebourg"], [48.81533, 1.8775, "Transilien N Villiers-Neauphle Pontchartrain"], [48.8461, 2.21762, "Transilien L Saint-Cloud"], [49.22067, 1.90549, "Transilien J Liancourt-Saint-Pierre"], [48.9746, 2.04867, "Transilien J Andrésy"], [48.54266, 1.59008, "Transilien GL Saint-Piat"], [48.19836, 3.26737, "Transilien GL Sens"], [48.75518, 1.94305, "Transilien N La Verrière"], [49.136, 2.24268, "Transilien H Champagne-sur-Oise"], [48.96633, 2.31658, "Transilien H La Barre-Ormesson"], [49.05805, 2.19124, "Transilien H Méry-sur-Oise"], [49.11713, 2.42011, "Transilien H Luzarches"], [49.14772, 2.27782, "Transilien H Persan-Beaumont"], [49.21379, 2.41703, "Transilien H Saint-Leu d’Esserent"], [49.13258, 2.28051, "Transilien H Nointel-Mours"], [49.20348, 2.3773, "Transilien H Précy-sur-Oise"], [48.99029, 2.16191, "Transilien J Herblay"], [49.00713, 1.96355, "Transilien J Vaux-sur-Seine"], [48.95916, 3.02611, "Transilien P Changis-Saint-Jean"], [48.99842, 3.00795, "Transilien P Isles-Armentières-Congis"], [48.95082, 3.12491, "Transilien P La Ferté-sous-Jouarre"], [49.02176, 3.03176, "Transilien P Lizy-sur-Ourcq"], [48.7895, 2.90739, "Transilien P Mortcerf"], [48.96876, 3.3228, "Transilien P Nogent-l'Artaud-Charly"], [48.89764, 2.29742, "Transilien L Clichy-Levallois"], [48.84272, 2.13813, "Transilien L La Celle-Saint-Cloud"], [48.90963, 2.23968, "Transilien L La Garenne-Colombes"], [48.86806, 2.07672, "Transilien L L'Étang-la-Ville"], [48.83664, 2.1527, "Transilien L Vaucresson"], [48.86737, 2.05128, "Transilien L Saint-Nom-la-Bretèche - Forêt de Marly"], [48.80594, 2.15299, "Transilien L Montreuil"], [48.34842, 2.03224, "Transilien GL Monnerville"], [48.18644, 1.38624, "Transilien GL Bonneval"], [48.83908, 2.38303, "Transilien GL Paris-Bercy"], [48.27508, 1.62212, "Transilien GL Voves"], [49.20088, 2.83811, "Transilien K Ormoy-Villers"], [48.18094, 2.73625, "Transilien R Souppes-Château-Landon"], [48.38677, 2.84204, "Transilien R Vernou-sur-Seine"], [48.82122, 2.21486, "Transilien N Sèvres Rive Gauche"], [48.82365, 1.99287, "Transilien N Villepreux-les-Clayes"], [48.76835, 1.51364, "Transilien N Marchezais - Broué"], [49.01769, 2.09018, "Transilien J Éragny-Neuville"], [48.99031, 2.26329, "Transilien H Ermont-Halte"], [48.28628, 3.20177, "Transilien GL Pont-sur-Yonne"], [48.94346, 1.54177, "Transilien GL Bréval"], [48.51005, 1.5576, "Transilien GL Jouy"], [48.8052, 2.18928, "Transilien N Chaville Rive Gauche"], [48.81257, 2.18826, "Transilien L Chaville Rive Droite"], [49.0984, 2.36127, "Transilien H Belloy-Saint-Martin"], [49.03297, 2.33683, "Transilien H Domont"], [49.0777, 2.20545, "Transilien H Mériel"], [49.07927, 2.35051, "Transilien H Villaines"], [49.01532, 2.24284, "Transilien H Saint-Leu-la-Forêt"], [48.75102, 2.21586, "Transilien V Bièvres"], [48.9468, 2.2579, "Transilien J Argenteuil"], [48.97037, 2.02752, "Transilien J Chanteloup-les-Vignes"], [48.9895, 1.70302, "Transilien J Mantes-la-Jolie"], [48.98365, 1.71521, "Transilien J Mantes-Station"], [48.98664, 2.05957, "Transilien J Maurecourt"], [49.12345, 1.94933, "Transilien J Santeuil-le-Perchay"], [49.06297, 2.0579, "Transilien J Osny"], [48.97099, 2.26383, "Transilien J Sannois"], [49.07584, 2.02495, "Transilien J Boissy-l'Aillerie"], [48.96867, 2.19309, "Transilien J Cormeilles-en-Parisis"], [49.03896, 2.10346, "Transilien J Saint-Ouen-l'Aumône - Quartier de l'Église"], [48.81077, 2.95373, "Transilien P Guérard-la-Celle-sur-Morin"], [48.52915, 3.25537, "Transilien P Sainte-Colombe-Septveilles"], [49.13547, 3.07563, "Transilien P Mareuil-sur-Ourcq"], [48.95693, 2.87337, "Transilien P Meaux"], [48.87171, 2.22103, "Transilien L Suresnes-Mont-Valérien"], [48.80548, 2.16767, "Transilien L Viroflay Rive Droite"], [48.37452, 2.05991, "Transilien GL Guillerval"], [48.38269, 2.81658, "Transilien R Saint-Mammès"], [48.39431, 2.76403, "Transilien R Thomery"], [48.14722, 2.76273, "Transilien R Dordives"], [48.33268, 2.69248, "Transilien R Bourron-Marlotte-Grez"], [48.81895, 2.22981, "Transilien N Bellevue"], [48.86, 1.8756, "Transilien N Beynes"], [48.80725, 2.04052, "Transilien N Fontenay-le-Fleury"], [48.90955, 1.85686, "Transilien N Maule"], [48.82658, 1.70322, "Transilien N Orgerus-Béhoust"], [48.83096, 1.96003, "Transilien N Plaisir-les-Clayes"], [48.72192, 1.89, "Transilien N Les-Essarts-le-Roi"], [48.88338, 2.23369, "Transilien L Puteaux"], [48.9059, 2.28311, "Transilien J Asnières-sur-Seine"], [49.20229, 1.92061, "Transilien J Lavilletertre"], [49.03228, 2.69922, "Transilien K Dammartin-Juilly-Saint-Mard"], [48.48737, 2.75048, "Transilien R Fontaine-le-Port"], [48.89863, 2.2492, "Transilien L Courbevoie"], [48.92531, 1.44341, "Transilien GL Bueil"], [48.07341, 1.33844, "Transilien GL Châteaudun"], [48.08537, 3.28665, "Transilien GL Villeneuve-sur-Yonne"], [47.97372, 3.39331, "Transilien GL Joigny"], [49.17962, 3.12069, "Transilien P La Ferté-Milon"], [49.03791, 3.40946, "Transilien P Château-Thierry"], [48.80787, 3.08165, "Transilien P Coulommiers"], [49.04517, 2.32292, "Transilien H Bouffémont-Moisselles"], [49.07046, 2.1753, "Transilien H Auvers-sur-Oise"], [49.0551, 2.12274, "Transilien H Épluches"], [48.97952, 2.29217, "Transilien H Champ de Courses d'Enghien"], [49.06931, 2.1417, "Transilien H Chaponval"], [48.9961, 2.25966, "Transilien H Gros-Noyer-Saint-Prix"], [49.11902, 2.39973, "Transilien H Seugy"], [49.02496, 2.22232, "Transilien H Taverny"], [49.09107, 2.20182, "Transilien H Valmondois"], [49.02177, 2.22938, "Transilien H Vaucelles"], [48.74085, 2.23084, "Transilien V Igny"], [48.91425, 2.2716, "Transilien J Bois-Colombes"], [49.16267, 1.93693, "Transilien J Chars"], [48.99663, 2.09777, "Transilien J Conflans-Sainte-Honorine"], [48.99739, 1.63017, "Transilien J Rosny-sur-Seine"], [48.98145, 1.98314, "Transilien J Vernouillet-Verneuil"], [48.98107, 2.00593, "Transilien J Triel-sur-Seine"], [49.09965, 1.97054, "Transilien J Us"], [48.9319, 2.26097, "Transilien J Le Stade"], [48.95065, 2.23253, "Transilien J Val d'Argenteuil"], [49.09154, 1.47786, "Transilien J Vernon"], [49.08049, 2.00372, "Transilien J Montgeroult-Courcelles"], [48.97403, 3.2193, "Transilien P Nanteuil-Saâcy"], [48.61402, 2.88825, "Transilien P Mormant"], [48.8138, 3.04294, "Transilien P Mouroux"], [48.87521, 2.63759, "Transilien P Vaires-Torcy"], [48.83828, 2.18711, "Transilien L Garches-Marnes-la-Coquette"], [48.8715, 2.09655, "Transilien L Marly-le-Roi"], [48.91364, 2.25733, "Transilien L Les Vallées"], [48.86122, 2.12319, "Transilien L Louveciennes"], [48.85607, 2.2166, "Transilien L Le Val d'Or"], [48.85425, 2.13213, "Transilien L Bougival"], [48.90576, 2.26997, "Transilien L Bécon-les-Bruyères"], [48.44525, 1.77958, "Transilien GL Auneau"], [48.34261, 3.07175, "Transilien GL Villeneuve-la-Guyard"], [49.23102, 2.88737, "Transilien K Crépy-en-Valois"], [49.14288, 2.79446, "Transilien K Nanteuil-le-Haudouin"], [48.48708, 2.69504, "Transilien R Chartrettes"], [48.41638, 2.72666, "Transilien R Fontainebleau Avon"], [48.0066, 2.74319, "Transilien R Montargis"], [48.26776, 2.68565, "Transilien R Nemours-Saint-Pierre"], [48.47552, 2.69203, "Transilien R Bois-le-Roi"], [48.09589, 2.7721, "Transilien R Ferrières Fontenay"], [48.79603, 1.6027, "Transilien N Houdan"], [48.6931, 1.85659, "Transilien N Le Perray"], [48.83192, 1.9444, "Transilien N Plaisir-Grignon"], [48.81488, 2.24092, "Transilien N Meudon"], [48.84119, 2.32051, "Transilien N Montparnasse"], [49.28259, 1.81827, "Transilien J Trie-Château"], [48.97989, 2.18034, "Transilien J La Frette-Montigny"], [48.58677, 1.59267, "Transilien GL Maintenon"], [48.32402, 3.13042, "Transilien GL Champigny-sur-Yonne"], [49.01849, 1.14974, "Transilien GL Évreux"], [48.48258, 1.52436, "Transilien GL La Villette-Saint-Prest"], [48.5453, 3.28668, "Transilien P Champbenoist-Poigny"], [49.00473, 2.5713, "MCDG Terminal 2 - Gare TGV"], [49.01, 2.56056, "MCDG Terminal 3 - Roissypole"], [49.00898, 2.54483, "MCDG Parc PR"], [48.72902, 2.36991, "MORL Orly 4"], [48.72965, 2.36001, "MORL Orly 1-2-3"], [48.88566, 2.34255, "MFUN Funiculaire Montmartre Station Haute"], [48.88468, 2.34266, "MFUN Funiculaire Montmartre Station Basse"], [49.01004, 2.57064, "MCDG Parc PX"], [49.0134, 2.54195, "MCDG Terminal 1"]];
 const CAT_TYPE = {
   resto: "resto",
   cafe: "resto",
@@ -5771,7 +5802,8 @@ async function idfmJourney(from, to, apiKey) {
     try {
       data = await window.spotaneProxy("journey", {
         from,
-        to
+        to,
+        noBus: true
       });
     } catch (e) {
       if (!(apiKey || "").trim()) throw new Error(e && e.message ? e.message : "proxy");
@@ -5780,7 +5812,7 @@ async function idfmJourney(from, to, apiKey) {
   if (!data) {
     const key = (apiKey || "").trim();
     if (!key) throw new Error("no-key");
-    const url = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/journeys?from=${from.lng};${from.lat}&to=${to.lng};${to.lat}&max_nb_journeys=3`;
+    const url = `https://prim.iledefrance-mobilites.fr/marketplace/v2/navitia/journeys?from=${from.lng};${from.lat}&to=${to.lng};${to.lat}&max_nb_journeys=3&forbidden_uris%5B%5D=physical_mode:Bus`;
     const r = await fetch(url, {
       headers: {
         apikey: key
@@ -8808,6 +8840,14 @@ function SpotFormModal({
       const gc = ["restaurant", "fast_food"].includes(am) ? "resto" : am === "cafe" ? "cafe" : ["bar", "pub", "biergarten"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : null;
       if (gc) setNCats(p => p.length ? p : [gc]);
     }
+    {
+      const la = parseFloat(found.lat || nLat),
+        ln = parseFloat(found.lng || nLng);
+      if (la && ln) {
+        const st = nearestStation(la, ln);
+        if (st) setNMetro(p => p || st);
+      }
+    }
   };
   const stepGeo = async found => {
     const q = nName + (nAddr ? " " + nAddr : "") + " " + (cityLabel || "Paris");
@@ -9780,7 +9820,11 @@ function SpotDetail({
   iGo,
   goingWith,
   onGoing,
-  onProposeGoing
+  onProposeGoing,
+  userPos,
+  onTransit,
+  metroJ,
+  metroLoading
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -10248,7 +10292,110 @@ function SpotDetail({
       color: 'var(--ink-400)',
       fontWeight: 500
     }
-  }, openSt === null ? '🕐 ' : ' · ', frHours(spot.hours)))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  }, openSt === null ? '🕐 ' : ' · ', frHours(spot.hours)))), spot.lat && spot.lng && (() => {
+    const dir = m => `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}&travelmode=${m}`;
+    const est = kmh => {
+      if (!userPos) return null;
+      const R = 6371,
+        r = x => x * Math.PI / 180;
+      const a = Math.sin(r(spot.lat - userPos.lat) / 2) ** 2 + Math.cos(r(userPos.lat)) * Math.cos(r(spot.lat)) * Math.sin(r(spot.lng - userPos.lng) / 2) ** 2;
+      const km = 2 * R * Math.asin(Math.sqrt(a)) * 1.3;
+      return Math.max(1, Math.round(km / kmh * 60));
+    };
+    const tile = {
+      flex: 1,
+      textAlign: 'center',
+      border: '1.5px solid var(--hairline)',
+      borderRadius: 15,
+      padding: '11px 4px',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      background: '#fff',
+      display: 'block',
+      fontFamily: 'var(--font-body)'
+    };
+    const tOn = {
+      ...tile,
+      border: '1.5px solid var(--pop-pink)',
+      background: '#FFF0F6',
+      boxShadow: '0 0 0 1px var(--pop-pink)'
+    };
+    const ic = {
+        fontSize: 20
+      },
+      tm = {
+        fontWeight: 800,
+        fontSize: 13,
+        marginTop: 4,
+        color: 'var(--ink-900)'
+      },
+      md = {
+        fontSize: 8.5,
+        color: 'var(--ink-400)',
+        fontWeight: 700
+      };
+    const w = est(4.5),
+      c = est(22),
+      tOK = !!(metroJ && !metroJ.err);
+    return React.createElement("div", {
+      style: {
+        marginTop: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13,
+        marginBottom: 8
+      }
+    }, "\uD83E\uDDED ", tr("go2_how")), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8
+      }
+    }, React.createElement("a", {
+      href: dir('walking'),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "press",
+      style: tile
+    }, React.createElement("div", {
+      style: ic
+    }, "\uD83D\uDEB6"), React.createElement("div", {
+      style: tm
+    }, w != null ? `${w} min` : '→'), React.createElement("div", {
+      style: md
+    }, tr("go2_walk"))), React.createElement("button", {
+      onClick: () => onTransit && onTransit(spot),
+      className: "press",
+      style: tOK ? tOn : tile
+    }, React.createElement("div", {
+      style: ic
+    }, "\uD83D\uDE87"), React.createElement("div", {
+      style: tm
+    }, metroLoading ? '…' : tOK ? `${metroJ.min} min` : '→'), React.createElement("div", {
+      style: md
+    }, tr("go2_transit"))), React.createElement("a", {
+      href: dir('driving'),
+      target: "_blank",
+      rel: "noopener noreferrer",
+      className: "press",
+      style: tile
+    }, React.createElement("div", {
+      style: ic
+    }, "\uD83D\uDE97"), React.createElement("div", {
+      style: tm
+    }, c != null ? `${c} min` : '→'), React.createElement("div", {
+      style: md
+    }, tr("go2_car")))), metroJ && metroJ.err && React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 10.5,
+        color: 'var(--pop-pink)',
+        marginTop: 6
+      }
+    }, "\u26A0\uFE0F ", metroJ.err));
+  })(), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -24684,7 +24831,11 @@ function App() {
     iGo: myGoing.has(selectedSpot.id),
     goingWith: goingMap.get(selectedSpot.id) || [],
     onGoing: session && friends.length > 0 ? toggleGoing : undefined,
-    onProposeGoing: proposeGoing
+    onProposeGoing: proposeGoing,
+    userPos: userPos,
+    onTransit: calcMetro,
+    metroJ: metroJ,
+    metroLoading: metroLoading
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
