@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T18:08:40.377Z -->
+<!-- built 2026-07-18T18:24:35.539Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -43,7 +43,7 @@
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
-  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#E4E4E7;
+  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#7A7A7A;--hairline:#0A0A0A;/* A2a full : contours NOIRS (look sticker/affiche) */
   --pop-pink:#FF006E;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#0A0A0A;--pop-cyan:#3DC8FF;/* A2a : pink→magenta flashy, violet→noir (dégradés magenta→noir) */
   --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
   --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
@@ -9828,6 +9828,7 @@ function SpotDetail({
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
+  const [showItin, setShowItin] = useState(false);
   const gmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name + " " + (spot.adresse || "")).trim())}`;
   const spotContacts = (spot.contacts || []).map(id => contacts.find(c => c.id === id)).filter(Boolean);
   const gr = spot.grating || spot.tags && spot.tags.grating || null;
@@ -10337,18 +10338,35 @@ function SpotDetail({
     const w = est(4.5),
       c = est(22),
       tOK = !!(metroJ && !metroJ.err);
-    return React.createElement("div", {
+    return showItin ? React.createElement("div", {
       style: {
         marginTop: 16
       }
     }, React.createElement("div", {
       style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 13,
+        display: 'flex',
+        alignItems: 'center',
         marginBottom: 8
       }
-    }, "\uD83E\uDDED ", tr("go2_how")), React.createElement("div", {
+    }, React.createElement("span", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13
+      }
+    }, "\uD83E\uDDED ", tr("go2_how")), React.createElement("button", {
+      onClick: () => setShowItin(false),
+      className: "press",
+      style: {
+        marginLeft: 'auto',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        color: 'var(--ink-400)',
+        fontSize: 15,
+        fontWeight: 900
+      }
+    }, "\u25BE")), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 8
@@ -10394,7 +10412,33 @@ function SpotDetail({
         color: 'var(--pop-pink)',
         marginTop: 6
       }
-    }, "\u26A0\uFE0F ", metroJ.err));
+    }, "\u26A0\uFE0F ", metroJ.err)) : React.createElement("button", {
+      onClick: () => {
+        setShowItin(true);
+        if (onTransit) onTransit(spot);
+      },
+      className: "press",
+      style: {
+        marginTop: 16,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        border: '1.5px solid var(--hairline)',
+        background: '#fff',
+        borderRadius: 999,
+        padding: '9px 16px',
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 13,
+        color: 'var(--ink-900)'
+      }
+    }, "\uD83E\uDDED ", tr("go2_how"), React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontWeight: 900
+      }
+    }, "\u203A"));
   })(), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
@@ -18696,7 +18740,7 @@ function App() {
       onClick: () => setShowPropositions(true),
       className: "press",
       style: {
-        background: `linear-gradient(135deg, ${hSlot.accent}, ${hSlot.accent2})`,
+        background: 'linear-gradient(135deg,#FF3D96,#FF006E)',
         color: '#fff',
         border: 'none',
         borderRadius: 999,
@@ -18705,7 +18749,7 @@ function App() {
         fontWeight: 700,
         fontSize: 15,
         cursor: 'pointer',
-        boxShadow: '0 8px 22px ' + hSlot.accent + '55'
+        boxShadow: '0 8px 22px rgba(255,0,110,.4)'
       }
     }, "\u2728 Propositions"), React.createElement("button", {
       onClick: pickRandom,
