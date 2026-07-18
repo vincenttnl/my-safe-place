@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T20:39:43.768Z -->
+<!-- built 2026-07-18T21:08:53.993Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -5180,6 +5180,15 @@ const bumpEnrich = () => {
   } catch {}
 };
 const ADMIN_ID = "d44d604e-a38d-4d30-a5e0-409427e5c07b";
+const VAPID_PUBLIC = "BGJAfzabR4khOfxZy-SUGefPfIuFxKIKXuvnIeCNdwQ09NXPx8m7vUXfNF66bhWoG3_T8YeQU2SU4pAmd0AL6uM";
+function urlB64ToUint8(b64) {
+  const pad = "=".repeat((4 - b64.length % 4) % 4);
+  const s = (b64 + pad).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(s);
+  const a = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i);
+  return a;
+}
 const CITIES = {
   paris: {
     label: "Paris",
@@ -16098,6 +16107,7 @@ function App() {
           }
         });
       } catch {}
+      subscribePush();
     } else if (p === 'denied') {
       try {
         localStorage.removeItem('myplace_notif_optin_v1');
@@ -16105,6 +16115,44 @@ function App() {
       window.mspToast?.(tr("nt_refused"), "error");
     }
   };
+  const subscribePush = async () => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (!reg || !reg.pushManager) return;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8(VAPID_PUBLIC)
+      });
+      const j = sub.toJSON();
+      const tok = await validToken(sess);
+      await fetch(`${SUPABASE_URL}/rest/v1/push_subs?on_conflict=endpoint`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${tok}`,
+          "Content-Type": "application/json",
+          Prefer: "resolution=merge-duplicates,return=minimal"
+        },
+        body: JSON.stringify({
+          user_id: sess.user.id,
+          endpoint: j.endpoint,
+          p256dh: j.keys.p256dh,
+          auth: j.keys.auth,
+          user_agent: (navigator.userAgent || "").slice(0, 200)
+        })
+      });
+    } catch (e) {}
+  };
+  useEffect(() => {
+    if (session) {
+      try {
+        if (localStorage.getItem('myplace_notif_optin_v1') === '1' && typeof Notification !== 'undefined' && Notification.permission === 'granted') subscribePush();
+      } catch {}
+    }
+  }, [session]);
   const testNotif = async () => {
     try {
       const reg = await navigator.serviceWorker?.ready;
