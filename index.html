@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T20:23:10.068Z -->
+<!-- built 2026-07-18T20:28:58.395Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18232,6 +18232,107 @@ function App() {
     };
     r.readAsText(file);
   };
+  const importMap = file => {
+    const nrm = x => (x || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, "");
+    const guessTag = t => {
+      const s = (t || "").toLowerCase();
+      if (/\bbar\b|pub|cocktail|bi[èe]re|cave|\bvin\b|speakeasy/.test(s)) return "speakeasy";
+      if (/resto|restaurant|\bfood\b|brunch|pizz|burger|sushi/.test(s)) return "resto";
+      if (/caf[ée]|coffee/.test(s)) return "cafe";
+      if (/club|techno|discoth/.test(s)) return "club";
+      if (/rooftop|toit/.test(s)) return "rooftop";
+      return "sortie";
+    };
+    const r = new FileReader();
+    r.onload = e => {
+      try {
+        const txt = String(e.target.result || "");
+        const fn = (file.name || "").toLowerCase();
+        let places = [];
+        if (fn.endsWith(".geojson") || fn.endsWith(".json") || txt.trim().startsWith("{")) {
+          const d = JSON.parse(txt);
+          const feats = d.features || (Array.isArray(d) ? d : []);
+          places = feats.map(f => {
+            const p = f.properties || f;
+            const g = f.geometry;
+            let la, ln;
+            if (g && Array.isArray(g.coordinates)) {
+              ln = +g.coordinates[0];
+              la = +g.coordinates[1];
+            }
+            return {
+              name: p.name || p.title || p.Title || p.nom || "",
+              lat: la != null ? la : +p.lat || +p.latitude,
+              lng: ln != null ? ln : +p.lng || +p.lon || +p.longitude,
+              adresse: p.address || p.adresse || p.formatted_address || "",
+              note: p.comment || p.note || p.description || "",
+              tags: (Array.isArray(p.tags) ? p.tags.join(" ") : p.tags) || p.category || ""
+            };
+          });
+        } else {
+          const lines = txt.split(/\r?\n/).filter(l => l.trim());
+          const head = (lines[0] || "").split(/[,;\t]/).map(h => h.trim().toLowerCase().replace(/^"|"$/g, ""));
+          const col = (...n) => head.findIndex(h => n.includes(h));
+          const ci = {
+            name: col("name", "title", "nom", "titre", "place"),
+            lat: col("lat", "latitude"),
+            lng: col("lng", "lon", "long", "longitude"),
+            addr: col("address", "adresse", "addr"),
+            tag: col("tags", "tag", "category", "catégorie"),
+            note: col("comment", "note", "commentaire", "description")
+          };
+          for (let i = 1; i < lines.length; i++) {
+            const cols = (lines[i].match(/("([^"]|"")*"|[^,;\t]*)(,|;|\t|$)/g) || []).map(c => c.replace(/[,;\t]$/, "").replace(/^"|"$/g, "").replace(/""/g, '"').trim());
+            if (ci.name < 0 || !cols[ci.name]) continue;
+            places.push({
+              name: cols[ci.name],
+              lat: parseFloat(cols[ci.lat]),
+              lng: parseFloat(cols[ci.lng]),
+              adresse: ci.addr >= 0 ? cols[ci.addr] : "",
+              note: ci.note >= 0 ? cols[ci.note] : "",
+              tags: ci.tag >= 0 ? cols[ci.tag] : ""
+            });
+          }
+        }
+        places = places.filter(p => p.name && p.lat && p.lng && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180);
+        if (!places.length) {
+          window.mspToast?.("Aucune adresse valide trouvée dans ce fichier", "warn");
+          return;
+        }
+        if (!confirm(`${places.length} adresses trouvées.\n\n« OK » pour les importer dans TA carte perso (privé). Chacune récupère sa station de métro automatiquement.`)) return;
+        const now = Date.now();
+        const have = new Set(allSpots.map(s => nrm(s.name) + "|" + Math.round((s.lat || 0) * 1000)));
+        const prepared = places.map((p, i) => ({
+          id: now + i,
+          name: String(p.name).slice(0, 80),
+          cats: [guessTag(p.tags)],
+          lat: +p.lat,
+          lng: +p.lng,
+          adresse: p.adresse || "",
+          metro: nearestStation(+p.lat, +p.lng) || "",
+          photo: "",
+          photos: [],
+          desc: "",
+          note: p.note || "",
+          vibe: "📥 Importé",
+          done: false,
+          fav: false,
+          reaction: null,
+          status: "wishlist",
+          addedAt: now,
+          contacts: [],
+          tags: {}
+        })).filter(s => !have.has(nrm(s.name) + "|" + Math.round(s.lat * 1000)));
+        setSpots([...allSpots, ...prepared]);
+        window.mspHaptic?.(20);
+        window.mspPopEmoji?.("📥");
+        window.mspToast?.(`${prepared.length} spots importés dans ta carte 📥`, "success");
+      } catch (err) {
+        window.mspToast?.(tr("t_28") + err.message, "error");
+      }
+    };
+    r.readAsText(file);
+  };
   useEffect(() => {
     if (tab !== "map") return;
     const el = mapContainerRef.current;
@@ -24197,6 +24298,63 @@ function App() {
       onChange: e => {
         if (e.target.files[0]) {
           importJSON(e.target.files[0]);
+          e.target.value = "";
+        }
+      },
+      style: {
+        display: "none"
+      }
+    })), React.createElement("label", {
+      style: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '14px 16px',
+        cursor: 'pointer',
+        border: 'none',
+        background: '#fff',
+        textAlign: 'left'
+      }
+    }, React.createElement("div", {
+      style: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        background: 'var(--bg-cream)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 16
+      }
+    }, "\uD83D\uDCE5"), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 600,
+        fontSize: 14.5
+      }
+    }, "Importer une carte (Mapstr, Google)"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        marginTop: 2
+      }
+    }, "Fichier GeoJSON ou CSV \u2192 tes spots, avec le m\xE9tro auto")), React.createElement("div", {
+      style: {
+        color: 'var(--ink-400)',
+        fontSize: 18
+      }
+    }, "\u203A"), React.createElement("input", {
+      type: "file",
+      accept: ".geojson,.json,.csv,.txt",
+      onChange: e => {
+        if (e.target.files[0]) {
+          importMap(e.target.files[0]);
           e.target.value = "";
         }
       },
