@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T15:43:44.569Z -->
+<!-- built 2026-07-18T15:57:18.667Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3189,6 +3189,9 @@ const I18N = {
     cl_create_btn: "Créer",
     cl_empty: "Aucun spot pour l'instant — ajoutes-en !",
     cl_addmember: "＋ Membre",
+    fe_title: "Ton feed n'attend que tes potes",
+    fe_sub: "Invite tes amis pour voir leurs spots, vous envoyer vos adresses et savoir qui sort ce soir 👀",
+    fe_invite: "🤝 Inviter un ami",
     t_enrich_part: "Enrichissement partiel — tu peux relancer chaque étape ⚠️",
     ev_mine: "📫 Tes events",
     ev_upcoming: "a venir",
@@ -3628,6 +3631,9 @@ const I18N = {
     cl_create_btn: "Create",
     cl_empty: "No spots yet — add some!",
     cl_addmember: "＋ Member",
+    fe_title: "Your feed is waiting for your crew",
+    fe_sub: "Invite your friends to see their spots, send each other addresses and know who's going out tonight 👀",
+    fe_invite: "🤝 Invite a friend",
     t_enrich_part: "Partial enrichment — you can retry each step ⚠️",
     ev_mine: "📫 Your events",
     ev_upcoming: "upcoming",
@@ -4067,6 +4073,9 @@ const I18N = {
     cl_create_btn: "Crear",
     cl_empty: "Aún no hay spots — ¡añade algunos!",
     cl_addmember: "＋ Miembro",
+    fe_title: "Tu feed espera a tu gente",
+    fe_sub: "Invita a tus amigos para ver sus spots, enviaros direcciones y saber quién sale esta noche 👀",
+    fe_invite: "🤝 Invitar a un amigo",
     t_enrich_part: "Enriquecimiento parcial — puedes reintentar cada paso ⚠️",
     ev_mine: "📫 Tus eventos",
     ev_upcoming: "próximos",
@@ -18485,7 +18494,56 @@ function App() {
         whiteSpace: 'nowrap',
         boxShadow: '0 8px 22px rgba(139,92,246,.45)'
       }
-    }, "\uD83C\uDFB2 Surprise")))), (recvMsgs.length > 0 || session && friendLists.length > 0) && React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise")))), session && friends.length === 0 && React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: 'linear-gradient(135deg,var(--bg-cream),var(--bg-primary))',
+        border: '1px dashed var(--pop-pink)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '18px 16px',
+        textAlign: 'center',
+        boxShadow: '0 4px 18px -10px rgba(255,61,139,.5)'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontSize: 32,
+        marginBottom: 6
+      }
+    }, "\uD83D\uDCEC"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        letterSpacing: '-.01em'
+      }
+    }, tr("fe_title")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        color: 'var(--ink-400)',
+        margin: '6px auto 14px',
+        maxWidth: 300,
+        lineHeight: 1.45
+      }
+    }, tr("fe_sub")), React.createElement("button", {
+      onClick: inviteFriend,
+      className: "press",
+      style: {
+        border: 'none',
+        borderRadius: 'var(--radius-pill)',
+        padding: '12px 22px',
+        background: 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))',
+        color: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 14,
+        cursor: 'pointer',
+        boxShadow: '0 8px 20px -6px rgba(124,58,237,.5)'
+      }
+    }, tr("fe_invite")))), (recvMsgs.length > 0 || session && friendLists.length > 0) && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
