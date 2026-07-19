@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T18:57:13.381Z -->
+<!-- built 2026-07-19T19:05:52.673Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -25181,6 +25181,74 @@ function App() {
       }, " \xB7 ", catCityCount(k)))));
     })))), React.createElement("div", {
       style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("div", {
+      style: {
+        background: '#fff',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        boxShadow: 'var(--shadow-sm)',
+        padding: 16
+      }
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 12
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 15
+      }
+    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
+      style: {
+        background: '#EEF9F4',
+        color: '#0E8A62',
+        borderRadius: 999,
+        padding: '3px 9px',
+        fontSize: 10.5,
+        fontWeight: 800,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("lang_auto"))), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 6,
+        flexWrap: 'wrap'
+      }
+    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
+      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
+      return React.createElement("button", {
+        key: k,
+        onClick: () => {
+          if (on) return;
+          window.mspHaptic?.(12);
+          if (k === "auto") {
+            try {
+              localStorage.removeItem(LANGK);
+            } catch {}
+            location.reload();
+          } else window.mspSetLang(k);
+        },
+        className: "press",
+        style: {
+          padding: '8px 13px',
+          borderRadius: 999,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: 700,
+          fontSize: 12.5,
+          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
+          background: on ? 'var(--pop-pink)' : '#fff',
+          color: on ? '#fff' : 'var(--ink-900)'
+        }
+      }, f, " ", n);
+    })))), React.createElement("div", {
+      style: {
         padding: '10px 20px 0'
       }
     }, spots.length >= 3 && React.createElement("button", {
@@ -25301,74 +25369,6 @@ function App() {
         fontFamily: 'var(--font-body)'
       }
     }, "2,99 \u20AC/mois"))), React.createElement("div", {
-      style: {
-        padding: '14px 20px 0'
-      }
-    }, React.createElement("div", {
-      style: {
-        background: '#fff',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-md)',
-        boxShadow: 'var(--shadow-sm)',
-        padding: 16
-      }
-    }, React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 12
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 700,
-        fontSize: 15
-      }
-    }, tr("lang_title")), !LANG_EXPLICIT && React.createElement("span", {
-      style: {
-        background: '#EEF9F4',
-        color: '#0E8A62',
-        borderRadius: 999,
-        padding: '3px 9px',
-        fontSize: 10.5,
-        fontWeight: 800,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("lang_auto"))), React.createElement("div", {
-      style: {
-        display: 'flex',
-        gap: 6,
-        flexWrap: 'wrap'
-      }
-    }, [["auto", "🪄", "Auto"], ["fr", "🇫🇷", "FR"], ["en", "🇬🇧", "EN"], ["es", "🇪🇸", "ES"]].map(([k, f, n]) => {
-      const on = k === "auto" ? !LANG_EXPLICIT : LANG_EXPLICIT && __lang === k;
-      return React.createElement("button", {
-        key: k,
-        onClick: () => {
-          if (on) return;
-          window.mspHaptic?.(12);
-          if (k === "auto") {
-            try {
-              localStorage.removeItem(LANGK);
-            } catch {}
-            location.reload();
-          } else window.mspSetLang(k);
-        },
-        className: "press",
-        style: {
-          padding: '8px 13px',
-          borderRadius: 999,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-body)',
-          fontWeight: 700,
-          fontSize: 12.5,
-          border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
-          background: on ? 'var(--pop-pink)' : '#fff',
-          color: on ? '#fff' : 'var(--ink-900)'
-        }
-      }, f, " ", n);
-    })))), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
