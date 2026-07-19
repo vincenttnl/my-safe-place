@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T01:35:58.939Z -->
+<!-- built 2026-07-19T01:39:25.278Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -18472,12 +18472,19 @@ function App() {
   });
   const pickRandom = () => {
     const todo = spots.filter(s => s.status !== "rejected" && !s.done);
-    if (todo.length) {
-      const s = todo[Math.floor(Math.random() * todo.length)];
-      setSelectedSpot(s);
-    } else {
-      window.mspToast?.("Aucun spot à te proposer pour l'instant 👀", "info");
+    let pool = todo;
+    if (pool.length < 3) {
+      const withPhoto = catalog.filter(s => firstPhoto(s) && s.lat != null);
+      pool = withPhoto.length ? withPhoto : todo;
     }
+    if (!pool.length) {
+      window.mspToast?.("Aucun spot à te proposer pour l'instant 👀", "info");
+      return;
+    }
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    window.mspHaptic?.(15);
+    window.mspPopEmoji?.("🎲");
+    setSelectedSpot(s);
   };
   const addPreviewSpot = spot => {
     const newId = Date.now() + Math.floor(Math.random() * 1000);
