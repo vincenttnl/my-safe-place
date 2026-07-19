@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T02:38:05.829Z -->
+<!-- built 2026-07-19T06:26:06.670Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -4754,10 +4754,61 @@ const METRO_COLORS = {
   "D": "#00A88F",
   "E": "#B94E9A"
 };
-function metroParse(raw) {
+const CITY_METRO = [{
+  bbox: [45.68, 45.82, 4.75, 4.95],
+  m: {
+    A: "#E30613",
+    B: "#0072BC",
+    C: "#F7941E",
+    D: "#00A94F"
+  },
+  tram: "#8A9199"
+}, {
+  bbox: [43.20, 43.40, 5.30, 5.45],
+  m: {
+    "1": "#0072BC",
+    "2": "#E2001A"
+  },
+  tram: "#00A94F"
+}, {
+  bbox: [43.52, 43.70, 1.35, 1.52],
+  m: {
+    A: "#E51B24",
+    B: "#F9B000"
+  },
+  tram: "#7AB800"
+}, {
+  bbox: [44.75, 44.95, -0.70, -0.50],
+  m: {},
+  tram: "#8B64A5"
+}, {
+  bbox: [43.63, 43.78, 7.15, 7.35],
+  m: {},
+  tram: "#E2001A"
+}];
+function metroParse(raw, spot) {
   if (!raw) return null;
   const t = String(raw).trim();
   let line, station;
+  if (spot && typeof spot.lat === "number" && typeof spot.lng === "number") {
+    const cm = CITY_METRO.find(c => spot.lat >= c.bbox[0] && spot.lat <= c.bbox[1] && spot.lng >= c.bbox[2] && spot.lng <= c.bbox[3]);
+    if (cm) {
+      const g = t.match(/^([MT])([A-D0-9]{1,2})\s+(.+)/i);
+      if (g) {
+        const mode = g[1].toUpperCase(),
+          code = g[2].toUpperCase();
+        const color = mode === "M" && cm.m[code] ? cm.m[code] : cm.tram;
+        const n = parseInt(color.slice(1), 16);
+        const lum = 0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255);
+        return {
+          line: mode === "T" ? "T" + code : code,
+          station: g[3],
+          color,
+          fg: lum > 150 ? "#1A1A1A" : "#fff"
+        };
+      }
+    }
+  }
   const x = t.match(/^M\s?(\d{1,2}[bB]?)\s+(.+)/) || t.match(/^RER\s*([A-E])\s+(.+)/i) || t.match(/^ligne\s*(\d{1,2}[bB]?)\s+(.+)/i);
   if (x) {
     line = x[1].toUpperCase();
@@ -6161,7 +6212,8 @@ function FriendListDetail({
   fl,
   onBack,
   onOpenSpot,
-  onImport
+  onImport,
+  onShareImg
 }) {
   const [items, setItems] = useState(null);
   useEffect(() => {
@@ -6212,7 +6264,25 @@ function FriendListDetail({
       color: 'var(--ink-400)',
       marginTop: 3
     }
-  }, "\uD83D\uDC65 partag\xE9e par ", fl.by, " \xB7 ", fl.ids.length, " spot", fl.ids.length > 1 ? 's' : ''))), React.createElement("button", {
+  }, "\uD83D\uDC65 partag\xE9e par ", fl.by, " \xB7 ", fl.ids.length, " spot", fl.ids.length > 1 ? 's' : '')), onShareImg && items && items.length > 0 && React.createElement("button", {
+    onClick: () => onShareImg({
+      name: fl.name,
+      emoji: fl.emoji
+    }, items),
+    className: "press",
+    title: "Partager en image",
+    style: {
+      background: 'var(--pop-violet)',
+      border: 'none',
+      borderRadius: 999,
+      width: 38,
+      height: 38,
+      cursor: 'pointer',
+      fontSize: 15,
+      flexShrink: 0,
+      color: '#fff'
+    }
+  }, "\uD83D\uDCF8")), React.createElement("button", {
     onClick: () => {
       if (items && items.length) onImport(fl, items);
     },
@@ -9656,7 +9726,8 @@ function CollabDetailModal({
   onAddMembers,
   onAddSpot,
   onLeave,
-  onClose
+  onClose,
+  onShareImg
 }) {
   const [tab, setTab] = useState("spots");
   const [q, setQ] = useState("");
@@ -9719,7 +9790,25 @@ function CollabDetailModal({
       fontSize: 11.5,
       color: 'var(--ink-400)'
     }
-  }, (list.members || []).map(memberName).join(" · "))), React.createElement("button", {
+  }, (list.members || []).map(memberName).join(" · "))), onShareImg && rows.length > 0 && React.createElement("button", {
+    onClick: () => onShareImg({
+      name: list.name,
+      emoji: list.emoji
+    }, rows.map(r => r.sp)),
+    className: "press",
+    title: "Partager en image",
+    style: {
+      border: 'none',
+      background: 'var(--pop-violet)',
+      color: '#fff',
+      borderRadius: 999,
+      width: 34,
+      height: 34,
+      fontSize: 15,
+      cursor: 'pointer',
+      flexShrink: 0
+    }
+  }, "\uD83D\uDCF8"), React.createElement("button", {
     onClick: () => onLeave(list),
     className: "press",
     style: {
@@ -10005,7 +10094,7 @@ function SpotDetail({
   const cat = CATS.find(c => c.key === primaryCat(spot));
   const isNight = getCats(spot).some(c => ["club", "speakeasy", "rooftop", "sortie"].includes(c));
   const eventsUrl = `https://shotgun.live/fr/search?q=${encodeURIComponent(spot.name)}`;
-  const mp = metroParse(spot.metro);
+  const mp = metroParse(spot.metro, spot);
   const openSt = spot.hours ? isOpenNow(spot.hours, nowParis()) : null;
   const rndWrap = {
     background: 'transparent',
@@ -11719,7 +11808,7 @@ function PosterSpotCard({
       overflow: 'hidden'
     }
   }, spot.name), (() => {
-    const mp = metroParse(spot.metro);
+    const mp = metroParse(spot.metro, spot);
     return React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
@@ -12968,6 +13057,110 @@ async function spotShareImageBlob(spot) {
   x.fillText('📍 Sur Spotane', W / 2, H - 70);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
+async function listShareImageBlob(list, spotObjsRaw) {
+  const W = 1080,
+    H = 1920;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const x = c.getContext('2d');
+  const rr = (px, py, pw, ph, r) => {
+    x.beginPath();
+    if (x.roundRect) x.roundRect(px, py, pw, ph, r);else x.rect(px, py, pw, ph);
+  };
+  const g = x.createLinearGradient(0, 0, W * 0.6, H);
+  g.addColorStop(0, '#FF006E');
+  g.addColorStop(0.5, '#0A0A0A');
+  g.addColorStop(1, '#17162B');
+  x.fillStyle = g;
+  x.fillRect(0, 0, W, H);
+  const spots = (spotObjsRaw || []).filter(s => s && !s.secret);
+  const shown = spots.slice(0, 6);
+  const imgs = await Promise.all(shown.map(s => loadImgCORS(firstPhoto(s))));
+  x.textAlign = 'center';
+  x.font = '150px -apple-system,"Segoe UI",sans-serif';
+  x.fillText(list.emoji || '📁', W / 2, 240);
+  x.fillStyle = '#fff';
+  x.font = '900 88px Georgia,serif';
+  const words = (list.name || 'Ma liste').split(' ');
+  let line = '',
+    lines = [];
+  words.forEach(w => {
+    const t = line ? line + ' ' + w : w;
+    if (x.measureText(t).width > W - 160 && line) {
+      lines.push(line);
+      line = w;
+    } else line = t;
+  });
+  if (line) lines.push(line);
+  lines = lines.slice(0, 2);
+  lines.forEach((ln, i) => x.fillText(ln, W / 2, 360 + i * 100));
+  const subY = 360 + lines.length * 100 + 10;
+  x.fillStyle = 'rgba(255,255,255,.8)';
+  x.font = '600 46px -apple-system,"Segoe UI",sans-serif';
+  x.fillText(spots.length + ' spot' + (spots.length > 1 ? 's' : '') + ' · Spotane', W / 2, subY);
+  const gridTop = 620,
+    M = 80,
+    GAP = 28,
+    photoH = 240,
+    labelH = 100,
+    tileH = photoH + labelH,
+    rowGap = 30;
+  const tileW = (W - M * 2 - GAP) / 2;
+  x.textAlign = 'left';
+  shown.forEach((s, i) => {
+    const col = i % 2,
+      row = Math.floor(i / 2);
+    const tx = M + col * (tileW + GAP),
+      ty = gridTop + row * (tileH + rowGap);
+    const cat = CATS.find(k => k.key === primaryCat(s));
+    const im = imgs[i];
+    x.fillStyle = 'rgba(255,255,255,.08)';
+    rr(tx, ty, tileW, tileH, 26);
+    x.fill();
+    x.save();
+    rr(tx, ty, tileW, photoH, 26);
+    x.clip();
+    if (im) {
+      const sc = Math.max(tileW / im.width, photoH / im.height),
+        w = im.width * sc,
+        h = im.height * sc;
+      x.drawImage(im, tx + (tileW - w) / 2, ty + (photoH - h) / 2, w, h);
+    } else {
+      x.fillStyle = CC[primaryCat(s)] || '#333';
+      x.fillRect(tx, ty, tileW, photoH);
+      x.textAlign = 'center';
+      x.fillStyle = 'rgba(255,255,255,.85)';
+      x.font = '120px -apple-system,"Segoe UI",sans-serif';
+      x.fillText(cat ? cat.emoji : '📍', tx + tileW / 2, ty + photoH / 2 + 42);
+      x.textAlign = 'left';
+    }
+    x.restore();
+    x.fillStyle = '#fff';
+    x.font = '800 40px -apple-system,"Segoe UI",sans-serif';
+    let nm = s.name || 'Spot';
+    const full = nm;
+    while (x.measureText(nm).width > tileW - 36 && nm.length > 3) nm = nm.slice(0, -2);
+    if (nm !== full) nm = nm.replace(/[,\s]+$/, '') + '…';
+    x.fillText(nm, tx + 20, ty + photoH + 58);
+    const gr = gRating(s);
+    const sub = (cat ? cat.label : '') + (gr ? '  ⭐ ' + gr : '');
+    x.fillStyle = 'rgba(255,255,255,.6)';
+    x.font = '600 32px -apple-system,"Segoe UI",sans-serif';
+    x.fillText(sub, tx + 20, ty + photoH + 100);
+  });
+  if (spots.length > shown.length) {
+    x.textAlign = 'center';
+    x.fillStyle = 'rgba(255,255,255,.85)';
+    x.font = '700 44px -apple-system,"Segoe UI",sans-serif';
+    x.fillText('+ ' + (spots.length - shown.length) + ' de plus', W / 2, H - 150);
+  }
+  x.textAlign = 'center';
+  x.fillStyle = '#FF006E';
+  x.font = '800 48px -apple-system,"Segoe UI",sans-serif';
+  x.fillText('📍 Sur Spotane', W / 2, H - 70);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
 function WrappedModal({
   spots,
   lists,
@@ -13743,7 +13936,9 @@ function ListPickerModal({
   onToggle,
   onCreate,
   canCreate,
-  onClose
+  onClose,
+  collabLists,
+  onToggleCollab
 }) {
   const [newName, setNewName] = useState("");
   return React.createElement("div", {
@@ -13845,7 +14040,76 @@ function ListPickerModal({
         color: '#fff'
       }
     }, inside ? "✓" : "+"));
-  })), React.createElement("div", {
+  })), collabLists && collabLists.length > 0 && React.createElement(React.Fragment, null, React.createElement("div", {
+    className: "mono-label",
+    style: {
+      margin: '16px 0 8px'
+    }
+  }, "\uD83E\uDD1D ", tr("cl_title")), React.createElement("div", {
+    style: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+      maxHeight: '26vh',
+      overflowY: 'auto'
+    }
+  }, collabLists.map(l => {
+    const rows = Array.isArray(l.spots) ? l.spots : [];
+    const inside = rows.some(x => x.id === spot.id);
+    return React.createElement("button", {
+      key: l.id,
+      onClick: () => onToggleCollab(l),
+      className: "press",
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        textAlign: 'left',
+        padding: '11px 13px',
+        borderRadius: 14,
+        cursor: 'pointer',
+        border: '2px solid ' + (inside ? 'var(--pop-violet)' : 'var(--hairline)'),
+        background: inside ? '#F3EEFF' : '#fff'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 22
+      }
+    }, l.emoji || "🤝"), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 14.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, l.name || tr("cl_untitled")), React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: 'var(--ink-400)'
+      }
+    }, rows.length, " spot", rows.length > 1 ? 's' : '', " \xB7 ", tr("cl_title").toLowerCase())), React.createElement("span", {
+      style: {
+        width: 24,
+        height: 24,
+        borderRadius: 999,
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: 13,
+        fontWeight: 800,
+        background: inside ? 'var(--pop-violet)' : 'var(--hairline)',
+        color: '#fff'
+      }
+    }, inside ? "✓" : "+"));
+  }))), React.createElement("div", {
     style: {
       display: 'flex',
       gap: 8,
@@ -18519,6 +18783,39 @@ function App() {
       if (e && e.name !== 'AbortError') window.mspToast?.(tr("t_27"), "error");
     }
   };
+  const shareListImage = async (meta, spotObjsRaw) => {
+    try {
+      const spotObjs = (spotObjsRaw || []).filter(s => s && !s.secret);
+      if (!spotObjs.length) {
+        window.mspToast?.(tr("t_41"), "error");
+        return;
+      }
+      window.mspToast?.(tr("d_img_wait"), "info");
+      const blob = await listShareImageBlob(meta, spotObjs);
+      if (!blob) throw new Error("img");
+      const safe = (meta.name || "liste").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "liste";
+      const file = new File([blob], `${safe}-spotane.png`, {
+        type: 'image/png'
+      });
+      if (navigator.canShare && navigator.canShare({
+        files: [file]
+      })) await navigator.share({
+        files: [file],
+        title: meta.name
+      });else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        window.mspToast?.(tr("d_img_saved"), "success");
+      }
+      window.mspHaptic?.(15);
+    } catch (e) {
+      if (e && e.name !== 'AbortError') window.mspToast?.(tr("t_27"), "error");
+    }
+  };
   const finishNameAndShare = name => {
     setMyName(name);
     setShowNamePrompt(false);
@@ -21047,7 +21344,8 @@ function App() {
         const owned = allSpots.find(x => x.id === s.id);
         setSelectedSpot(owned || s);
       },
-      onImport: importFriendList
+      onImport: importFriendList,
+      onShareImg: shareListImage
     });
     const pnow = nowParis();
     const smart = [{
@@ -21137,7 +21435,28 @@ function App() {
           flexShrink: 0,
           color: '#fff'
         }
-      }, "\uD83D\uDCE4"), !isSmart && React.createElement("button", {
+      }, "\uD83D\uDCE4"), React.createElement("button", {
+        onClick: () => shareListImage(isSmart ? {
+          name: sm.name,
+          emoji: sm.emoji
+        } : {
+          name: li.name,
+          emoji: li.emoji
+        }, items),
+        className: "press",
+        title: "Partager en image",
+        style: {
+          background: 'var(--pop-violet)',
+          border: 'none',
+          borderRadius: 999,
+          width: 38,
+          height: 38,
+          cursor: 'pointer',
+          fontSize: 15,
+          flexShrink: 0,
+          color: '#fff'
+        }
+      }, "\uD83D\uDCF8"), !isSmart && React.createElement("button", {
         onClick: () => updateList(li.id, {
           pinned: !li.pinned
         }),
@@ -26547,6 +26866,11 @@ function App() {
         spotIds: [listPickerFor.id]
       } : l));
     },
+    collabLists: session ? collabLists : [],
+    onToggleCollab: l => {
+      const rows = Array.isArray(l.spots) ? l.spots : [];
+      if (rows.some(x => x.id === listPickerFor.id)) removeSpotFromCollab(l, listPickerFor.id);else addSpotToCollab(l, listPickerFor);
+    },
     onClose: () => setListPickerFor(null)
   }), tab === "map" && peekSpot && (() => {
     const navList = mapSource;
@@ -26758,7 +27082,7 @@ function App() {
         textOverflow: 'ellipsis'
       }
     }, peekSpot.name), (() => {
-      const mp = metroParse(peekSpot.metro);
+      const mp = metroParse(peekSpot.metro, peekSpot);
       if (mp) return React.createElement("div", {
         style: {
           display: 'flex',
@@ -27262,7 +27586,7 @@ function App() {
     const ph = firstPhoto(s);
     const cat = CATS.find(c => c.key === primaryCat(s));
     const gr = gRating(s);
-    const mp = metroParse(s.metro);
+    const mp = metroParse(s.metro, s);
     const big = i === 0;
     return React.createElement("button", {
       key: s.id,
@@ -27805,7 +28129,8 @@ function App() {
       onAddMembers: addMembersToCollab,
       onAddSpot: addSpotToCollab,
       onLeave: leaveCollab,
-      onClose: () => setCollabOpen(null)
+      onClose: () => setCollabOpen(null),
+      onShareImg: shareListImage
     });
   })(), React.createElement("div", _extends({
     ref: tabWrapRef,
