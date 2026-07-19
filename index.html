@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T16:45:38.310Z -->
+<!-- built 2026-07-19T17:05:41.860Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -3214,7 +3214,7 @@ const I18N = {
     fe_title: "Ton feed n'attend que tes potes",
     fe_sub: "Invite tes amis pour voir leurs spots, vous envoyer vos adresses et savoir qui sort ce soir 👀",
     fe_invite: "🫂 Inviter un ami",
-    fr_wants: "veut devenir ton ami 🤝",
+    fr_wants: "veut devenir ton pote 🤝",
     fr_accept: "Accepter",
     fr_decline: "Refuser",
     t_enrich_part: "Enrichissement partiel — tu peux relancer chaque étape ⚠️",
@@ -10998,6 +10998,7 @@ function SpotDetail({
     }
   }, "\u2197"), " Voir sur Maps"), React.createElement("button", {
     onClick: () => onShare(spot),
+    title: "\xC0 un pote d\xE9j\xE0 sur Spot 105 \u2014 il le re\xE7oit dans son fil",
     className: "press",
     style: {
       background: 'none',
@@ -11016,8 +11017,9 @@ function SpotDetail({
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\uD83D\uDCE4"), " Envoyer \xE0 un ami"), onShareImg && React.createElement("button", {
+  }, "\uD83D\uDCE4"), " Envoyer \xE0 un pote"), onShareImg && React.createElement("button", {
     onClick: () => onShareImg(spot),
+    title: "Belle image + lien \u2014 pour WhatsApp, stories, ou un pote pas encore sur l'app",
     className: "press",
     style: {
       background: 'none',
@@ -11036,7 +11038,7 @@ function SpotDetail({
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\uD83D\uDCF8"), " ", tr("d_img"))), onGoing && React.createElement("button", {
+  }, "\uD83D\uDCF8"), " Partager en image")), onGoing && React.createElement("button", {
     onClick: () => onGoing(spot.id),
     className: "press",
     style: {
