@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T19:44:27.618Z -->
+<!-- built 2026-07-19T19:53:18.073Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -10702,8 +10702,7 @@ function SpotDetail({
       }
     }, "\uD83E\uDDED"), modes.map(([m, em, mn]) => {
       const sel = itinMode === m;
-      const isT = m === 'transit';
-      const val = isT ? metroLoading ? '…' : tOK ? `${metroJ.min}'` : mn != null ? `~${mn}'` : '' : mn != null ? `${mn}'` : '';
+      const val = mn != null ? m === 'transit' ? `~${mn}'` : `${mn}'` : '';
       return React.createElement("button", {
         key: m,
         onClick: () => setItinMode(m),
@@ -10726,16 +10725,9 @@ function SpotDetail({
         fontWeight: 900
       }
     }, "\u25BE")), itinMode && (() => {
-      const isT = itinMode === 'transit';
-      const lbl = itinMode === 'walking' ? 'à pied' : isT ? 'en transports' : 'en voiture';
+      const lbl = itinMode === 'walking' ? 'à pied' : itinMode === 'transit' ? 'en transports' : 'en voiture';
       return React.createElement("button", {
-        onClick: () => {
-          if (isT) {
-            if (onTransit) onTransit(spot);
-          } else {
-            window.open(dir(itinMode), '_blank', 'noopener');
-          }
-        },
+        onClick: () => window.open(dir(itinMode), '_blank', 'noopener'),
         className: "press",
         style: {
           marginTop: 9,
@@ -10752,19 +10744,12 @@ function SpotDetail({
           fontSize: 13,
           fontFamily: 'var(--font-body)'
         }
-      }, isT && metroLoading ? 'Calcul du trajet…' : `Afficher le trajet ${lbl}`, React.createElement("span", {
+      }, `Afficher le trajet ${lbl} sur Map`, React.createElement("span", {
         style: {
           fontWeight: 900
         }
       }, "\u2192"));
-    })(), metroJ && metroJ.err && React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 10.5,
-        color: 'var(--pop-pink)',
-        marginTop: 6
-      }
-    }, "\u26A0\uFE0F ", metroJ.err)) : React.createElement("button", {
+    })()) : React.createElement("button", {
       onClick: () => setShowItin(true),
       className: "press",
       style: {
@@ -10804,71 +10789,7 @@ function SpotDetail({
       background: 'transparent',
       color: 'var(--ink-600)'
     }
-  }, tr("mo_suggest")), similar && similar.length > 0 && React.createElement("div", {
-    style: {
-      marginTop: 20
-    }
-  }, React.createElement("div", {
-    style: {
-      fontFamily: 'var(--font-display)',
-      fontWeight: 900,
-      fontSize: 18,
-      margin: '0 0 10px'
-    }
-  }, "Tu aimeras aussi \u2728"), React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 11,
-      overflowX: 'auto',
-      padding: '0 0 4px'
-    }
-  }, similar.map(s => {
-    const ph = firstPhoto(s);
-    const cc = CATS.find(c => c.key === primaryCat(s));
-    const gr = gRating(s);
-    return React.createElement("button", {
-      key: s.id,
-      onClick: () => onOpenSimilar && onOpenSimilar(s),
-      className: "press",
-      style: {
-        flexShrink: 0,
-        width: 140,
-        textAlign: 'left',
-        border: '1px solid var(--hairline)',
-        borderRadius: 'var(--radius-md)',
-        overflow: 'hidden',
-        background: 'var(--bg-primary)',
-        cursor: 'pointer',
-        padding: 0,
-        display: 'block'
-      }
-    }, React.createElement("div", {
-      style: {
-        height: 82,
-        background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))'
-      }
-    }), React.createElement("div", {
-      style: {
-        padding: '7px 9px 9px'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 12.5,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, s.name), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 10.5,
-        color: 'var(--ink-400)',
-        marginTop: 2
-      }
-    }, cc ? cc.emoji + ' ' + cc.label : '', gr ? ` · ⭐ ${gr}` : '')));
-  }))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  }, tr("mo_suggest")), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -11111,7 +11032,71 @@ function SpotDetail({
       background: 'transparent',
       color: 'var(--pop-violet)'
     }
-  }, tr("go_propose"))), false && React.createElement(React.Fragment, null, React.createElement("button", {
+  }, tr("go_propose"))), similar && similar.length > 0 && React.createElement("div", {
+    style: {
+      marginTop: 24
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 18,
+      margin: '0 0 10px'
+    }
+  }, "Tu aimeras aussi \u2728"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 11,
+      overflowX: 'auto',
+      padding: '0 0 4px'
+    }
+  }, similar.map(s => {
+    const ph = firstPhoto(s);
+    const cc = CATS.find(c => c.key === primaryCat(s));
+    const gr = gRating(s);
+    return React.createElement("button", {
+      key: s.id,
+      onClick: () => onOpenSimilar && onOpenSimilar(s),
+      className: "press",
+      style: {
+        flexShrink: 0,
+        width: 140,
+        textAlign: 'left',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        overflow: 'hidden',
+        background: 'var(--bg-primary)',
+        cursor: 'pointer',
+        padding: 0,
+        display: 'block'
+      }
+    }, React.createElement("div", {
+      style: {
+        height: 82,
+        background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))'
+      }
+    }), React.createElement("div", {
+      style: {
+        padding: '7px 9px 9px'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 10.5,
+        color: 'var(--ink-400)',
+        marginTop: 2
+      }
+    }, cc ? cc.emoji + ' ' + cc.label : '', gr ? ` · ⭐ ${gr}` : '')));
+  }))), false && React.createElement(React.Fragment, null, React.createElement("button", {
     onClick: () => setShowPerso(true),
     className: "press",
     style: {
