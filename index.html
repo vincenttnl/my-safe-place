@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T14:58:59.096Z -->
+<!-- built 2026-07-19T16:09:39.464Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3214,6 +3214,9 @@ const I18N = {
     fe_title: "Ton feed n'attend que tes potes",
     fe_sub: "Invite tes amis pour voir leurs spots, vous envoyer vos adresses et savoir qui sort ce soir 👀",
     fe_invite: "🫂 Inviter un ami",
+    fr_wants: "veut devenir ton ami 🤝",
+    fr_accept: "Accepter",
+    fr_decline: "Refuser",
     t_enrich_part: "Enrichissement partiel — tu peux relancer chaque étape ⚠️",
     ev_mine: "📫 Tes events",
     ev_upcoming: "a venir",
@@ -3691,6 +3694,9 @@ const I18N = {
     fe_title: "Your feed is waiting for your crew",
     fe_sub: "Invite your friends to see their spots, send each other addresses and know who's going out tonight 👀",
     fe_invite: "🫂 Invite a friend",
+    fr_wants: "wants to be your friend 🤝",
+    fr_accept: "Accept",
+    fr_decline: "Decline",
     t_enrich_part: "Partial enrichment — you can retry each step ⚠️",
     ev_mine: "📫 Your events",
     ev_upcoming: "upcoming",
@@ -4168,6 +4174,9 @@ const I18N = {
     fe_title: "Tu feed espera a tu gente",
     fe_sub: "Invita a tus amigos para ver sus spots, enviaros direcciones y saber quién sale esta noche 👀",
     fe_invite: "🫂 Invitar a un amigo",
+    fr_wants: "quiere ser tu amigo 🤝",
+    fr_accept: "Aceptar",
+    fr_decline: "Rechazar",
     t_enrich_part: "Enriquecimiento parcial — puedes reintentar cada paso ⚠️",
     ev_mine: "📫 Tus eventos",
     ev_upcoming: "próximos",
@@ -20222,7 +20231,7 @@ function App() {
         cursor: 'pointer',
         boxShadow: '0 8px 20px -6px rgba(10,10,10,.5)'
       }
-    }, tr("fe_invite")))), (recvMsgs.length > 0 || session && friendLists.length > 0) && React.createElement("div", {
+    }, tr("fe_invite")))), (recvMsgs.length > 0 || friendReqs.length > 0 || session && friendLists.length > 0) && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -20240,7 +20249,7 @@ function App() {
         fontSize: 15,
         letterSpacing: '-.01em'
       }
-    }, "\uD83D\uDCEC ", tr("sm_new")), recvMsgs.length > 0 && React.createElement("span", {
+    }, "\uD83D\uDCEC ", tr("sm_new")), recvMsgs.length + friendReqs.length > 0 && React.createElement("span", {
       style: {
         background: 'var(--pop-pink)',
         color: '#fff',
@@ -20249,7 +20258,77 @@ function App() {
         borderRadius: 999,
         padding: '1px 8px'
       }
-    }, recvMsgs.length)), recvMsgs.map(m => {
+    }, recvMsgs.length + friendReqs.length)), friendReqs.map(f => React.createElement("div", {
+      key: "req_" + f.fid,
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 10,
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: '11px 12px',
+        marginBottom: 11,
+        background: 'var(--bg-primary)',
+        boxShadow: '0 4px 16px -10px rgba(124,58,237,.5)'
+      }
+    }, React.createElement(Avatar, {
+      src: f.avatar,
+      name: f.name,
+      size: 38
+    }), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 14,
+        color: 'var(--ink-900)',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, f.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        marginTop: 1
+      }
+    }, tr("fr_wants"))), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, true),
+      className: "press",
+      style: {
+        border: 'none',
+        borderRadius: 999,
+        padding: '8px 14px',
+        background: 'var(--pop-pink)',
+        color: '#fff',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12.5,
+        cursor: 'pointer',
+        flexShrink: 0
+      }
+    }, tr("fr_accept")), React.createElement("button", {
+      onClick: () => respondFriend(f.fid, false),
+      title: tr("fr_decline"),
+      "aria-label": tr("fr_decline"),
+      className: "press",
+      style: {
+        width: 32,
+        height: 32,
+        borderRadius: 999,
+        border: '1px solid var(--hairline)',
+        background: '#fff',
+        cursor: 'pointer',
+        fontSize: 12,
+        color: 'var(--ink-400)',
+        flexShrink: 0
+      }
+    }, "\u2715"))), recvMsgs.map(m => {
       const ph = firstPhoto(m.spot);
       const cat = getCats(m.spot)[0] || "sortie";
       const emo = (CATS.find(c => c.key === cat) || {}).emoji || "📍";
@@ -28243,7 +28322,7 @@ function App() {
     },
     className: tab === it.key ? "active" : "",
     onClick: () => setTab(it.key),
-    "aria-label": tr(it.i18n) + (it.key === "events" && evBadge > 0 ? ` — ${evBadge} ${tr("nav_new")}` : it.key === "home" && recvMsgs.length > 0 ? ` — ${recvMsgs.length} ${tr("nav_new")}` : ""),
+    "aria-label": tr(it.i18n) + (it.key === "events" && evBadge > 0 ? ` — ${evBadge} ${tr("nav_new")}` : it.key === "home" && recvMsgs.length + friendReqs.length > 0 ? ` — ${recvMsgs.length + friendReqs.length} ${tr("nav_new")}` : ""),
     "aria-current": tab === it.key ? "page" : undefined
   }, React.createElement("span", {
     className: "nav-icon",
@@ -28251,10 +28330,10 @@ function App() {
   }, it.icon), tr(it.i18n), it.key === "events" && evBadge > 0 && React.createElement("span", {
     className: "nav-badge",
     "aria-hidden": "true"
-  }, evBadge > 99 ? "99+" : evBadge), it.key === "home" && recvMsgs.length > 0 && React.createElement("span", {
+  }, evBadge > 99 ? "99+" : evBadge), it.key === "home" && recvMsgs.length + friendReqs.length > 0 && React.createElement("span", {
     className: "nav-badge",
     "aria-hidden": "true"
-  }, recvMsgs.length > 99 ? "99+" : recvMsgs.length))))), React.createElement(ToastStack, null));
+  }, recvMsgs.length + friendReqs.length > 99 ? "99+" : recvMsgs.length + friendReqs.length))))), React.createElement(ToastStack, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 requestAnimationFrame(() => {
