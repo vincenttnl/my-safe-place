@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T16:29:30.337Z -->
+<!-- built 2026-07-19T16:45:38.310Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -12999,6 +12999,28 @@ function loadImgCORS(url, timeout = 4500) {
     im.src = url;
   });
 }
+function brandFooter(x, W, H) {
+  x.textAlign = 'center';
+  x.fillStyle = 'rgba(255,255,255,.72)';
+  x.font = '700 32px -apple-system,"Segoe UI",sans-serif';
+  x.fillText('REJOINS-MOI SUR', W / 2, H - 116);
+  x.font = '900 78px Georgia,serif';
+  const p1 = 'Spot ',
+    p2 = '105',
+    pin = ' 📍';
+  const w1 = x.measureText(p1).width,
+    w2 = x.measureText(p2).width,
+    wp = x.measureText(pin).width;
+  const start = (W - (w1 + w2 + wp)) / 2;
+  x.textAlign = 'left';
+  x.fillStyle = '#fff';
+  x.fillText(p1, start, H - 46);
+  x.fillStyle = '#FF006E';
+  x.fillText(p2, start + w1, H - 46);
+  x.fillStyle = '#fff';
+  x.fillText(pin, start + w1 + w2, H - 46);
+  x.textAlign = 'center';
+}
 async function spotShareImageBlob(spot) {
   const W = 1080,
     H = 1920,
@@ -13089,10 +13111,7 @@ async function spotShareImageBlob(spot) {
     if (ad !== spot.adresse) ad = ad.replace(/[,\s]+$/, '') + '…';
     x.fillText(ad, 90, my);
   }
-  x.textAlign = 'center';
-  x.fillStyle = '#FF006E';
-  x.font = '800 48px -apple-system,"Segoe UI",sans-serif';
-  x.fillText('📍 Sur Spot 105', W / 2, H - 70);
+  brandFooter(x, W, H);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
 async function listShareImageBlob(list, spotObjsRaw) {
@@ -13190,13 +13209,10 @@ async function listShareImageBlob(list, spotObjsRaw) {
   if (spots.length > shown.length) {
     x.textAlign = 'center';
     x.fillStyle = 'rgba(255,255,255,.85)';
-    x.font = '700 44px -apple-system,"Segoe UI",sans-serif';
-    x.fillText('+ ' + (spots.length - shown.length) + ' de plus', W / 2, H - 150);
+    x.font = '700 40px -apple-system,"Segoe UI",sans-serif';
+    x.fillText('+ ' + (spots.length - shown.length) + ' de plus', W / 2, H - 192);
   }
-  x.textAlign = 'center';
-  x.fillStyle = '#FF006E';
-  x.font = '800 48px -apple-system,"Segoe UI",sans-serif';
-  x.fillText('📍 Sur Spot 105', W / 2, H - 70);
+  brandFooter(x, W, H);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
 function WrappedModal({
@@ -13708,7 +13724,7 @@ function WrappedModal({
     try {
       const blob = await wrappedImageBlob(st, year);
       if (blob) {
-        const file = new File([blob], `spotane-wrapped-${year}.png`, {
+        const file = new File([blob], `spot105-wrapped-${year}.png`, {
           type: 'image/png'
         });
         if (navigator.canShare && navigator.canShare({
@@ -17474,7 +17490,7 @@ function App() {
     try {
       const blob = await tasteProfileImageBlob(tasteProfile);
       if (!blob) throw new Error("img");
-      const file = new File([blob], 'mon-adn-spotane.png', {
+      const file = new File([blob], 'mon-adn-spot105.png', {
         type: 'image/png'
       });
       if (navigator.canShare && navigator.canShare({
@@ -17486,7 +17502,7 @@ function App() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'mon-adn-spotane.png';
+        a.download = 'mon-adn-spot105.png';
         a.click();
         URL.revokeObjectURL(url);
         window.mspToast?.("Image enregistrée 📸", "success");
@@ -18797,7 +18813,7 @@ function App() {
       const blob = await spotShareImageBlob(spot);
       if (!blob) throw new Error("img");
       const safe = (spot.name || "spot").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "spot";
-      const file = new File([blob], `${safe}-spotane.png`, {
+      const file = new File([blob], `${safe}-spot105.png`, {
         type: 'image/png'
       });
       if (navigator.canShare && navigator.canShare({
@@ -18805,7 +18821,8 @@ function App() {
       })) await navigator.share({
         files: [file],
         title: spot.name,
-        text: shareText(spot)
+        text: shareText(spot),
+        url: buildShareURL(spot, myName)
       });else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -18831,7 +18848,7 @@ function App() {
       const blob = await listShareImageBlob(meta, spotObjs);
       if (!blob) throw new Error("img");
       const safe = (meta.name || "liste").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "liste";
-      const file = new File([blob], `${safe}-spotane.png`, {
+      const file = new File([blob], `${safe}-spot105.png`, {
         type: 'image/png'
       });
       if (navigator.canShare && navigator.canShare({
