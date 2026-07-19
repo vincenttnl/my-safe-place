@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T19:05:52.673Z -->
+<!-- built 2026-07-19T19:27:31.461Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -11008,29 +11008,33 @@ function SpotDetail({
     style: {
       display: 'flex',
       justifyContent: 'center',
-      gap: 28
+      alignItems: 'center',
+      gap: 14,
+      flexWrap: 'nowrap'
     }
   }, React.createElement("button", {
     onClick: () => setMapChoice(true),
+    title: "Voir sur la carte / Google Maps",
     className: "press",
     style: {
       background: 'none',
       border: 'none',
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 13,
+      fontWeight: 700,
+      fontSize: 12.5,
       color: 'var(--ink-600)',
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6
+      gap: 5,
+      whiteSpace: 'nowrap'
     }
   }, React.createElement("span", {
     style: {
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\u2197"), " Voir sur Maps"), React.createElement("button", {
+  }, "\u2197"), " Maps"), React.createElement("button", {
     onClick: () => onShare(spot),
     title: "\xC0 un pote d\xE9j\xE0 sur Spot 105 \u2014 il le re\xE7oit dans son fil",
     className: "press",
@@ -11039,19 +11043,20 @@ function SpotDetail({
       border: 'none',
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 13,
+      fontWeight: 700,
+      fontSize: 12.5,
       color: 'var(--ink-600)',
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6
+      gap: 5,
+      whiteSpace: 'nowrap'
     }
   }, React.createElement("span", {
     style: {
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\uD83D\uDCE4"), " Envoyer \xE0 un pote"), onShareImg && React.createElement("button", {
+  }, "\uD83D\uDCE4"), " Envoyer"), onShareImg && React.createElement("button", {
     onClick: () => onShareImg(spot),
     title: "Belle image + lien \u2014 pour WhatsApp, stories, ou un pote pas encore sur l'app",
     className: "press",
@@ -11060,19 +11065,20 @@ function SpotDetail({
       border: 'none',
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 13,
+      fontWeight: 700,
+      fontSize: 12.5,
       color: 'var(--ink-600)',
       display: 'inline-flex',
       alignItems: 'center',
-      gap: 6
+      gap: 5,
+      whiteSpace: 'nowrap'
     }
   }, React.createElement("span", {
     style: {
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\uD83D\uDCF8"), " Partager en image")), onGoing && React.createElement("button", {
+  }, "\uD83D\uDCF8"), " Partager")), onGoing && React.createElement("button", {
     onClick: () => onGoing(spot.id),
     className: "press",
     style: {
