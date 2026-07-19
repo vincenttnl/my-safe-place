@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T01:51:37.450Z -->
+<!-- built 2026-07-19T02:38:05.829Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3298,6 +3298,9 @@ const I18N = {
     obs_3t: "🔒 Privé par défaut",
     obs_3d: "Tes adresses restent à toi. Tu partages ce que tu veux.",
     obs_cta: "Continuer →",
+    d_img: "📸 Image",
+    d_img_wait: "Création de l'image… 📸",
+    d_img_saved: "Image enregistrée 📸",
     d_site: "🌐 Site / Réserver",
     mc_title: "Voir sur ta carte",
     mc_spotane: "Ouvrir Map Spotane",
@@ -3771,6 +3774,9 @@ const I18N = {
     obs_3t: "🔒 Private by default",
     obs_3d: "Your addresses stay yours. You share what you want.",
     obs_cta: "Continue →",
+    d_img: "📸 Image",
+    d_img_wait: "Creating image… 📸",
+    d_img_saved: "Image saved 📸",
     d_site: "🌐 Website / Book",
     mc_title: "See it on your map",
     mc_spotane: "Open Spotane Map",
@@ -4244,6 +4250,9 @@ const I18N = {
     obs_3t: "🔒 Privado por defecto",
     obs_3d: "Tus direcciones son tuyas. Compartes lo que quieres.",
     obs_cta: "Continuar →",
+    d_img: "📸 Imagen",
+    d_img_wait: "Creando la imagen… 📸",
+    d_img_saved: "Imagen guardada 📸",
     d_site: "🌐 Web / Reservar",
     mc_title: "Verlo en tu mapa",
     mc_spotane: "Abrir Mapa Spotane",
@@ -9981,7 +9990,8 @@ function SpotDetail({
   metroLoading,
   onSuggest,
   similar,
-  onOpenSimilar
+  onOpenSimilar,
+  onShareImg
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -10879,7 +10889,27 @@ function SpotDetail({
       color: 'var(--pop-violet)',
       fontWeight: 800
     }
-  }, "\uD83D\uDCE4"), " Envoyer \xE0 un ami")), onGoing && React.createElement("button", {
+  }, "\uD83D\uDCE4"), " Envoyer \xE0 un ami"), onShareImg && React.createElement("button", {
+    onClick: () => onShareImg(spot),
+    className: "press",
+    style: {
+      background: 'none',
+      border: 'none',
+      cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 600,
+      fontSize: 13,
+      color: 'var(--ink-600)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 6
+    }
+  }, React.createElement("span", {
+    style: {
+      color: 'var(--pop-violet)',
+      fontWeight: 800
+    }
+  }, "\uD83D\uDCF8"), " ", tr("d_img"))), onGoing && React.createElement("button", {
     onClick: () => onGoing(spot.id),
     className: "press",
     style: {
@@ -12811,6 +12841,131 @@ async function tasteProfileImageBlob(p) {
   x.fillStyle = 'rgba(255,255,255,.85)';
   x.font = '700 44px -apple-system,"Segoe UI",sans-serif';
   x.fillText("Et toi, t'es quoi ? · Spotane", W / 2, 1800);
+  return new Promise(res => c.toBlob(res, 'image/png'));
+}
+function loadImgCORS(url, timeout = 4500) {
+  return new Promise(res => {
+    if (!url) return res(null);
+    const im = new Image();
+    im.crossOrigin = 'anonymous';
+    let done = false;
+    const to = setTimeout(() => {
+      if (!done) {
+        done = true;
+        res(null);
+      }
+    }, timeout);
+    im.onload = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(to);
+        res(im);
+      }
+    };
+    im.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(to);
+        res(null);
+      }
+    };
+    im.src = url;
+  });
+}
+async function spotShareImageBlob(spot) {
+  const W = 1080,
+    H = 1920,
+    PH = 1180;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const x = c.getContext('2d');
+  const rr = (px, py, pw, ph, r) => {
+    x.beginPath();
+    if (x.roundRect) x.roundRect(px, py, pw, ph, r);else x.rect(px, py, pw, ph);
+  };
+  const g = x.createLinearGradient(0, 0, W * 0.6, H);
+  g.addColorStop(0, '#FF006E');
+  g.addColorStop(0.5, '#0A0A0A');
+  g.addColorStop(1, '#17162B');
+  x.fillStyle = g;
+  x.fillRect(0, 0, W, H);
+  const cat = CATS.find(k => k.key === primaryCat(spot));
+  const img = await loadImgCORS(firstPhoto(spot));
+  if (img) {
+    const s = Math.max(W / img.width, PH / img.height),
+      w = img.width * s,
+      h = img.height * s;
+    x.save();
+    x.beginPath();
+    x.rect(0, 0, W, PH);
+    x.clip();
+    x.drawImage(img, (W - w) / 2, (PH - h) / 2, w, h);
+    x.restore();
+  } else {
+    x.textAlign = 'center';
+    x.fillStyle = 'rgba(255,255,255,.9)';
+    x.font = '340px -apple-system,"Segoe UI",sans-serif';
+    x.fillText(cat ? cat.emoji : '📍', W / 2, PH / 2 + 130);
+  }
+  const sc = x.createLinearGradient(0, PH - 420, 0, PH);
+  sc.addColorStop(0, 'rgba(10,10,10,0)');
+  sc.addColorStop(1, '#0A0A0A');
+  x.fillStyle = sc;
+  x.fillRect(0, PH - 420, W, 420);
+  x.fillStyle = '#0A0A0A';
+  x.fillRect(0, PH, W, H - PH);
+  x.textAlign = 'left';
+  if (cat) {
+    const label = cat.emoji + ' ' + cat.label;
+    x.font = '700 46px -apple-system,"Segoe UI",sans-serif';
+    const tw = x.measureText(label).width;
+    x.fillStyle = '#FF006E';
+    rr(90, PH - 150, tw + 70, 84, 42);
+    x.fill();
+    x.fillStyle = '#fff';
+    x.fillText(label, 125, PH - 92);
+  }
+  x.fillStyle = '#fff';
+  x.font = '900 92px Georgia,serif';
+  const words = (spot.name || 'Un super spot').split(' ');
+  let line = '',
+    lines = [];
+  words.forEach(w => {
+    const t = line ? line + ' ' + w : w;
+    if (x.measureText(t).width > W - 180 && line) {
+      lines.push(line);
+      line = w;
+    } else line = t;
+  });
+  if (line) lines.push(line);
+  lines = lines.slice(0, 2);
+  lines.forEach((ln, i) => x.fillText(ln, 90, PH + 140 + i * 100));
+  let my = PH + 140 + lines.length * 100 + 40;
+  const gr = gRating(spot);
+  const metro = (spot.metro || '').split(/[,;]/)[0].trim();
+  const bits = [];
+  if (gr) bits.push('⭐ ' + gr);
+  if (metro) bits.push('🚇 ' + metro);
+  if (spot.price) bits.push(spot.price);
+  if (bits.length) {
+    x.fillStyle = 'rgba(255,255,255,.9)';
+    x.font = '600 46px -apple-system,"Segoe UI",sans-serif';
+    x.fillText(bits.join('   ·   '), 90, my);
+    my += 70;
+  }
+  if (spot.adresse) {
+    let ad = spot.adresse;
+    x.fillStyle = 'rgba(255,255,255,.55)';
+    x.font = '42px -apple-system,"Segoe UI",sans-serif';
+    while (x.measureText(ad).width > W - 180 && ad.length > 4) ad = ad.slice(0, -2);
+    if (ad !== spot.adresse) ad = ad.replace(/[,\s]+$/, '') + '…';
+    x.fillText(ad, 90, my);
+  }
+  x.textAlign = 'center';
+  x.fillStyle = '#FF006E';
+  x.font = '800 48px -apple-system,"Segoe UI",sans-serif';
+  x.fillText('📍 Sur Spotane', W / 2, H - 70);
   return new Promise(res => c.toBlob(res, 'image/png'));
 }
 function WrappedModal({
@@ -18334,6 +18489,35 @@ function App() {
       return;
     }
     shareSpotByLink(spot);
+  };
+  const shareSpotImage = async spot => {
+    try {
+      window.mspToast?.(tr("d_img_wait"), "info");
+      const blob = await spotShareImageBlob(spot);
+      if (!blob) throw new Error("img");
+      const safe = (spot.name || "spot").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "spot";
+      const file = new File([blob], `${safe}-spotane.png`, {
+        type: 'image/png'
+      });
+      if (navigator.canShare && navigator.canShare({
+        files: [file]
+      })) await navigator.share({
+        files: [file],
+        title: spot.name,
+        text: shareText(spot)
+      });else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        a.click();
+        URL.revokeObjectURL(url);
+        window.mspToast?.(tr("d_img_saved"), "success");
+      }
+      window.mspHaptic?.(15);
+    } catch (e) {
+      if (e && e.name !== 'AbortError') window.mspToast?.(tr("t_27"), "error");
+    }
   };
   const finishNameAndShare = name => {
     setMyName(name);
@@ -26185,7 +26369,8 @@ function App() {
     onOpenSimilar: s => {
       detailNavSeen.current = new Set();
       setSelectedSpot(s);
-    }
+    },
+    onShareImg: shareSpotImage
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
