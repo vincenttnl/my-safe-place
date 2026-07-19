@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T14:08:00.185Z -->
+<!-- built 2026-07-19T14:58:59.096Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3156,6 +3156,7 @@ const I18N = {
     sm_new: "Quoi de neuf",
     sm_sentyou: "t'a envoyé",
     sm_add: "＋ Ajouter",
+    sm_ignore: "Ignorer",
     inv_title: "{name} t'invite sur Spotane",
     inv_val: "Vos bonnes adresses restent entre vous 🔒",
     inv_b1: "Tes spots restent privés par défaut",
@@ -3632,6 +3633,7 @@ const I18N = {
     sm_new: "What's new",
     sm_sentyou: "sent you",
     sm_add: "＋ Add",
+    sm_ignore: "Dismiss",
     inv_title: "{name} invites you to Spotane",
     inv_val: "Your good spots stay between you 🔒",
     inv_b1: "Your spots stay private by default",
@@ -4108,6 +4110,7 @@ const I18N = {
     sm_new: "Novedades",
     sm_sentyou: "te envió",
     sm_add: "＋ Añadir",
+    sm_ignore: "Ignorar",
     inv_title: "{name} te invita a Spotane",
     inv_val: "Vuestras buenas direcciones quedan entre vosotros 🔒",
     inv_b1: "Tus spots siguen siendo privados por defecto",
@@ -17826,7 +17829,6 @@ function App() {
   };
   const viewRecv = m => {
     setSelectedSpot(m.spot);
-    dismissRecv(m);
   };
   const [goingRows, setGoingRows] = useState([]);
   const fetchGoing = async () => {
@@ -20294,7 +20296,23 @@ function App() {
         style: {
           color: 'var(--ink-900)'
         }
-      }, nm), " ", tr("sm_sentyou"))), React.createElement("div", {
+      }, nm), " ", tr("sm_sentyou")), React.createElement("button", {
+        onClick: () => dismissRecv(m),
+        className: "press",
+        title: tr("sm_ignore"),
+        "aria-label": tr("sm_ignore"),
+        style: {
+          marginLeft: 'auto',
+          border: 'none',
+          background: 'none',
+          cursor: 'pointer',
+          color: 'var(--ink-400)',
+          fontSize: 16,
+          lineHeight: 1,
+          padding: '2px 4px',
+          flexShrink: 0
+        }
+      }, "\u2715")), React.createElement("div", {
         style: {
           display: 'flex',
           gap: 10,
@@ -28225,7 +28243,7 @@ function App() {
     },
     className: tab === it.key ? "active" : "",
     onClick: () => setTab(it.key),
-    "aria-label": tr(it.i18n) + (it.key === "events" && evBadge > 0 ? ` — ${evBadge} ${tr("nav_new")}` : ""),
+    "aria-label": tr(it.i18n) + (it.key === "events" && evBadge > 0 ? ` — ${evBadge} ${tr("nav_new")}` : it.key === "home" && recvMsgs.length > 0 ? ` — ${recvMsgs.length} ${tr("nav_new")}` : ""),
     "aria-current": tab === it.key ? "page" : undefined
   }, React.createElement("span", {
     className: "nav-icon",
@@ -28233,7 +28251,10 @@ function App() {
   }, it.icon), tr(it.i18n), it.key === "events" && evBadge > 0 && React.createElement("span", {
     className: "nav-badge",
     "aria-hidden": "true"
-  }, evBadge > 99 ? "99+" : evBadge))))), React.createElement(ToastStack, null));
+  }, evBadge > 99 ? "99+" : evBadge), it.key === "home" && recvMsgs.length > 0 && React.createElement("span", {
+    className: "nav-badge",
+    "aria-hidden": "true"
+  }, recvMsgs.length > 99 ? "99+" : recvMsgs.length))))), React.createElement(ToastStack, null));
 }
 ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
 requestAnimationFrame(() => {
