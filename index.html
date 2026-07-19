@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T22:10:52.628Z -->
+<!-- built 2026-07-19T22:38:08.388Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -8594,23 +8594,23 @@ function PropositionsModal({
       className: "fade-in press",
       onClick: handleCardClick,
       style: {
-        background: 'rgba(255,255,255,.045)',
-        border: '1px solid rgba(255,255,255,.1)',
+        position: 'relative',
+        height: 250,
         borderRadius: 22,
-        padding: 0,
         overflow: 'hidden',
         opacity: 1,
         animationDelay: `${Math.min(i, 8) * 0.06}s`,
         cursor: 'pointer',
-        position: 'relative',
-        boxShadow: '0 14px 34px -14px rgba(0,0,0,0.6)'
+        border: '1.5px solid rgba(255,0,110,.6)',
+        boxShadow: '0 0 24px rgba(255,0,110,.28)',
+        background: CB[s.cats[0]] || '#12121a'
       }
     }, loadingPhotos === s.id && React.createElement("div", {
       style: {
         position: 'absolute',
         inset: 0,
         background: 'rgba(5,5,9,0.82)',
-        zIndex: 3,
+        zIndex: 4,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -8622,13 +8622,7 @@ function PropositionsModal({
         fontWeight: 600,
         color: 'rgba(255,255,255,.7)'
       }
-    }, tr("pq_loading"))), React.createElement("div", {
-      style: {
-        position: 'relative',
-        height: 208,
-        background: CB[s.cats[0]] || 'var(--bg-soft)'
-      }
-    }, (() => {
+    }, tr("pq_loading"))), (() => {
       const cachedPhoto = stockPhotoCache && stockPhotoCache[s.id] ? stockPhotoCache[s.id][0] : firstPhoto(s);
       return cachedPhoto && React.createElement("img", {
         src: cachedPhoto,
@@ -8636,6 +8630,8 @@ function PropositionsModal({
         loading: "lazy",
         decoding: "async",
         style: {
+          position: 'absolute',
+          inset: 0,
           width: '100%',
           height: '100%',
           objectFit: 'cover'
@@ -8648,7 +8644,7 @@ function PropositionsModal({
       style: {
         position: 'absolute',
         inset: 0,
-        background: 'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.12) 48%, transparent 72%)'
+        background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.05) 52%, transparent 72%)'
       }
     }), React.createElement("div", {
       style: {
@@ -8677,7 +8673,7 @@ function PropositionsModal({
         position: 'absolute',
         left: 15,
         right: 15,
-        bottom: 12,
+        bottom: 14,
         zIndex: 2
       }
     }, React.createElement("div", {
@@ -8688,83 +8684,49 @@ function PropositionsModal({
         letterSpacing: '-0.02em',
         lineHeight: 1.04,
         color: '#fff',
-        textShadow: '0 1px 10px rgba(0,0,0,0.55)'
+        textShadow: '0 2px 12px rgba(0,0,0,0.7)'
       }
-    }, s.name), s.vibe && React.createElement("div", {
+    }, s.name), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-mono)',
-        fontSize: 10,
-        letterSpacing: '0.12em',
-        color: 'rgba(255,255,255,0.92)',
-        marginTop: 5,
-        textTransform: 'uppercase'
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.9)',
+        marginTop: 5
       }
-    }, s.vibe))), React.createElement("div", {
-      style: {
-        padding: '15px 17px'
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 13.5,
-        color: 'rgba(255,255,255,.8)',
-        lineHeight: 1.45,
-        display: '-webkit-box',
-        WebkitLineClamp: 2,
-        WebkitBoxOrient: 'vertical',
-        overflow: 'hidden'
-      }
-    }, spotDesc(s)), React.createElement("div", {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 11,
-        flexWrap: 'wrap'
-      }
-    }, s.price && React.createElement("span", {
-      style: {
-        fontSize: 11.5,
-        color: '#fff',
-        fontFamily: 'var(--font-mono)',
-        fontWeight: 600
-      }
-    }, s.price), s.metro && React.createElement("span", {
-      style: {
-        fontSize: 11.5,
-        color: 'rgba(255,255,255,.5)',
-        fontFamily: 'var(--font-mono)'
-      }
-    }, "\xB7 ", s.metro)), !has && React.createElement("button", {
+    }, [s.price, s.metro ? '🚇 ' + s.metro : null].filter(Boolean).join(' · ') || s.vibe || ''), !has ? React.createElement("button", {
       onClick: e => {
         e.stopPropagation();
         handleAdd(s);
       },
       className: "press",
       style: {
-        marginTop: 13,
+        marginTop: 11,
         width: '100%',
-        padding: '13px 0',
+        padding: '12px 0',
         borderRadius: 999,
         border: 'none',
-        background: 'var(--pop-pink)',
-        color: '#fff',
+        background: '#fff',
+        color: '#0A0A0A',
         fontFamily: 'var(--font-body)',
-        fontWeight: 700,
+        fontWeight: 800,
         fontSize: 14,
         cursor: 'pointer',
-        boxShadow: '0 8px 22px -6px rgba(255,0,110,0.55)'
+        boxShadow: '0 6px 20px -6px rgba(0,0,0,0.5)'
       }
-    }, tr("pq_add")), has && React.createElement("div", {
+    }, tr("pq_add")) : React.createElement("div", {
       style: {
         marginTop: 11,
-        display: 'flex',
+        display: 'inline-flex',
         alignItems: 'center',
         gap: 6,
         fontFamily: 'var(--font-body)',
         fontSize: 12.5,
-        fontWeight: 600,
-        color: 'var(--ink-400)'
+        fontWeight: 700,
+        color: '#fff',
+        background: 'rgba(46,204,113,.2)',
+        border: '1px solid #2ECC71',
+        borderRadius: 999,
+        padding: '7px 13px'
       }
     }, React.createElement("span", {
       style: {
