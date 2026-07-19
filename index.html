@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T21:46:18.968Z -->
+<!-- built 2026-07-19T22:02:47.170Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -225,6 +225,12 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* v223 : pills Néon Nuit (scopées étape questions) — translucide sombre + sélection magenta glow */
 .pq-neon .pq-sp{border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
 .pq-neon .pq-sp.on{background:var(--pop-pink);border-color:var(--pop-pink);color:#fff;box-shadow:0 0 20px rgba(255,0,110,.55)}
+.pq-neon .pq-edit{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22)}/* v225 : ★ Mes recherches sur le bandeau sombre */
+.pq-neon .pq-card{background:rgba(255,255,255,.05);color:#fff}
+.pq-neon .pq-card .sm{color:rgba(255,255,255,.55)}
+.pq-neon .pq-tabs.ink{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
+.pq-neon .pq-tabs.ink .pq-tab{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.pq-neon .pq-tabs.ink .pq-tab.on{background:#fff;color:#0A0A0A;border-color:transparent}
 .pq-sp.off{opacity:.35;cursor:default}
 /* la pilule « Tout » : traitée à part, jamais confondue avec une option */
 .pq-sp.all{border-style:dashed;border-color:rgba(255,255,255,.6)}
@@ -8121,17 +8127,21 @@ function PropositionsModal({
   }, tr("pq_tab_saved")));
   if (tab === "saved") {
     return React.createElement("div", _extends({
-      className: "pq-wrap",
+      className: "pq-wrap pq-neon",
       role: "dialog",
       "aria-modal": "true"
     }, swipe), React.createElement("div", {
       className: "pq-in"
     }, React.createElement("div", {
+      className: "pq-bg",
+      style: {
+        background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#050509'
+      }
+    }), React.createElement("div", {
       className: "pq-top"
     }, React.createElement("div", {
       className: "pq-row"
     }, React.createElement(BackBtn, {
-      compact: true,
       onClick: onClose
     }), React.createElement(Tabs, {
       ink: true
@@ -8147,13 +8157,13 @@ function PropositionsModal({
         lineHeight: 1.06,
         letterSpacing: '-0.03em',
         whiteSpace: 'pre-line',
-        color: 'var(--ink-900)'
+        color: '#fff'
       }
     }, tr("pq_saved_title")), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
-        color: 'var(--ink-400)',
+        color: 'rgba(255,255,255,.6)',
         marginTop: 6
       }
     }, tr("pq_saved_sub"))), React.createElement("div", {
@@ -8271,7 +8281,6 @@ function PropositionsModal({
     }, React.createElement("i", null)))), React.createElement("div", {
       className: "pq-row"
     }, React.createElement(BackBtn, {
-      compact: true,
       onClick: () => {
         if (qi > 0) setQi(q => q - 1);else onClose();
       }
@@ -8279,9 +8288,7 @@ function PropositionsModal({
       style: {
         flex: 1
       }
-    }), React.createElement("span", {
-      className: "pq-brand"
-    }, qi + 1, "/", GROUPS.length)), editing && React.createElement("div", {
+    })), editing && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 11.5,
@@ -8415,21 +8422,25 @@ function PropositionsModal({
     }) : tr("pq_next")))));
   }
   return React.createElement("div", _extends({
-    className: "pq-wrap",
+    className: "pq-wrap pq-neon",
     role: "dialog",
     "aria-modal": "true"
   }, swipe), React.createElement("div", {
     className: "pq-in"
   }, React.createElement("div", {
+    className: "pq-bg",
+    style: {
+      background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#050509'
+    }
+  }), React.createElement("div", {
     className: "pq-top",
     style: {
-      borderBottom: '1px solid var(--hairline)',
+      borderBottom: '1px solid rgba(255,255,255,.1)',
       paddingBottom: 12
     }
   }, React.createElement("div", {
     className: "pq-row"
   }, React.createElement(BackBtn, {
-    compact: true,
     onClick: () => setStep("filter")
   }), React.createElement("span", {
     style: {
@@ -8448,7 +8459,7 @@ function PropositionsModal({
       lineHeight: 1.08,
       letterSpacing: '-0.02em',
       whiteSpace: 'pre-line',
-      color: 'var(--ink-900)'
+      color: '#fff'
     }
   }, tr("pq_res_title"))), React.createElement("div", {
     className: "pq-body"
@@ -8469,12 +8480,13 @@ function PropositionsModal({
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
       fontSize: 24,
-      letterSpacing: '-0.01em'
+      letterSpacing: '-0.01em',
+      color: '#fff'
     }
   }, tr("pq_none_t")), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-body)',
-      color: 'var(--ink-400)',
+      color: 'rgba(255,255,255,.6)',
       fontSize: 14,
       marginTop: 8
     }
@@ -8511,8 +8523,8 @@ function PropositionsModal({
       className: "fade-in press",
       onClick: handleCardClick,
       style: {
-        background: 'var(--bg-primary)',
-        border: '1px solid var(--hairline)',
+        background: 'rgba(255,255,255,.045)',
+        border: '1px solid rgba(255,255,255,.1)',
         borderRadius: 22,
         padding: 0,
         overflow: 'hidden',
@@ -8520,13 +8532,13 @@ function PropositionsModal({
         animationDelay: `${Math.min(i, 8) * 0.06}s`,
         cursor: 'pointer',
         position: 'relative',
-        boxShadow: '0 12px 34px -14px rgba(0,0,0,0.32)'
+        boxShadow: '0 14px 34px -14px rgba(0,0,0,0.6)'
       }
     }, loadingPhotos === s.id && React.createElement("div", {
       style: {
         position: 'absolute',
         inset: 0,
-        background: 'rgba(255,255,255,0.8)',
+        background: 'rgba(5,5,9,0.82)',
         zIndex: 3,
         display: 'flex',
         alignItems: 'center',
@@ -8537,7 +8549,7 @@ function PropositionsModal({
         fontFamily: 'var(--font-body)',
         fontSize: 13,
         fontWeight: 600,
-        color: 'var(--ink-400)'
+        color: 'rgba(255,255,255,.7)'
       }
     }, tr("pq_loading"))), React.createElement("div", {
       style: {
@@ -8624,7 +8636,7 @@ function PropositionsModal({
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 13.5,
-        color: 'var(--ink-600)',
+        color: 'rgba(255,255,255,.8)',
         lineHeight: 1.45,
         display: '-webkit-box',
         WebkitLineClamp: 2,
@@ -8642,14 +8654,14 @@ function PropositionsModal({
     }, s.price && React.createElement("span", {
       style: {
         fontSize: 11.5,
-        color: 'var(--ink-900)',
+        color: '#fff',
         fontFamily: 'var(--font-mono)',
         fontWeight: 600
       }
     }, s.price), s.metro && React.createElement("span", {
       style: {
         fontSize: 11.5,
-        color: 'var(--ink-400)',
+        color: 'rgba(255,255,255,.5)',
         fontFamily: 'var(--font-mono)'
       }
     }, "\xB7 ", s.metro)), !has && React.createElement("button", {
