@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T01:43:07.920Z -->
+<!-- built 2026-07-19T01:51:37.450Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3289,6 +3289,15 @@ const I18N = {
     ob_build: "ajoute tes préférés",
     ob_file: "File dans ",
     ob_wait: " : les meilleurs spots du coin t'attendent.",
+    obs_title: "Encore meilleur à plusieurs 👥",
+    obs_sub: "Spotane, c'est aussi tes potes. Sans réseau public, sans inconnus.",
+    obs_1t: "📤 Envoie un spot",
+    obs_1d: "Balance ta dernière trouvaille à un pote en deux tap.",
+    obs_2t: "👀 Qui sort ce soir",
+    obs_2d: "Vois où tes amis vont — et dis-leur que tu y es.",
+    obs_3t: "🔒 Privé par défaut",
+    obs_3d: "Tes adresses restent à toi. Tu partages ce que tu veux.",
+    obs_cta: "Continuer →",
     d_site: "🌐 Site / Réserver",
     mc_title: "Voir sur ta carte",
     mc_spotane: "Ouvrir Map Spotane",
@@ -3753,6 +3762,15 @@ const I18N = {
     ob_build: "add your favorites",
     ob_file: "Go to ",
     ob_wait: ": the best local spots are waiting.",
+    obs_title: "Even better together 👥",
+    obs_sub: "Spotane is your crew too. No public feed, no strangers.",
+    obs_1t: "📤 Send a spot",
+    obs_1d: "Fire your latest find to a friend in two taps.",
+    obs_2t: "👀 Who's out tonight",
+    obs_2d: "See where your friends go — and tell them you're there.",
+    obs_3t: "🔒 Private by default",
+    obs_3d: "Your addresses stay yours. You share what you want.",
+    obs_cta: "Continue →",
     d_site: "🌐 Website / Book",
     mc_title: "See it on your map",
     mc_spotane: "Open Spotane Map",
@@ -4217,6 +4235,15 @@ const I18N = {
     ob_build: "añade tus favoritos",
     ob_file: "Ve a ",
     ob_wait: ": los mejores spots te esperan.",
+    obs_title: "Aún mejor en grupo 👥",
+    obs_sub: "Spotane también son tus amigos. Sin feed público, sin desconocidos.",
+    obs_1t: "📤 Envía un spot",
+    obs_1d: "Manda tu último hallazgo a un amigo en dos toques.",
+    obs_2t: "👀 Quién sale hoy",
+    obs_2d: "Mira dónde van tus amigos — y diles que estás ahí.",
+    obs_3t: "🔒 Privado por defecto",
+    obs_3d: "Tus direcciones son tuyas. Compartes lo que quieres.",
+    obs_cta: "Continuar →",
     d_site: "🌐 Web / Reservar",
     mc_title: "Verlo en tu mapa",
     mc_spotane: "Abrir Mapa Spotane",
@@ -11879,7 +11906,7 @@ function OnboardingFlow({
 }) {
   const [step, setStep] = useState(0);
   const [selCity, setSelCity] = useState(initialCity || "paris");
-  const TOTAL_STEPS = 4;
+  const TOTAL_STEPS = 5;
   const pageStyle = {
     position: 'fixed',
     inset: 0,
@@ -12213,6 +12240,75 @@ function OnboardingFlow({
     style: ctaStyle
   }, tr("ob_ok"))))));
   if (step === 3) {
+    const socialCards = [["obs_1t", "obs_1d", 103], ["obs_2t", "obs_2d", 104], ["obs_3t", "obs_3d", 105]];
+    return React.createElement("div", {
+      style: pageStyle
+    }, React.createElement(ProgressBar, null), React.createElement("div", {
+      style: contentStyle(false)
+    }, React.createElement("div", {
+      style: {
+        width: '100%',
+        paddingTop: 24
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 32,
+        lineHeight: 1.05,
+        letterSpacing: '-0.02em'
+      }
+    }, tr("obs_title")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 15,
+        color: 'var(--ink-400)',
+        marginTop: 10,
+        lineHeight: 1.55
+      }
+    }, tr("obs_sub")), React.createElement("div", {
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        marginTop: 24
+      }
+    }, socialCards.map(([t, d, seed]) => React.createElement("div", {
+      key: t,
+      style: {
+        background: '#fff',
+        border: '1.5px solid var(--hairline)',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 18px',
+        transform: `rotate(${stableTilt(seed, 0.8)}deg)`
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 16,
+        marginBottom: 4
+      }
+    }, tr(t)), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 13.5,
+        color: 'var(--ink-600)',
+        lineHeight: 1.5
+      }
+    }, tr(d))))), React.createElement("div", {
+      style: {
+        textAlign: 'center',
+        marginTop: 28,
+        paddingBottom: 24
+      }
+    }, React.createElement("button", {
+      onClick: () => setStep(4),
+      className: "press",
+      style: ctaStyle
+    }, tr("obs_cta"))))));
+  }
+  if (step === 4) {
     const cityLabel = (CITIES[selCity] || CITIES.paris).label;
     return React.createElement("div", {
       style: pageStyle
