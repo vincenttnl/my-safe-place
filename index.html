@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T21:11:22.596Z -->
+<!-- built 2026-07-19T21:25:06.895Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -199,9 +199,11 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
    plein écran, un dégradé par question, 6 barres cliquables (cible tactile 21px, pas le trait de 3px),
    « Tout » = groupe VIDE → le compteur monte, il ne chute jamais. + onglet ★ recherches enregistrées. */
 .pq-wrap{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;height:100dvh;overflow:hidden;background:var(--bg-cream)}
+.pq-wrap.pq-neon{background:#050509}/* v223 : charte Néon Nuit (choix Vincent : couleurs №5 + bandeau №4) — SCOPÉE à l'étape questions */
 .pq-in{position:relative;flex:1;display:flex;flex-direction:column;width:100%;max-width:600px;margin:0 auto;min-height:0;overflow:hidden}
 .pq-bg{position:absolute;inset:0;z-index:0;transition:background .35s var(--ease)}
 .pq-top{position:relative;z-index:2;flex:0 0 auto;padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px}
+.pq-neon .pq-top{padding-bottom:18px;background:linear-gradient(158deg,#FF006E 0%,#2a0016 68%,#0a0007 100%)}/* v223 : BANDEAU magenta→noir (№4) qui fond dans le corps néon nuit */
 .pq-body{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden;padding:0 18px}
 .pq-foot{position:relative;z-index:2;flex:0 0 auto;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px))}
 .pq-scy{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -215,11 +217,14 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .pq-bars .seg i{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.3);transition:background .2s var(--ease),height .2s var(--ease)}
 .pq-bars .seg.done i{background:rgba(255,255,255,.95)}
 .pq-bars .seg.here i{background:#fff;height:5px}
-.pq-sp{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.38);background:rgba(255,255,255,.12);color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-align:left;font-family:var(--font-body);transition:transform .12s var(--ease),background .18s var(--ease)}
+.pq-sp{display:flex;align-items:center;gap:12px;width:100%;padding:13px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.38);background:rgba(255,255,255,.12);color:#fff;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);text-align:left;font-family:var(--font-body);transition:transform .12s var(--ease),background .18s var(--ease),box-shadow .18s var(--ease)}
 .pq-sp:active{transform:scale(.97)}
 .pq-sp .e{font-size:21px;line-height:1}
 .pq-sp .l{flex:1;font-size:16px;font-weight:800;min-width:0}
 .pq-sp.on{background:#fff;border-color:#fff}
+/* v223 : pills Néon Nuit (scopées étape questions) — translucide sombre + sélection magenta glow */
+.pq-neon .pq-sp{border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
+.pq-neon .pq-sp.on{background:var(--pop-pink);border-color:var(--pop-pink);color:#fff;box-shadow:0 0 20px rgba(255,0,110,.55)}
 .pq-sp.off{opacity:.35;cursor:default}
 /* la pilule « Tout » : traitée à part, jamais confondue avec une option */
 .pq-sp.all{border-style:dashed;border-color:rgba(255,255,255,.6)}
@@ -8240,7 +8245,7 @@ function PropositionsModal({
   }
   if (step === "filter") {
     return React.createElement("div", _extends({
-      className: "pq-wrap",
+      className: "pq-wrap pq-neon",
       role: "dialog",
       "aria-modal": "true"
     }, swipe), React.createElement("div", {
@@ -8248,7 +8253,7 @@ function PropositionsModal({
     }, React.createElement("div", {
       className: "pq-bg",
       style: {
-        background: `linear-gradient(165deg, ${G.c}, ${G.ci})`
+        background: 'radial-gradient(96% 40% at 50% 46%,rgba(255,0,110,.26),transparent 62%),#050509'
       }
     }), React.createElement("div", {
       className: "pq-top"
@@ -8324,10 +8329,7 @@ function PropositionsModal({
       className: "pq-fill"
     }, React.createElement("button", {
       onClick: () => G.set([]),
-      className: "pq-sp all" + (G.value.length === 0 ? " on" : ""),
-      style: G.value.length === 0 ? {
-        color: G.ci
-      } : undefined
+      className: "pq-sp all" + (G.value.length === 0 ? " on" : "")
     }, React.createElement("span", {
       className: "e"
     }, "\u2726"), React.createElement("span", {
@@ -8357,9 +8359,6 @@ function PropositionsModal({
         key: o.k,
         onClick: () => !off && G.set(p => p.includes(o.k) ? p.filter(x => x !== o.k) : [...p, o.k]),
         className: "pq-sp" + (on ? " on" : "") + (off ? " off" : ""),
-        style: on ? {
-          color: G.ci
-        } : undefined,
         "aria-pressed": on,
         "aria-disabled": off
       }, sp.e && React.createElement("span", {
@@ -8388,17 +8387,27 @@ function PropositionsModal({
       style: {
         display: 'inline-block',
         background: '#fff',
-        color: G.ci,
+        color: 'var(--pop-pink)',
         padding: '1px 13px',
         borderRadius: 999,
         fontWeight: 900,
-        boxShadow: '0 4px 14px rgba(0,0,0,.18)'
+        boxShadow: '0 0 18px rgba(255,0,110,.5)'
       }
-    }, totalMatch), " spots") : React.createElement(React.Fragment, null, POOL.length, " spots")), React.createElement("button", {
+    }, totalMatch), " ", React.createElement("span", {
+      style: {
+        color: '#00E5FF',
+        textShadow: '0 0 10px rgba(0,229,255,.55)'
+      }
+    }, "spots")) : React.createElement(React.Fragment, null, POOL.length, " ", React.createElement("span", {
+      style: {
+        color: '#00E5FF',
+        textShadow: '0 0 10px rgba(0,229,255,.55)'
+      }
+    }, "spots"))), React.createElement("button", {
       onClick: nextQ,
       className: "pq-cta press",
       style: {
-        color: G.ci
+        color: 'var(--pop-pink)'
       }
     }, qi === LAST ? tr(editingId ? "pq_see_save" : "pq_see", {
       n: totalMatch
