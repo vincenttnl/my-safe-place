@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T22:02:47.170Z -->
+<!-- built 2026-07-19T22:10:52.628Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -7859,6 +7859,8 @@ function PropositionsModal({
   const [loadingPhotos, setLoadingPhotos] = useState(null);
   const [photoCache, setPhotoCache] = useState({});
   const [topN, setTopN] = useState(5);
+  const [pqOpenNow, setPqOpenNow] = useState(false);
+  const [pqLate, setPqLate] = useState(false);
   const userNames = useMemo(() => new Set(userSpots.map(s => s.name.toLowerCase())), [userSpots]);
   const [presets, setPresets] = useState(() => {
     try {
@@ -7881,12 +7883,17 @@ function PropositionsModal({
     cuisine,
     budget,
     music,
-    cat: wcat
-  }), [who, when, vibe, cuisine, budget, music, wcat]);
+    cat: wcat,
+    openNow: pqOpenNow,
+    late: pqLate
+  }), [who, when, vibe, cuisine, budget, music, wcat, pqOpenNow, pqLate]);
   const runFilters = useCallback(f => {
     const cuisineExp = (f.cuisine || []).flatMap(c => c === "streetfood" ? STREET_KEYS : [c]);
     const anyFilter = !!((f.cat || []).length || (f.who || []).length || (f.when || []).length || (f.vibe || []).length || (f.cuisine || []).length || (f.music || []).length);
+    const pnow = f.openNow ? nowParis() : null;
     return POOL.map(s => {
+      if (f.openNow && isOpenNow(s.hours, pnow) !== true) return null;
+      if (f.late && !opensLate(s.hours)) return null;
       if ((f.budget || []).length && !f.budget.includes(priceBucket(s.price))) return null;
       if ((f.cat || []).length && !f.cat.some(c => (s.cats || []).includes(c))) return null;
       const t = s.tags || {};
@@ -8335,7 +8342,71 @@ function PropositionsModal({
       className: "pq-scy"
     }, React.createElement("div", {
       className: "pq-fill"
+    }, React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 8,
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        marginBottom: 6
+      }
     }, React.createElement("button", {
+      onClick: () => {
+        setPqOpenNow(v => !v);
+        window.mspHaptic?.(10);
+      },
+      className: "press",
+      "aria-pressed": pqOpenNow,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 7,
+        padding: '7px 13px',
+        borderRadius: 999,
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12,
+        whiteSpace: 'nowrap',
+        border: '1px solid ' + (pqOpenNow ? '#2ECC71' : 'rgba(255,255,255,.16)'),
+        background: pqOpenNow ? 'rgba(46,204,113,.16)' : 'rgba(255,255,255,.06)',
+        color: pqOpenNow ? '#EAFFF4' : '#fff',
+        boxShadow: pqOpenNow ? '0 0 14px rgba(46,204,113,.4)' : 'none'
+      }
+    }, React.createElement("span", {
+      style: {
+        width: 8,
+        height: 8,
+        borderRadius: 999,
+        background: pqOpenNow ? '#2ECC71' : 'rgba(255,255,255,.4)',
+        boxShadow: pqOpenNow ? '0 0 8px #2ECC71' : 'none',
+        display: 'inline-block',
+        flexShrink: 0
+      }
+    }), "Ouvert maintenant"), React.createElement("button", {
+      onClick: () => {
+        setPqLate(v => !v);
+        window.mspHaptic?.(10);
+      },
+      className: "press",
+      "aria-pressed": pqLate,
+      style: {
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '7px 13px',
+        borderRadius: 999,
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12,
+        whiteSpace: 'nowrap',
+        border: '1px solid ' + (pqLate ? '#8B5CF6' : 'rgba(255,255,255,.16)'),
+        background: pqLate ? 'rgba(139,92,246,.18)' : 'rgba(255,255,255,.06)',
+        color: '#fff',
+        boxShadow: pqLate ? '0 0 14px rgba(139,92,246,.45)' : 'none'
+      }
+    }, "\uD83C\uDF19 +5h")), React.createElement("button", {
       onClick: () => G.set([]),
       className: "pq-sp all" + (G.value.length === 0 ? " on" : "")
     }, React.createElement("span", {
