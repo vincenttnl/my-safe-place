@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:48:08.531Z -->
+<!-- built 2026-07-19T20:59:50.418Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -5349,6 +5349,7 @@ const CITY_CATALOG_BASE = {
 };
 const spotCity = s => s && s.tags && s.tags.city || "paris";
 const PARIS_RING = [[48.8542, 2.22412], [48.85004, 2.23956], [48.84773, 2.24247], [48.84557, 2.25254], [48.84286, 2.25122], [48.83891, 2.25165], [48.83481, 2.25515], [48.83458, 2.26795], [48.83301, 2.27003], [48.83156, 2.2673], [48.82785, 2.26781], [48.82793, 2.27274], [48.83245, 2.27905], [48.82714, 2.29222], [48.81821, 2.33237], [48.81703, 2.33174], [48.81558, 2.3445], [48.81853, 2.3524], [48.81597, 2.35592], [48.81606, 2.36341], [48.82965, 2.40249], [48.82505, 2.4108], [48.82357, 2.42975], [48.82169, 2.43289], [48.81928, 2.43418], [48.81936, 2.43697], [48.81822, 2.43735], [48.81701, 2.45863], [48.81903, 2.4628], [48.82733, 2.46618], [48.82763, 2.46461], [48.83115, 2.46523], [48.83556, 2.4697], [48.84011, 2.46638], [48.84237, 2.46273], [48.84592, 2.44077], [48.84435, 2.44051], [48.84457, 2.43794], [48.84089, 2.43719], [48.84177, 2.42476], [48.8445, 2.42211], [48.84249, 2.41942], [48.83581, 2.42218], [48.83376, 2.41611], [48.83387, 2.41123], [48.83788, 2.41351], [48.84879, 2.41644], [48.87638, 2.4125], [48.88028, 2.40929], [48.88149, 2.40372], [48.88382, 2.40009], [48.89459, 2.39776], [48.89826, 2.39553], [48.90098, 2.39069], [48.90216, 2.38443], [48.90076, 2.32036], [48.88657, 2.28566], [48.88295, 2.28099], [48.8787, 2.27996], [48.87796, 2.27749], [48.88028, 2.25889], [48.87408, 2.25481], [48.87636, 2.24562], [48.87189, 2.24046], [48.86951, 2.23208], [48.86514, 2.22824], [48.8542, 2.22412]];
+const IDF_RING = [[49.0797, 2.5905], [49.0666, 2.691], [49.0926, 2.7967], [49.0771, 2.9406], [49.0891, 3.0328], [49.108, 3.1026], [49.046, 3.1892], [48.9855, 3.2272], [48.9092, 3.3365], [48.8718, 3.3933], [48.8464, 3.4682], [48.8008, 3.423], [48.7547, 3.4143], [48.6912, 3.4725], [48.6373, 3.4766], [48.6109, 3.5353], [48.5292, 3.4333], [48.4843, 3.3935], [48.4235, 3.4048], [48.3967, 3.3751], [48.3772, 3.2732], [48.3722, 3.1571], [48.3605, 3.0543], [48.276, 3.025], [48.2056, 2.9731], [48.1297, 2.8209], [48.1617, 2.7717], [48.1205, 2.6648], [48.1235, 2.4511], [48.1904, 2.5138], [48.2535, 2.4425], [48.3149, 2.3952], [48.3157, 2.3007], [48.331, 2.2362], [48.3127, 2.169], [48.2892, 2.025], [48.3139, 1.9787], [48.3942, 1.9729], [48.457, 1.9295], [48.4657, 1.8157], [48.5555, 1.7767], [48.6131, 1.685], [48.6544, 1.613], [48.7389, 1.6216], [48.8266, 1.5841], [48.8933, 1.5534], [48.9599, 1.4981], [49.0075, 1.48], [49.0741, 1.5116], [49.0788, 1.577], [49.1247, 1.6471], [49.2032, 1.6769], [49.2219, 1.7351], [49.1804, 1.7943], [49.1632, 1.8874], [49.1944, 2.0428], [49.1924, 2.1255], [49.1732, 2.1955], [49.1732, 2.2957], [49.1501, 2.3975], [49.12, 2.5368], [49.0797, 2.5905]];
 const CITY_RINGS = {
   paris: PARIS_RING,
   lyon: [[45.75103, 4.77181], [45.74425, 4.78359], [45.75176, 4.80243], [45.74908, 4.81833], [45.73227, 4.8145], [45.7147, 4.82339], [45.70737, 4.83768], [45.71861, 4.83745], [45.71891, 4.85449], [45.72974, 4.8537], [45.72036, 4.88755], [45.75297, 4.89842], [45.75494, 4.87552], [45.77243, 4.85836], [45.78703, 4.85983], [45.77892, 4.84303], [45.78432, 4.82366], [45.78973, 4.81892], [45.80052, 4.83929], [45.80826, 4.83698], [45.80468, 4.82289], [45.78909, 4.80774], [45.78778, 4.78399], [45.78666, 4.79211], [45.7758, 4.79515], [45.75444, 4.78211], [45.75103, 4.77181]],
@@ -16699,6 +16700,7 @@ function App() {
     })();
   }, [city]);
   const [mapMode, setMapMode] = useState("discover");
+  const [mapZoomedIn, setMapZoomedIn] = useState(false);
   const [mapFilter, setMapFilter] = useState(null);
   const [zoneFilter, setZoneFilter] = useState(null);
   const friendSpotMap = useMemo(() => {
@@ -18670,6 +18672,7 @@ function App() {
   const didFitRef = useRef(false);
   const selMarkerRef = useRef(null);
   const parisRingRef = useRef(null);
+  const idfRingRef = useRef(null);
   const clusterRef = useRef(null);
   useEffect(() => {
     try {
@@ -19772,6 +19775,9 @@ function App() {
     };
     let raf = 0;
     const onMove = () => {
+      try {
+        setMapZoomedIn(map.getZoom() >= 13);
+      } catch {}
       if (raf) return;
       raf = requestAnimationFrame(() => {
         raf = 0;
@@ -19780,6 +19786,9 @@ function App() {
     };
     map.on("moveend", onMove);
     map.on("zoomend", onMove);
+    try {
+      setMapZoomedIn(map.getZoom() >= 13);
+    } catch {}
     const onTap = e => {
       let best = null,
         bd = 28 * 28;
@@ -19863,6 +19872,12 @@ function App() {
       } catch {}
       parisRingRef.current = null;
     }
+    if (idfRingRef.current) {
+      try {
+        map.removeLayer(idfRingRef.current);
+      } catch {}
+      idfRingRef.current = null;
+    }
     if (tab === "map" && CITY_RINGS[city]) {
       if (!map._spotCanvas) map._spotCanvas = L.canvas({
         padding: 0.3,
@@ -19879,6 +19894,19 @@ function App() {
           interactive: false
         }).addTo(map);
       } catch {}
+      if (city === "paris") {
+        try {
+          idfRingRef.current = L.polygon(IDF_RING, {
+            renderer: map._spotCanvas,
+            color: "#0A0A0A",
+            weight: 1.5,
+            opacity: 0.55,
+            dashArray: "6 6",
+            fill: false,
+            interactive: false
+          }).addTo(map);
+        } catch {}
+      }
     }
   }, [tab, city]);
   useEffect(() => {
@@ -27629,7 +27657,7 @@ function App() {
       fontWeight: 800,
       color: 'var(--ink-400)'
     }
-  }, "\u203A"))), tab === "map" && mapMode === "discover" && !peekSpot && !selectedSpot && React.createElement("div", {
+  }, "\u203A"))), tab === "map" && !peekSpot && !selectedSpot && React.createElement("div", {
     style: {
       position: 'fixed',
       left: 12,
@@ -27655,17 +27683,24 @@ function App() {
     className: "press",
     style: {
       pointerEvents: 'auto',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      border: 'none',
       borderRadius: 999,
       padding: '8px 13px',
       fontFamily: 'var(--font-body)',
       fontWeight: 800,
       fontSize: 11.5,
       cursor: 'pointer',
-      boxShadow: '0 6px 20px rgba(255,0,110,.32)',
-      whiteSpace: 'nowrap'
+      whiteSpace: 'nowrap',
+      color: 'var(--ink-900)',
+      ...(mapZoomedIn ? {
+        background: '#fff',
+        border: '1.5px solid var(--ink-900)',
+        boxShadow: '0 4px 14px rgba(0,0,0,.18)'
+      } : {
+        background: 'transparent',
+        border: '1.5px solid transparent',
+        boxShadow: 'none',
+        textShadow: '0 1px 3px rgba(255,255,255,.95)'
+      })
     }
   }, "\uD83D\uDCCB Lister cette zone")), sharedRef && React.createElement(SharedSpotLanding, {
     shared: sharedRef,
