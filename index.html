@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T01:39:25.278Z -->
+<!-- built 2026-07-19T01:43:07.920Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -3316,6 +3316,7 @@ const I18N = {
     h_opennow: "Ouvert actuellement",
     h_nearyou: " · près de toi",
     h_best: "Le meilleur de",
+    h_recent: "👀 Vus récemment",
     sl_greet_matin: "☕ Bien réveillé",
     sl_greet_midi: "🍽️ Un petit creux",
     sl_greet_aprem: "🌇 Bel aprem",
@@ -3779,6 +3780,7 @@ const I18N = {
     h_opennow: "Open now",
     h_nearyou: " · near you",
     h_best: "The best of",
+    h_recent: "👀 Recently viewed",
     sl_greet_matin: "☕ Rise and shine",
     sl_greet_midi: "🍽️ Lunch o'clock",
     sl_greet_aprem: "🌇 Easy afternoon",
@@ -4242,6 +4244,7 @@ const I18N = {
     h_opennow: "Abierto ahora",
     h_nearyou: " · cerca de ti",
     h_best: "Lo mejor de",
+    h_recent: "👀 Vistos hace poco",
     sl_greet_matin: "☕ Buenos días",
     sl_greet_midi: "🍽️ Hora de comer",
     sl_greet_aprem: "🌇 Buena tarde",
@@ -16968,6 +16971,31 @@ function App() {
       r: parseFloat(gRating(s)) || 0
     })).sort((a, b) => b.t - a.t || b.r - a.r).slice(0, 12).map(x => x.s);
   }, [catalog, tasteProfile, showTonight]);
+  const [recentIds, setRecentIds] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("myplace_recent_v1") || "[]");
+    } catch (e) {
+      return [];
+    }
+  });
+  useEffect(() => {
+    if (!selectedSpot || selectedSpot.id == null) return;
+    const id = selectedSpot.id;
+    setRecentIds(prev => {
+      const next = [id, ...prev.filter(x => x !== id)].slice(0, 12);
+      try {
+        localStorage.setItem("myplace_recent_v1", JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+  }, [selectedSpot]);
+  const recentSpots = useMemo(() => {
+    const by = new Map();
+    [...spots, ...catalog].forEach(s => {
+      if (!by.has(s.id)) by.set(s.id, s);
+    });
+    return recentIds.map(id => by.get(id)).filter(Boolean).slice(0, 10);
+  }, [recentIds, spots, catalog]);
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
@@ -19979,7 +20007,82 @@ function App() {
           }
         }, emo, " ", (CATS.find(c => c.key === primaryCat(s)) || {}).label, gr ? ` · ⭐ ${gr}` : '')));
       })));
-    })(), React.createElement("div", {
+    })(), recentSpots.length >= 2 && React.createElement("div", {
+      style: {
+        padding: '16px 0 0'
+      }
+    }, React.createElement("h2", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 22,
+        letterSpacing: '-.015em',
+        margin: '0 20px 10px'
+      }
+    }, tr("h_recent")), React.createElement("div", {
+      style: {
+        display: 'flex',
+        gap: 12,
+        overflowX: 'auto',
+        padding: '0 20px 4px',
+        scrollSnapType: 'x proximity'
+      }
+    }, recentSpots.map(s => {
+      const ph = firstPhoto(s);
+      const emo = (CATS.find(c => c.key === primaryCat(s)) || {}).emoji || "📍";
+      const gr = gRating(s);
+      return React.createElement("button", {
+        key: s.id,
+        onClick: () => setSelectedSpot(s),
+        className: "press",
+        style: {
+          flexShrink: 0,
+          width: 150,
+          scrollSnapAlign: 'start',
+          textAlign: 'left',
+          border: '1px solid var(--hairline)',
+          borderRadius: 'var(--radius-md)',
+          overflow: 'hidden',
+          background: 'var(--bg-primary)',
+          cursor: 'pointer',
+          padding: 0
+        }
+      }, React.createElement("div", {
+        style: {
+          height: 92,
+          background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: 30
+        }
+      }, ph ? '' : emo), React.createElement("div", {
+        style: {
+          padding: '8px 10px 10px'
+        }
+      }, React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontWeight: 800,
+          fontSize: 13,
+          color: 'var(--ink-900)',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, s.name), React.createElement("div", {
+        style: {
+          fontFamily: 'var(--font-body)',
+          fontSize: 11,
+          fontWeight: 700,
+          color: 'var(--ink-400)',
+          marginTop: 3,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
+        }
+      }, emo, " ", (CATS.find(c => c.key === primaryCat(s)) || {}).label, gr ? ` · ⭐ ${gr}` : '')));
+    }))), React.createElement("div", {
       style: {
         padding: '6px 20px 0'
       }
