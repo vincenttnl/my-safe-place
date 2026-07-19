@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:05:18.183Z -->
+<!-- built 2026-07-19T20:19:35.976Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -27541,12 +27541,12 @@ function App() {
   }, "\u2715"))), tab === "map" && !peekSpot && !selectedSpot && React.createElement("div", {
     style: {
       position: 'fixed',
-      left: 12,
-      top: 'calc(202px + env(safe-area-inset-top,0px))',
+      right: 12,
+      top: 'calc(150px + env(safe-area-inset-top,0px))',
       zIndex: 1100,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'flex-start',
+      alignItems: 'flex-end',
       gap: 8,
       pointerEvents: 'none'
     }
@@ -27586,20 +27586,30 @@ function App() {
     },
     className: "press",
     style: {
-      background: '#fff',
-      border: '1.5px solid var(--hairline)',
+      background: 'rgba(255,255,255,.6)',
+      backdropFilter: 'blur(4px)',
+      WebkitBackdropFilter: 'blur(4px)',
+      border: '1px solid var(--hairline)',
       borderRadius: 999,
-      padding: '7px 12px',
+      padding: '6px 11px',
       cursor: 'pointer',
       pointerEvents: 'auto',
       fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 11,
-      color: 'var(--ink-900)',
-      boxShadow: '0 4px 14px rgba(0,0,0,.14)',
-      whiteSpace: 'nowrap'
+      fontWeight: 600,
+      fontSize: 10.5,
+      color: 'var(--ink-600)',
+      boxShadow: '0 2px 8px rgba(0,0,0,.10)',
+      whiteSpace: 'nowrap',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 4
     }
-  }, "\uD83C\uDFD9 ", tr("map_changecity"))), tab === "map" && mapMode === "discover" && !peekSpot && !selectedSpot && React.createElement("div", {
+  }, "\uD83C\uDFD9 ", tr("map_changecity"), " ", React.createElement("span", {
+    style: {
+      fontWeight: 800,
+      color: 'var(--ink-400)'
+    }
+  }, "\u203A"))), tab === "map" && mapMode === "discover" && !peekSpot && !selectedSpot && React.createElement("div", {
     style: {
       position: 'fixed',
       left: 12,
