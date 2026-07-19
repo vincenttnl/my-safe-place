@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-18T23:15:20.376Z -->
+<!-- built 2026-07-19T00:44:19.063Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -16876,6 +16876,17 @@ function App() {
       topCat: topCat ? CATS.find(c => c.key === topCat[0]) : null
     };
   }, [matchDetail, friendLists, allSpots, catalog]);
+  const [showTonight, setShowTonight] = useState(false);
+  const tonightSpots = useMemo(() => {
+    const pnow = nowParis();
+    const topKeys = tasteProfile.topCats.map(t => t.key);
+    const open = catalog.filter(s => s.hours && firstPhoto(s) && isOpenNow(s.hours, pnow) === true);
+    return open.map(s => ({
+      s,
+      t: topKeys.includes(primaryCat(s)) ? 1 : 0,
+      r: parseFloat(gRating(s)) || 0
+    })).sort((a, b) => b.t - a.t || b.r - a.r).slice(0, 12).map(x => x.s);
+  }, [catalog, tasteProfile, showTonight]);
   const [friendReqs, setFriendReqs] = useState([]);
   const [friendOut, setFriendOut] = useState([]);
   const [friendsLoading, setFriendsLoading] = useState(false);
@@ -19389,7 +19400,53 @@ function App() {
         whiteSpace: 'nowrap',
         boxShadow: '0 8px 22px rgba(139,92,246,.45)'
       }
-    }, "\uD83C\uDFB2 Surprise")))), session && React.createElement("div", {
+    }, "\uD83C\uDFB2 Surprise")))), tonightSpots.length >= 3 && React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, React.createElement("button", {
+      onClick: () => setShowTonight(true),
+      className: "press",
+      style: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '14px 16px',
+        cursor: 'pointer',
+        background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
+        color: '#fff',
+        textAlign: 'left',
+        boxShadow: '0 8px 22px -8px rgba(255,0,110,.5)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 26
+      }
+    }, "\uD83C\uDF19"), React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17
+      }
+    }, "Ton programme de ce soir"), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        opacity: .85
+      }
+    }, tonightSpots.length, " spots ouverts, pile ton style")), React.createElement("span", {
+      style: {
+        fontWeight: 900,
+        fontSize: 18
+      }
+    }, "\u203A"))), session && React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
@@ -26635,7 +26692,153 @@ function App() {
       fontSize: 14,
       color: 'var(--ink-400)'
     }
-  }, tr("btn_cancel")))), matchDetail && matchCommon && React.createElement("div", {
+  }, tr("btn_cancel")))), showTonight && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      inset: 0,
+      zIndex: 1500,
+      background: 'var(--bg-primary)',
+      display: 'flex',
+      flexDirection: 'column'
+    }
+  }, React.createElement("div", {
+    style: {
+      flexShrink: 0,
+      padding: 'calc(14px + env(safe-area-inset-top,0px)) 16px 12px',
+      borderBottom: '1px solid var(--hairline)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10
+    }
+  }, React.createElement("button", {
+    onClick: () => setShowTonight(false),
+    className: "press",
+    style: {
+      border: 'none',
+      background: 'var(--bg-cream)',
+      borderRadius: 999,
+      width: 34,
+      height: 34,
+      fontSize: 16,
+      cursor: 'pointer',
+      flexShrink: 0
+    }
+  }, "\u2039"), React.createElement("div", {
+    style: {
+      flex: 1,
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 18,
+      minWidth: 0
+    }
+  }, "\uD83C\uDF19 Ce soir"), React.createElement("button", {
+    onClick: () => {
+      const s = tonightSpots[Math.floor(Math.random() * tonightSpots.length)];
+      if (s) {
+        setShowTonight(false);
+        setSelectedSpot(s);
+      }
+    },
+    className: "press",
+    style: {
+      border: 'none',
+      background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
+      color: '#fff',
+      borderRadius: 999,
+      padding: '8px 14px',
+      fontWeight: 800,
+      fontSize: 13,
+      cursor: 'pointer',
+      flexShrink: 0
+    }
+  }, "\uD83C\uDFB2 Surprends-moi")), React.createElement("div", {
+    style: {
+      flex: 1,
+      minHeight: 0,
+      overflowY: 'auto',
+      padding: '14px 16px calc(24px + env(safe-area-inset-bottom,0px))'
+    }
+  }, tonightSpots.map((s, i) => {
+    const ph = firstPhoto(s);
+    const cat = CATS.find(c => c.key === primaryCat(s));
+    const gr = gRating(s);
+    const mp = metroParse(s.metro);
+    const big = i === 0;
+    return React.createElement("button", {
+      key: s.id,
+      onClick: () => {
+        setShowTonight(false);
+        setSelectedSpot(s);
+      },
+      className: "press",
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        overflow: 'hidden',
+        marginBottom: 11,
+        background: 'var(--bg-primary)',
+        cursor: 'pointer',
+        padding: 0,
+        display: 'block'
+      }
+    }, big && React.createElement("div", {
+      style: {
+        height: 170,
+        background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,#FF006E,#0A0A0A)'
+      }
+    }), React.createElement("div", {
+      style: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: 11,
+        padding: '11px 12px'
+      }
+    }, !big && React.createElement("div", {
+      style: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        flexShrink: 0,
+        background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,#FF006E,#0A0A0A)'
+      }
+    }), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: big ? 16 : 14,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 11.5,
+        color: 'var(--ink-400)',
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, React.createElement("span", {
+      style: {
+        color: '#2ECC71'
+      }
+    }, "\uD83D\uDFE2 Ouvert"), " \xB7 ", cat ? cat.emoji + ' ' + cat.label : '', gr ? ` · ⭐ ${gr}` : '', mp ? ` · ${mp.station}` : '')), React.createElement("span", {
+      style: {
+        color: 'var(--pop-pink)',
+        fontWeight: 900,
+        flexShrink: 0
+      }
+    }, "\u203A")));
+  }))), matchDetail && matchCommon && React.createElement("div", {
     className: "modal-center",
     role: "dialog",
     "aria-modal": "true",
