@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T21:25:06.895Z -->
+<!-- built 2026-07-19T21:46:18.968Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -7824,9 +7824,13 @@ function PropositionsModal({
   onPick,
   gApiKey,
   stockPhotoCache,
-  proposals
+  proposals,
+  city
 }) {
-  const POOL = proposals && proposals.length ? proposals : STOCK_SPOTS;
+  const POOL = useMemo(() => {
+    const src = proposals && proposals.length ? proposals : STOCK_SPOTS;
+    return src.filter(s => spotCity(s) === (city || "paris"));
+  }, [proposals, city]);
   const [tab, setTab] = useState("quiz");
   const [step, setStep] = useState("filter");
   const [qi, setQi] = useState(0);
@@ -8126,15 +8130,15 @@ function PropositionsModal({
       className: "pq-top"
     }, React.createElement("div", {
       className: "pq-row"
-    }, React.createElement(Tabs, {
+    }, React.createElement(BackBtn, {
+      compact: true,
+      onClick: onClose
+    }), React.createElement(Tabs, {
       ink: true
     }), React.createElement("span", {
       style: {
         flex: 1
       }
-    }), React.createElement(BackBtn, {
-      compact: true,
-      onClick: onClose
     })), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
@@ -8266,21 +8270,18 @@ function PropositionsModal({
       "aria-label": g.q
     }, React.createElement("i", null)))), React.createElement("div", {
       className: "pq-row"
-    }, React.createElement("button", {
-      onClick: () => setQi(q => Math.max(0, q - 1)),
-      className: "pq-rnd",
-      disabled: qi === 0,
-      "aria-label": tr("pq_back")
-    }, "\u2039"), React.createElement(Tabs, null), React.createElement("span", {
+    }, React.createElement(BackBtn, {
+      compact: true,
+      onClick: () => {
+        if (qi > 0) setQi(q => q - 1);else onClose();
+      }
+    }), React.createElement(Tabs, null), React.createElement("span", {
       style: {
         flex: 1
       }
     }), React.createElement("span", {
       className: "pq-brand"
-    }, qi + 1, "/", GROUPS.length), React.createElement(BackBtn, {
-      compact: true,
-      onClick: onClose
-    })), editing && React.createElement("div", {
+    }, qi + 1, "/", GROUPS.length)), editing && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 11.5,
@@ -8427,21 +8428,10 @@ function PropositionsModal({
     }
   }, React.createElement("div", {
     className: "pq-row"
-  }, React.createElement("button", {
-    onClick: () => setStep("filter"),
-    className: "press",
-    style: {
-      background: 'var(--ink-900)',
-      color: 'var(--bg-primary)',
-      border: 'none',
-      borderRadius: 999,
-      padding: '8px 15px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 13,
-      cursor: 'pointer'
-    }
-  }, tr("pq_back_filters")), React.createElement("span", {
+  }, React.createElement(BackBtn, {
+    compact: true,
+    onClick: () => setStep("filter")
+  }), React.createElement("span", {
     style: {
       flex: 1
     }
@@ -8450,10 +8440,7 @@ function PropositionsModal({
     "aria-selected": "false",
     onClick: () => setTab("saved"),
     className: "pq-edit press"
-  }, tr("pq_tab_saved")), React.createElement(BackBtn, {
-    compact: true,
-    onClick: onClose
-  })), React.createElement("div", {
+  }, tr("pq_tab_saved"))), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -13966,7 +13953,7 @@ function WrappedModal({
     style: {
       position: "absolute",
       top: "calc(26px + env(safe-area-inset-top,0px))",
-      right: 14,
+      left: 14,
       zIndex: 30
     }
   }), React.createElement("div", {
@@ -22383,37 +22370,6 @@ function App() {
     }
   }, nActiveFilters))), React.createElement("div", {
     style: {
-      padding: '8px 20px 0',
-      display: 'flex',
-      justifyContent: 'flex-end'
-    }
-  }, React.createElement("button", {
-    onClick: () => {
-      setEditingId(null);
-      setShowForm(true);
-    },
-    className: "press",
-    "aria-label": "Ajouter un spot",
-    title: "Ajouter un spot",
-    style: {
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 5,
-      padding: '8px 15px',
-      borderRadius: 999,
-      border: 'none',
-      background: 'var(--pop-pink)',
-      color: '#fff',
-      fontWeight: 800,
-      fontSize: 13,
-      lineHeight: 1,
-      cursor: 'pointer',
-      whiteSpace: 'nowrap',
-      boxShadow: 'var(--shadow-pop)',
-      fontFamily: 'var(--font-body)'
-    }
-  }, "\uFF0B Ajouter un spot")), React.createElement("div", {
-    style: {
       padding: '0 20px',
       maxHeight: hdrStuck || searchMode !== "discover" || search.trim() ? 0 : 48,
       overflow: 'hidden',
@@ -23257,13 +23213,49 @@ function App() {
     }
   }, "Cr\xE9e une liste"))), sortedVisible.filter(s => !s.fav).length > 0 && React.createElement("div", {
     style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 14
+    }
+  }, React.createElement("div", {
+    style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
       fontSize: 24,
-      letterSpacing: '-0.015em',
-      marginBottom: 14
+      letterSpacing: '-0.015em'
     }
-  }, "Tout le carnet")), React.createElement("div", {
+  }, "Tout le carnet"), React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }), React.createElement("button", {
+    onClick: () => {
+      setEditingId(null);
+      setShowForm(true);
+    },
+    className: "press",
+    "aria-label": "Ajouter un spot",
+    title: "Ajouter un spot",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      padding: '6px 13px',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      fontWeight: 800,
+      fontSize: 12,
+      lineHeight: 1,
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      boxShadow: '0 4px 12px -4px rgba(255,0,110,.5)',
+      fontFamily: 'var(--font-body)'
+    }
+  }, "\uFF0B Ajouter un spot"))), React.createElement("div", {
     style: {
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
@@ -23403,7 +23395,33 @@ function App() {
       whiteSpace: 'nowrap',
       flexShrink: 0
     }
-  }, "\uD83D\uDDFA\uFE0F Voir sur la carte")), zoneFilter && React.createElement("button", {
+  }, "\uD83D\uDDFA\uFE0F Voir sur la carte"), React.createElement("button", {
+    onClick: () => {
+      setEditingId(null);
+      setShowForm(true);
+    },
+    className: "press",
+    "aria-label": "Ajouter un spot",
+    title: "Ajouter un spot",
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 4,
+      padding: '6px 13px',
+      borderRadius: 999,
+      border: 'none',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      fontWeight: 800,
+      fontSize: 12,
+      lineHeight: 1,
+      cursor: 'pointer',
+      whiteSpace: 'nowrap',
+      flexShrink: 0,
+      boxShadow: '0 4px 12px -4px rgba(255,0,110,.5)',
+      fontFamily: 'var(--font-body)'
+    }
+  }, "\uFF0B Ajouter un spot")), zoneFilter && React.createElement("button", {
     onClick: () => setZoneFilter(null),
     className: "press",
     style: {
@@ -25583,20 +25601,20 @@ function App() {
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        gap: 12,
         padding: '16px 20px 12px',
         borderBottom: '1px solid var(--hairline)'
       }
-    }, React.createElement("div", {
+    }, React.createElement(BackBtn, {
+      onClick: () => setShowAdvanced(false)
+    }), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
         fontWeight: 900,
         fontSize: 22,
         letterSpacing: '-.02em'
       }
-    }, "\u2699\uFE0F R\xE9glages avanc\xE9s"), React.createElement(BackBtn, {
-      onClick: () => setShowAdvanced(false)
-    })), React.createElement("div", {
+    }, "\u2699\uFE0F R\xE9glages avanc\xE9s")), React.createElement("div", {
       style: {
         flex: 1,
         minHeight: 0,
@@ -26816,6 +26834,7 @@ function App() {
   }), showPropositions && React.createElement(PropositionsModal, {
     userSpots: spots,
     proposals: remoteProposals,
+    city: city,
     gApiKey: gApiKey,
     stockPhotoCache: stockPhotoCache,
     onAdd: s => {
