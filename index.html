@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T17:30:03.450Z -->
+<!-- built 2026-07-19T18:16:08.403Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -10123,6 +10123,7 @@ function SpotDetail({
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
   const [showItin, setShowItin] = useState(false);
+  const [itinMode, setItinMode] = useState(null);
   const gmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((spot.name + " " + (spot.adresse || "")).trim())}`;
   const spotContacts = (spot.contacts || []).map(id => contacts.find(c => c.id === id)).filter(Boolean);
   const gr = spot.grating || spot.tags && spot.tags.grating || null;
@@ -10652,25 +10653,56 @@ function SpotDetail({
       };
     const w = est(4.5),
       c = est(22),
+      t = est(15),
       tOK = !!(metroJ && !metroJ.err);
+    const modes = [['walking', '🚶', w], ['transit', '🚇', t], ['driving', '🚗', c]];
+    const chip = sel => ({
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      border: '1.5px solid ' + (sel ? 'var(--pop-pink)' : 'var(--hairline)'),
+      background: sel ? '#FFF0F6' : '#fff',
+      borderRadius: 999,
+      padding: '6px 11px',
+      cursor: 'pointer',
+      fontWeight: 800,
+      fontSize: 13,
+      fontFamily: 'var(--font-body)',
+      color: 'var(--ink-900)'
+    });
     return showItin ? React.createElement("div", {
       style: {
-        marginTop: 16
+        marginTop: 14
       }
     }, React.createElement("div", {
       style: {
         display: 'flex',
         alignItems: 'center',
-        marginBottom: 8
+        gap: 7,
+        flexWrap: 'wrap'
       }
     }, React.createElement("span", {
       style: {
         fontFamily: 'var(--font-body)',
         fontWeight: 800,
-        fontSize: 13
+        fontSize: 12.5,
+        marginRight: 2
       }
-    }, "\uD83E\uDDED ", tr("go2_how")), React.createElement("button", {
-      onClick: () => setShowItin(false),
+    }, "\uD83E\uDDED"), modes.map(([m, em, mn]) => {
+      const sel = itinMode === m;
+      const isT = m === 'transit';
+      const val = isT ? metroLoading ? '…' : tOK ? `${metroJ.min}'` : mn != null ? `~${mn}'` : '' : mn != null ? `${mn}'` : '';
+      return React.createElement("button", {
+        key: m,
+        onClick: () => setItinMode(m),
+        className: "press",
+        style: chip(sel)
+      }, em, " ", val || '→');
+    }), React.createElement("button", {
+      onClick: () => {
+        setShowItin(false);
+        setItinMode(null);
+      },
       className: "press",
       style: {
         marginLeft: 'auto',
@@ -10681,46 +10713,39 @@ function SpotDetail({
         fontSize: 15,
         fontWeight: 900
       }
-    }, "\u25BE")), React.createElement("div", {
-      style: {
-        display: 'flex',
-        gap: 8
-      }
-    }, React.createElement("a", {
-      href: dir('walking'),
-      target: "_blank",
-      rel: "noopener noreferrer",
-      className: "press",
-      style: tile
-    }, React.createElement("div", {
-      style: ic
-    }, "\uD83D\uDEB6"), React.createElement("div", {
-      style: tm
-    }, w != null ? `${w} min` : '→'), React.createElement("div", {
-      style: md
-    }, tr("go2_walk"))), React.createElement("button", {
-      onClick: () => onTransit && onTransit(spot),
-      className: "press",
-      style: tOK ? tOn : tile
-    }, React.createElement("div", {
-      style: ic
-    }, "\uD83D\uDE87"), React.createElement("div", {
-      style: tm
-    }, metroLoading ? '…' : tOK ? `${metroJ.min} min` : '→'), React.createElement("div", {
-      style: md
-    }, tr("go2_transit"))), React.createElement("a", {
-      href: dir('driving'),
-      target: "_blank",
-      rel: "noopener noreferrer",
-      className: "press",
-      style: tile
-    }, React.createElement("div", {
-      style: ic
-    }, "\uD83D\uDE97"), React.createElement("div", {
-      style: tm
-    }, c != null ? `${c} min` : '→'), React.createElement("div", {
-      style: md
-    }, tr("go2_car")))), metroJ && metroJ.err && React.createElement("div", {
+    }, "\u25BE")), itinMode && (() => {
+      const isT = itinMode === 'transit';
+      const lbl = itinMode === 'walking' ? 'à pied' : isT ? 'en transports' : 'en voiture';
+      return React.createElement("button", {
+        onClick: () => {
+          if (isT) {
+            if (onTransit) onTransit(spot);
+          } else {
+            window.open(dir(itinMode), '_blank', 'noopener');
+          }
+        },
+        className: "press",
+        style: {
+          marginTop: 9,
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 7,
+          background: 'var(--pop-pink)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 999,
+          padding: '9px 16px',
+          cursor: 'pointer',
+          fontWeight: 800,
+          fontSize: 13,
+          fontFamily: 'var(--font-body)'
+        }
+      }, isT && metroLoading ? 'Calcul du trajet…' : `Afficher le trajet ${lbl}`, React.createElement("span", {
+        style: {
+          fontWeight: 900
+        }
+      }, "\u2192"));
+    })(), metroJ && metroJ.err && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
         fontSize: 10.5,
@@ -10728,24 +10753,21 @@ function SpotDetail({
         marginTop: 6
       }
     }, "\u26A0\uFE0F ", metroJ.err)) : React.createElement("button", {
-      onClick: () => {
-        setShowItin(true);
-        if (onTransit) onTransit(spot);
-      },
+      onClick: () => setShowItin(true),
       className: "press",
       style: {
         marginTop: 16,
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 8,
+        gap: 7,
         border: '1.5px solid var(--hairline)',
         background: '#fff',
         borderRadius: 999,
-        padding: '9px 16px',
+        padding: '7px 13px',
         cursor: 'pointer',
         fontFamily: 'var(--font-body)',
         fontWeight: 800,
-        fontSize: 13,
+        fontSize: 12.5,
         color: 'var(--ink-900)'
       }
     }, "\uD83E\uDDED ", tr("go2_how"), React.createElement("span", {
