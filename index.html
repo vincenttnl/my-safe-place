@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T19:27:31.461Z -->
+<!-- built 2026-07-19T19:44:27.618Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -22291,7 +22291,13 @@ function App() {
       justifyContent: 'center',
       padding: '0 4px'
     }
-  }, nActiveFilters)), React.createElement("button", {
+  }, nActiveFilters))), React.createElement("div", {
+    style: {
+      padding: '8px 20px 0',
+      display: 'flex',
+      justifyContent: 'flex-end'
+    }
+  }, React.createElement("button", {
     onClick: () => {
       setEditingId(null);
       setShowForm(true);
@@ -22300,24 +22306,23 @@ function App() {
     "aria-label": "Ajouter un spot",
     title: "Ajouter un spot",
     style: {
-      flexShrink: 0,
-      width: 42,
-      height: 42,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 5,
+      padding: '8px 15px',
       borderRadius: 999,
       border: 'none',
       background: 'var(--pop-pink)',
       color: '#fff',
       fontWeight: 800,
-      fontSize: 20,
+      fontSize: 13,
       lineHeight: 1,
       cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 0,
-      boxShadow: 'var(--shadow-pop)'
+      whiteSpace: 'nowrap',
+      boxShadow: 'var(--shadow-pop)',
+      fontFamily: 'var(--font-body)'
     }
-  }, "+")), React.createElement("div", {
+  }, "\uFF0B Ajouter un spot")), React.createElement("div", {
     style: {
       padding: '0 20px',
       maxHeight: hdrStuck || searchMode !== "discover" || search.trim() ? 0 : 48,
