@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:29:43.157Z -->
+<!-- built 2026-07-19T20:43:28.410Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -8091,9 +8091,8 @@ function PropositionsModal({
       style: {
         flex: 1
       }
-    }), React.createElement(RedX, {
-      onClick: onClose,
-      size: 26
+    }), React.createElement(BackBtn, {
+      onClick: onClose
     })), React.createElement("div", {
       style: {
         fontFamily: 'var(--font-display)',
@@ -8236,9 +8235,8 @@ function PropositionsModal({
       }
     }), React.createElement("span", {
       className: "pq-brand"
-    }, qi + 1, "/", GROUPS.length), React.createElement(RedX, {
-      onClick: onClose,
-      size: 26
+    }, qi + 1, "/", GROUPS.length), React.createElement(BackBtn, {
+      onClick: onClose
     })), editing && React.createElement("div", {
       style: {
         fontFamily: 'var(--font-body)',
@@ -8405,9 +8403,8 @@ function PropositionsModal({
     "aria-selected": "false",
     onClick: () => setTab("saved"),
     className: "pq-edit press"
-  }, tr("pq_tab_saved")), React.createElement(RedX, {
-    onClick: onClose,
-    size: 26
+  }, tr("pq_tab_saved")), React.createElement(BackBtn, {
+    onClick: onClose
   })), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
@@ -12622,18 +12619,17 @@ function PremiumModal({
       overflow: 'hidden',
       background: '#fff'
     }
-  }, React.createElement(RedX, {
+  }, React.createElement(BackBtn, {
     onClick: onClose,
-    size: 32,
     style: {
       position: 'absolute',
       top: 12,
-      right: 12,
+      left: 12,
       zIndex: 5
     }
   }), React.createElement("div", {
     style: {
-      padding: '22px 20px 16px',
+      padding: '54px 20px 16px',
       position: 'relative',
       overflow: 'hidden'
     }
@@ -24017,13 +24013,12 @@ function App() {
       overflow: 'hidden',
       position: 'relative'
     }
-  }, React.createElement(RedX, {
+  }, React.createElement(BackBtn, {
     onClick: () => setQfapPeek(null),
-    size: 32,
     style: {
       position: 'absolute',
       top: 12,
-      right: 12,
+      left: 12,
       zIndex: 3
     }
   }), qfapPeek.cover && React.createElement("div", {
@@ -24044,7 +24039,7 @@ function App() {
     }
   })), React.createElement("div", {
     style: {
-      padding: '16px 18px 18px'
+      padding: qfapPeek.cover ? '16px 18px 18px' : '52px 18px 18px'
     }
   }, React.createElement("span", {
     style: {
@@ -25503,21 +25498,9 @@ function App() {
         fontSize: 22,
         letterSpacing: '-.02em'
       }
-    }, "\u2699\uFE0F R\xE9glages avanc\xE9s"), React.createElement("button", {
-      onClick: () => setShowAdvanced(false),
-      className: "press",
-      style: {
-        border: 'none',
-        background: 'var(--ink-900)',
-        color: '#fff',
-        borderRadius: 999,
-        padding: '8px 16px',
-        fontFamily: 'var(--font-body)',
-        fontWeight: 800,
-        fontSize: 12.5,
-        cursor: 'pointer'
-      }
-    }, tr("btn_ok"))), React.createElement("div", {
+    }, "\u2699\uFE0F R\xE9glages avanc\xE9s"), React.createElement(BackBtn, {
+      onClick: () => setShowAdvanced(false)
+    })), React.createElement("div", {
       style: {
         flex: 1,
         minHeight: 0,
