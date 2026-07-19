@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v200-2026-07-19';
+const CACHE_VERSION = 'spotane-v201-2026-07-19';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -135,7 +135,7 @@ async function staleWhileRevalidate(req, cacheName) {
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch (e) {}
-  const title = data.title || 'Spotane';
+  const title = data.title || 'Spot 105';
   event.waitUntil(self.registration.showNotification(title, {
     body: data.body || '',
     icon: './icon-192.png',
