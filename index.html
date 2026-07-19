@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T01:30:18.697Z -->
+<!-- built 2026-07-19T01:35:58.939Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -9949,7 +9949,9 @@ function SpotDetail({
   onTransit,
   metroJ,
   metroLoading,
-  onSuggest
+  onSuggest,
+  similar,
+  onOpenSimilar
 }) {
   const [noteMode, setNoteMode] = useState(false);
   const [noteText, setNoteText] = useState(spot.note || "");
@@ -10601,7 +10603,71 @@ function SpotDetail({
       background: 'transparent',
       color: 'var(--ink-600)'
     }
-  }, tr("mo_suggest")), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
+  }, tr("mo_suggest")), similar && similar.length > 0 && React.createElement("div", {
+    style: {
+      marginTop: 20
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-display)',
+      fontWeight: 900,
+      fontSize: 18,
+      margin: '0 0 10px'
+    }
+  }, "Tu aimeras aussi \u2728"), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 11,
+      overflowX: 'auto',
+      padding: '0 0 4px'
+    }
+  }, similar.map(s => {
+    const ph = firstPhoto(s);
+    const cc = CATS.find(c => c.key === primaryCat(s));
+    const gr = gRating(s);
+    return React.createElement("button", {
+      key: s.id,
+      onClick: () => onOpenSimilar && onOpenSimilar(s),
+      className: "press",
+      style: {
+        flexShrink: 0,
+        width: 140,
+        textAlign: 'left',
+        border: '1px solid var(--hairline)',
+        borderRadius: 'var(--radius-md)',
+        overflow: 'hidden',
+        background: 'var(--bg-primary)',
+        cursor: 'pointer',
+        padding: 0,
+        display: 'block'
+      }
+    }, React.createElement("div", {
+      style: {
+        height: 82,
+        background: ph ? `center/cover no-repeat url(${ph})` : 'linear-gradient(135deg,var(--pop-pink),var(--pop-violet))'
+      }
+    }), React.createElement("div", {
+      style: {
+        padding: '7px 9px 9px'
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontWeight: 800,
+        fontSize: 12.5,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, s.name), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 10.5,
+        color: 'var(--ink-400)',
+        marginTop: 2
+      }
+    }, cc ? cc.emoji + ' ' + cc.label : '', gr ? ` · ⭐ ${gr}` : '')));
+  }))), Array.isArray(spot.tags?.music) && spot.tags.music.length > 0 && React.createElement("div", {
     style: {
       display: "flex",
       gap: 6,
@@ -25902,7 +25968,18 @@ function App() {
     onTransit: calcMetro,
     metroJ: metroJ,
     metroLoading: metroLoading,
-    onSuggest: session && !isCatalogId(selectedSpot.id) ? () => suggestSpot(selectedSpot) : undefined
+    onSuggest: session && !isCatalogId(selectedSpot.id) ? () => suggestSpot(selectedSpot) : undefined,
+    similar: (() => {
+      const sp = spots.find(s => s.id === selectedSpot.id) || selectedSpot;
+      if (!sp || !sp.lat) return [];
+      const cat = primaryCat(sp);
+      const own = new Set(spots.map(s => s.id));
+      return catalog.filter(s => s.id !== sp.id && !own.has(s.id) && primaryCat(s) === cat && firstPhoto(s) && s.lat && Math.abs(s.lat - sp.lat) < 0.06 && Math.abs(s.lng - sp.lng) < 0.09).sort((a, b) => (parseFloat(gRating(b)) || 0) - (parseFloat(gRating(a)) || 0)).slice(0, 8);
+    })(),
+    onOpenSimilar: s => {
+      detailNavSeen.current = new Set();
+      setSelectedSpot(s);
+    }
   }), showPremium && React.createElement(PremiumModal, {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
