@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T19:53:18.073Z -->
+<!-- built 2026-07-19T19:58:52.265Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -25247,68 +25247,7 @@ function App() {
       style: {
         padding: '10px 20px 0'
       }
-    }, spots.length >= 3 && React.createElement("button", {
-      onClick: () => {
-        window.mspHaptic?.(12);
-        setShowWrapped(true);
-      },
-      className: "press",
-      style: {
-        marginTop: 14,
-        width: '100%',
-        textAlign: 'left',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 13,
-        background: 'linear-gradient(160deg,var(--ink-900),#3B1A5C)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: 'var(--radius-lg)',
-        padding: '16px 18px',
-        cursor: 'pointer',
-        boxShadow: '0 8px 22px rgba(23,22,43,.35)'
-      }
-    }, React.createElement("span", {
-      style: {
-        fontSize: 28,
-        flexShrink: 0
-      }
-    }, "\uD83D\uDCCA"), React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-display)',
-        fontWeight: 900,
-        fontSize: 17,
-        lineHeight: 1.1
-      }
-    }, tr("wrapped_teaser_title")), React.createElement("div", {
-      style: {
-        fontFamily: 'var(--font-body)',
-        fontSize: 12.5,
-        opacity: .85,
-        marginTop: 2,
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis'
-      }
-    }, tr("wrapped_teaser_sub", {
-      year: new Date().getFullYear()
-    }))), React.createElement("span", {
-      style: {
-        background: 'rgba(255,255,255,.18)',
-        borderRadius: 999,
-        padding: '7px 13px',
-        fontSize: 12,
-        fontWeight: 700,
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-        fontFamily: 'var(--font-body)'
-      }
-    }, tr("btn_see"))), !isPremium && React.createElement("button", {
+    }, !isPremium && React.createElement("button", {
       onClick: () => setShowPremium(true),
       className: "press",
       style: {
@@ -25442,7 +25381,71 @@ function App() {
         fontSize: 10.5,
         opacity: 0.6
       }
-    }, c.label)))))), showAdvanced && React.createElement("div", {
+    }, c.label)))))), React.createElement("div", {
+      style: {
+        padding: '14px 20px 0'
+      }
+    }, spots.length >= 3 && React.createElement("button", {
+      onClick: () => {
+        window.mspHaptic?.(12);
+        setShowWrapped(true);
+      },
+      className: "press",
+      style: {
+        width: '100%',
+        textAlign: 'left',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 13,
+        background: 'linear-gradient(160deg,var(--ink-900),#3B1A5C)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: 'var(--radius-lg)',
+        padding: '16px 18px',
+        cursor: 'pointer',
+        boxShadow: '0 8px 22px rgba(23,22,43,.35)'
+      }
+    }, React.createElement("span", {
+      style: {
+        fontSize: 28,
+        flexShrink: 0
+      }
+    }, "\uD83D\uDCCA"), React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 0
+      }
+    }, React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-display)',
+        fontWeight: 900,
+        fontSize: 17,
+        lineHeight: 1.1
+      }
+    }, tr("wrapped_teaser_title")), React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12.5,
+        opacity: .85,
+        marginTop: 2,
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
+      }
+    }, tr("wrapped_teaser_sub", {
+      year: new Date().getFullYear()
+    }))), React.createElement("span", {
+      style: {
+        background: 'rgba(255,255,255,.18)',
+        borderRadius: 999,
+        padding: '7px 13px',
+        fontSize: 12,
+        fontWeight: 700,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        fontFamily: 'var(--font-body)'
+      }
+    }, tr("btn_see")))), showAdvanced && React.createElement("div", {
       style: {
         position: 'fixed',
         inset: 0,
