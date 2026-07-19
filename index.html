@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T06:26:06.670Z -->
+<!-- built 2026-07-19T14:08:00.185Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spotane — Tes meilleurs spots</title>
@@ -5870,6 +5870,23 @@ function getCats(s) {
 function primaryCat(s) {
   return getCats(s)[0] || "sortie";
 }
+function guessCategory(sig) {
+  sig = sig || {};
+  const nm = (sig.name || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const am = (sig.amenity || "").toLowerCase();
+  const lei = (sig.leisure || "").toLowerCase();
+  const tou = (sig.tourism || "").toLowerCase();
+  const shop = (sig.shop || "").toLowerCase();
+  const hasCuisine = !!(sig.cuisine && String(sig.cuisine).trim());
+  const has = re => re.test(nm);
+  if (has(/(rooftop|roof ?top|sur les toits|perchoir|perche|sky ?bar|panoramique|top ?floor|terrasse panoramique)/)) return "rooftop";
+  if (am === "nightclub" || has(/(night ?club|discotheque|boite de nuit|\bclub\b|dancing|warehouse|\brave\b)/)) return "club";
+  if (["cinema", "theatre", "arts_centre"].includes(am) || ["bowling_alley", "escape_game", "amusement_arcade", "dance", "ice_rink", "adventure", "trampoline_park"].includes(lei) || ["museum", "gallery", "attraction", "theme_park", "artwork", "aquarium", "zoo"].includes(tou) || has(/(karaoke|bowling|escape ?game|laser ?game|accrobranche|patinoire|billard|musee|theatre|cinema|expo|exposition|mini ?golf|paintball|trampoline|arcade|planetarium|aquarium)/)) return "sortie";
+  if (["bar", "pub", "biergarten"].includes(am) || has(/(bar a |cocktail|speakeasy|\bpub\b|tap ?room|cave a vin|bar a vin|wine bar|beer|biere|guinguette|lounge|brasserie artisanale|microbrasserie)/)) return "speakeasy";
+  if (am === "cafe" || shop === "coffee" || has(/(coffee|salon de the|tea ?room|maison de the|\bcafe\b|caffe|espresso|torrefaction|brunch)/)) return "cafe";
+  if (["restaurant", "fast_food", "food_court"].includes(am) || hasCuisine || has(/(restaurant|\bresto\b|brasserie|bistrot|\bbistro\b|trattoria|pizzeria|pizza|sushi|kebab|burger|ramen|cantine|grill|steak|creperie|traiteur|tacos|noodle|gastro)/)) return "resto";
+  return hasCuisine ? "resto" : "sortie";
+}
 function pickChallenge(spots) {
   const todo = [...spots.filter(s => !s.done && s.status !== "rejected")].sort(() => Math.random() - 0.5);
   return todo.slice(0, Math.min(3, todo.length)).map(s => s.id);
@@ -9013,9 +9030,15 @@ function SpotFormModal({
       }).filter(Boolean);
       if (mapped.length) setNCuisine(p => p.length ? p : mapped);
     }
-    if (found.amenity) {
-      const am = found.amenity;
-      const gc = ["restaurant", "fast_food"].includes(am) ? "resto" : am === "cafe" ? "cafe" : ["bar", "pub", "biergarten"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : null;
+    {
+      const gc = guessCategory({
+        name: nName,
+        amenity: found.amenity,
+        cuisine: found.cuisine,
+        leisure: found.leisure,
+        tourism: found.tourism,
+        shop: found.shop
+      });
       if (gc) setNCats(p => p.length ? p : [gc]);
     }
     {
@@ -9063,6 +9086,9 @@ function SpotFormModal({
     if (best) {
       const t = best.tags || {};
       if (t.amenity) found.amenity = t.amenity;
+      if (t.leisure) found.leisure = t.leisure;
+      if (t.tourism) found.tourism = t.tourism;
+      if (t.shop) found.shop = t.shop;
       if (t.opening_hours && !found.hours) found.hours = t.opening_hours;
       if (t.cuisine) found.cuisine = t.cuisine;
       if (t.website || t["contact:website"]) found.website = found.website || t.website || t["contact:website"];
@@ -19230,8 +19256,14 @@ function App() {
     const lng = el.lon || el.center && el.center.lon || 2.35;
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
     const loc = [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ");
-    const am = t.amenity || "";
-    const guessCat = ["restaurant", "fast_food"].includes(am) ? "resto" : am === "cafe" ? "cafe" : ["bar", "pub"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : "resto";
+    const guessCat = guessCategory({
+      name: t.name,
+      amenity: t.amenity,
+      cuisine: t.cuisine,
+      leisure: t.leisure,
+      tourism: t.tourism,
+      shop: t.shop
+    });
     const cuisineRaw = (t.cuisine || "").split(/[;,]/).map(c => c.trim().toLowerCase()).filter(Boolean);
     const mapped = cuisineRaw.map(c => {
       for (const [k, v] of Object.entries(DC)) {
@@ -23422,7 +23454,14 @@ function App() {
     const addr = [t["addr:housenumber"], t["addr:street"]].filter(Boolean).join(" ");
     const loc = [t["addr:postcode"], t["addr:city"]].filter(Boolean).join(" ");
     const am = t.amenity || "";
-    const gcat = ["bar", "pub"].includes(am) ? "speakeasy" : am === "nightclub" ? "club" : am === "cafe" ? "cafe" : ["restaurant", "fast_food"].includes(am) ? "resto" : "sortie";
+    const gcat = guessCategory({
+      name: t.name,
+      amenity: t.amenity,
+      cuisine: t.cuisine,
+      leisure: t.leisure,
+      tourism: t.tourism,
+      shop: t.shop
+    });
     const ci = CATS.find(c => c.key === gcat);
     const already = discoverAdded.has(t.name) || allSpots.some(s => s.name === t.name);
     return React.createElement("div", {
