@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T18:34:54.677Z -->
+<!-- built 2026-07-19T18:57:13.381Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -24870,65 +24870,7 @@ function App() {
       color: 'var(--ink-400)',
       lineHeight: 1.45
     }
-  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")), React.createElement("div", {
-    style: {
-      position: 'absolute',
-      right: 16,
-      bottom: 12,
-      zIndex: 1000,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      pointerEvents: 'none'
-    }
-  }, React.createElement("button", {
-    onClick: () => {
-      setTab("profile");
-      setCityPickerOpen(true);
-    },
-    className: "press",
-    style: {
-      background: 'transparent',
-      border: 'none',
-      padding: '3px 2px',
-      cursor: 'pointer',
-      pointerEvents: 'auto',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 10,
-      color: 'var(--pop-pink)',
-      textShadow: '0 1px 6px rgba(255,255,255,.9),0 0 14px rgba(255,255,255,.7)',
-      whiteSpace: 'nowrap'
-    }
-  }, tr("map_changecity"), " \u203A"), React.createElement("button", {
-    onClick: () => {
-      if (userPos && mapRef.current) {
-        mapRef.current.setView([userPos.lat, userPos.lng], 14, {
-          animate: true
-        });
-      } else {
-        wantRecenterRef.current = true;
-        requestGeo();
-      }
-    },
-    style: {
-      background: 'var(--ink-900)',
-      color: '#fff',
-      border: 'none',
-      borderRadius: 999,
-      padding: '4px 9px',
-      fontFamily: 'var(--font-body)',
-      fontWeight: 600,
-      fontSize: 9.5,
-      cursor: 'pointer',
-      boxShadow: 'var(--shadow-pop)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 4,
-      pointerEvents: 'auto',
-      whiteSpace: 'nowrap'
-    }
-  }, geoLoading ? '⏳' : '📍', " Autour de moi")));
+  }, openNow ? "Aucun spot ouvert à cette heure ici. Retire le filtre « 🟢 Ouvert » pour tout revoir." : mapMode === "discover" ? "On y travaille — les meilleurs spots de cette ville arrivent bientôt ✨" : mapMode === "friends" ? tr("mapempty_friends_h") : "Passe sur « Découvrir » pour explorer les spots autour de toi.")));
   const ProfileTab = () => {
     const counts = Object.fromEntries(CATS.filter(c => c.key !== 'all').map(c => [c.key, spots.filter(s => hasCat(s, c.key)).length]));
     const devMode = (() => {
@@ -27595,11 +27537,72 @@ function App() {
       fontSize: 11,
       flexShrink: 0
     }
-  }, "\u2715"))), tab === "map" && mapMode === "discover" && !peekSpot && !selectedSpot && React.createElement("div", {
+  }, "\u2715"))), tab === "map" && !peekSpot && !selectedSpot && React.createElement("div", {
     style: {
       position: 'fixed',
-      left: 16,
-      bottom: 'calc(72px + env(safe-area-inset-bottom,0px))',
+      left: 12,
+      top: 'calc(202px + env(safe-area-inset-top,0px))',
+      zIndex: 1100,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: 8,
+      pointerEvents: 'none'
+    }
+  }, React.createElement("button", {
+    onClick: () => {
+      if (userPos && mapRef.current) {
+        mapRef.current.setView([userPos.lat, userPos.lng], 14, {
+          animate: true
+        });
+      } else {
+        wantRecenterRef.current = true;
+        requestGeo();
+      }
+    },
+    className: "press",
+    style: {
+      background: '#fff',
+      color: 'var(--ink-900)',
+      border: '1.5px solid var(--ink-900)',
+      borderRadius: 999,
+      padding: '8px 13px',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 800,
+      fontSize: 11.5,
+      cursor: 'pointer',
+      boxShadow: '0 4px 14px rgba(0,0,0,.18)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5,
+      pointerEvents: 'auto',
+      whiteSpace: 'nowrap'
+    }
+  }, geoLoading ? '⏳' : '📍', " Autour de moi"), React.createElement("button", {
+    onClick: () => {
+      setTab("profile");
+      setCityPickerOpen(true);
+    },
+    className: "press",
+    style: {
+      background: '#fff',
+      border: '1.5px solid var(--hairline)',
+      borderRadius: 999,
+      padding: '7px 12px',
+      cursor: 'pointer',
+      pointerEvents: 'auto',
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 11,
+      color: 'var(--ink-900)',
+      boxShadow: '0 4px 14px rgba(0,0,0,.14)',
+      whiteSpace: 'nowrap'
+    }
+  }, "\uD83C\uDFD9 ", tr("map_changecity"))), tab === "map" && mapMode === "discover" && !peekSpot && !selectedSpot && React.createElement("div", {
+    style: {
+      position: 'fixed',
+      left: 12,
+      top: 'calc(150px + env(safe-area-inset-top,0px))',
       zIndex: 1100,
       pointerEvents: 'none'
     }
@@ -27621,16 +27624,16 @@ function App() {
     className: "press",
     style: {
       pointerEvents: 'auto',
-      background: '#fff',
-      color: 'var(--ink-900)',
-      border: '1px solid var(--hairline)',
+      background: 'var(--pop-pink)',
+      color: '#fff',
+      border: 'none',
       borderRadius: 999,
-      padding: '4px 9px',
+      padding: '8px 13px',
       fontFamily: 'var(--font-body)',
-      fontWeight: 700,
-      fontSize: 9.5,
+      fontWeight: 800,
+      fontSize: 11.5,
       cursor: 'pointer',
-      boxShadow: '0 6px 20px rgba(0,0,0,.15)',
+      boxShadow: '0 6px 20px rgba(255,0,110,.32)',
       whiteSpace: 'nowrap'
     }
   }, "\uD83D\uDCCB Lister cette zone")), sharedRef && React.createElement(SharedSpotLanding, {
