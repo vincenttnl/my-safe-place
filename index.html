@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:43:28.410Z -->
+<!-- built 2026-07-19T20:48:08.531Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -13247,6 +13247,7 @@ async function listShareImageBlob(list, spotObjsRaw) {
 }
 function WrappedModal({
   spots,
+  catalog,
   lists,
   myName,
   onClose,
@@ -13314,7 +13315,27 @@ function WrappedModal({
       const m = /\b(\d{5})\b/.exec(s.adresse || "");
       if (m) codes.add(m[1]);
     });
-    const wallOf = list => list.map(firstPhoto).filter(Boolean).slice(0, 6);
+    const _catRank = {
+      rooftop: 0,
+      speakeasy: 1,
+      club: 2,
+      sortie: 3,
+      resto: 4,
+      cafe: 5
+    };
+    const nicePool = (catalog || []).filter(s => firstPhoto(s)).sort((a, b) => (_catRank[primaryCat(a)] ?? 9) - (_catRank[primaryCat(b)] ?? 9)).map(firstPhoto);
+    const wallOf = list => {
+      const own = list.filter(s => firstPhoto(s)).sort((a, b) => (_catRank[primaryCat(a)] ?? 9) - (_catRank[primaryCat(b)] ?? 9)).map(firstPhoto);
+      const seen = new Set(own);
+      for (const p of nicePool) {
+        if (own.length >= 6) break;
+        if (!seen.has(p)) {
+          own.push(p);
+          seen.add(p);
+        }
+      }
+      return own.slice(0, 6);
+    };
     const wAdded = wallOf([...added].reverse());
     const wDone = wallOf(done);
     const catKey = tc ? tc[0] : null;
@@ -13376,7 +13397,7 @@ function WrappedModal({
       wVibe,
       persona
     };
-  }, [spots, lists]);
+  }, [spots, lists, catalog]);
   const slides = [];
   slides.push({
     bg: "radial-gradient(96% 60% at 50% 38%,rgba(255,0,110,.32),transparent 60%),#050509",
@@ -26836,6 +26857,7 @@ function App() {
     onClose: () => setShowPremium(false)
   }), showWrapped && React.createElement(WrappedModal, {
     spots: spots,
+    catalog: catalog,
     lists: lists,
     myName: myName,
     onClose: () => setShowWrapped(false),
