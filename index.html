@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:59:50.418Z -->
+<!-- built 2026-07-19T21:11:22.596Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -6985,8 +6985,43 @@ function CatPill({
 function BackBtn({
   onClick,
   label,
-  style
+  style,
+  compact
 }) {
+  if (compact) return React.createElement("button", {
+    onClick: onClick,
+    className: "press",
+    "aria-label": label || "Retour",
+    style: {
+      width: 34,
+      height: 34,
+      borderRadius: 999,
+      background: 'rgba(255,255,255,.94)',
+      border: '1px solid var(--hairline)',
+      cursor: 'pointer',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 0,
+      flexShrink: 0,
+      boxShadow: '0 2px 8px rgba(0,0,0,.12)',
+      ...(style || {})
+    }
+  }, React.createElement("span", {
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: 999,
+      background: 'var(--pop-pink)',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#fff',
+      fontSize: 14,
+      fontWeight: 900,
+      lineHeight: 1
+    }
+  }, "\u2190"));
   return React.createElement("button", {
     onClick: onClick,
     className: "press",
@@ -8093,6 +8128,7 @@ function PropositionsModal({
         flex: 1
       }
     }), React.createElement(BackBtn, {
+      compact: true,
       onClick: onClose
     })), React.createElement("div", {
       style: {
@@ -8237,6 +8273,7 @@ function PropositionsModal({
     }), React.createElement("span", {
       className: "pq-brand"
     }, qi + 1, "/", GROUPS.length), React.createElement(BackBtn, {
+      compact: true,
       onClick: onClose
     })), editing && React.createElement("div", {
       style: {
@@ -8405,6 +8442,7 @@ function PropositionsModal({
     onClick: () => setTab("saved"),
     className: "pq-edit press"
   }, tr("pq_tab_saved")), React.createElement(BackBtn, {
+    compact: true,
     onClick: onClose
   })), React.createElement("div", {
     style: {
@@ -13910,12 +13948,12 @@ function WrappedModal({
       background: i <= idx ? "#fff" : "rgba(255,255,255,.28)",
       transition: "background .25s"
     }
-  }))), React.createElement(RedX, {
+  }))), React.createElement(BackBtn, {
+    compact: true,
     onClick: e => {
       e.stopPropagation();
       onClose();
     },
-    size: 40,
     style: {
       position: "absolute",
       top: "calc(26px + env(safe-area-inset-top,0px))",
