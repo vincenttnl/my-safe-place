@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T20:25:03.362Z -->
+<!-- built 2026-07-19T20:27:09.591Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -7790,13 +7790,7 @@ function PropositionsModal({
   const [step, setStep] = useState("filter");
   const [qi, setQi] = useState(0);
   const [who, setWho] = useState([]);
-  const [when, setWhen] = useState(() => {
-    const h = new Date().getHours();
-    if (h >= 17 && h < 20) return ["apero"];
-    if (h >= 20 || h < 1) return ["soiree"];
-    if (h < 6) return ["after"];
-    return ["journee"];
-  });
+  const [when, setWhen] = useState([]);
   const [vibe, setVibe] = useState([]);
   const [cuisine, setCuisine] = useState([]);
   const [budget, setBudget] = useState([]);
