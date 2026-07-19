@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T18:27:33.721Z -->
+<!-- built 2026-07-19T18:34:54.677Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -3047,6 +3047,7 @@ const I18N = {
     pq_q_cuisine: "Cuisine ?",
     pq_q_budget: "Budget ?",
     pq_q_music: "Musique ?",
+    pq_music_note: "La musique ne filtre pas : elle fait remonter en premier les spots de ton style (les soirées non répertoriées restent visibles).",
     pq_all: "Tout",
     pq_all_sub: "aucun filtre",
     pq_skip: "Passer ›",
@@ -3527,6 +3528,7 @@ const I18N = {
     pq_q_cuisine: "Food?",
     pq_q_budget: "Budget?",
     pq_q_music: "Music?",
+    pq_music_note: "Music isn't a filter: it just floats spots of your style to the top (unlisted nights stay visible).",
     pq_all: "Anything",
     pq_all_sub: "no filter",
     pq_skip: "Skip ›",
@@ -4007,6 +4009,7 @@ const I18N = {
     pq_q_cuisine: "¿Cocina?",
     pq_q_budget: "¿Presupuesto?",
     pq_q_music: "¿Música?",
+    pq_music_note: "La música no filtra: solo sube primero los spots de tu estilo (las fiestas sin catalogar siguen visibles).",
     pq_all: "Todo",
     pq_all_sub: "sin filtro",
     pq_skip: "Saltar ›",
@@ -8274,7 +8277,16 @@ function PropositionsModal({
       style: {
         marginBottom: 8
       }
-    }, tr("pq_skip")))), React.createElement("div", {
+    }, tr("pq_skip"))), G.id === "music" && React.createElement("div", {
+      style: {
+        fontFamily: 'var(--font-body)',
+        fontSize: 12,
+        fontWeight: 600,
+        color: 'rgba(255,255,255,.85)',
+        marginTop: 8,
+        lineHeight: 1.35
+      }
+    }, "\uD83C\uDFB5 ", tr("pq_music_note"))), React.createElement("div", {
       className: "pq-body"
     }, React.createElement("div", {
       className: "pq-scy"
