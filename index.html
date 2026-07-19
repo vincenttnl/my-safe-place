@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T18:16:08.403Z -->
+<!-- built 2026-07-19T18:27:33.721Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -22902,21 +22902,26 @@ function App() {
       }, "\xB7 ", n));
     })), React.createElement("div", {
       style: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: 12,
+        alignItems: 'start',
         paddingBottom: 8
       }
-    }, shownFavs.map(s => React.createElement(CleanSpotCard, {
+    }, shownFavs.map(s => React.createElement(PosterSpotCard, {
       key: s.id,
-      s: s,
+      spot: s,
       onOpen: setSelectedSpot,
       userPos: userPos
-    })), shownFavs.length === 0 && React.createElement(EmptyState, {
+    })), shownFavs.length === 0 && React.createElement("div", {
+      style: {
+        gridColumn: '1 / -1'
+      }
+    }, React.createElement(EmptyState, {
       icon: "\u2764\uFE0F",
       title: "Aucun favori ici",
       hint: "Aucun favori dans cette cat\xE9gorie. Touche le c\u0153ur d'un spot pour l'ajouter."
-    })));
+    }))));
   })()) : React.createElement("div", {
     style: {
       padding: '20px 20px 0'
@@ -22995,14 +23000,15 @@ function App() {
     }
   }, "\u2192")), React.createElement("div", {
     style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10,
-      marginBottom: 28
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+      marginBottom: 28,
+      alignItems: 'start'
     }
-  }, sortedVisible.filter(s => s.fav).slice(0, 3).map(s => React.createElement(CleanSpotCard, {
+  }, sortedVisible.filter(s => s.fav).slice(0, 4).map(s => React.createElement(PosterSpotCard, {
     key: s.id,
-    s: s,
+    spot: s,
     onOpen: setSelectedSpot,
     userPos: userPos
   })))), React.createElement("button", {
@@ -23146,17 +23152,18 @@ function App() {
     }
   }, "Tout le carnet")), React.createElement("div", {
     style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: 12,
+      alignItems: 'start'
     }
   }, (selectMode ? sortedVisible : sortedVisible.filter(s => !s.fav || filter !== 'all')).map(s => selectMode ? React.createElement("div", {
     key: s.id,
     style: {
       position: 'relative'
     }
-  }, React.createElement(CleanSpotCard, {
-    s: s,
+  }, React.createElement(PosterSpotCard, {
+    spot: s,
     onOpen: () => toggleSel(s.id),
     userPos: userPos
   }), React.createElement("div", {
@@ -23175,14 +23182,19 @@ function App() {
       background: selIds.has(s.id) ? 'var(--pop-pink)' : 'rgba(23,23,38,.22)',
       color: '#fff',
       pointerEvents: 'none',
-      transition: 'background .15s'
+      transition: 'background .15s',
+      zIndex: 2
     }
-  }, selIds.has(s.id) ? '✓' : '')) : React.createElement(CleanSpotCard, {
+  }, selIds.has(s.id) ? '✓' : '')) : React.createElement(PosterSpotCard, {
     key: s.id,
-    s: s,
+    spot: s,
     onOpen: setSelectedSpot,
     userPos: userPos
-  })), sortedVisible.length === 0 && React.createElement(EmptyState, {
+  })), sortedVisible.length === 0 && React.createElement("div", {
+    style: {
+      gridColumn: '1 / -1'
+    }
+  }, React.createElement(EmptyState, {
     icon: "\uD83D\uDD0D",
     title: search ? "Aucun spot trouvé" : "Rien dans cette catégorie",
     hint: search ? `Pas de match pour "${search}". Essaie autre chose ou ajoute un nouveau spot.` : "Tu n'as pas encore ajouté de spot ici. Lance-toi !",
@@ -23191,7 +23203,7 @@ function App() {
       setEditingId(null);
       setShowForm(true);
     }
-  })), selectMode && React.createElement("div", {
+  }))), selectMode && React.createElement("div", {
     style: {
       position: 'fixed',
       left: 0,
