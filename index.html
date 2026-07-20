@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T00:13:50.747Z -->
+<!-- built 2026-07-20T00:56:37.501Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -199,7 +199,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
    plein écran, un dégradé par question, 6 barres cliquables (cible tactile 21px, pas le trait de 3px),
    « Tout » = groupe VIDE → le compteur monte, il ne chute jamais. + onglet ★ recherches enregistrées. */
 .pq-wrap{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;height:100dvh;overflow:hidden;background:var(--bg-cream)}
-.pq-wrap.pq-neon{background:#070A16}/* v223 : charte Néon Nuit (choix Vincent : couleurs №5 + bandeau №4) — SCOPÉE à l'étape questions */
+.pq-wrap.pq-neon{background:#0B0714}/* v223 : charte Néon Nuit (choix Vincent : couleurs №5 + bandeau №4) — SCOPÉE à l'étape questions */
 .pq-in{position:relative;flex:1;display:flex;flex-direction:column;width:100%;max-width:600px;margin:0 auto;min-height:0;overflow:hidden}
 .pq-bg{position:absolute;inset:0;z-index:0;transition:background .35s var(--ease)}
 .pq-top{position:relative;z-index:2;flex:0 0 auto;padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px}
@@ -8142,7 +8142,7 @@ function PropositionsModal({
     }, React.createElement("div", {
       className: "pq-bg",
       style: {
-        background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#070A16'
+        background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#0B0714'
       }
     }), React.createElement("div", {
       className: "pq-top"
@@ -8274,7 +8274,7 @@ function PropositionsModal({
     }, React.createElement("div", {
       className: "pq-bg",
       style: {
-        background: 'radial-gradient(96% 40% at 50% 46%,rgba(255,0,110,.26),transparent 62%),#070A16'
+        background: 'radial-gradient(96% 40% at 50% 46%,rgba(255,0,110,.26),transparent 62%),#0B0714'
       }
     }), React.createElement("div", {
       className: "pq-top"
@@ -8501,7 +8501,7 @@ function PropositionsModal({
   }, React.createElement("div", {
     className: "pq-bg",
     style: {
-      background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#070A16'
+      background: 'radial-gradient(96% 38% at 50% 26%,rgba(255,0,110,.22),transparent 62%),#0B0714'
     }
   }), React.createElement("div", {
     className: "pq-top",
@@ -12960,7 +12960,7 @@ async function wrappedImageBlob(st, year) {
       x.rect(px, py, pw, ph);
     }
   };
-  x.fillStyle = '#070A16';
+  x.fillStyle = '#0B0714';
   x.fillRect(0, 0, W, H);
   const rg = x.createRadialGradient(W / 2, H * 0.40, 0, W / 2, H * 0.40, W * 0.78);
   rg.addColorStop(0, 'rgba(255,0,110,0.42)');
@@ -13480,7 +13480,7 @@ function WrappedModal({
   }, [spots, lists, catalog]);
   const slides = [];
   slides.push({
-    bg: "radial-gradient(96% 60% at 50% 38%,rgba(255,0,110,.32),transparent 60%),#070A16",
+    bg: "radial-gradient(96% 60% at 50% 38%,rgba(255,0,110,.32),transparent 60%),#0B0714",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 56
@@ -13498,7 +13498,7 @@ function WrappedModal({
     }, tr("w_tap")))
   });
   if (st.nAdded > 0) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.42),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.42),transparent 60%),#0B0714",
     wall: st.wAdded,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13521,7 +13521,7 @@ function WrappedModal({
     }) : tr("w_lists_1") : tr("w_added_sub")))
   });
   if (st.nDone > 0) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.34),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.34),transparent 60%),#0B0714",
     wall: st.wDone,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13541,7 +13541,7 @@ function WrappedModal({
     }) : tr("w_done_noreact")))
   });
   if (st.topCat) slides.push({
-    bg: `radial-gradient(92% 58% at 50% 42%,${st.topCat.color}66,transparent 58%),#070A16`,
+    bg: `radial-gradient(92% 58% at 50% 42%,${st.topCat.color}66,transparent 58%),#0B0714`,
     wall: st.wCat,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13563,7 +13563,7 @@ function WrappedModal({
     }, tr("w_cat_sub")))
   });
   if (st.topVibe) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.3),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.3),transparent 60%),#0B0714",
     wall: st.wVibe,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13581,7 +13581,7 @@ function WrappedModal({
     }, tr("w_vibe_lbl")))
   });
   if (st.topMonth) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.4),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.4),transparent 60%),#0B0714",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 56
@@ -13601,7 +13601,7 @@ function WrappedModal({
     })))
   });
   if (st.top3.length > 0) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.28),transparent 62%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.28),transparent 62%),#0B0714",
     photo: firstPhoto(st.top3[0]),
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13687,7 +13687,7 @@ function WrappedModal({
     }, s.reaction)))))
   });
   if (st.nCodes > 1) slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.34),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,61,150,.34),transparent 60%),#0B0714",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
         fontSize: 56
@@ -13703,7 +13703,7 @@ function WrappedModal({
     }, tr("w_explore_sub")))
   });
   slides.push({
-    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.4),transparent 60%),#070A16",
+    bg: "radial-gradient(92% 58% at 50% 42%,rgba(255,0,110,.4),transparent 60%),#0B0714",
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: sKick
     }, tr("w_persona_kick", {
@@ -13737,7 +13737,7 @@ function WrappedModal({
     }, tr("w_persona_foot")))
   });
   slides.push({
-    bg: "radial-gradient(86% 55% at 50% 40%,rgba(255,0,110,.38),transparent 58%),radial-gradient(76% 50% at 50% 100%,rgba(255,61,150,.22),transparent 60%),#070A16",
+    bg: "radial-gradient(86% 55% at 50% 40%,rgba(255,0,110,.38),transparent 58%),radial-gradient(76% 50% at 50% 100%,rgba(255,61,150,.22),transparent 60%),#0B0714",
     final: true,
     r: () => React.createElement(React.Fragment, null, React.createElement("div", {
       style: {
@@ -13931,7 +13931,7 @@ function WrappedModal({
       position: "fixed",
       inset: 0,
       zIndex: 4000,
-      background: "#070A16",
+      background: "#0B0714",
       color: "#fff",
       display: "flex",
       flexDirection: "column",
@@ -20223,13 +20223,13 @@ function App() {
     return React.createElement("div", {
       style: heroNight ? {
         paddingBottom: 100,
-        background: '#070A16',
+        background: '#0B0714',
         color: 'var(--ink-900)',
         '--ink-900': '#fff',
         '--ink-600': 'rgba(255,255,255,.82)',
         '--ink-400': 'rgba(255,255,255,.5)',
-        '--bg-primary': '#070A16',
-        '--bg-cream': '#0c0f1c',
+        '--bg-primary': '#0B0714',
+        '--bg-cream': '#130C1E',
         '--bg-soft': '#14121F',
         '--hairline': 'rgba(255,255,255,.12)'
       } : {
@@ -20243,7 +20243,7 @@ function App() {
         position: 'sticky',
         top: 0,
         zIndex: 5,
-        background: heroNight ? 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.34),transparent 62%),#070A16' : 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.13),transparent 62%),var(--bg-cream)',
+        background: heroNight ? 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.34),transparent 62%),#0B0714' : 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.13),transparent 62%),var(--bg-cream)',
         overflow: 'hidden',
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 16px',
         boxShadow: homeStuck ? heroNight ? '0 8px 22px -8px rgba(0,0,0,0.5)' : '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
