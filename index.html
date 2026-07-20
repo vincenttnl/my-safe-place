@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T00:05:18.624Z -->
+<!-- built 2026-07-20T00:13:50.747Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -20219,10 +20219,23 @@ function App() {
     });
     const who = session && session.user && session.user.pseudo || profile && profile.display_name || "";
     const hSlot = timeSlot(nowParis());
+    const heroNight = ['apero', 'soir', 'nuit', 'after'].includes(hSlot.id);
     return React.createElement("div", {
-      style: {
+      style: heroNight ? {
         paddingBottom: 100,
-        background: 'var(--bg-primary)'
+        background: '#070A16',
+        color: 'var(--ink-900)',
+        '--ink-900': '#fff',
+        '--ink-600': 'rgba(255,255,255,.82)',
+        '--ink-400': 'rgba(255,255,255,.5)',
+        '--bg-primary': '#070A16',
+        '--bg-cream': '#0c0f1c',
+        '--bg-soft': '#14121F',
+        '--hairline': 'rgba(255,255,255,.12)'
+      } : {
+        paddingBottom: 100,
+        background: 'var(--bg-primary)',
+        color: 'var(--ink-900)'
       }
     }, React.createElement("div", {
       ref: homeHdrRef,
@@ -20230,11 +20243,11 @@ function App() {
         position: 'sticky',
         top: 0,
         zIndex: 5,
-        background: 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.34),transparent 62%),#070A16',
+        background: heroNight ? 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.34),transparent 62%),#070A16' : 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.13),transparent 62%),var(--bg-cream)',
         overflow: 'hidden',
         padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 16px',
-        boxShadow: homeStuck ? '0 8px 22px -8px rgba(0,0,0,0.5)' : 'none',
-        borderBottom: '1px solid ' + (homeStuck ? 'rgba(255,255,255,.1)' : 'transparent'),
+        boxShadow: homeStuck ? heroNight ? '0 8px 22px -8px rgba(0,0,0,0.5)' : '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
+        borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
       }
     }, React.createElement("div", {
@@ -20262,7 +20275,7 @@ function App() {
       className: "hero-line",
       style: {
         fontSize: 'clamp(18px,6.4vw,26px)',
-        color: '#fff'
+        color: 'var(--ink-900)'
       }
     }, tr("sl_title_" + hSlot.id)), React.createElement("div", {
       style: {
@@ -20271,7 +20284,7 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
         fontWeight: 700,
-        color: 'rgba(255,255,255,.62)'
+        color: 'var(--ink-400)'
       }
     }, React.createElement("b", {
       style: {
