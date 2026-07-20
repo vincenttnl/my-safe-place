@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T16:25:46.808Z -->
+<!-- built 2026-07-20T16:57:32.784Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -105,6 +105,8 @@
 }
 /* 🌙 Overrides Nuit ciblés — éléments verre/structure qui ne se pilotent pas par variable seule */
 :root[data-theme="dark"] .nav-inner{background:rgba(20,13,30,.74);border-color:rgba(255,255,255,.10);box-shadow:0 12px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+/* v263 : cartes de l'onglet Spots en Nuit = contour néon magenta + halo (choix Vincent №3 = mix bordure+halo). N'agit QU'en Nuit → le Jour reste identique. Intensité réglable ici. */
+:root[data-theme="dark"] .spot-neon{border:1.5px solid #FF006E !important;box-shadow:0 0 30px 1px rgba(255,0,110,.5) !important}
 :root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 14px rgba(0,0,0,.45)}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
 :root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
@@ -375,7 +377,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">Tes spots préférés</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=1013deca" defer></script>
+<script src="app.js?v=a63eb355" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
