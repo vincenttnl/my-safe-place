@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T02:21:30.644Z -->
+<!-- built 2026-07-20T06:38:14.030Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <script>
@@ -20376,7 +20376,15 @@ function App() {
     });
     const who = session && session.user && session.user.pseudo || profile && profile.display_name || "";
     const hSlot = timeSlot(nowParis());
-    const heroNight = ['apero', 'soir', 'nuit', 'after'].includes(hSlot.id);
+    const _dtHN = typeof document !== 'undefined' ? document.documentElement.getAttribute('data-theme') : 'light';
+    const _stHN = (() => {
+      try {
+        return localStorage.getItem('monparis_theme');
+      } catch {
+        return null;
+      }
+    })();
+    const heroNight = ['apero', 'soir', 'nuit', 'after'].includes(hSlot.id) && _dtHN !== 'dark' && _stHN !== 'light';
     return React.createElement("div", {
       style: heroNight ? {
         paddingBottom: 100,
