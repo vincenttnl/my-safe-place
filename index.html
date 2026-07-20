@@ -1,9 +1,23 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T00:56:37.501Z -->
+<!-- built 2026-07-20T02:08:43.333Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
+<script>
+/* 🌗 Thème Jour/Nuit — appliqué AVANT le paint pour éviter le flash blanc→sombre.
+   Clé localStorage monparis_theme : 'light' | 'dark' | 'system' | (null = défaut historique clair).
+   ⚠️ Défaut CLAIR tant que null : la migration vers 'system' se fera quand la conversion sera complète + testée device. */
+(function(){
+  try{
+    var t=localStorage.getItem('monparis_theme'),r;
+    if(t==='dark')r='dark';
+    else if(t==='system')r=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+    else r='light';
+    document.documentElement.setAttribute('data-theme',r);
+  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+})();
+</script>
 <title>Spot 105 — Tes meilleurs spots</title>
 <meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <link rel="manifest" href="manifest.json"/>
@@ -52,7 +66,34 @@
   --spring:cubic-bezier(.34,1.56,.64,1);/* v10.85 : easing à dépassement — moteur de la lentille de la tab bar */
   /* legacy compat */
   --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--radius:var(--radius-md);
+  /* 🌗 Toggle Jour/Nuit (20/07) — tokens sémantiques. En CLAIR ils valent l'actuel (no-op) ; en SOMBRE le bloc [data-theme=dark] les réécrit.
+     --accent-ink = FOND des boutons foncés (séparé de --ink-900 qui reste la couleur de TEXTE) ; --on-accent = texte posé dessus. */
+  --accent-ink:#0A0A0A;--on-accent:#fff;
+  /* --panel-ink = FONDS de panneaux/chips volontairement foncés (carte stats, barre de sélection, toast, chip vibe).
+     Restent sombres en mode Nuit (surface élevée) au lieu de virer magenta comme les boutons d'action. */
+  --panel-ink:#0A0A0A;
 }
+
+/* 🌙 MODE NUIT — palette Néon Nuit / aubergine #0B0714 (charte Spot 105 figée 20/07).
+   Défaut = CLAIR : ce bloc ne s'active QUE si l'utilisateur bascule le switch (data-theme="dark" sur <html>).
+   Conversion des surfaces en cours (les 97 fonds #fff inline deviennent var(--card) écran par écran). */
+:root[data-theme="dark"]{
+  --bg-primary:#0B0714;--bg-cream:#0B0714;--bg-soft:#170F26;   /* aubergine profond + soft légèrement relevé */
+  --ink-900:#F4EFFA;--ink-600:#BCAFCF;--ink-400:#8C7EA6;       /* textes clairs sur aubergine */
+  --hairline:rgba(255,255,255,.15);                            /* contours clairs discrets (fini le noir) */
+  --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
+  --accent-ink:#FF006E;--on-accent:#fff;                       /* boutons « foncés » → magenta prioritaire (charte) */
+  --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
+  --pop-violet:#0B0714;                                        /* dégradés magenta→aubergine (Néon Nuit) */
+  /* miroirs legacy (étaient figés #fff / noir) */
+  --bg:var(--bg-primary);--card:#181022;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.4);--shadow-md:0 8px 24px rgba(0,0,0,0.5);--shadow-lg:0 24px 48px rgba(0,0,0,0.6);
+}
+/* 🌙 Overrides Nuit ciblés — éléments verre/structure qui ne se pilotent pas par variable seule */
+:root[data-theme="dark"] .nav-inner{background:rgba(20,13,30,.74);border-color:rgba(255,255,255,.10);box-shadow:0 12px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+:root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 14px rgba(0,0,0,.45)}
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
+:root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
 
 
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
@@ -191,9 +232,9 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .modal-center .modal-box{position:relative;background:var(--bg-primary);border-radius:var(--radius-lg);width:100%;max-width:440px;max-height:90vh;overflow:auto;padding:24px;box-shadow:var(--shadow-lg)}
 
 /* Pill buttons - Partiful */
-.pill-btn{padding:8px 9px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;cursor:pointer;font-size:12.5px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
+.pill-btn{padding:8px 9px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:var(--card);cursor:pointer;font-size:12.5px;font-weight:500;font-family:var(--font-body);color:var(--ink-900);transition:all .15s var(--ease)}
 /* v10.43 : actif = OUTLINE (langage B1 №4 étendu à toutes les pastilles) */
-.pill-btn.active{border:1.5px solid var(--pop-pink);background:#fff;color:var(--pop-pink);font-weight:700}
+.pill-btn.active{border:1.5px solid var(--pop-pink);background:var(--card);color:var(--pop-pink);font-weight:700}
 .pill-btn:active{transform:scale(.95)}
 /* v10.87 — Propositions « Stories » (variante №1 validée par Vincent le 15/07, ex-bloc .pl-* v10.72 remplacé) :
    plein écran, un dégradé par question, 6 barres cliquables (cible tactile 21px, pas le trait de 3px),
@@ -245,7 +286,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .pq-tab.on{background:#fff;color:var(--ink-900)}
 .pq-tabs.ink{background:var(--bg-soft);border:1px solid var(--hairline)}
 .pq-tabs.ink .pq-tab{color:var(--pop-pink);background:#FFF0F6;border:1.5px solid rgba(255,0,110,.3)}/* v10.99 (Vincent) : « Mes recherches » = pastille ROSE contrastée, ne se fond plus dans le fond */
-.pq-tabs.ink .pq-tab.on{background:var(--ink-900);color:var(--bg-primary);border-color:transparent}
+.pq-tabs.ink .pq-tab.on{background:var(--accent-ink);color:var(--bg-primary);border-color:transparent}
 /* cartes préréglages (★ mes recherches) */
 .pq-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;border-radius:20px;border:2px solid var(--hairline);background:var(--bg-primary);color:var(--ink-900);text-align:left;font-family:var(--font-body);cursor:pointer;transition:transform .12s var(--ease)}
 .pq-card:active{transform:scale(.985)}
@@ -254,14 +295,14 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .pq-edit{border:1px solid var(--hairline);background:var(--bg-soft);color:var(--ink-600);font-family:var(--font-body);font-size:11.5px;font-weight:800;border-radius:999px;padding:6px 11px;cursor:pointer;flex:0 0 auto}
 
 /* Inputs - Partiful */
-.input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:#fff;font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
+.input-v2{width:100%;padding:12px 16px;border-radius:var(--radius-md);border:1.5px solid var(--hairline);font-size:15px;outline:none;background:var(--input);font-family:var(--font-body);color:var(--ink-900);transition:border-color .2s var(--ease)}
 .input-v2:focus{border-color:var(--pop-pink)}
 
 /* Buttons - Partiful */
-.btn-primary{width:100%;padding:16px;border-radius:var(--radius-pill);border:none;background:var(--ink-900);color:#fff;font-weight:600;cursor:pointer;font-size:16px;font-family:var(--font-body);transition:all .15s var(--ease);box-shadow:var(--shadow-pop)}
+.btn-primary{width:100%;padding:16px;border-radius:var(--radius-pill);border:none;background:var(--accent-ink);color:#fff;font-weight:600;cursor:pointer;font-size:16px;font-family:var(--font-body);transition:all .15s var(--ease);box-shadow:var(--shadow-pop)}
 .btn-primary:active{opacity:.85;transform:scale(.98)}
 .btn-primary:disabled{opacity:.4;cursor:not-allowed}
-.btn-secondary{width:100%;padding:14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:#fff;color:var(--ink-900);font-weight:600;cursor:pointer;font-size:15px;font-family:var(--font-body)}
+.btn-secondary{width:100%;padding:14px;border-radius:var(--radius-pill);border:1px solid var(--hairline);background:var(--card);color:var(--ink-900);font-weight:600;cursor:pointer;font-size:15px;font-family:var(--font-body)}
 
 .stat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--bg-cream);border:1px solid var(--hairline);font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900)}
 
@@ -287,7 +328,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 }
 
 /* Splash screen — affiché avant que React monte */
-#msp-splash{position:fixed;inset:0;z-index:99999;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
+#msp-splash{position:fixed;inset:0;z-index:99999;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
 #msp-splash.msp-splash-out{opacity:0;pointer-events:none}
 #msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(255,0,110,0.25);animation:mspBob 1.4s ease-in-out infinite}
 #msp-splash .msp-splash-title{font-weight:900;font-size:28px;letter-spacing:-0.015em;color:#0A0A0A;margin:0}
@@ -297,7 +338,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 /* Toasts */
 .toast-stack{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;display:flex;flex-direction:column;gap:8px;z-index:9999;width:calc(100% - 32px);max-width:420px;pointer-events:none}
 .toast{pointer-events:auto;padding:12px 16px;border-radius:var(--radius-md);font-family:var(--font-body);font-size:14px;font-weight:500;line-height:1.35;box-shadow:var(--shadow-md);animation:slideUp .25s var(--ease) both;display:flex;align-items:center;gap:10px}
-.toast-info{background:var(--ink-900);color:#fff}
+.toast-info{background:var(--panel-ink);color:#fff}
 .toast-success{background:#16A34A;color:#fff}
 .toast-warn{background:#FFD23F;color:var(--ink-900)}
 .toast-error{background:#E11D48;color:#fff}
@@ -3017,6 +3058,10 @@ const I18N = {
     btn_later: "Plus tard",
     lang_title: "🌍 Langue",
     lang_auto: "🪄 langue du téléphone",
+    theme_title: "🌗 Thème",
+    theme_system: "Auto",
+    theme_light: "☀️ Jour",
+    theme_night: "🌙 Nuit",
     nt_title: "🔔 Notifications",
     nt_on: "activées",
     nt_off: "bloquées",
@@ -3498,6 +3543,10 @@ const I18N = {
     btn_later: "Later",
     lang_title: "🌍 Language",
     lang_auto: "🪄 phone language",
+    theme_title: "🌗 Theme",
+    theme_system: "Auto",
+    theme_light: "☀️ Day",
+    theme_night: "🌙 Night",
     nt_title: "🔔 Notifications",
     nt_on: "on",
     nt_off: "blocked",
@@ -3979,6 +4028,10 @@ const I18N = {
     btn_later: "Más tarde",
     lang_title: "🌍 Idioma",
     lang_auto: "🪄 idioma del teléfono",
+    theme_title: "🌗 Tema",
+    theme_system: "Auto",
+    theme_light: "☀️ Día",
+    theme_night: "🌙 Noche",
     nt_title: "🔔 Notificaciones",
     nt_on: "activadas",
     nt_off: "bloqueadas",
@@ -4458,6 +4511,28 @@ try {
     localStorage.setItem(LANGK, l);
     location.reload();
   };
+} catch {}
+const THEMEK = "monparis_theme";
+function resolveTheme(v) {
+  return v === "dark" ? "dark" : v === "system" ? window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light" : "light";
+}
+try {
+  window.mspSetTheme = v => {
+    try {
+      localStorage.setItem(THEMEK, v);
+    } catch {}
+    document.documentElement.setAttribute("data-theme", resolveTheme(v));
+    if (window.mspHaptic) window.mspHaptic(12);
+  };
+} catch {}
+try {
+  window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+    let v;
+    try {
+      v = localStorage.getItem(THEMEK);
+    } catch {}
+    if (v === "system") document.documentElement.setAttribute("data-theme", resolveTheme("system"));
+  });
 } catch {}
 const NL_EXAMPLES = {
   fr: ["bar chill dans le 12e", "rooftop pour un date", "resto italien entre potes", "café pour bosser vers Bastille", "un verre pas cher ce soir", "club ouvert après 2h"],
@@ -6337,7 +6412,7 @@ function FriendListDetail({
       padding: '13px 0',
       borderRadius: 999,
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontWeight: 800,
       fontSize: 14.5,
@@ -6376,7 +6451,7 @@ function FriendListDetail({
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 10,
@@ -6525,7 +6600,7 @@ function SharedSpotLanding({
     onClick: onDismiss,
     className: "press",
     style: {
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 700,
       fontSize: 16,
@@ -6543,7 +6618,7 @@ function SharedSpotLanding({
   return React.createElement("div", {
     style: {
       ...wrap,
-      background: "#fff",
+      background: "var(--card)",
       overflowY: "auto",
       display: "flex",
       flexDirection: "column"
@@ -6680,7 +6755,7 @@ function SharedSpotLanding({
     style: {
       position: "sticky",
       bottom: 0,
-      background: "#fff",
+      background: "var(--card)",
       padding: "14px 20px calc(22px + env(safe-area-inset-bottom,0px))",
       borderTop: "1px solid var(--hairline)"
     }
@@ -6689,7 +6764,7 @@ function SharedSpotLanding({
     className: "press",
     style: {
       width: "100%",
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 700,
       fontSize: 17,
@@ -6760,7 +6835,7 @@ function SharedListLanding({
     onClick: onDismiss,
     className: "press",
     style: {
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 700,
       fontSize: 16,
@@ -6774,7 +6849,7 @@ function SharedListLanding({
   return React.createElement("div", {
     style: {
       ...wrap,
-      background: "#fff",
+      background: "var(--card)",
       overflowY: "auto",
       display: "flex",
       flexDirection: "column"
@@ -6842,7 +6917,7 @@ function SharedListLanding({
       display: "flex",
       flexDirection: "column",
       gap: 10,
-      background: "#fff",
+      background: "var(--card)",
       borderRadius: 18,
       padding: 14,
       boxShadow: "0 6px 24px rgba(23,23,38,.10)",
@@ -6927,7 +7002,7 @@ function SharedListLanding({
     style: {
       position: "sticky",
       bottom: 0,
-      background: "#fff",
+      background: "var(--card)",
       padding: "14px 20px calc(22px + env(safe-area-inset-bottom,0px))",
       borderTop: "1px solid var(--hairline)"
     }
@@ -6936,7 +7011,7 @@ function SharedListLanding({
     className: "press",
     style: {
       width: "100%",
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 700,
       fontSize: 17,
@@ -7008,7 +7083,7 @@ function BackBtn({
       height: 34,
       borderRadius: 999,
       background: 'rgba(255,255,255,.94)',
-      border: '1px solid var(--hairline)',
+      border: '1px solid #0A0A0A',
       cursor: 'pointer',
       display: 'inline-flex',
       alignItems: 'center',
@@ -7042,8 +7117,8 @@ function BackBtn({
       alignItems: 'center',
       gap: 6,
       background: 'rgba(255,255,255,.92)',
-      color: 'var(--ink-900)',
-      border: '1px solid var(--hairline)',
+      color: '#111',
+      border: '1px solid #0A0A0A',
       cursor: 'pointer',
       borderRadius: 999,
       padding: '7px 15px 7px 8px',
@@ -7329,7 +7404,7 @@ function ZonesModal({
       setShowArr(!showArr);
     },
     style: {
-      background: "#fff",
+      background: "var(--card)",
       border: "1px solid var(--hairline)",
       borderRadius: 8,
       padding: "4px 10px",
@@ -7363,7 +7438,7 @@ function ZonesModal({
         padding: "7px 2px",
         borderRadius: 8,
         border: `1.5px solid ${checked ? "var(--pop-pink)" : "var(--hairline)"}`,
-        background: checked ? "var(--pop-pink)" : "#fff",
+        background: checked ? "var(--pop-pink)" : "var(--card)",
         color: checked ? "#fff" : "var(--ink-900)",
         fontSize: 12,
         fontWeight: 700,
@@ -7536,7 +7611,7 @@ function ContactsModal({
       border: "1.5px solid var(--hairline)",
       fontSize: 20,
       textAlign: "center",
-      background: '#fff'
+      background: 'var(--card)'
     }
   }), React.createElement("input", {
     value: name,
@@ -7605,7 +7680,7 @@ function ContactsModal({
       alignItems: "center",
       gap: 12,
       padding: "10px 14px",
-      background: "#fff",
+      background: "var(--card)",
       border: "1px solid var(--hairline)",
       borderRadius: 12
     }
@@ -8818,7 +8893,7 @@ function AddressAutocomplete({
       left: 0,
       right: 0,
       marginTop: 4,
-      background: "#fff",
+      background: "var(--card)",
       border: "1px solid var(--hairline)",
       borderRadius: 'var(--radius-md)',
       boxShadow: "var(--shadow-lg)",
@@ -9391,7 +9466,7 @@ function SpotFormModal({
       padding: "12px 16px",
       borderRadius: 'var(--radius-md)',
       border: "none",
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 700,
       fontSize: 12,
@@ -9438,7 +9513,7 @@ function SpotFormModal({
       disabled: enriching,
       style: {
         border: 'none',
-        background: '#fff',
+        background: 'var(--card)',
         borderRadius: 999,
         padding: '3px 9px',
         fontSize: 10.5,
@@ -9576,7 +9651,7 @@ function SpotFormModal({
       style: on ? {
         borderColor: CC[c.key],
         color: CC[c.key],
-        background: '#fff'
+        background: 'var(--card)'
       } : {}
     }, c.emoji, " ", c.label);
   }))), (nCats.includes("resto") || nCats.includes("cafe")) && React.createElement("div", {
@@ -9734,7 +9809,7 @@ function CollabCreateModal({
       height: 38,
       borderRadius: 11,
       border: emoji === e ? '2px solid var(--pop-pink)' : '1px solid var(--hairline)',
-      background: emoji === e ? '#FFF0F6' : '#fff',
+      background: emoji === e ? '#FFF0F6' : 'var(--card)',
       cursor: 'pointer'
     }
   }, e))), React.createElement("input", {
@@ -9934,7 +10009,7 @@ function CollabDetailModal({
     className: "press",
     style: {
       border: '1px solid var(--hairline)',
-      background: '#fff',
+      background: 'var(--card)',
       borderRadius: 999,
       padding: '7px 12px',
       fontSize: 12,
@@ -10236,7 +10311,7 @@ function SpotDetail({
     height: 50,
     borderRadius: 999,
     border: '1px solid var(--hairline)',
-    background: '#fff',
+    background: 'var(--card)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -10245,7 +10320,7 @@ function SpotDetail({
   };
   const rndDark = {
     ...rndCirc,
-    background: 'var(--ink-900)',
+    background: 'var(--accent-ink)',
     color: '#fff',
     border: 'none'
   };
@@ -10337,7 +10412,7 @@ function SpotDetail({
       alignItems: 'center',
       gap: 6,
       background: 'rgba(255,255,255,.9)',
-      color: 'var(--ink-900)',
+      color: '#111',
       border: 'none',
       cursor: 'pointer',
       borderRadius: 999,
@@ -10510,7 +10585,7 @@ function SpotDetail({
     size: "lg"
   })), spot.vibe && React.createElement("span", {
     style: {
-      background: 'var(--ink-900)',
+      background: 'var(--panel-ink)',
       color: '#fff',
       padding: '6px 12px',
       borderRadius: 999,
@@ -10710,7 +10785,7 @@ function SpotDetail({
       padding: '11px 4px',
       cursor: 'pointer',
       textDecoration: 'none',
-      background: '#fff',
+      background: 'var(--card)',
       display: 'block',
       fontFamily: 'var(--font-body)'
     };
@@ -10744,7 +10819,7 @@ function SpotDetail({
       alignItems: 'center',
       gap: 5,
       border: '1.5px solid ' + (sel ? 'var(--pop-pink)' : 'var(--hairline)'),
-      background: sel ? '#FFF0F6' : '#fff',
+      background: sel ? '#FFF0F6' : 'var(--card)',
       borderRadius: 999,
       padding: '6px 11px',
       cursor: 'pointer',
@@ -10829,7 +10904,7 @@ function SpotDetail({
         alignItems: 'center',
         gap: 7,
         border: '1.5px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         borderRadius: 999,
         padding: '7px 13px',
         cursor: 'pointer',
@@ -11179,7 +11254,7 @@ function SpotDetail({
       padding: '13px 15px',
       borderRadius: 'var(--radius-md)',
       border: '1.5px solid var(--pop-pink)',
-      background: '#fff',
+      background: 'var(--card)',
       cursor: 'pointer',
       textAlign: 'left'
     }
@@ -11307,7 +11382,7 @@ function SpotDetail({
     className: "press",
     style: {
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       borderRadius: 999,
       padding: '8px 16px',
@@ -11414,7 +11489,7 @@ function SpotDetail({
     className: "press",
     style: {
       flex: 1,
-      background: !spot.done ? 'var(--ink-900)' : '#fff',
+      background: !spot.done ? 'var(--accent-ink)' : 'var(--card)',
       color: !spot.done ? '#fff' : 'var(--ink-600)',
       border: '1px solid ' + (!spot.done ? 'var(--ink-900)' : 'var(--hairline)'),
       borderRadius: 'var(--radius-md)',
@@ -11439,7 +11514,7 @@ function SpotDetail({
     className: "press",
     style: {
       flex: 1,
-      background: spot.done ? '#2ECC71' : '#fff',
+      background: spot.done ? '#2ECC71' : 'var(--card)',
       color: spot.done ? '#fff' : 'var(--ink-600)',
       border: '1px solid ' + (spot.done ? '#2ECC71' : 'var(--hairline)'),
       borderRadius: 'var(--radius-md)',
@@ -11465,7 +11540,7 @@ function SpotDetail({
     style: {
       flex: '0 0 auto',
       width: 48,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 'var(--radius-md)',
       cursor: 'pointer',
@@ -11522,7 +11597,7 @@ function SpotDetail({
       display: 'flex',
       alignItems: 'center',
       gap: 6,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
       padding: '4px 12px 4px 4px'
@@ -11561,7 +11636,7 @@ function SpotDetail({
     onClick: () => onRevisit(spot.id),
     className: "press",
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
       padding: '4px 11px',
@@ -11876,7 +11951,7 @@ function PosterSpotCard({
     }
   }, React.createElement("div", {
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       padding: '6px 11px',
       borderRadius: 999,
@@ -12011,7 +12086,7 @@ function CleanSpotCard({
       display: 'flex',
       gap: 14,
       padding: 12,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 'var(--radius-md)',
       boxShadow: 'var(--shadow-sm)',
@@ -12187,7 +12262,7 @@ function OnboardingFlow({
     padding: '18px 44px',
     borderRadius: 'var(--radius-pill)',
     border: 'none',
-    background: 'var(--ink-900)',
+    background: 'var(--accent-ink)',
     color: '#fff',
     fontWeight: 700,
     cursor: 'pointer',
@@ -12350,7 +12425,7 @@ function OnboardingFlow({
     }
   }, React.createElement("div", {
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       border: '1.5px solid var(--hairline)',
       borderRadius: 'var(--radius-lg)',
       padding: 18,
@@ -12379,7 +12454,7 @@ function OnboardingFlow({
     }
   }, React.createElement("li", null, tr("ob_open_in"), React.createElement("strong", null, "Safari")), React.createElement("li", null, tr("ob_share_btn"), React.createElement("strong", null, "\u2191")), React.createElement("li", null, React.createElement("em", null, tr("ob_add_home"))), React.createElement("li", null, React.createElement("strong", null, "Ajouter"), " \u2713"))), React.createElement("div", {
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       border: '1.5px solid var(--hairline)',
       borderRadius: 'var(--radius-lg)',
       padding: 18,
@@ -12466,7 +12541,7 @@ function OnboardingFlow({
         padding: 18,
         borderRadius: 'var(--radius-lg)',
         border: '1.5px solid ' + (active ? 'var(--pop-pink)' : 'var(--hairline)'),
-        background: active ? 'var(--pop-pink)' : '#fff',
+        background: active ? 'var(--pop-pink)' : 'var(--card)',
         color: active ? '#fff' : 'var(--ink-900)',
         cursor: 'pointer',
         transition: 'all .15s var(--ease)'
@@ -12531,7 +12606,7 @@ function OnboardingFlow({
     }, socialCards.map(([t, d, seed]) => React.createElement("div", {
       key: t,
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1.5px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: '16px 18px',
@@ -12697,7 +12772,7 @@ function PremiumModal({
     style: {
       padding: 0,
       overflow: 'hidden',
-      background: '#fff'
+      background: 'var(--card)'
     }
   }, React.createElement(BackBtn, {
     onClick: onClose,
@@ -14087,7 +14162,7 @@ function ListFormModal({
       borderRadius: 12,
       cursor: 'pointer',
       border: '2px solid ' + (emoji === em ? 'var(--pop-pink)' : 'var(--hairline)'),
-      background: emoji === em ? '#FFF0F6' : '#fff'
+      background: emoji === em ? '#FFF0F6' : 'var(--card)'
     }
   }, em))), React.createElement("button", {
     onClick: submit,
@@ -14191,7 +14266,7 @@ function ListPickerModal({
         borderRadius: 14,
         cursor: 'pointer',
         border: '2px solid ' + (inside ? 'var(--pop-pink)' : 'var(--hairline)'),
-        background: inside ? '#FFF0F6' : '#fff'
+        background: inside ? '#FFF0F6' : 'var(--card)'
       }
     }, React.createElement("span", {
       style: {
@@ -14260,7 +14335,7 @@ function ListPickerModal({
         borderRadius: 14,
         cursor: 'pointer',
         border: '2px solid ' + (inside ? 'var(--pop-violet)' : 'var(--hairline)'),
-        background: inside ? '#F3EEFF' : '#fff'
+        background: inside ? '#F3EEFF' : 'var(--card)'
       }
     }, React.createElement("span", {
       style: {
@@ -14350,7 +14425,7 @@ function ListPickerModal({
       padding: 14,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
@@ -14374,7 +14449,7 @@ function CollectifRow({
       padding: '10px 12px',
       border: '1px solid var(--hairline)',
       borderRadius: 12,
-      background: '#fff'
+      background: 'var(--card)'
     }
   }, p.img ? React.createElement("img", {
     src: p.img,
@@ -14591,7 +14666,7 @@ function CollectifSearchModal({
       padding: '8px 14px',
       borderRadius: 999,
       border: '1px solid var(--hairline)',
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       fontWeight: 700,
       fontSize: 12.5,
@@ -14618,7 +14693,7 @@ function BigEventCard({
       textAlign: 'left',
       padding: 0,
       cursor: 'pointer',
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 'var(--radius-lg)',
       overflow: 'hidden',
@@ -14746,7 +14821,7 @@ function EmptyState({
       padding: "10px 18px",
       borderRadius: 999,
       border: "none",
-      background: "var(--ink-900)",
+      background: "var(--accent-ink)",
       color: "#fff",
       fontWeight: 600,
       fontSize: 14,
@@ -14808,6 +14883,70 @@ function ToastStack() {
     className: "toast-icon",
     "aria-hidden": "true"
   }, TOAST_ICONS[t.type] || TOAST_ICONS.info), React.createElement("span", null, t.msg))));
+}
+function ThemeSel() {
+  const [v, setV] = React.useState(() => {
+    try {
+      return localStorage.getItem("monparis_theme") || "light";
+    } catch {
+      return "light";
+    }
+  });
+  const opts = [["system", "🪄", tr("theme_system")], ["light", "☀️", tr("theme_light")], ["dark", "🌙", tr("theme_night")]];
+  return React.createElement("div", {
+    style: {
+      padding: '14px 20px 0'
+    }
+  }, React.createElement("div", {
+    style: {
+      background: 'var(--card)',
+      border: '1px solid var(--hairline)',
+      borderRadius: 'var(--radius-md)',
+      boxShadow: 'var(--shadow-sm)',
+      padding: 16
+    }
+  }, React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 12
+    }
+  }, React.createElement("div", {
+    style: {
+      fontFamily: 'var(--font-body)',
+      fontWeight: 700,
+      fontSize: 15
+    }
+  }, tr("theme_title"))), React.createElement("div", {
+    style: {
+      display: 'flex',
+      gap: 6,
+      flexWrap: 'wrap'
+    }
+  }, opts.map(([k, f, n]) => {
+    const on = v === k;
+    return React.createElement("button", {
+      key: k,
+      onClick: () => {
+        if (on) return;
+        window.mspSetTheme?.(k);
+        setV(k);
+      },
+      className: "press",
+      style: {
+        padding: '8px 13px',
+        borderRadius: 999,
+        cursor: 'pointer',
+        fontFamily: 'var(--font-body)',
+        fontWeight: 700,
+        fontSize: 12.5,
+        border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
+        background: on ? 'var(--pop-pink)' : 'var(--card)',
+        color: on ? '#fff' : 'var(--ink-900)'
+      }
+    }, f, " ", n);
+  }))));
 }
 function PwdInput({
   value,
@@ -15132,7 +15271,7 @@ function AvatarCropper({
     className: "press",
     style: {
       flex: 1,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
       padding: '12px 0',
@@ -15148,7 +15287,7 @@ function AvatarCropper({
     className: "press",
     style: {
       flex: 1,
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       border: 'none',
       borderRadius: 999,
@@ -15445,7 +15584,7 @@ function AuthCard({
     borderRadius: 0,
     padding: 0
   } : {
-    background: '#fff',
+    background: 'var(--card)',
     border: '1px solid var(--hairline)',
     borderRadius: 'var(--radius-md)',
     padding: 16
@@ -15500,7 +15639,7 @@ function AuthCard({
         width: 26,
         height: 26,
         borderRadius: '50%',
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         display: 'flex',
         alignItems: 'center',
@@ -15645,7 +15784,7 @@ function AuthCard({
       className: "press",
       style: {
         flex: 1,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '11px 0',
@@ -15708,7 +15847,7 @@ function AuthCard({
         display: 'block',
         padding: 2.5,
         borderRadius: '50%',
-        background: '#fff',
+        background: 'var(--card)',
         boxShadow: '0 0 0 2px var(--hairline)'
       }
     }, React.createElement(Avatar, {
@@ -15727,7 +15866,7 @@ function AuthCard({
         width: 22,
         height: 22,
         borderRadius: '50%',
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         border: '2px solid #fff',
         display: 'flex',
@@ -15772,7 +15911,7 @@ function AuthCard({
         height: 26,
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -15824,7 +15963,7 @@ function AuthCard({
       className: "press",
       style: {
         flex: 1,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '11px 0',
@@ -15902,7 +16041,7 @@ function AuthCard({
       },
       className: "press",
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-900)',
         border: 'none',
         borderRadius: 999,
@@ -16164,7 +16303,8 @@ function AuthCard({
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
       fontSize: 13,
-      cursor: 'pointer'
+      cursor: 'pointer',
+      color: 'var(--ink-900)'
     }
   }, tr("auth_signup")), React.createElement("button", {
     onClick: () => swap("forgot"),
@@ -20521,7 +20661,7 @@ function App() {
         height: 32,
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         cursor: 'pointer',
         fontSize: 12,
         color: 'var(--ink-400)',
@@ -20812,7 +20952,7 @@ function App() {
             fontFamily: 'var(--font-body)',
             fontSize: 11,
             fontWeight: 700,
-            color: '#0A0A0A',
+            color: 'var(--ink-900)',
             marginTop: 3,
             whiteSpace: 'nowrap',
             overflow: 'hidden',
@@ -21117,7 +21257,7 @@ function App() {
         padding: '6px 12px',
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-600)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
@@ -21127,7 +21267,7 @@ function App() {
     }, "\uD83D\uDCCD Trier par distance")), openNearby.length === 0 ? React.createElement("div", {
       style: {
         margin: '0 20px',
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 16
@@ -21417,7 +21557,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: 'var(--ink-900)',
+        background: 'var(--panel-ink)',
         color: '#fff',
         borderRadius: 'var(--radius-lg)',
         padding: 20,
@@ -21605,7 +21745,7 @@ function App() {
           flexShrink: 0,
           borderRadius: 'var(--radius-lg)',
           overflow: 'hidden',
-          background: '#fff',
+          background: 'var(--card)',
           border: '1px solid var(--hairline)',
           boxShadow: 'var(--shadow-sm)',
           transform: `rotate(${tilt}deg)`,
@@ -21791,7 +21931,7 @@ function App() {
         className: "press",
         title: "\xC9pingler",
         style: {
-          background: li.pinned ? 'var(--pop-pink)' : '#fff',
+          background: li.pinned ? 'var(--pop-pink)' : 'var(--card)',
           border: '1px solid ' + (li.pinned ? 'transparent' : 'var(--hairline)'),
           borderRadius: 999,
           width: 38,
@@ -21917,7 +22057,7 @@ function App() {
       className: "press",
       style: {
         textAlign: 'left',
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: '14px 14px 12px',
@@ -21967,7 +22107,7 @@ function App() {
         padding: '7px 14px',
         borderRadius: 999,
         border: 'none',
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         fontWeight: 700,
         fontSize: 12.5,
@@ -22051,7 +22191,7 @@ function App() {
           display: 'flex',
           alignItems: 'center',
           gap: 13,
-          background: '#fff',
+          background: 'var(--card)',
           border: '1px solid var(--hairline)',
           borderRadius: 'var(--radius-lg)',
           padding: '13px 15px',
@@ -22124,7 +22264,7 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         gap: 13,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: '13px 15px',
@@ -22201,7 +22341,7 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         gap: 13,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: '13px 15px',
@@ -22300,7 +22440,7 @@ function App() {
         flexDirection: 'column',
         alignItems: 'center',
         gap: 5,
-        background: '#fff',
+        background: 'var(--card)',
         border: on ? '2px solid var(--ink-900)' : '1.5px dashed #D9B8C8',
         boxShadow: on ? '0 5px 16px -4px rgba(23,22,43,.28)' : 'none',
         transition: 'all .18s var(--ease)'
@@ -22347,7 +22487,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: 8,
-      background: '#fff',
+      background: 'var(--card)',
       border: '2px solid var(--ink-900)',
       borderRadius: 999,
       padding: '0 14px'
@@ -22516,7 +22656,7 @@ function App() {
       fontWeight: 700,
       fontSize: 12,
       border: '1.5px solid ' + ch.col,
-      background: '#fff',
+      background: 'var(--card)',
       color: ch.col,
       cursor: 'pointer',
       flexShrink: 0
@@ -22604,7 +22744,7 @@ function App() {
     className: "press",
     style: {
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       borderRadius: 999,
       padding: '8px 16px',
@@ -22651,7 +22791,7 @@ function App() {
         fontWeight: 700,
         fontSize: 11.5,
         border: '2px solid ' + (active ? CC[c.key] || 'var(--pop-pink)' : 'var(--hairline)'),
-        background: active ? CB[c.key] || '#FFF0F6' : '#fff',
+        background: active ? CB[c.key] || '#FFF0F6' : 'var(--card)',
         color: active ? CC[c.key] || 'var(--pop-pink)' : 'var(--ink-900)',
         cursor: 'pointer',
         display: 'flex',
@@ -23023,7 +23163,7 @@ function App() {
           fontSize: 12,
           cursor: 'pointer',
           border: '2px solid ' + (on ? CC[c.key] || 'var(--pop-pink)' : 'var(--hairline)'),
-          background: on ? CB[c.key] || '#FFF0F6' : '#fff',
+          background: on ? CB[c.key] || '#FFF0F6' : 'var(--card)',
           color: on ? CC[c.key] || 'var(--pop-pink)' : 'var(--ink-600)',
           opacity: n ? 1 : .4
         }
@@ -23083,7 +23223,7 @@ function App() {
       fontWeight: 700,
       fontSize: 12,
       border: '1px solid ' + (selectMode ? 'transparent' : 'var(--hairline)'),
-      background: selectMode ? 'var(--ink-900)' : '#fff',
+      background: selectMode ? 'var(--accent-ink)' : 'var(--card)',
       color: selectMode ? '#fff' : 'var(--ink-600)',
       cursor: 'pointer'
     }
@@ -23207,7 +23347,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: 12,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 14,
       padding: '12px 14px',
@@ -23388,7 +23528,7 @@ function App() {
       display: 'flex',
       gap: 10,
       alignItems: 'center',
-      background: 'var(--ink-900)',
+      background: 'var(--panel-ink)',
       borderRadius: 999,
       padding: '9px 10px 9px 18px',
       boxShadow: '0 10px 28px rgba(0,0,0,.28)'
@@ -23449,7 +23589,7 @@ function App() {
       padding: '6px 13px',
       borderRadius: 999,
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontWeight: 700,
       fontSize: 11.5,
@@ -23625,7 +23765,7 @@ function App() {
         alignItems: 'center',
         height: 132,
         overflow: 'hidden',
-        background: 'linear-gradient(160deg,#FFFFFF 0%,' + (CB[primaryCat(s)] || '#fff') + 'CC 100%)',
+        background: 'linear-gradient(160deg,var(--card) 0%,' + (CB[primaryCat(s)] || '#fff') + 'CC 100%)',
         border: '1px solid var(--hairline)',
         borderRadius: 20,
         boxShadow: '0 2px 10px rgba(10,10,10,.04)',
@@ -23643,7 +23783,7 @@ function App() {
         fontWeight: 800,
         fontSize: 17,
         lineHeight: 1.15,
-        color: '#0A0A0A',
+        color: 'var(--ink-900)',
         display: '-webkit-box',
         WebkitLineClamp: 2,
         WebkitBoxOrient: 'vertical',
@@ -23691,10 +23831,10 @@ function App() {
       }
     }, friendSpotMap.has(s.id) && React.createElement("span", {
       style: {
-        color: '#0A0A0A',
+        color: 'var(--ink-900)',
         fontWeight: 700
       }
-    }, "\uD83D\uDC65 ", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
+    }, "\uD83D\uDC65", friendSpotMap.get(s.id).length === 1 ? `Chez ${friendSpotMap.get(s.id)[0]}` : `${friendSpotMap.get(s.id).length} amis`, " \xB7 "), [gRating(s) ? `⭐ ${gRating(s)}` : null, s.price].filter(Boolean).join(' · ') || s.adresse || '')), React.createElement("div", {
       style: {
         width: '52%',
         height: '100%',
@@ -23773,7 +23913,7 @@ function App() {
       padding: '13px',
       borderRadius: 999,
       border: '1px solid var(--hairline)',
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       fontWeight: 700,
       fontSize: 13.5,
@@ -23817,7 +23957,7 @@ function App() {
         display: 'flex',
         gap: 12,
         alignItems: 'center',
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 'var(--radius-lg)',
         padding: 10,
         border: "1px solid var(--hairline)",
@@ -23943,7 +24083,7 @@ function App() {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 6,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 999,
       padding: '4px 6px 4px 5px',
@@ -23999,7 +24139,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: 10,
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 12,
       padding: '10px 14px',
@@ -24044,7 +24184,7 @@ function App() {
     }
   }, "ses soir\xE9es \u2197")))), collectifs.length === 0 ? React.createElement("div", {
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       border: '1px solid var(--hairline)',
       borderRadius: 14,
       padding: 16,
@@ -24070,7 +24210,7 @@ function App() {
       padding: '9px 15px',
       borderRadius: 999,
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontWeight: 700,
       fontSize: 13,
@@ -24139,7 +24279,7 @@ function App() {
     }
   }, tr("ev_whatson"), " ", (CITIES[city] || CITIES.paris).label), city !== "paris" ? React.createElement("div", {
     style: {
-      background: "#fff",
+      background: "var(--card)",
       border: "1px solid var(--hairline)",
       borderRadius: 14,
       padding: 16,
@@ -24274,7 +24414,7 @@ function App() {
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         padding: '10px 16px',
         borderRadius: 999,
@@ -24289,7 +24429,7 @@ function App() {
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       border: '1px solid var(--hairline)',
       padding: '10px 16px',
@@ -24304,7 +24444,7 @@ function App() {
     target: "_blank",
     rel: "noopener noreferrer",
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       border: '1px solid var(--hairline)',
       padding: '10px 16px',
@@ -24378,7 +24518,7 @@ function App() {
       key: ev.id,
       className: "fade-in",
       style: {
-        background: "#fff",
+        background: "var(--card)",
         borderRadius: 'var(--radius-lg)',
         overflow: "hidden",
         border: "1px solid var(--hairline)",
@@ -24468,7 +24608,7 @@ function App() {
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         border: 'none',
         cursor: 'pointer',
@@ -24484,7 +24624,7 @@ function App() {
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-900)',
         border: '1px solid var(--hairline)',
         cursor: 'pointer',
@@ -24500,7 +24640,7 @@ function App() {
       target: "_blank",
       rel: "noopener noreferrer",
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-900)',
         border: '1px solid var(--hairline)',
         cursor: 'pointer',
@@ -24519,7 +24659,7 @@ function App() {
         padding: "8px 14px",
         borderRadius: 999,
         border: "1px solid var(--hairline)",
-        background: "#fff",
+        background: "var(--card)",
         fontSize: 13
       }
     }, "\u270F\uFE0F"), React.createElement("button", {
@@ -24922,7 +25062,7 @@ function App() {
       border: '1px solid rgba(0,0,0,.07)',
       cursor: 'pointer',
       background: 'rgba(255,255,255,.92)',
-      color: 'var(--ink-600)',
+      color: '#3A3A3A',
       fontSize: 12,
       display: 'flex',
       alignItems: 'center',
@@ -25137,7 +25277,7 @@ function App() {
         height: 38,
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         boxShadow: 'var(--shadow-sm)',
         cursor: 'pointer',
         fontSize: 18,
@@ -25152,7 +25292,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         boxShadow: 'var(--shadow-sm)',
@@ -25266,7 +25406,7 @@ function App() {
       }
     }, "Change de ville \u203A")))), cityPickerOpen && React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 16,
@@ -25370,7 +25510,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         boxShadow: 'var(--shadow-sm)',
@@ -25428,7 +25568,7 @@ function App() {
           fontWeight: 700,
           fontSize: 12.5,
           border: '1.5px solid ' + (on ? 'var(--pop-pink)' : 'var(--hairline)'),
-          background: on ? 'var(--pop-pink)' : '#fff',
+          background: on ? 'var(--pop-pink)' : 'var(--card)',
           color: on ? '#fff' : 'var(--ink-900)'
         }
       }, f, " ", n);
@@ -25492,13 +25632,13 @@ function App() {
         flexShrink: 0,
         fontFamily: 'var(--font-body)'
       }
-    }, "2,99 \u20AC/mois"))), React.createElement("div", {
+    }, "2,99 \u20AC/mois"))), React.createElement(ThemeSel, null), React.createElement("div", {
       style: {
         padding: '14px 20px 0'
       }
     }, React.createElement("div", {
       style: {
-        background: 'var(--ink-900)',
+        background: 'var(--panel-ink)',
         color: '#fff',
         borderRadius: 'var(--radius-lg)',
         padding: 20
@@ -25691,7 +25831,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 16,
@@ -25734,7 +25874,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 16,
@@ -25805,7 +25945,7 @@ function App() {
         padding: '12px',
         borderRadius: 999,
         border: '1.5px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-900)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
@@ -25837,7 +25977,7 @@ function App() {
       }
     }, "R\xE9glages"), React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         overflow: 'hidden'
@@ -25891,7 +26031,7 @@ function App() {
         padding: '14px 16px',
         cursor: r.action ? 'pointer' : 'default',
         border: 'none',
-        background: '#fff',
+        background: 'var(--card)',
         textAlign: 'left',
         borderBottom: i < arr.length - 1 ? '1px solid var(--hairline)' : 'none'
       }
@@ -25937,7 +26077,7 @@ function App() {
         padding: '14px 16px',
         cursor: 'pointer',
         border: 'none',
-        background: '#fff',
+        background: 'var(--card)',
         textAlign: 'left'
       }
     }, React.createElement("div", {
@@ -25994,7 +26134,7 @@ function App() {
         padding: '14px 16px',
         cursor: 'pointer',
         border: 'none',
-        background: '#fff',
+        background: 'var(--card)',
         textAlign: 'left'
       }
     }, React.createElement("div", {
@@ -26056,7 +26196,7 @@ function App() {
         padding: '14px 16px',
         cursor: 'pointer',
         border: 'none',
-        background: '#fff',
+        background: 'var(--card)',
         textAlign: 'left'
       }
     }, React.createElement("div", {
@@ -26099,7 +26239,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         padding: 16
@@ -26154,7 +26294,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         padding: 16
@@ -26208,7 +26348,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         padding: 16
@@ -26267,7 +26407,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-md)',
         padding: 16
@@ -26351,7 +26491,7 @@ function App() {
       className: "press",
       style: {
         width: '100%',
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '13px 0',
@@ -26466,7 +26606,7 @@ function App() {
       style: {
         width: tc.pct + '%',
         height: '100%',
-        background: '#fff'
+        background: 'var(--card)'
       }
     })), React.createElement("span", {
       style: {
@@ -26512,7 +26652,7 @@ function App() {
         display: 'flex',
         alignItems: 'center',
         gap: 8,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '6px 14px 6px 6px',
@@ -26572,7 +26712,7 @@ function App() {
       }
     }, React.createElement("div", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 'var(--radius-lg)',
         padding: 16
@@ -26652,7 +26792,7 @@ function App() {
         padding: '7px 13px',
         borderRadius: 999,
         border: 'none',
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         fontWeight: 700,
         fontSize: 12,
@@ -26666,7 +26806,7 @@ function App() {
         height: 32,
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         cursor: 'pointer',
         fontSize: 12,
         color: 'var(--ink-400)'
@@ -26726,7 +26866,7 @@ function App() {
         padding: '6px 12px',
         borderRadius: 999,
         border: '1px solid var(--hairline)',
-        background: '#fff',
+        background: 'var(--card)',
         cursor: 'pointer',
         fontSize: 11.5,
         color: 'var(--ink-400)',
@@ -26748,7 +26888,7 @@ function App() {
         padding: '12px',
         borderRadius: 999,
         border: '1px solid ' + (discreet ? 'transparent' : 'var(--hairline)'),
-        background: discreet ? 'var(--ink-900)' : '#fff',
+        background: discreet ? 'var(--accent-ink)' : 'var(--card)',
         color: discreet ? '#fff' : 'var(--ink-600)',
         fontWeight: 700,
         fontSize: 13,
@@ -26854,7 +26994,7 @@ function App() {
       padding: 16,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
@@ -27100,7 +27240,7 @@ function App() {
       padding: 16,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
@@ -27306,7 +27446,7 @@ function App() {
         alignItems: 'center',
         gap: 5,
         background: 'rgba(255,255,255,.92)',
-        color: 'var(--ink-900)',
+        color: '#111',
         border: 'none',
         cursor: 'pointer',
         borderRadius: 999,
@@ -27348,7 +27488,7 @@ function App() {
       }
     }, cat && React.createElement("span", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         color: CC[primaryCat(peekSpot)] || 'var(--ink-900)',
         fontSize: 11.5,
         fontWeight: 800,
@@ -27362,7 +27502,7 @@ function App() {
       }
     }, cat.emoji, " ", cat.label), peekSpot.fav && React.createElement("span", {
       style: {
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--pop-pink)',
         borderRadius: 999,
         width: 24,
@@ -27459,7 +27599,7 @@ function App() {
         marginTop: 7,
         padding: '7px 12px',
         borderRadius: 999,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1.5px dashed var(--pop-pink)',
         color: 'var(--ink-900)',
         fontFamily: 'var(--font-body)',
@@ -27485,7 +27625,7 @@ function App() {
         marginTop: 11,
         padding: '10px 14px',
         borderRadius: 999,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1.5px dashed var(--pop-pink)',
         fontFamily: 'var(--font-body)',
         fontWeight: 700,
@@ -27603,7 +27743,7 @@ function App() {
       style: {
         width: 44,
         flexShrink: 0,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '8px 0',
@@ -27637,7 +27777,7 @@ function App() {
       style: {
         width: 44,
         flexShrink: 0,
-        background: 'var(--ink-900)',
+        background: 'var(--accent-ink)',
         color: '#fff',
         border: 'none',
         borderRadius: 999,
@@ -27654,7 +27794,7 @@ function App() {
       style: {
         width: 44,
         flexShrink: 0,
-        background: '#fff',
+        background: 'var(--card)',
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '8px 0',
@@ -27685,7 +27825,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       gap: 8,
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       border: 'none',
       borderRadius: 999,
@@ -27740,7 +27880,7 @@ function App() {
     },
     className: "press",
     style: {
-      background: '#fff',
+      background: 'var(--card)',
       color: 'var(--ink-900)',
       border: '1.5px solid var(--ink-900)',
       borderRadius: 999,
@@ -27821,7 +27961,7 @@ function App() {
       whiteSpace: 'nowrap',
       color: 'var(--ink-900)',
       ...(mapZoomedIn ? {
-        background: '#fff',
+        background: 'var(--card)',
         border: '1.5px solid var(--ink-900)',
         boxShadow: '0 4px 14px rgba(0,0,0,.18)'
       } : {
@@ -27893,7 +28033,7 @@ function App() {
       padding: 16,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: 'var(--ink-900)',
+      background: 'var(--accent-ink)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
@@ -28292,7 +28432,7 @@ function App() {
         border: '1px solid var(--hairline)',
         borderRadius: 999,
         padding: '10px 0',
-        background: '#fff',
+        background: 'var(--card)',
         color: 'var(--ink-600)',
         fontFamily: 'var(--font-body)',
         fontWeight: 800,
