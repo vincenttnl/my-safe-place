@@ -21,5 +21,28 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Autour de moi",
+      "short_name": "Autour",
+      "description": "Les spots proches de ta position",
+      "url": "/my-safe-place/?go=nearby",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ma soirée",
+      "short_name": "Soirée",
+      "description": "Ton parcours apéro → resto → bar",
+      "url": "/my-safe-place/?go=soiree",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ajouter un spot",
+      "short_name": "Ajouter",
+      "description": "Ajoute une adresse à ton carnet",
+      "url": "/my-safe-place/?go=add",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
