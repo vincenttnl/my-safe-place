@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T02:08:43.333Z -->
+<!-- built 2026-07-20T02:17:34.164Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <script>
@@ -69,6 +69,8 @@
   /* 🌗 Toggle Jour/Nuit (20/07) — tokens sémantiques. En CLAIR ils valent l'actuel (no-op) ; en SOMBRE le bloc [data-theme=dark] les réécrit.
      --accent-ink = FOND des boutons foncés (séparé de --ink-900 qui reste la couleur de TEXTE) ; --on-accent = texte posé dessus. */
   --accent-ink:#0A0A0A;--on-accent:#fff;
+  /* --open = vert « ouvert / synchronisé / fait ». Jour = vert lisible sur blanc ; Nuit = lime néon (charte). */
+  --open:#12B76A;
   /* --panel-ink = FONDS de panneaux/chips volontairement foncés (carte stats, barre de sélection, toast, chip vibe).
      Restent sombres en mode Nuit (surface élevée) au lieu de virer magenta comme les boutons d'action. */
   --panel-ink:#0A0A0A;
@@ -83,6 +85,7 @@
   --hairline:rgba(255,255,255,.15);                            /* contours clairs discrets (fini le noir) */
   --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
   --accent-ink:#FF006E;--on-accent:#fff;                       /* boutons « foncés » → magenta prioritaire (charte) */
+  --open:#6BFF3D;                                              /* lime néon sur aubergine (charte Nuit) */
   --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
   --pop-violet:#0B0714;                                        /* dégradés magenta→aubergine (Néon Nuit) */
   /* miroirs legacy (étaient figés #fff / noir) */
@@ -4996,7 +4999,7 @@ const CATS = [{
   key: "club",
   label: tr("cat_club"),
   emoji: "🪩",
-  color: "#DB2777"
+  color: "#9500FF"
 }, {
   key: "sortie",
   label: tr("cat_sortie"),
@@ -5018,7 +5021,7 @@ const CC = {
   cafe: "#6F4E37",
   rooftop: "#2563EB",
   speakeasy: "#0A0A0A",
-  club: "#DB2777",
+  club: "#9500FF",
   sortie: "#EA580C"
 };
 const MUSIC = [{
@@ -5304,7 +5307,7 @@ const CB = {
   cafe: "#EAE0D6",
   rooftop: "#DDE8FF",
   speakeasy: "#ECE4FE",
-  club: "#FBDDEE",
+  club: "#ECDCFF",
   sortie: "#FEE7D6"
 };
 const MOOD_SB = "https://gyulgensyqsmpsaxrwcz.supabase.co/storage/v1/object/public/spot-photos/";
@@ -8799,13 +8802,13 @@ function PropositionsModal({
         fontWeight: 700,
         color: '#fff',
         background: 'rgba(46,204,113,.2)',
-        border: '1px solid #2ECC71',
+        border: '1px solid var(--open)',
         borderRadius: 999,
         padding: '7px 13px'
       }
     }, React.createElement("span", {
       style: {
-        color: '#2ECC71',
+        color: 'var(--open)',
         fontWeight: 800
       }
     }, "\u2713"), " ", tr("pq_have"))));
@@ -10756,7 +10759,7 @@ function SpotDetail({
     }
   }, openSt === true ? React.createElement("span", {
     style: {
-      color: '#2ECC71'
+      color: 'var(--open)'
     }
   }, "\uD83D\uDFE2 Ouvert") : openSt === false ? React.createElement("span", {
     style: {
@@ -11514,9 +11517,9 @@ function SpotDetail({
     className: "press",
     style: {
       flex: 1,
-      background: spot.done ? '#2ECC71' : 'var(--card)',
+      background: spot.done ? 'var(--open)' : 'var(--card)',
       color: spot.done ? '#fff' : 'var(--ink-600)',
-      border: '1px solid ' + (spot.done ? '#2ECC71' : 'var(--hairline)'),
+      border: '1px solid ' + (spot.done ? 'var(--open)' : 'var(--hairline)'),
       borderRadius: 'var(--radius-md)',
       padding: '12px 8px',
       cursor: 'pointer',
@@ -15347,7 +15350,7 @@ function PwdMeter({
   if (/[A-Z]/.test(value) && /[a-z]/.test(value)) s++;
   if (/[0-9]/.test(value) || /[^A-Za-z0-9]/.test(value)) s++;
   const lvl = s <= 1 ? 0 : s === 2 ? 1 : s === 3 ? 2 : 3;
-  const cols = ['#E05252', '#F59E0B', '#3B9E5B', '#2ECC71'];
+  const cols = ['#E05252', '#F59E0B', '#3B9E5B', 'var(--open)'];
   const labels = ['Faible', 'Moyen', 'Bon', 'Fort'];
   return React.createElement("div", {
     style: {
@@ -15591,7 +15594,7 @@ function AuthCard({
   };
   if (session) {
     const lbl = syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "synced" ? "✓ Synchronisé sur tous tes appareils" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "Connecté";
-    const col = syncState === "synced" ? "#2ECC71" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
+    const col = syncState === "synced" ? "var(--open)" : syncState === "error" ? "var(--pop-pink)" : "var(--ink-400)";
     return React.createElement(React.Fragment, null, React.createElement("input", {
       ref: fileRef,
       type: "file",
@@ -15797,7 +15800,7 @@ function AuthCard({
     }, tr("btn_cancel")))), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
-        color: '#2ECC71',
+        color: 'var(--open)',
         fontWeight: 600,
         fontFamily: 'var(--font-body)',
         marginTop: 10
@@ -15976,7 +15979,7 @@ function AuthCard({
     }, "Se d\xE9connecter"))), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
-        color: '#2ECC71',
+        color: 'var(--open)',
         fontWeight: 600,
         fontFamily: 'var(--font-body)',
         marginTop: 10
@@ -16105,7 +16108,7 @@ function AuthCard({
     }, "\u2190 Retour \xE0 la connexion"), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
-        color: '#2ECC71',
+        color: 'var(--open)',
         fontWeight: 600,
         fontFamily: 'var(--font-body)',
         marginTop: 10
@@ -16229,7 +16232,7 @@ function AuthCard({
     }, "\u2190 J'ai d\xE9j\xE0 un compte"), info && React.createElement("div", {
       style: {
         fontSize: 12.5,
-        color: '#2ECC71',
+        color: 'var(--open)',
         fontWeight: 600,
         fontFamily: 'var(--font-body)',
         marginTop: 10,
@@ -16321,7 +16324,7 @@ function AuthCard({
   }, tr("auth_forgot")), info && React.createElement("div", {
     style: {
       fontSize: 12.5,
-      color: '#2ECC71',
+      color: 'var(--open)',
       fontWeight: 600,
       fontFamily: 'var(--font-body)',
       marginTop: 10,
@@ -21241,7 +21244,7 @@ function App() {
         width: 11,
         height: 11,
         borderRadius: 999,
-        background: '#2ECC71',
+        background: 'var(--open)',
         flexShrink: 0,
         animation: 'liveBlink 1.3s ease-in-out infinite',
         boxShadow: '0 0 8px rgba(46,204,113,.7)'
@@ -25850,7 +25853,7 @@ function App() {
         fontSize: 12.5,
         fontWeight: 600,
         fontFamily: 'var(--font-body)',
-        color: syncState === "error" ? 'var(--pop-pink)' : syncState === "syncing" ? 'var(--ink-400)' : '#2ECC71',
+        color: syncState === "error" ? 'var(--pop-pink)' : syncState === "syncing" ? 'var(--ink-400)' : 'var(--open)',
         marginBottom: 12
       }
     }, syncState === "syncing" ? "⏳ Synchro en cours…" : syncState === "error" ? "⚠️ Erreur de synchro — réessaie" : "✓ Synchronisé sur tous tes appareils"), React.createElement("button", {
@@ -26337,7 +26340,7 @@ function App() {
     }), React.createElement("div", {
       style: {
         fontSize: 11,
-        color: idfmKey ? '#2ECC71' : 'var(--ink-400)',
+        color: idfmKey ? 'var(--open)' : 'var(--ink-400)',
         marginTop: 8,
         fontFamily: 'var(--font-body)',
         fontWeight: 600
@@ -28192,7 +28195,7 @@ function App() {
       }
     }, React.createElement("span", {
       style: {
-        color: '#2ECC71'
+        color: 'var(--open)'
       }
     }, "\uD83D\uDFE2 Ouvert"), " \xB7 ", cat ? cat.emoji + ' ' + cat.label : '', gr ? ` · ⭐ ${gr}` : '', mp ? ` · ${mp.station}` : '')), React.createElement("span", {
       style: {
