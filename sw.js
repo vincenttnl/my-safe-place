@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v240-2026-07-20';
+const CACHE_VERSION = 'spotane-v241-2026-07-20';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -44,12 +44,20 @@ const NEVER_CACHE_PREFIXES = [
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((c) => c.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
-      .catch(() => {})
-  );
+  event.waitUntil((async () => {
+    try {
+      const c = await caches.open(STATIC_CACHE);
+      await c.addAll(STATIC_ASSETS);
+      // 📴 Renfort offline (№7) : précache app.js (URL hashée extraite de index.html) → le shell est
+      // garanti hors-ligne DÈS l'install, sans attendre une 2e visite. Best-effort, jamais bloquant.
+      try {
+        const html = await (await fetch('./index.html', { cache: 'reload' })).text();
+        const m = html.match(/src="(app\.js\?v=[^"]+)"/);
+        if (m) { const r = await fetch(m[1]); if (r && r.ok) await c.put(m[1], r.clone()); }
+      } catch (e) {}
+    } catch (e) {}
+    self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
