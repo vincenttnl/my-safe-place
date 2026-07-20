@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T06:38:14.030Z -->
+<!-- built 2026-07-20T07:07:10.216Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <script>
@@ -10039,7 +10039,7 @@ function CollabDetailModal({
       fontWeight: 800,
       cursor: 'pointer',
       fontFamily: 'var(--font-body)',
-      background: tab === k ? 'var(--ink-900)' : 'var(--bg-cream)',
+      background: tab === k ? 'var(--accent-ink)' : 'var(--bg-cream)',
       color: tab === k ? '#fff' : 'var(--ink-600)'
     }
   }, l))), React.createElement("div", {
@@ -14118,9 +14118,13 @@ function ListFormModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(StickyX, {
+  }, React.createElement("div", {
+    style: {
+      marginBottom: 14
+    }
+  }, React.createElement(BackBtn, {
     onClick: onClose
-  }), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -14177,7 +14181,7 @@ function ListFormModal({
       padding: 15,
       borderRadius: 'var(--radius-pill)',
       border: 'none',
-      background: name.trim() ? 'var(--ink-900)' : 'var(--hairline)',
+      background: name.trim() ? 'var(--accent-ink)' : 'var(--hairline)',
       color: name.trim() ? '#fff' : 'var(--ink-400)',
       fontFamily: 'var(--font-body)',
       fontWeight: 700,
@@ -14218,9 +14222,13 @@ function ListPickerModal({
   }, React.createElement("div", {
     className: "modal-box slide-up",
     onClick: e => e.stopPropagation()
-  }, React.createElement(StickyX, {
+  }, React.createElement("div", {
+    style: {
+      marginBottom: 14
+    }
+  }, React.createElement(BackBtn, {
     onClick: onClose
-  }), React.createElement("div", {
+  })), React.createElement("div", {
     style: {
       fontFamily: 'var(--font-display)',
       fontWeight: 900,
@@ -14413,7 +14421,7 @@ function ListPickerModal({
       padding: '0 16px',
       borderRadius: 12,
       border: 'none',
-      background: newName.trim() && canCreate ? 'var(--ink-900)' : 'var(--hairline)',
+      background: newName.trim() && canCreate ? 'var(--accent-ink)' : 'var(--hairline)',
       color: '#fff',
       fontWeight: 700,
       fontSize: 14,
@@ -19811,22 +19819,11 @@ function App() {
       zoomControl: false,
       preferCanvas: true
     }).setView(cc.center, cc.zoom);
-    const tileUrl = t => "https://{s}.basemaps.cartocdn.com/" + (t === "dark" ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png";
-    const tl = L.tileLayer(tileUrl(document.documentElement.getAttribute("data-theme")), {
+    const url = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+    L.tileLayer(url, {
       maxZoom: 19,
       attribution: 'OSM, CARTO'
     }).addTo(map);
-    const themeObs = new MutationObserver(() => {
-      try {
-        tl.setUrl(tileUrl(document.documentElement.getAttribute("data-theme")));
-      } catch {}
-    });
-    try {
-      themeObs.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ["data-theme"]
-      });
-    } catch {}
     mapRef.current = map;
     clusterRef.current = null;
     didFitRef.current = false;
@@ -19852,9 +19849,6 @@ function App() {
     return () => {
       cancelAnimationFrame(r1);
       clearTimeout(t1);
-      try {
-        themeObs.disconnect();
-      } catch {}
       try {
         map.remove();
       } catch {}
@@ -22569,7 +22563,7 @@ function App() {
       borderRadius: 999,
       border: 'none',
       cursor: 'pointer',
-      background: nActiveFilters > 0 ? 'var(--pop-violet)' : 'var(--ink-900)',
+      background: nActiveFilters > 0 ? 'var(--pop-violet)' : 'var(--accent-ink)',
       color: '#fff',
       fontFamily: 'var(--font-body)',
       fontWeight: 800,
