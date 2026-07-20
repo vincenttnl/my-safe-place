@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-19T23:58:25.426Z -->
+<!-- built 2026-07-20T00:05:18.624Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -20230,11 +20230,11 @@ function App() {
         position: 'sticky',
         top: 0,
         zIndex: 5,
-        background: 'var(--bg-cream)',
+        background: 'radial-gradient(130% 100% at 50% -25%,rgba(255,0,110,.34),transparent 62%),#070A16',
         overflow: 'hidden',
-        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 14px',
-        boxShadow: homeStuck ? '0 6px 20px -8px rgba(0,0,0,0.18)' : 'none',
-        borderBottom: '1px solid ' + (homeStuck ? 'var(--hairline)' : 'transparent'),
+        padding: 'calc(14px + env(safe-area-inset-top,0px)) 20px 16px',
+        boxShadow: homeStuck ? '0 8px 22px -8px rgba(0,0,0,0.5)' : 'none',
+        borderBottom: '1px solid ' + (homeStuck ? 'rgba(255,255,255,.1)' : 'transparent'),
         transition: 'box-shadow .25s,border-color .25s'
       }
     }, React.createElement("div", {
@@ -20244,12 +20244,12 @@ function App() {
         top: 0,
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 300,
-        height: 88,
+        width: 320,
+        height: 96,
         borderRadius: '50%',
         zIndex: 0,
         pointerEvents: 'none',
-        background: `radial-gradient(circle, ${hSlot.accent}AA, ${hSlot.accent2}55 52%, transparent 72%)`,
+        background: 'radial-gradient(circle, rgba(255,0,110,.55), rgba(149,0,255,.18) 52%, transparent 72%)',
         filter: 'blur(28px)',
         animation: 'haloPulse 3.6s ease-in-out infinite'
       }
@@ -20261,7 +20261,8 @@ function App() {
     }, React.createElement("h1", {
       className: "hero-line",
       style: {
-        fontSize: 'clamp(18px,6.4vw,26px)'
+        fontSize: 'clamp(18px,6.4vw,26px)',
+        color: '#fff'
       }
     }, tr("sl_title_" + hSlot.id)), React.createElement("div", {
       style: {
@@ -20270,13 +20271,17 @@ function App() {
         fontFamily: 'var(--font-body)',
         fontSize: 13,
         fontWeight: 700,
-        color: 'var(--ink-400)'
+        color: 'rgba(255,255,255,.62)'
       }
     }, React.createElement("b", {
       style: {
-        color: 'var(--ink-900)'
+        color: '#FF3D96'
       }
-    }, catalog.length), " spots \xE0 explorer", spots.length ? ` · ${spots.length} à toi` : ''), React.createElement("div", {
+    }, catalog.length), " spots \xE0 explorer", spots.length ? React.createElement(React.Fragment, null, " \xB7 ", React.createElement("b", {
+      style: {
+        color: '#FF3D96'
+      }
+    }, spots.length), " \xE0 toi") : ''), React.createElement("div", {
       style: {
         display: 'flex',
         gap: 10,
@@ -20287,7 +20292,7 @@ function App() {
       onClick: () => setShowPropositions(true),
       className: "press",
       style: {
-        background: 'linear-gradient(135deg,#FF3D96,#FF006E)',
+        background: '#FF006E',
         color: '#fff',
         border: 'none',
         borderRadius: 999,
@@ -20296,15 +20301,15 @@ function App() {
         fontWeight: 700,
         fontSize: 15,
         cursor: 'pointer',
-        boxShadow: '0 8px 22px rgba(255,0,110,.4)'
+        boxShadow: '0 0 18px rgba(255,0,110,.5)'
       }
     }, "\u2728 Propositions"), React.createElement("button", {
       onClick: pickRandom,
       className: "press",
       style: {
-        background: 'linear-gradient(135deg, var(--pop-violet), var(--pop-pink))',
+        background: 'linear-gradient(135deg,#FF006E,#0A0A0A)',
         color: '#fff',
-        border: 'none',
+        border: '1px solid rgba(255,0,110,.4)',
         borderRadius: 999,
         padding: '10px 20px',
         fontFamily: 'var(--font-body)',
@@ -20315,7 +20320,7 @@ function App() {
         alignItems: 'center',
         gap: 7,
         whiteSpace: 'nowrap',
-        boxShadow: '0 8px 22px rgba(139,92,246,.45)'
+        boxShadow: '0 0 14px rgba(255,0,110,.3)'
       }
     }, "\uD83C\uDFB2 Surprise")))), tonightSpots.length >= 3 && React.createElement("div", {
       style: {
