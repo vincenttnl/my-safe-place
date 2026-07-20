@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T20:25:30.348Z -->
+<!-- built 2026-07-20T21:30:38.824Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -94,7 +94,7 @@
   --ink-900:#F4EFFA;--ink-600:#BCAFCF;--ink-400:#8C7EA6;       /* textes clairs sur aubergine */
   --hairline:rgba(255,255,255,.15);                            /* contours clairs discrets (fini le noir) */
   --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
-  --accent-ink:#FF006E;--on-accent:#fff;                       /* boutons « foncés » → magenta prioritaire (charte) */
+  --accent-ink:#D1005B;--on-accent:#fff;                       /* boutons « foncés » → magenta LÉGÈREMENT foncé (2A, choix Vincent) : blanc lisible (AA ~4,6:1) ; l'accent franc reste --pop-pink #FF006E */
   --open:#6BFF3D;                                              /* lime néon sur aubergine (charte Nuit) */
   --skel-a:#1D1530;--skel-b:#2A2042;                           /* shimmer sombre */
   --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
@@ -107,6 +107,8 @@
 :root[data-theme="dark"] .nav-inner{background:rgba(20,13,30,.74);border-color:rgba(255,255,255,.10);box-shadow:0 12px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
 /* v263 : cartes de l'onglet Spots en Nuit = contour néon magenta + halo (choix Vincent №3 = mix bordure+halo). N'agit QU'en Nuit → le Jour reste identique. Intensité réglable ici. */
 :root[data-theme="dark"] .spot-neon{border:1.5px solid #FF006E !important;box-shadow:0 0 30px 1px rgba(255,0,110,.5) !important}
+/* 1A (choix Vincent) : les posters « Mes spots » gardent leur COULEUR DE CATÉGORIE mais gagnent un halo néon dans cette couleur en Nuit (--pcol = couleur de la cat, posée inline). Jour inchangé. */
+:root[data-theme="dark"] .poster-neon{box-shadow:0 0 22px -3px var(--pcol,#FF006E),0 8px 20px rgba(0,0,0,.45) !important}
 :root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 14px rgba(0,0,0,.45)}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
 :root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
@@ -377,7 +379,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">Tes spots préférés</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=47755f9a" defer></script>
+<script src="app.js?v=6ddb2ebf" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
