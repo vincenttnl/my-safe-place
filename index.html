@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-20T02:17:34.164Z -->
+<!-- built 2026-07-20T02:21:30.644Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"/>
 <script>
@@ -19811,11 +19811,22 @@ function App() {
       zoomControl: false,
       preferCanvas: true
     }).setView(cc.center, cc.zoom);
-    const url = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-    L.tileLayer(url, {
+    const tileUrl = t => "https://{s}.basemaps.cartocdn.com/" + (t === "dark" ? "dark_all" : "light_all") + "/{z}/{x}/{y}{r}.png";
+    const tl = L.tileLayer(tileUrl(document.documentElement.getAttribute("data-theme")), {
       maxZoom: 19,
       attribution: 'OSM, CARTO'
     }).addTo(map);
+    const themeObs = new MutationObserver(() => {
+      try {
+        tl.setUrl(tileUrl(document.documentElement.getAttribute("data-theme")));
+      } catch {}
+    });
+    try {
+      themeObs.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"]
+      });
+    } catch {}
     mapRef.current = map;
     clusterRef.current = null;
     didFitRef.current = false;
@@ -19841,6 +19852,9 @@ function App() {
     return () => {
       cancelAnimationFrame(r1);
       clearTimeout(t1);
+      try {
+        themeObs.disconnect();
+      } catch {}
       try {
         map.remove();
       } catch {}
