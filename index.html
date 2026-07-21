@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-21T21:50:20.654Z -->
+<!-- built 2026-07-21T22:07:29.141Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -112,6 +112,9 @@
 :root[data-theme="dark"] .spot-neon{box-shadow:0 0 14px -3px rgba(255,0,110,.55),inset 0 0 12px -7px rgba(255,0,110,.6) !important}
 .poster-neon{border:2px solid #FF006E !important;box-shadow:0 6px 18px rgba(20,10,30,.10) !important}
 :root[data-theme="dark"] .poster-neon{box-shadow:0 0 14px -3px rgba(255,0,110,.55),0 8px 20px rgba(0,0,0,.45) !important}
+/* v275 (choix Vincent 21/07) : néon en-têtes/boutons. Titre Accueil du SOIR en glow magenta (heroNight → classe hero-neon). Segment actif (Spots) = ring + glow magenta en Nuit. CTA Propositions/Surprise ont déjà leur glow (inline). */
+.hero-neon{text-shadow:0 0 10px rgba(255,0,110,.6),0 0 26px rgba(255,0,110,.32)}
+:root[data-theme="dark"] .seg-neon{border-color:#FF006E !important;box-shadow:0 0 16px -2px rgba(255,0,110,.55) !important}
 :root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 14px rgba(0,0,0,.45)}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
 :root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
@@ -382,7 +385,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=328953d4" defer></script>
+<script src="app.js?v=889fedd8" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
