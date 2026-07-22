@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-22T01:22:19.585Z -->
+<!-- built 2026-07-22T10:24:37.527Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -140,7 +140,7 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .spot-sel-wrap .spot-sel-halo{position:absolute;top:50%;left:50%;width:44px;height:44px;border-radius:999px;transform:translate(-50%,-50%);filter:blur(5px);opacity:0.4;animation:spotBreath 2.8s ease-in-out infinite}
 @keyframes spotBreath{0%,100%{opacity:0.3;transform:translate(-50%,-50%) scale(0.9)}50%{opacity:0.48;transform:translate(-50%,-50%) scale(1.06)}}
 .spot-sel-wrap .spot-sel-core{position:absolute;top:50%;left:50%;width:15px;height:15px;border-radius:999px;border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.4)}
-.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 22px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}
+.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 22px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}/* v286 (Vincent) : label carte plafonné 160px + ellipsis → ne chevauche plus les pins voisins (nom complet dans la mini-fiche) */
 .spot-sel-wrap .spot-sel-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#16131A}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
