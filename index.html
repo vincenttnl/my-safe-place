@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-22T21:25:47.673Z -->
+<!-- built 2026-07-22T21:49:42.031Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -64,6 +64,8 @@
 /* fonts chargées via <link> dans le <head> (Lot 2 perf — @import retiré car bloquant) */
 
 *{box-sizing:border-box;margin:0;padding:0}
+/* 📱 Anti-zoom iOS Safari : un champ < 16px déclenche un zoom auto qui décentre toute l'app (bug signalé 22/07). 16px partout = plus de zoom involontaire. */
+input,textarea,select{font-size:16px!important}
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
@@ -386,7 +388,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=130f5b6c" defer></script>
+<script src="app.js?v=c6dc2e8f" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
