@@ -1,0 +1,10 @@
+# Filet de sécurité repo PUBLIC (reco audit sécu Oliver 2026-07-23) :
+# rien de sensible ne doit jamais atterrir ici par erreur.
+.env
+.env.*
+*.key
+*.pem
+secrets*.json
+*credentials*
+.DS_Store
+node_modules/
