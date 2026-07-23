@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-23T12:58:41.304Z -->
+<!-- built 2026-07-23T13:36:02.188Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -64,6 +64,7 @@
 /* fonts chargées via <link> dans le <head> (Lot 2 perf — @import retiré car bloquant) */
 
 *{box-sizing:border-box;margin:0;padding:0}
+button{color:inherit}/* v311 (audit chasseur-bugs) : sans ce reset, un <button> à fond thématique SANS color défini hérite du NOIR UA → invisible en Nuit (noms du carrousel « Tu aimeras aussi », flèches ‹ › de la mini-fiche carte, boutons ‹ de modales). color:inherit = ils suivent la couleur du thème. Aucun effet en Jour ni sur les boutons à color explicite. */
 /* 📱 Anti-zoom iOS Safari : un champ < 16px déclenche un zoom auto qui décentre toute l'app (bug signalé 22/07). 16px partout = plus de zoom involontaire. */
 input,textarea,select{font-size:16px!important}
 
