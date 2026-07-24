@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-24T22:51:15.540Z -->
+<!-- built 2026-07-24T23:41:08.521Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -78,6 +78,8 @@ input,textarea,select{font-size:16px!important}
 @keyframes tourPulse{0%,100%{box-shadow:0 0 15px 3px var(--acc),0 0 0 2200px rgba(4,6,14,.72)}50%{box-shadow:0 0 30px 9px var(--acc),0 0 0 2200px rgba(4,6,14,.64)}}
 .tour-arrow{position:absolute;pointer-events:none;color:var(--acc);animation:tourBob 1.1s ease-in-out infinite}
 @keyframes tourBob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.tour-caret{animation:tourCaret .9s step-end infinite}
+@keyframes tourCaret{0%,100%{opacity:1}50%{opacity:0}}
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
@@ -294,10 +296,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mood-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .mood-card .m-ov{position:absolute;inset:0}
 .mood-card .m-em{position:absolute;top:8px;left:9px;font-size:24px;z-index:2;filter:drop-shadow(0 1px 5px rgba(0,0,0,0.55))}
-.mood-card .m-lab{position:absolute;left:0;right:0;bottom:0;padding:9px 11px;z-index:2;color:#fff;text-align:left;text-shadow:0 1px 8px rgba(0,0,0,0.6)}
+/* v328 (#device-test bug2) : ombre de texte renforcée → label mood lisible même sur photo claire (rooftop coucher de soleil, café terrasse, activités ciel) */
+.mood-card .m-lab{position:absolute;left:0;right:0;bottom:0;padding:9px 11px;z-index:2;color:#fff;text-align:left;text-shadow:0 1px 3px rgba(0,0,0,0.9),0 2px 14px rgba(0,0,0,0.7)}
 .mood-card .m-lab .m-n{font-family:var(--font-display);font-weight:900;font-size:17px;letter-spacing:-0.01em;line-height:1}
 /* v10.51 — compteur mood №2 (choix Vincent) : « Rooftops · 7 » sur UNE ligne aérée (l'ancien mono inline s'écrasait contre le nom) */
-.mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.85}
+.mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.92}
 /* 💎 PremiumModal widget v10.44 : taglines rotatives + tableau A2 point pulsant */
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
@@ -397,7 +400,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 .stat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--bg-cream);border:1px solid var(--hairline);font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900)}
 
-.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+/* v328 (#device-test bug3) : touch-action:pan-x + overscroll-behavior:contain → même anti-saccade iOS que le rail « Tu aimeras aussi » (v327) sur favoris + events */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
 .h-scroll::-webkit-scrollbar{display:none}
 .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .hide-scroll::-webkit-scrollbar{display:none}
@@ -445,7 +449,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=716d2fdb" defer></script>
+<script src="app.js?v=620dab9a" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
