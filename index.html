@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-24T01:59:17.980Z -->
+<!-- built 2026-07-24T02:17:37.012Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -73,6 +73,11 @@ input,textarea,select{font-size:16px!important}
 /* ✨ .pglow (v321, Vincent) : MÊME halo « Blanc ardent » mais uniquement liseré blanc + feu magenta — SANS toucher au fond (photo/dégradé/sombre conservés). !important pour gagner sur les border/box-shadow inline des cartes. À poser sur toutes les bulles du Profil. */
 .pglow{border:1.5px solid rgba(255,255,255,.92)!important;box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)!important}
 :root[data-theme="dark"] .pglow{box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)!important}
+/* 🎬 v325 (Vincent) : PROJECTEUR de la visite guidée — l'anneau (couleur --acc) éclaire la zone et PULSE, le box-shadow géant assombrit tout le reste de l'écran (clippé par le cadre en overflow:hidden). */
+.tour-spot{position:absolute;border-radius:12px;border:2.5px solid var(--acc);pointer-events:none;animation:tourPulse 1.9s ease-in-out infinite}
+@keyframes tourPulse{0%,100%{box-shadow:0 0 15px 3px var(--acc),0 0 0 2200px rgba(4,6,14,.72)}50%{box-shadow:0 0 30px 9px var(--acc),0 0 0 2200px rgba(4,6,14,.64)}}
+.tour-arrow{position:absolute;pointer-events:none;color:var(--acc);animation:tourBob 1.1s ease-in-out infinite}
+@keyframes tourBob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
@@ -411,7 +416,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=0200c7db" defer></script>
+<script src="app.js?v=f4c9a0f7" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
