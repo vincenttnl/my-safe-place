@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-24T01:16:00.893Z -->
+<!-- built 2026-07-24T01:29:11.615Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -119,6 +119,18 @@ input,textarea,select{font-size:16px!important}
 /* v274 (choix Vincent 21/07) : STYLE CARTE NÉON FIGÉ — bordure MAGENTA unifiée 2px PARTOUT (Jour ET Nuit, choix 1A). Base = Jour (ombre neutre douce, PAS de glow) ; Nuit = override box-shadow (glow doux magenta). Le chip reste couleur catégorie néon (2A, inchangé dans le JSX). Même structure Jour↔Nuit, seule la lumière change. */
 .spot-neon{border:2px solid #FF006E !important;box-shadow:0 6px 18px rgba(20,10,30,.10) !important}
 :root[data-theme="dark"] .spot-neon{background:linear-gradient(160deg,var(--ccol,#FF006E) -60%,#0A0710 45%) !important;box-shadow:0 0 14px -3px rgba(255,0,110,.55),inset 0 0 12px -7px rgba(255,0,110,.6) !important}
+/* 🌌 v321 (choix Vincent №4 « Voûte scintillante ») : fond nuit des bulles de spot = souffle magenta à gauche + ciel profond haut-droite + quelques étoiles. FOND uniquement (bordures neon inchangées). Étoiles biaisées côté texte (gauche) pour ne pas passer sous la photo. Défini APRÈS .spot-neon pour gagner le background. */
+:root[data-theme="dark"] .voute-nuit{
+  background:
+    radial-gradient(1.3px 1.3px at 30% 16%, rgba(255,255,255,.92), transparent),
+    radial-gradient(1px 1px at 44% 30%, rgba(255,255,255,.70), transparent),
+    radial-gradient(1.4px 1.4px at 21% 40%, rgba(255,255,255,.82), transparent),
+    radial-gradient(1px 1px at 13% 23%, rgba(255,255,255,.60), transparent),
+    radial-gradient(1.1px 1.1px at 37% 55%, rgba(255,255,255,.52), transparent),
+    radial-gradient(1px 1px at 26% 62%, rgba(255,255,255,.45), transparent),
+    radial-gradient(90% 160% at 6% 50%, rgba(255,0,110,.22) 0%, transparent 55%),
+    radial-gradient(120% 140% at 88% 8%, #141a33 0%, #070A16 68%) !important;
+}
 .poster-neon{border:2px solid #FF006E !important;box-shadow:0 6px 18px rgba(20,10,30,.10) !important}
 :root[data-theme="dark"] .poster-neon{box-shadow:0 0 14px -3px rgba(255,0,110,.55),0 8px 20px rgba(0,0,0,.45) !important}
 /* v275 (choix Vincent 21/07) : néon en-têtes/boutons. Titre Accueil du SOIR en glow magenta (heroNight → classe hero-neon). Segment actif (Spots) = ring + glow magenta en Nuit. CTA Propositions/Surprise ont déjà leur glow (inline). */
@@ -395,7 +407,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=0c8acd22" defer></script>
+<script src="app.js?v=9272d6fc" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
