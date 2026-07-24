@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-23T22:24:21.322Z -->
+<!-- built 2026-07-24T00:13:06.268Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -67,6 +67,9 @@
 button{color:inherit}/* v311 (audit chasseur-bugs) : sans ce reset, un <button> à fond thématique SANS color défini hérite du NOIR UA → invisible en Nuit (noms du carrousel « Tu aimeras aussi », flèches ‹ › de la mini-fiche carte, boutons ‹ de modales). color:inherit = ils suivent la couleur du thème. Aucun effet en Jour ni sur les boutons à color explicite. */
 /* 📱 Anti-zoom iOS Safari : un champ < 16px déclenche un zoom auto qui décentre toute l'app (bug signalé 22/07). 16px partout = plus de zoom involontaire. */
 input,textarea,select{font-size:16px!important}
+/* 🎴 Carte Profil « Blanc ardent » (v319, TCH contour №2 + jour) : liseré blanc + feu magenta. Theme-aware. */
+.pcard{background:var(--card);border:1.5px solid rgba(255,255,255,.9);border-radius:var(--radius-md);box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)}
+:root[data-theme="dark"] .pcard{background:#0d1120;border-color:rgba(255,255,255,.9);box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)}
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
@@ -389,7 +392,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=e7ffc2c1" defer></script>
+<script src="app.js?v=93963f87" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
