@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-24T00:54:37.390Z -->
+<!-- built 2026-07-24T01:16:00.893Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -70,6 +70,9 @@ input,textarea,select{font-size:16px!important}
 /* 🎴 Carte Profil « Blanc ardent » (v319, TCH contour №2 + jour) : liseré blanc + feu magenta. Theme-aware. */
 .pcard{background:var(--card);border:1.5px solid rgba(255,255,255,.9);border-radius:var(--radius-md);box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)}
 :root[data-theme="dark"] .pcard{background:#0d1120;border-color:rgba(255,255,255,.9);box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)}
+/* ✨ .pglow (v321, Vincent) : MÊME halo « Blanc ardent » mais uniquement liseré blanc + feu magenta — SANS toucher au fond (photo/dégradé/sombre conservés). !important pour gagner sur les border/box-shadow inline des cartes. À poser sur toutes les bulles du Profil. */
+.pglow{border:1.5px solid rgba(255,255,255,.92)!important;box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)!important}
+:root[data-theme="dark"] .pglow{box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)!important}
 
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
@@ -392,7 +395,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=77913d0d" defer></script>
+<script src="app.js?v=0c8acd22" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
