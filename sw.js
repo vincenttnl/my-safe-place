@@ -15,11 +15,12 @@ const STATIC_ASSETS = [
   './favicon-32.png',
   './favicon-48.png',
   './apple-touch-icon.png',
-  './tour/accueil.webp',
-  './tour/spots.webp',
-  './tour/carte.webp',
-  './tour/events.webp',
-  './tour/profil.webp',
+  // ⚠️ v333 : les 5 captures de la visite guidée (tour/*.webp, 582 Ko) ont été RETIRÉES du précache.
+  // Elles étaient téléchargées à l'installation pour un écran joué UNE SEULE FOIS, juste après
+  // l'onboarding — donc quasi toujours en ligne. Le handler `fetch` ci-dessous les met déjà en cache
+  // au premier affichage (même origine, non-HTML → cacheFirst sur STATIC_CACHE), et elles y restent.
+  // Gain mesuré : 777 → 195 Ko à l'install (et 427 Ko du temps des JPG), sans toucher au piqué.
+  // Ne les remettre ici que si la visite guidée doit marcher hors ligne AVANT d'avoir été vue une fois.
 ];
 
 const CDN_PREFIXES = [
