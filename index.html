@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-25T00:30:39.265Z -->
+<!-- built 2026-07-25T15:10:22.920Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -58,7 +58,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" defer></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><!-- ⚡ PERF 25/07 : `defer` — Leaflet ne sert QUE dans l'onglet Carte et bloquait le rendu ~800 ms. L'init de la carte attend `L` (voir le useEffect map init). -->
+<link rel="preconnect" href="https://gyulgensyqsmpsaxrwcz.supabase.co" crossorigin/><!-- ⚡ PERF 25/07 : tout le démarrage tape cette origine (catalogue + photos) — le dns-prefetch seul ne monte pas la connexion TLS. -->
 <!-- leaflet.markercluster RETIRÉ v10.43 : remplacé par le moteur de clustering maison (min 8 spots, labo Vincent №4) -->
 <style>
 /* fonts chargées via <link> dans le <head> (Lot 2 perf — @import retiré car bloquant) */
@@ -449,7 +450,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=5672be03" defer></script>
+<script src="app.js?v=f15d6efe" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
