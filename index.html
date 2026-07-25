@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-25T23:31:53.584Z -->
+<!-- built 2026-07-25T23:47:55.611Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -101,6 +101,15 @@ input,textarea,select{font-size:16px!important}
   /* 🌗 Toggle Jour/Nuit (20/07) — tokens sémantiques. En CLAIR ils valent l'actuel (no-op) ; en SOMBRE le bloc [data-theme=dark] les réécrit.
      --accent-ink = FOND des boutons foncés (séparé de --ink-900 qui reste la couleur de TEXTE) ; --on-accent = texte posé dessus. */
   --accent-ink:#0A0A0A;--on-accent:#fff;
+  /* 💗 v334 — MAGENTA PORTEUR DE TEXTE (décision Vincent 26/07, deck TCH fiche).
+     --pop-pink #FF006E est la couleur de marque et elle NE BOUGE PAS : contours, halos néon, dégradés,
+     pastilles décoratives, accents — tout ça reste en #FF006E, la charte figée du 20/07 est intacte.
+     MAIS du blanc posé dessus ne donne que 3,83:1, sous le seuil standard de 4,5 → illisible au soleil.
+     --pink-ink est le MÊME magenta assombri (#D1005B → 5,44:1 avec du blanc), réservé aux surfaces
+     PLEINES qui portent du texte ou un glyphe blanc. Ce n'est pas une nouvelle couleur : c'est déjà
+     celle des boutons foncés du mode Nuit (--accent-ink ci-dessous), donc zéro ajout à la charte.
+     RÈGLE : fond magenta + texte blanc → --pink-ink. Magenta décoratif (bordure, ombre, trait) → --pop-pink. */
+  --pink-ink:#D1005B;
   /* --open = vert « ouvert / synchronisé / fait ». Jour = vert lisible sur blanc ; Nuit = lime néon (charte). */
   --open:#00C853;
   /* v333 — --open-ink = le MÊME vert, mais en version TEXTE. Mesuré sur la fiche : #00C853 écrit sur
@@ -278,7 +287,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .nav-ind.transit{transform:scale(1.22)}
 /* badge chiffré (onglet Events). z-index 3 > capsule : il reste lisible quand la lentille enfle dessous. */
 .nav-badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;
-  background:var(--pop-pink);color:#fff;font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;
+  background:var(--pink-ink);color:#fff;font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;
   border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(255,0,110,.5);z-index:3}
 @media(prefers-reduced-motion:reduce){.nav-ind{transition:none}.nav-ind.transit{transform:none}}
 
@@ -406,7 +415,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .pq-sp.on{background:#fff;border-color:#fff}
 /* v223 : pills Néon Nuit (scopées étape questions) — translucide sombre + sélection magenta glow */
 .pq-neon .pq-sp{border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
-.pq-neon .pq-sp.on{background:var(--pop-pink);border-color:var(--pop-pink);color:#fff;box-shadow:0 0 20px rgba(255,0,110,.55)}
+.pq-neon .pq-sp.on{background:var(--pink-ink);border-color:var(--pop-pink);color:#fff;box-shadow:0 0 20px rgba(255,0,110,.55)}
 .pq-neon .pq-edit{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22)}/* v225 : ★ Mes recherches sur le bandeau sombre */
 .pq-neon .pq-card{background:rgba(255,255,255,.05);color:#fff}
 .pq-neon .pq-card .sm{color:rgba(255,255,255,.55)}
@@ -496,7 +505,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=833cbbaf" defer></script>
+<script src="app.js?v=44c05ba7" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
