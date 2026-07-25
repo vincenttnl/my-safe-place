@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v332-2026-07-25';
+const CACHE_VERSION = 'spotane-v333-2026-07-26';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -15,11 +15,11 @@ const STATIC_ASSETS = [
   './favicon-32.png',
   './favicon-48.png',
   './apple-touch-icon.png',
-  './tour/accueil.jpg',
-  './tour/spots.jpg',
-  './tour/carte.jpg',
-  './tour/events.jpg',
-  './tour/profil.jpg',
+  './tour/accueil.webp',
+  './tour/spots.webp',
+  './tour/carte.webp',
+  './tour/events.webp',
+  './tour/profil.webp',
 ];
 
 const CDN_PREFIXES = [

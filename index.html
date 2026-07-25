@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-25T16:52:56.952Z -->
+<!-- built 2026-07-25T23:20:18.878Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -36,9 +36,14 @@
 <meta property="og:site_name" content="Spot 105"/>
 <meta property="og:title" content="Spot 105 — Tes meilleurs spots"/>
 <meta property="og:description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
-<meta property="og:image" content="https://vincenttnl.github.io/my-safe-place/icon-512.png"/>
-<meta property="og:image:width" content="512"/>
-<meta property="og:image:height" content="512"/>
+<!-- ⚠️ v333 : og:image dédiée 1200×630 sur une URL NEUVE (`og-cover.jpg?v=105`).
+     Les messageries (iMessage, WhatsApp, Signal…) cachent l'aperçu d'un lien PAR URL, très longtemps :
+     `icon-512.png` n'ayant jamais changé d'URL, elles reservaient l'aperçu mis en cache à l'époque « Spotane ».
+     Changer d'URL est le SEUL moyen de purger ce cache côté destinataire. Ne pas remettre icon-512.png ici. -->
+<meta property="og:image" content="https://vincenttnl.github.io/my-safe-place/og-cover.jpg?v=105"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Spot 105 — L'adresse de tes sorties."/>
 <meta property="og:url" content="https://vincenttnl.github.io/my-safe-place/"/>
 <meta property="og:locale" content="fr_FR"/>
 
@@ -46,7 +51,7 @@
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Spot 105 — Tes meilleurs spots"/>
 <meta name="twitter:description" content="Restos, bars, rooftops, sorties : ton carnet d'adresses, à toi et à tes potes."/>
-<meta name="twitter:image" content="https://vincenttnl.github.io/my-safe-place/icon-512.png"/>
+<meta name="twitter:image" content="https://vincenttnl.github.io/my-safe-place/og-cover.jpg?v=105"/>
 <!-- ⚡ Perf (Lot 2) : preconnect aux origines critiques + fonts en <link> (au lieu de @import bloquant) -->
 <link rel="preconnect" href="https://cdnjs.cloudflare.com"/>
 <link rel="preconnect" href="https://unpkg.com"/>
@@ -98,6 +103,11 @@ input,textarea,select{font-size:16px!important}
   --accent-ink:#0A0A0A;--on-accent:#fff;
   /* --open = vert « ouvert / synchronisé / fait ». Jour = vert lisible sur blanc ; Nuit = lime néon (charte). */
   --open:#00C853;
+  /* v333 — --open-ink = le MÊME vert, mais en version TEXTE. Mesuré sur la fiche : #00C853 écrit sur
+     blanc ne fait que 2,24:1 (seuil AA 4,5) → « Ouvert » était le libellé le moins lisible de la fiche
+     en Jour. Le vert vif reste la couleur d'ACCENT (contour, pastille, point) ; le texte prend cette
+     déclinaison foncée. En Nuit le lime néon sur aubergine passe largement → --open-ink = --open. */
+  --open-ink:#067647;
   /* skeleton loaders (shimmer) */
   --skel-a:#E9E9EE;--skel-b:#F6F6F8;
   /* --panel-ink = FONDS de panneaux/chips volontairement foncés (carte stats, barre de sélection, toast, chip vibe).
@@ -115,6 +125,7 @@ input,textarea,select{font-size:16px!important}
   --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
   --accent-ink:#D1005B;--on-accent:#fff;                       /* boutons « foncés » → magenta LÉGÈREMENT foncé (2A, choix Vincent) : blanc lisible (AA ~4,6:1) ; l'accent franc reste --pop-pink #FF006E */
   --open:#6BFF3D;                                              /* lime néon sur aubergine (charte Nuit) */
+  --open-ink:#6BFF3D;                                          /* en Nuit le lime néon est déjà très lisible : texte = accent */
   --skel-a:#1D1530;--skel-b:#2A2042;                           /* shimmer sombre */
   --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
   --pop-violet:#0B0714;                                        /* dégradés magenta→aubergine (Néon Nuit) */
@@ -248,6 +259,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    ⚠️ isolation:isolate est obligatoire, sinon le backdrop-filter de la capsule va chercher le fond de
    toute la page au lieu de celui de la barre. */
 .bottom-nav{position:fixed;left:0;right:0;bottom:0;padding:0 12px calc(10px + env(safe-area-inset-bottom,4px));z-index:90;isolation:isolate;pointer-events:none}
+/* ⌨️ v333 : clavier iOS ouvert → la nav s'efface au lieu de remonter avec lui (retour device Vincent). */
+.bottom-nav.kb-hidden{transform:translateY(140%);opacity:0;pointer-events:none}
+.bottom-nav{transition:transform .18s var(--ease,ease),opacity .18s var(--ease,ease)}
 .nav-inner{position:relative;display:flex;align-items:center;height:62px;max-width:600px;margin:0 auto;border-radius:31px;pointer-events:auto;
   background:rgba(255,255,255,.72);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);
   border:1px solid rgba(255,255,255,.65);box-shadow:0 12px 32px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.5)}
@@ -318,6 +332,38 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .spot-card-v2 .card-meta{font-family:var(--font-body);font-size:12.5px;color:var(--ink-400);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 .chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;font-family:var(--font-body);white-space:nowrap}
+
+/* ===================================================================
+   🗂️ FICHE DE SPOT (SpotDetail) — UN SEUL vocabulaire de pastille.
+   Retour device Vincent 25/07 : « il y a des pastilles, il y a plus de
+   pastilles, il y a du "ouvert" sans pastille… quand il y a les boutons
+   Ajouter / Map / Envoyer / Partager, LÀ c'est très clair, très uniforme.
+   Pour tout le reste ça ne s'insère pas dans la même uniformité. »
+   → La rangée de 4 boutons est le MODÈLE. Toute info secondaire de la fiche
+   (catégorie, vibe, cuisine, musique, état d'ouverture, liens, badges amis)
+   passe désormais par .sd-pill : même hauteur, même rayon, même graisse,
+   même contour. Les variantes ne changent QUE la couleur d'accent — jamais
+   la géométrie. Un seul système, lisible en Jour ET en Nuit.
+   ⚠️ Aucune pastille n'écrit en BLANC sur un fond CLAIR (reproche n°1 de
+   Vincent) : les variantes « soft » gardent toujours --ink-900 comme texte.
+   =================================================================== */
+.sd-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sd-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:999px;
+  font-family:var(--font-body);font-size:12.5px;font-weight:700;line-height:1.15;
+  border:1.5px solid var(--hairline);background:var(--card);color:var(--ink-900);
+  max-width:100%;min-height:32px;text-decoration:none;cursor:default}
+.sd-pill--wrap{white-space:normal}
+/* pastilles cliquables (liens, itinéraire) : même géométrie, affordance en plus */
+a.sd-pill,button.sd-pill{cursor:pointer}
+.sd-pill .sd-go{color:var(--pop-pink);font-weight:900;flex-shrink:0}
+/* variantes d'accent — le fond est TOUJOURS une teinte translucide, le texte TOUJOURS --ink-900 */
+.sd-pill--open{border-color:var(--open);color:var(--open-ink);background:transparent}
+.sd-pill--closed{border-color:var(--hairline);color:var(--ink-400);background:transparent}
+.sd-pill--violet{border-color:rgba(149,0,255,.45);background:rgba(149,0,255,.10)}
+.sd-pill--pink{border-color:rgba(255,0,110,.45);background:rgba(255,0,110,.09)}
+.sd-pill--on{border-color:var(--pop-pink);background:rgba(255,0,110,.10)}
+/* seule variante à fond plein : texte blanc sur fond FONCÉ (jamais sur fond clair) */
+.sd-pill--solid{background:var(--accent-ink);border-color:var(--accent-ink);color:var(--on-accent)}
 
 /* Modal overlay - Partiful */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
@@ -450,7 +496,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=39e35762" defer></script>
+<script src="app.js?v=833cbbaf" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
