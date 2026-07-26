@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-25T23:47:55.611Z -->
+<!-- built 2026-07-26T22:50:50.010Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -110,6 +110,9 @@ input,textarea,select{font-size:16px!important}
      celle des boutons foncés du mode Nuit (--accent-ink ci-dessous), donc zéro ajout à la charte.
      RÈGLE : fond magenta + texte blanc → --pink-ink. Magenta décoratif (bordure, ombre, trait) → --pop-pink. */
   --pink-ink:#D1005B;
+  /* --route-ink = le lien « Afficher le trajet … sur Map » (v335, demande Vincent 26/07 : plus de gros
+     bouton plein, juste le texte + une flèche). Jour = magenta foncé lisible sur clair ; Nuit = blanc. */
+  --route-ink:#D1005B;
   /* --open = vert « ouvert / synchronisé / fait ». Jour = vert lisible sur blanc ; Nuit = lime néon (charte). */
   --open:#00C853;
   /* v333 — --open-ink = le MÊME vert, mais en version TEXTE. Mesuré sur la fiche : #00C853 écrit sur
@@ -131,6 +134,7 @@ input,textarea,select{font-size:16px!important}
   --bg-primary:#0B0714;--bg-cream:#0B0714;--bg-soft:#170F26;   /* aubergine profond + soft légèrement relevé */
   --ink-900:#F4EFFA;--ink-600:#BCAFCF;--ink-400:#8C7EA6;       /* textes clairs sur aubergine */
   --hairline:rgba(255,255,255,.15);                            /* contours clairs discrets (fini le noir) */
+  --route-ink:#FFFFFF;                                         /* v335 : « Afficher le trajet » en blanc sur l'aubergine */
   --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
   --accent-ink:#D1005B;--on-accent:#fff;                       /* boutons « foncés » → magenta LÉGÈREMENT foncé (2A, choix Vincent) : blanc lisible (AA ~4,6:1) ; l'accent franc reste --pop-pink #FF006E */
   --open:#6BFF3D;                                              /* lime néon sur aubergine (charte Nuit) */
@@ -505,7 +509,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=44c05ba7" defer></script>
+<script src="app.js?v=476c6221" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
