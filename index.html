@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-28T13:46:09.334Z -->
+<!-- built 2026-07-28T21:40:18.462Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -62,7 +62,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" defer></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<!-- ⚡ PERF 28/07 (Gardien perf, mesuré) : `media="print" onload="this.media='all'"` — la feuille
+     Leaflet BLOQUAIT le rendu du splash pendant ~775 ms (audit `render-blocking-insight`, Lighthouse 13.4.1),
+     alors qu'AUCUN élément `.leaflet-*` n'existe au démarrage : la carte ne vit que dans l'onglet Carte.
+     Même raisonnement que le `defer` posé sur leaflet.js le 25/07 — on finit le travail côté CSS.
+     `media="print"` = téléchargée tout de suite mais en priorité basse et hors chemin critique, puis
+     appliquée au load. La carte a largement le temps d'être stylée avant qu'on ouvre son onglet.
+     ⚠️ Ne PAS appliquer la même chose à la feuille Google Fonts ligne ~61 : le splash est en Fraunces
+     (`#msp-splash{font-family:"Fraunces",Georgia,serif}`) → il flasherait en Georgia. Décision de charte. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'"/>
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><!-- ⚡ PERF 25/07 : `defer` — Leaflet ne sert QUE dans l'onglet Carte et bloquait le rendu ~800 ms. L'init de la carte attend `L` (voir le useEffect map init). -->
 <link rel="preconnect" href="https://gyulgensyqsmpsaxrwcz.supabase.co" crossorigin/><!-- ⚡ PERF 25/07 : tout le démarrage tape cette origine (catalogue + photos) — le dns-prefetch seul ne monte pas la connexion TLS. -->
 <!-- leaflet.markercluster RETIRÉ v10.43 : remplacé par le moteur de clustering maison (min 8 spots, labo Vincent №4) -->
@@ -509,7 +517,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=5dfbdbac" defer></script>
+<script src="app.js?v=b8d85b92" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
