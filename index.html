@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-28T21:40:18.462Z -->
+<!-- built 2026-07-29T10:05:09.849Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -337,6 +337,132 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mood-card .m-lab .m-n{font-family:var(--font-display);font-weight:900;font-size:17px;letter-spacing:-0.01em;line-height:1}
 /* v10.51 — compteur mood №2 (choix Vincent) : « Rooftops · 7 » sur UNE ligne aérée (l'ancien mono inline s'écrasait contre le nom) */
 .mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.92}
+/* 🏙️ CityPhotoGrid (v344) — sélecteur de ville EN PHOTOS : vedette en grand pleine largeur + 6 vignettes 2×3.
+   Utilisé DEUX fois (onboarding slide 2 · sélecteur « changer de ville » du Profil) via un seul composant.
+   🚧 CLASSES DÉDIÉES `cpg-*` VOLONTAIREMENT NEUVES : `.mood-grid` / `.mood-card` sont PARTAGÉES avec la
+   grille des catégories de l'Accueil (grep `hl_mood`) — les toucher déplacerait un écran sans rapport. */
+.cpg-hero,.cpg-card{position:relative;display:block;width:100%;padding:0;overflow:hidden;cursor:pointer;background:var(--bg-soft);transition:transform .16s var(--ease),border-color .16s var(--ease)}
+.cpg-hero:active,.cpg-card:active{transform:scale(.975)}
+.cpg-hero{aspect-ratio:2.55/1;border-radius:17px;margin-bottom:9px}
+.cpg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cpg-card{aspect-ratio:1/0.6;border-radius:13px}
+/* object-fit:cover + ratio FIXE = c'est le cadre CSS qui uniformise les sources hétérogènes
+   (nice 2:1 … lille 1,22:1 … madrid en PORTRAIT), pas le serveur — cf. cityPhotoUrl(). */
+.cpg-hero img,.cpg-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cpg-ov{position:absolute;inset:0}
+.cpg-em{position:absolute;z-index:2;filter:drop-shadow(0 1px 5px rgba(0,0,0,.6))}
+.cpg-hero .cpg-em{top:11px;left:13px;font-size:26px}
+.cpg-card .cpg-em{top:6px;left:8px;font-size:17px}
+.cpg-lab{position:absolute;left:0;right:0;bottom:0;z-index:2;color:#fff;text-align:left;text-shadow:0 1px 3px rgba(0,0,0,.92),0 2px 14px rgba(0,0,0,.7)}
+.cpg-hero .cpg-lab{padding:12px 14px}
+.cpg-card .cpg-lab{padding:7px 9px}
+.cpg-n{font-family:var(--font-display);font-weight:900;letter-spacing:-0.015em;line-height:1;display:block}
+.cpg-hero .cpg-n{font-size:30px}
+.cpg-card .cpg-n{font-size:15px}
+.cpg-c{font-family:var(--font-body);font-weight:700;opacity:.93}
+.cpg-hero .cpg-c{font-size:13.5px}
+.cpg-card .cpg-c{font-size:11.5px}
+.cpg-badge{position:absolute;top:9px;right:10px;z-index:3;background:var(--pink-ink);color:#fff;font-family:var(--font-body);font-weight:800;font-size:10px;padding:3px 8px;border-radius:999px;text-shadow:none}
+/* peau ONBOARDING : Néon Nuit FIXE (fond #0B0714), cadre clair, halo magenta sur la vedette */
+.cpg-neon .cpg-hero{border:1.5px solid rgba(255,255,255,.22);box-shadow:0 10px 30px -12px rgba(255,0,110,.55)}
+.cpg-neon .cpg-card{border:1.5px solid rgba(255,255,255,.16)}
+/* peau APP : thème Jour/Nuit, cadre couleur signature de la ville (esprit « Choisis ton mood ») */
+.cpg-app .cpg-hero{border:2px solid var(--pop-pink);box-shadow:var(--shadow-sm)}
+.cpg-app .cpg-card{border:2px solid var(--hairline);box-shadow:var(--shadow-sm)}
+/* 📍 PIN SPOT 105 ANIMÉ — slide 0 de l'onboarding (v344). Remplace l'émoji 🛋️.
+   Sélection tranchée par Vincent sur le deck de l'agent `neoniste`
+   (`_explorations/local_onboarding-pin-neon-2026-07-29/index.html`) : pin officiel à 80px
+   + №1 halo magenta · №4 reflet au sol · №6 étincelles · №9 balayage du liseré.
+   ▸ Tracé = celui du logo FIGÉ (`_livrables/logo-spot105/_render-icon-night.html`) : pin magenta #FF006E,
+     liseré blanc 1,6, point #070A16. ⛔ Ne PAS prendre le tracé du composant `Spot105Logo` de ce fichier :
+     il est hors charte (viewBox 120×120, 2 ellipses parasites, pas de liseré, point blanc). Il est laissé
+     STRICTEMENT tel quel — le réparer changerait d'autres écrans, c'est un chantier à part.
+   ▸ Valeurs PORTÉES du deck à l'identique. Seuls les noms de classes et de keyframes sont préfixés
+     `ob-` / `obPin` : dans un index.html de 1,2 Mo, `.pin` et `.fx-halo` sont trop génériques.
+   ⚖️ DÉROGATION DE CHARTE — ASSUMÉE, TRANCHÉE ET CONSIGNÉE. NE PAS « CORRIGER ».
+     La charte du logo (21/07) dit « liseré fin, JAMAIS d'aura » ; l'effet №9 anime le liseré blanc.
+     Vincent a tranché le 29/07 : « oui on assume l'exception ». C'est écrit noir sur blanc dans
+     `_livrables/logo-spot105/LOGO-CHARTE.md`, section « ⚠️ EXCEPTIONS ASSUMÉES », entrée 1
+     (« Onboarding, slide 0 — balayage de lumière sur le liseré »). Lis-la avant de toucher à quoi que
+     ce soit ici : cette divergence est VOULUE, ce n'est pas un oubli.
+     ▸ PÉRIMÈTRE STRICT : le seul step 0 de `OnboardingFlow`. Icônes PWA, favicon, lockups, splash et
+       tout autre écran restent SANS aura et SANS animation du liseré. Ça ne s'étend pas par analogie —
+       un besoin similaire ailleurs repasse par Vincent.
+     ▸ RESTE STRICTEMENT CONFORME, même ici : géométrie du pin, magenta #FF006E, liseré blanc fin 1,6,
+       point #070A16. №1 (halo), №4 (reflet) et №6 (étincelles) éclairent la SCÈNE, jamais le tracé —
+       aucun glow n'est posé sur le pin lui-même. Seul №9 touche le liseré, et lui seul est couvert.
+   ♿ prefers-reduced-motion : les 2 boucles infinies (№6, №9) s'arrêtent ; le halo et le reflet, qui sont
+     immobiles, restent — l'écran tient debout tout seul. */
+.ob-pinwrap{--pin:80px;--svgH:calc(var(--pin) * 1.4426);--svgW:calc(var(--pin) * 1.1148);--maskPin:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-34 -42 68 88'%3E%3Cpath d='M-20 -8 A20 20 0 1 1 20 -8 C20 12 0 32 0 32 C0 32 -20 12 -20 -8 Z' fill='none' stroke='%23fff' stroke-width='3.6' stroke-linejoin='round'/%3E%3C/svg%3E");position:relative;width:var(--svgW);height:var(--svgH);display:flex;align-items:center;justify-content:center}
+.ob-pin{width:var(--svgW);height:var(--svgH);display:block;position:relative;z-index:3;overflow:visible}
+.ob-pinwrap > span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+/* №1 halo magenta diffus derrière le pin */
+.ob-fx-halo{width:calc(var(--pin)*2.6);height:calc(var(--pin)*2.6);border-radius:50%;background:radial-gradient(50% 50% at 50% 46%, rgba(255,0,110,.46) 0%, rgba(149,0,255,.20) 44%, transparent 72%);z-index:1}
+/* №4 reflet au sol — la pointe du pin est à 1,226×--pin du haut du bloc (tracé : y=32,8 dans un viewBox de 88 unités) */
+.ob-pinwrap > .ob-fx-reflect{top:calc(var(--pin)*1.226);bottom:auto;transform:translateX(-50%);width:var(--svgW);height:calc(var(--pin)*.62);overflow:hidden;z-index:0;-webkit-mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.5) 42%,transparent 94%);mask-image:linear-gradient(to bottom,#000 0%,rgba(0,0,0,.5) 42%,transparent 94%)}
+.ob-fx-reflect .ob-pin{position:absolute;left:0;top:calc(var(--pin)*-.2166);transform:scaleY(-1);opacity:.44}
+.ob-pinwrap > .ob-fx-wet{top:calc(var(--pin)*1.226);bottom:auto;width:calc(var(--pin)*2.1);height:calc(var(--pin)*.3);border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(255,0,110,.45) 0%, rgba(149,0,255,.16) 52%, transparent 76%);z-index:0}
+/* №6 étincelles / poussière magenta — 10 couches animées EN BOUCLE (le plus gourmand du deck) */
+.ob-fx-spark{width:3px;height:3px;border-radius:50%;background:var(--pop-pink);z-index:2;animation:obSparkUp 5s var(--ease) infinite}
+@keyframes obSparkUp{0%{opacity:0;transform:translate(-50%,-50%) translateY(14px)}18%{opacity:.95}70%{opacity:.5}100%{opacity:0;transform:translate(-50%,-50%) translateY(-40px)}}
+.ob-fx-spark.ob-s1{margin-left:-46px;margin-top:6px;animation-delay:0s}
+.ob-fx-spark.ob-s2{margin-left:38px;margin-top:-14px;background:#FF3D96;animation-delay:.6s}
+.ob-fx-spark.ob-s3{margin-left:-28px;margin-top:-30px;width:2px;height:2px;animation-delay:1.2s}
+.ob-fx-spark.ob-s4{margin-left:52px;margin-top:18px;background:#9500FF;animation-delay:1.8s/* piège évité : dans CETTE app --pop-violet vaut #0B0714 (aubergine), pas le grape du deck → étincelle invisible. On écrit le Néon Grape #9500FF en dur, comme la charte. */}
+.ob-fx-spark.ob-s5{margin-left:12px;margin-top:34px;background:#FF3D96;animation-delay:2.4s}
+.ob-fx-spark.ob-s6{margin-left:-54px;margin-top:-8px;width:2px;height:2px;background:#9500FF;animation-delay:3s}
+.ob-fx-spark.ob-s7{margin-left:30px;margin-top:40px;animation-delay:3.6s}
+.ob-fx-spark.ob-s8{margin-left:-18px;margin-top:-42px;background:#FF3D96;animation-delay:4.2s}
+.ob-fx-spark.ob-s9{margin-left:60px;margin-top:-30px;width:2px;height:2px;animation-delay:.9s}
+.ob-fx-spark.ob-s10{margin-left:-40px;margin-top:30px;background:#9500FF;animation-delay:2.1s}
+/* №9 balayage de lumière sur le liseré (dérogation de charte consignée — voir le bloc ci-dessus).
+   ⚡ SON COÛT EST MESURÉ ET IL EST RÉEL — implémentation du deck conservée TELLE QUELLE quand même.
+   Relevé le 29/07, slide 0, 6 s à l'arrêt, médiane de 5 runs (CDP Performance.getMetrics) :
+     écran d'avant le chantier ........  41 ms de CPU ·  32 recalculs de style
+     №1 halo + №4 reflet seuls ........  43 ms        ·  33   (immobiles : gratuits)
+     + №6 étincelles seul .............  94 ms        ·  89
+     + №9 balayage seul ............... 518 ms        · 360   ← 60 recalculs/s = 1 par frame
+     les 4 effets ensemble ............ 672 ms        · 360
+   La cause : `background-position` n'est pas compositable par le GPU, donc Chrome recalcule le style à
+   chaque frame, en boucle infinie, sur le PREMIER écran de l'app. FPS et LCP n'en souffrent pas (60 fps
+   tenus, même en throttling CPU ×4) — c'est de la BATTERIE, pas de la fluidité.
+   ✅ RÉSOLU EN v345 : la variante GPU (même bande déplacée en `translateX` sur un pseudo-élément) a
+   été ARBITRÉE PAR VINCENT le 29/07 et substituée. Équivalence de rendu : géométriquement exacte,
+   avec un résidu d'anticrénelage chiffré plus bas (le « 0/255 » d'origine n'était pas reproductible).
+   Elle est appliquée ci-dessous : les chiffres du tableau valent donc pour l'ancienne implémentation.
+   Nouveau relevé après substitution : 80 ms de CPU · 85 recalculs de style sur les mêmes 6 s. */
+.ob-fx-sweep{width:var(--svgW);height:var(--svgH);z-index:4;overflow:hidden;-webkit-mask-image:var(--maskPin);mask-image:var(--maskPin);-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center}
+/* ⚡ v345 — VARIANTE GPU appliquée (arbitrage Vincent 29/07). Ce n'est PAS son choix visuel qui change,
+   c'est son COÛT : le rendu reste exactement la version du deck.
+   La bande n'est plus déplacée en `background-position` (non compositable → un recalcul de style par
+   frame, à l'infini, sur le PREMIER écran de l'app) mais en `translateX` sur un pseudo-élément, que le
+   compositeur GPU déplace sans repasser par le style.
+   Équivalence démontrée mathématiquement : pour une bande de 280% de large, un `background-position`
+   de p% équivaut à un `translateX` de 0,642857·p % (130% → −83,5714% · −30% → 19,2857% · 50% → −32,1429%).
+   ⚠️ RECTIFICATIF DE MESURE (29/07) — le « écart 0/255 » annoncé n'est PAS reproductible, et il ne
+   pouvait pas l'être : comparer deux captures animées suppose de les prendre à la MÊME phase, ce que
+   `animation-delay` ne permet pas (il part de la création de l'élément, donc de l'instant du chargement).
+   En pilotant `currentTime` par l'API Web Animations — seule synchronisation fiable — sur 12 phases :
+     · position de la bande IDENTIQUE : centroïde décalé de 0,001 à 0,012 px CSS, et un décalage
+       artificiel de 1px fait exploser le diff (moyenne 0,15 → 2,34/255) — la conversion est donc juste ;
+     · luminance moyenne du pin identique à ±0,035/255 ;
+     · résidu = ANTICRÉNELAGE sur les bords de la bande, uniquement pendant les ~1,1 s du cycle où elle
+       traverse le liseré : pire cas 92/255 sur des pixels isolés, MOYENNE 0,063/255 sur tout le pin.
+   Testé aussi sans `will-change` : rigoureusement le même résidu (0,0634 vs 0,0628) — ce n'est donc pas
+   la promotion de couche, c'est le prix intrinsèque de rastériser puis translater au lieu de peindre un
+   dégradé à une position fractionnaire. Invisible à l'œil sur un liseré de 1,6px en mouvement, mais dit
+   ici en clair plutôt que maquillé en « 0 ».
+   Coût relevé sur 6 s, slide 0 : 489 ms → 80 ms de CPU · 360 → 85 recalculs de style · 0 Ko de poids.
+   ⚠️ Le masque `--maskPin` reste porté par `.ob-fx-sweep` : il découpe aussi son `::before` (un masque
+   s'applique à l'élément ET à son contenu). `overflow:hidden` borne en plus la bande de 280% à la boîte
+   du pin. Retirer l'un des deux laisserait fuir le balayage hors du liseré. */
+.ob-fx-sweep::before{content:'';position:absolute;top:0;left:0;width:280%;height:100%;background:linear-gradient(102deg,transparent 42%,rgba(255,255,255,.9) 50%,transparent 58%);animation:obPinSweepGPU 3.4s linear infinite;will-change:transform}
+@keyframes obPinSweepGPU{0%{transform:translateX(-83.5714%)}100%{transform:translateX(19.2857%)}}
+@media (prefers-reduced-motion: reduce){
+  .ob-fx-spark{animation:none!important;opacity:.55}
+  /* ♿ le repli suit le pseudo-élément : la bande s'arrête à la position d'équilibre (ex-`background-position:50%`) */
+  .ob-fx-sweep::before{animation:none!important;transform:translateX(-32.1429%);opacity:.5}
+}
 /* 💎 PremiumModal widget v10.44 : taglines rotatives + tableau A2 point pulsant */
 @keyframes liveBlink{0%,100%{opacity:1}50%{opacity:.25}}
 @keyframes mspFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
@@ -407,6 +533,85 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .pq-bg{position:absolute;inset:0;z-index:0;transition:background .35s var(--ease)}
 .pq-top{position:relative;z-index:2;flex:0 0 auto;padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px}
 .pq-neon .pq-top{padding-bottom:18px;background:linear-gradient(158deg,#FF006E 0%,#2a0016 68%,#0a0007 100%)}/* v223 : BANDEAU magenta→noir (№4) qui fond dans le corps néon nuit */
+/* v343 (retour device Vincent 29/07) — BANDE FIGÉE DU PARCOURS TROP HAUTE : mesurée en 390x844 à
+   184,8px (q0) / 175,9px (q1) / 232,5px (q4 « Musique ? »), + env(safe-area-inset-top) sur iPhone.
+   ⚠️ `.pq-top` est PARTAGÉE par 3 écrans (★ recherches enregistrées, parcours, résultats) → tout le
+   compactage est SCOPÉ par la classe `.pq-top-q`, posée uniquement sur l'étape questions. Les deux
+   autres écrans gardent exactement leur bande d'origine.
+   ⚠️ CORRECTIF v344 : la note d'origine disait « boutons ✕/‹ 34px de haut inchangés et ÉLARGIS à
+   44px ». La LARGEUR a en réalité RÉTRÉCI (87,02→44 pour ✕, 104,02→44 pour ‹ en fr) — le « 34 »
+   comparé était la HAUTEUR. La compaction, elle, est bien réelle et confirmée (100,63px constants).
+   Ce qui reste vrai : aucune cible n'a été rétrécie en HAUTEUR (segments 23px, tabs 26px), aucun
+   texte sous 13px. La largeur 44px des deux pastilles est en attente d'arbitrage de Vincent. */
+.pq-top-q{padding-top:calc(2px + env(safe-area-inset-top,0px))}
+.pq-neon .pq-top-q{padding-bottom:6px}
+.pq-top-q .pq-bars{margin-bottom:0}
+.pq-top-q .pq-bars .seg{padding:12px 4px 6px}/* même cible tactile (21px / 23px sur l'active), juste remontée dans l'ex-padding du bandeau */
+.pq-top-q .pq-row{margin-bottom:3px}
+/* 👆 v344 — PLANCHER TACTILE iOS (44px) des pastilles ✕ Quitter et ‹ Précédent.
+   Mesuré AVANT : boîte 44 de large × 34 de HAUT, et cible réelle 33px de haut seulement
+   (le dernier pixel était déjà mangé par `.pq-h1`, dont la line-height .02 déborde vers le haut).
+   La technique « padding + marge négative » de `ProgressBar` ne s'applique PAS ici : ces boutons
+   PORTENT la pastille visible (fond + bordure + glow), donc tout padding ferait grossir le visuel.
+   On étend donc la ZONE DE TOUCHE seule, au `::after` — un pseudo-élément n'entre dans aucun calcul
+   de mise en page : la bande `.pq-top` ne peut pas gagner un pixel, par construction.
+   ▸ Extension VERS LE BAS uniquement (bottom:-11px → 34+11 = 45 ; on vise 45 et pas 44 pile parce que
+     la rangée tombe sur une position fractionnaire — à 44 exact, la cible sondée au pixel entier rendait
+     43). Vers le haut, elle volerait les
+     taps des segments `.pq-bars` (leurs 6px de padding bas touchent la rangée). Vers le bas il n'y a
+     que le titre `.pq-h1`, qui n'est pas cliquable — zéro tap volé.
+   ▸ `z-index:1` est INDISPENSABLE : `.pq-h1` vient APRÈS dans le DOM, donc sans lui il se peindrait
+     par-dessus le pseudo-élément et l'extension serait inerte (c'est exactement ce qui rongeait déjà
+     1px). Ne pas retirer l'un sans l'autre.
+   ▸ Reste borné à l'intérieur de `.pq-top` (rangée à ~59px, extension à ~69px, bande 100,63px) : le
+     pseudo-élément ne mord jamais sur `.pq-body`, qui se peindrait au-dessus. */
+.pq-hit44{position:relative;z-index:1}
+.pq-hit44::after{content:"";position:absolute;left:0;right:0;top:0;bottom:-11px}
+/* 👆 v344 — même correctif pour les 2 chips rapides du corps (« Ouvert maintenant » / « 🌙 +5h ») :
+   mesurés 36px de haut, 37px de cible. Ils portent eux aussi une pastille visible → `::after`.
+   Répartition -5 en haut / -4 en bas (36+9 = 45) : en haut on tient dans les 8px de `padding` de
+   `.pq-fill`, en bas dans les 6px de `margin-bottom` de la rangée, ce qui laisse 2px de garde avant
+   la première option `.pq-sp` — aucun tap volé aux options, vérifié à l'`elementFromPoint`.
+   ⚠️ Si un 3ᵉ chip est ajouté un jour et que la rangée passe sur 2 lignes, l'écart entre lignes est
+   de 8px (le `gap:8`) contre 9px d'extension : penser à un `rowGap` avant d'élargir. */
+.pq-hit44c{position:relative;z-index:1}
+.pq-hit44c::after{content:"";position:absolute;left:0;right:0;top:-5px;bottom:-4px}
+/* 👆 v345 (Vincent 29/07) — « Passer › » SORT DE LA LIGNE DU TITRE.
+   Mesuré AVANT : boîte 72,11×32 (fr) · 56,47×32 (en) · 66,14×32 (es), et CIBLE RÉELLE 33px de haut,
+   sondée à l'`elementFromPoint` — sous le plancher iOS de 44px.
+   ▸ Pourquoi pas un simple `::after` comme `.pq-hit44` : la boîte est le DERNIER enfant de `.pq-top`,
+     donc toute extension vers le bas sort de la bande et se fait recouvrir par `.pq-body`, peint après
+     (même z-index:2, DOM plus tardif). C'est ce mur qui a bloqué le chasseur-bugs.
+   ▸ Pourquoi pas un déplacement dans la rangée de contrôles [✕][‹][Tabs] : MESURÉ, ça ne tient pas.
+     Largeur nécessaire 416,73px en fr et 386,05px en es pour 354px disponibles → la rangée wrappe,
+     soit +38px de bande. Idée écartée par la mesure, pas par principe.
+   ▸ CE QU'ON FAIT — la technique validée deux fois dans ce fichier (« ← Retour », « Plus tard ») :
+     PADDING + MARGES NÉGATIVES DE MÊME SOMME. `.pq-skip` n'a NI fond NI bordure (juste du texte
+     souligné) → grossir son padding est strictement invisible, contrairement aux pastilles ✕/‹.
+       · boîte de bordure (= la cible) : 16 de contenu + 15 + 14 = 45px
+       · boîte des marges (= ce que le flex mesure) : 45 − 7 − 6 = 32px, EXACTEMENT comme avant
+     Donc la ligne du titre reste haute de 32,64px (c'est `.pq-h1` qui la fixe) et `.pq-top` ne gagne
+     pas un pixel — garanti par l'arithmétique, pas par l'espoir. Vérifié à 100,63px après coup.
+   ▸ La cible quitte donc la ligne du titre (62 → 94,64) pour couvrir 55,64 → 100,64 :
+       - en haut, la bande morte du `.pq-row` (les onglets s'arrêtent à 55, on démarre à 55,64 ; on ne
+         recouvre que les 3px de `padding` du conteneur `.pq-tabs`, qui n'écoute aucun clic) ;
+       - en bas, tout le `padding-bottom` de `.pq-top`, sans jamais mordre sur `.pq-body`.
+   ▸ `position:relative;z-index:1` est INDISPENSABLE (même leçon que `.pq-hit44`) : sans lui, la partie
+     haute de la cible passerait SOUS `.pq-tabs`, qui vient avant dans le DOM mais se peindrait par-dessus.
+     Le texte, lui, ne bouge pas d'un pixel : 55,64 + 15 de padding = 70,64, sa position d'origine.
+   ▸ `border-radius:0` : trouvé À LA SONDE, pas déduit. Avec les 999px hérités de `.pq-skip`, le centre
+     et les axes répondaient bien 73×45, mais les QUATRE COINS renvoyaient `false` — le hit-testing de
+     Chrome respecte l'arrondi, donc une pilule n'est jamais tappable dans ses angles. Ici l'arrondi ne
+     dessine RIEN (ni fond ni bordure) : on le remet à 0 et la cible redevient un vrai rectangle. */
+.pq-top-q .pq-skip{position:relative;z-index:1;padding:15px 10px 14px;margin-top:-7px;margin-bottom:-6px;border-radius:0}
+/* 📸 SEUL EFFET VISUEL MESURÉ des deux classes ci-dessus, dit franchement plutôt que passé sous
+   silence : positionner un bouton le fait peindre APRÈS ses voisins non positionnés, donc les halos
+   (`box-shadow`) de la pastille ✕ et de la pilule « Tout » se recouvrent dans l'autre sens.
+   Chiffré par diff d'images 390×844 fr/Nuit : 0,40 % des pixels touchés, écart max 14/255 (5 %),
+   uniquement dans un dégradé de halo. Invisible à l'échelle 1 (il faut amplifier ×18 pour le voir).
+   La GÉOMÉTRIE, elle, est identique au centième : `.pq-top` 100,63px, et l'onboarding rend une image
+   au MD5 identique. Si on voulait zéro différence de composition, il faudrait passer les voisins en
+   `pointer-events:none` plutôt que remonter les boutons — plus invasif, pour un gain non perceptible. */
 .pq-body{position:relative;z-index:2;flex:1;min-height:0;overflow:hidden;padding:0 18px}
 .pq-foot{position:relative;z-index:2;flex:0 0 auto;padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px))}
 .pq-scy{height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
@@ -517,7 +722,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=b8d85b92" defer></script>
+<script src="app.js?v=215f79e5" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
