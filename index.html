@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-07-29T18:51:42.485Z -->
+<!-- built 2026-07-29T22:38:08.419Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -327,7 +327,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .cat-card .cat-count{font-family:var(--font-mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-600);margin-top:2px}
 /* 🎨 Grille « Choisis ton mood » — style №33 validé (stickers photo + teinte cat + cadre couleur) v10.44 */
 .mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.mood-card{position:relative;aspect-ratio:1/0.66;border-radius:15px;overflow:hidden;cursor:pointer;padding:0;border:2.5px solid var(--ink-900);box-shadow:4px 5px 0 rgba(10,10,10,0.82);transition:transform .18s var(--ease)}
+/* 🐛 v347 — FOND OBLIGATOIRE (bug hors ligne, captures device de Vincent le 29/07).
+   `.mood-card` est un <button> et n'avait AUCUN `background` : tant que la photo se charge on ne voit
+   rien, mais dès qu'elle manque (mode avion, Storage injoignable) Safari peint son fond natif de bouton
+   — un BLOC BLANC en plein écran noir, avec le libellé illisible par-dessus. Un fond explicite règle le
+   cas quel que soit le moteur, sans rien changer quand la photo est là (l'img la recouvre). */
+.mood-card{position:relative;aspect-ratio:1/0.66;border-radius:15px;overflow:hidden;cursor:pointer;padding:0;border:2.5px solid var(--ink-900);background:var(--card);box-shadow:4px 5px 0 rgba(10,10,10,0.82);transition:transform .18s var(--ease)}
 .mood-card:active{transform:scale(.97)}
 .mood-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .mood-card .m-ov{position:absolute;inset:0}
@@ -722,7 +727,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=f5756a53" defer></script>
+<script src="app.js?v=23367c9a" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
