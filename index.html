@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-02T22:57:32.845Z -->
+<!-- built 2026-08-02T23:02:27.448Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -98,6 +98,7 @@ input,textarea,select{font-size:16px!important}
 :root{
   --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
   --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#5F5F5F;--hairline:#0A0A0A;/* --ink-400 #7A7A7A→#5F5F5F : contraste AA sur blanc (Lot 2 a11y) *//* A2a full : contours NOIRS (look sticker/affiche) */
+  --grape-ink:#9500FF;/* v357 : le Neon Grape en COULEUR DE TEXTE. --pop-violet ne peut pas servir a ca : il vaut #0A0A0A en Jour et #0B0714 en Nuit (aplats des degrades), soit 1,08:1 sur une carte Nuit = invisible. Mesure : #9500FF = 5,64:1 sur blanc. */
   --pop-pink:#FF006E;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#0A0A0A;--pop-cyan:#3DC8FF;/* A2a : pink→magenta flashy, violet→noir (dégradés magenta→noir) */
   --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
   --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
@@ -149,6 +150,7 @@ input,textarea,select{font-size:16px!important}
   --open-ink:#6BFF3D;                                          /* en Nuit le lime néon est déjà très lisible : texte = accent */
   --skel-a:#1D1530;--skel-b:#2A2042;                           /* shimmer sombre */
   --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
+  --grape-ink:#B266FF;                                         /* v357 : le meme grape eclairci — 5,49:1 sur --card #181022 (le #9500FF de Jour n'y tient que 3,28:1) */
   --pop-violet:#0B0714;                                        /* dégradés magenta→aubergine (Néon Nuit) */
   /* miroirs legacy (étaient figés #fff / noir) */
   --bg:var(--bg-primary);--card:#181022;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);
@@ -716,7 +718,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=7b0d191c" defer></script>
+<script src="app.js?v=5e71c97d" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
