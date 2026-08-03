@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-03T22:30:19.132Z -->
+<!-- built 2026-08-03T22:56:58.523Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -302,7 +302,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mono-label::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 /* DA v10.39 — en-têtes dynamiques : pastille dégradée (remplace le mono-label gris des heros) + titres 1 ligne */
 .grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),#9500FF);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,0,110,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)} /* v10.63 : homogénéisé sur le style label ✦ №26 (retour Vincent) */
+.grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)}
+/* 🐛 v375 — LE PANNEAU DE FILTRES EST NOIR DANS LES DEUX THÈMES (v359), MAIS SES TEXTES SUIVAIENT
+   LE THÈME. En mode Jour, --ink-600 vaut rgb(58,58,58) : posé sur le fond #070A16 du panneau, ça
+   donne 1,74:1 — illisible (AA exige 4,5:1). J'avais mesuré les contrastes du panneau en v359 et
+   conclu qu'il était bon : je n'avais vérifié que les chips de catégorie, pas les LIBELLÉS ni les
+   chips d'ambiance et de musique, qui héritent des jetons d'encre du thème.
+   Une surface à couleur fixe impose des textes à couleur fixe. Mesuré : 27 signalements de
+   contraste en Jour contre 4 en Nuit sur ce seul panneau. */
+.filtres-affiche .grad-lbl{color:rgba(238,241,250,.72) !important}
+.filtres-affiche .chip-inactif{color:#9AA3BD !important} /* v10.63 : homogénéisé sur le style label ✦ №26 (retour Vincent) */
 .grad-lbl::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 .hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px);text-align:center;width:100%}/* v10.72 : titre centré + pleine largeur sur chaque onglet (retour Vincent) */
 /* v10.52 — bouton ↑ ROSE LÉGER (retour Vincent 13/07 : exit le noir agressif), plus bas, chevron SVG centré */
@@ -718,7 +727,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=71b0b982" defer></script>
+<script src="app.js?v=0449c6bd" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
