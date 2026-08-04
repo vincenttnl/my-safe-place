@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-04T00:36:36.456Z -->
+<!-- built 2026-08-04T21:58:23.979Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -509,6 +509,36 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 /* seule variante à fond plein : texte blanc sur fond FONCÉ (jamais sur fond clair) */
 .sd-pill--solid{background:var(--accent-ink);border-color:var(--accent-ink);color:var(--on-accent)}
 
+/* ===================================================================
+   🎬 .sd-act — v382, SÉRIE ④ VARIANTE №11 « STYLE AFFICHE » (choix Vincent 04/08)
+   Les 3 actions du bas de fiche (Maps · Ajouter · Partager) prennent la DA sticker
+   de l'app : contour épais + ombre portée franche, comme les cartes de l'Accueil.
+   En classe CSS et pas en style inline, parce que le contour ET l'ombre changent
+   entre Jour et Nuit : c'est le seul endroit où on peut le dire une fois pour les deux.
+   Géométrie figée par la variante : flex:1 · radius 14 · padding 13px · 13.5px.
+   ⚠️ PAS d'overflow:hidden ici : on ne cache jamais un texte coupé, on le fait tenir.
+   Le débordement a d'abord été réglé par la TAILLE (11,5 px sur le seul état
+   « déjà ajouté »), puis supprimé à la source le 04/08 : Vincent a tranché pour
+   « ✓ Ajouté » plutôt que « ✓ Dans tes spots », donc les TROIS boutons gardent
+   la même taille. La classe .sd-act--long n'a plus lieu d'être.
+   =================================================================== */
+.sd-act{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  padding:13px 4px;border-radius:14px;cursor:pointer;text-align:center;
+  font-family:var(--font-body);font-weight:700;font-size:var(--sd-act-fs,13.5px);line-height:1.15;
+  letter-spacing:-.15px;white-space:nowrap;
+  background:#FFFFFF;color:#0A0A0A;border:2px solid #0A0A0A;box-shadow:3px 4px 0 rgba(10,10,10,.85)}
+:root[data-theme="dark"] .sd-act{background:#181022;color:#F4EFFA;
+  border-color:rgba(255,255,255,.5);box-shadow:3px 4px 0 rgba(0,0,0,.7)}
+/* la seule pastille pleine : Ajouter. Le contour reste — c'est lui qui fait l'affiche. */
+.sd-act--add,:root[data-theme="dark"] .sd-act--add{background:#FF006E;color:#fff}
+/* 📏 v383 — le libellé long est SUPPRIMÉ, pas rapetissé (décision Vincent 04/08).
+   Historique, pour ne pas refaire le chemin : « ✓ Dans tes spots » réclamait 95,3 px dans un
+   tiers de rangée qui en offre 97 à 390 px de viewport. On l'avait fait tenir en descendant
+   ce seul bouton à 11,5 px — il restait 5,8 px de marge, et 2 px d'écart avec ses voisins.
+   Vincent a préféré raccourcir le texte : « ✓ Ajouté » / « ✓ Added » / « ✓ Añadido ».
+   Les TROIS boutons partagent donc à nouveau la même taille, avec ~30 px de marge.
+   Si un jour un libellé rallonge, on raccourcit le texte — on ne rétrécit pas un bouton sur trois. */
+
 /* Modal overlay - Partiful */
 .modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,0.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0}
 .modal-sheet{position:relative;background:var(--bg-primary);border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:94vh;overflow:auto;padding:20px 22px calc(20px + env(safe-area-inset-bottom,0px))}
@@ -719,7 +749,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=890722dc" defer></script>
+<script src="app.js?v=03769062" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
