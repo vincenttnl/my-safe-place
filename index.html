@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-03T23:54:56.796Z -->
+<!-- built 2026-08-04T00:13:52.686Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -186,23 +186,15 @@ input,textarea,select{font-size:16px!important}
 /* #7 — néons du haut : toggle actif « Tout Paris / Mes spots » + barre de recherche = contour magenta + glow (fini le « noir fin ») */
 :root:not([data-theme="dark"]) .seg-neon{border:2px solid var(--pop-pink)!important;box-shadow:0 0 0 1px rgba(255,0,110,.30),0 5px 18px -5px rgba(255,0,110,.5),inset 0 0 14px -10px #FF006E!important}
 :root:not([data-theme="dark"]) .search-neon{border-color:var(--pop-pink)!important;box-shadow:0 0 0 1px rgba(255,0,110,.16),0 3px 15px -6px rgba(255,0,110,.42)!important}
-/* #8 — voûte scintillante AUSSI en Jour : sparkles magenta/violet + souffle magenta biaisés à gauche (côté texte),
-   posés en ::before au-dessus du fond clair (purement additif, le texte foncé reste au-dessus et lisible). */
+/* #8 — souffle magenta à gauche en Jour, SANS les micro-étoiles.
+   v378 (test device Vincent) : « les points d'étoile en version Jour, à retirer comme en Nuit ».
+   Les 11 sparkles magenta/violet sont supprimés — exactement l'arbitrage déjà rendu pour la Nuit en
+   v3xx (voir le bloc .voute-nuit plus haut) : sur une bulle de spot, ce qui compte est la photo, le
+   nom et l'info, pas le décor. Le souffle magenta reste : c'est lui qui porte la charte, et il ne
+   crible pas le fond. Toujours scopé :not([data-theme="dark"]) → strictement no-op en Nuit. */
 :root:not([data-theme="dark"]) .voute-nuit::before{
   content:"";position:absolute;top:0;left:0;bottom:0;width:58%;pointer-events:none;border-radius:inherit;z-index:0;
-  background:
-    radial-gradient(circle at 8% 16%, rgba(255,0,110,.85) 0 1.7px, transparent 2.5px),
-    radial-gradient(circle at 17% 9%, rgba(149,0,255,.62) 0 1.3px, transparent 2px),
-    radial-gradient(circle at 5% 40%, rgba(255,0,110,.72) 0 1.5px, transparent 2.2px),
-    radial-gradient(circle at 22% 26%, rgba(255,61,150,.7) 0 1.3px, transparent 2px),
-    radial-gradient(circle at 12% 62%, rgba(149,0,255,.5) 0 1.3px, transparent 1.9px),
-    radial-gradient(circle at 27% 47%, rgba(255,0,110,.6) 0 1.2px, transparent 1.8px),
-    radial-gradient(circle at 19% 78%, rgba(255,0,110,.5) 0 1.1px, transparent 1.7px),
-    radial-gradient(circle at 33% 67%, rgba(255,61,150,.5) 0 1.1px, transparent 1.7px),
-    radial-gradient(circle at 30% 14%, rgba(255,0,110,.52) 0 1.1px, transparent 1.7px),
-    radial-gradient(circle at 38% 40%, rgba(149,0,255,.38) 0 1px, transparent 1.6px),
-    radial-gradient(circle at 9% 88%, rgba(255,0,110,.45) 0 1px, transparent 1.6px),
-    radial-gradient(70% 130% at -8% 46%, rgba(255,0,110,.14) 0%, transparent 60%);
+  background:radial-gradient(70% 130% at -8% 46%, rgba(255,0,110,.14) 0%, transparent 60%);
 }
 
 
@@ -727,7 +719,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=4ff6a9c9" defer></script>
+<script src="app.js?v=059bded9" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
