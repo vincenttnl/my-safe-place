@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-05T02:14:14.248Z -->
+<!-- built 2026-08-05T12:42:51.167Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -176,7 +176,7 @@ input,textarea,select{font-size:16px!important}
 /* v275 (choix Vincent 21/07) : néon en-têtes/boutons. Titre Accueil du SOIR en glow magenta (heroNight → classe hero-neon). Segment actif (Spots) = ring + glow magenta en Nuit. CTA Propositions/Surprise ont déjà leur glow (inline). */
 .hero-neon{text-shadow:0 0 10px rgba(255,0,110,.6),0 0 26px rgba(255,0,110,.32)}
 :root[data-theme="dark"] .seg-neon{border:2.5px solid #FF006E !important;box-shadow:0 0 22px -2px rgba(255,0,110,.7),inset 0 0 12px -8px #FF006E !important}/* S1=4 (Vincent) : outline néon ÉPAIS + glow fort */
-:root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 4px 14px rgba(0,0,0,.45)}
+:root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.08);border-color:rgba(255,0,110,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 3px 10px rgba(0,0,0,.4)}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
 :root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
 :root[data-theme="dark"] .soft-badge-green{background:rgba(107,255,61,.13)!important;color:#6BFF3D!important}/* v288 : badge « langue auto » theme-aware en Nuit (fini le fond vert pâle) */
@@ -272,12 +272,44 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .bottom-nav button{position:relative;z-index:2;flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
   background:none;border:0;cursor:pointer;padding:0;color:var(--ink-900);font-family:var(--font-body);font-size:9px;font-weight:800;
   -webkit-tap-highlight-color:transparent;transition:color .3s var(--ease)}
-.bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:transform .4s var(--spring)}
+.bottom-nav button .nav-icon{font-size:22px;line-height:1;transition:transform .4s var(--spring);display:flex;align-items:center;justify-content:center;height:22px}
 .bottom-nav button.active .nav-icon{transform:scale(1.08)}
+/* 🎨 v385 — L'ÉTAT ACTIF / INACTIF DE LA BARRE. Avant, il n'existait pas : `.bottom-nav button`
+   portait une seule couleur et aucune règle `.active` ne la surchargeait, donc les 5 onglets
+   étaient identiques (les emoji, eux, ignoraient `color` de toute façon).
+   INACTIF = №8 « noir & blanc purs, OPAQUES », choisi par Vincent le 05/08 sur la série ② : le
+   plus lisible possible, mesuré à 19,80:1 en Jour et 16,01:1 en Nuit. Volontairement opaque —
+   pas d'atténuation. Conséquence assumée : l'actif ne peut plus se distinguer en étant « plus
+   lisible », il se distingue par la TEINTE (le dégradé) et par la capsule.
+   ACTIF = dégradé magenta → Néon Grape (série ③, version A, gardée telle quelle). ⚠️ Son bout
+   Grape mesure 2,84:1 en Nuit, sous le seuil de 3 — arbitrage explicite de Vincent le 05/08
+   après avoir comparé avec la version éclaircie #A93AFF (3,61). Ne pas le « corriger » d'office. */
+.bottom-nav button .nav-icon svg path{fill:#0A0A0A;transition:fill .3s var(--ease)}
+:root[data-theme="dark"] .bottom-nav button .nav-icon svg path{fill:#FFFFFF}
+.bottom-nav button.active .nav-icon svg path{fill:url(#navGrad)}
+.bottom-nav button{color:#0A0A0A}
+:root[data-theme="dark"] .bottom-nav button{color:#FFFFFF}
+.bottom-nav button.active{color:var(--pink-ink)}
+/* ⚠️ PIÈGE DE SPÉCIFICITÉ, trouvé en PILOTANT l'app — le build était vert et le CSS « juste ».
+   `:root[data-theme="dark"] .bottom-nav button .nav-icon svg path` pèse (0,3,4) ; la règle de
+   l'actif juste au-dessus ne pèse que (0,3,3). En Nuit, le blanc des INACTIFS écrasait donc le
+   dégradé de l'ACTIF : les 5 onglets redevenaient identiques — exactement le défaut qu'on venait
+   de corriger, ressuscité par l'ordre des sélecteurs. Idem pour le libellé (0,2,2 contre 0,2,1).
+   D'où ces deux règles, qui n'existent que pour repasser devant en mode sombre. */
+:root[data-theme="dark"] .bottom-nav button.active .nav-icon svg path{fill:url(#navGrad)}
+/* Le LIBELLÉ de l'onglet actif est du TEXTE (9 px), donc seuil 4,5:1 et pas 3:1. Mesuré sur la
+   capsule, aucune valeur unique ne tient des deux côtés : --pink-ink fait 5,44 en Jour mais tombe
+   à 2,95 en Nuit ; #FF006E fait 3,83 / 4,18 ; #FF3D96 fait 3,30 / 4,85. Le seul couple qui passe
+   partout est donc ADAPTATIF — et c'est déjà le pattern maison de --route-ink (« Jour = magenta
+   foncé lisible sur clair ; Nuit = clair »). Aucune couleur ajoutée à la charte : #FF3D96 est le
+   magenta clair de la charte figée du 20/07, écrit en dur car il n'a pas de token dédié. */
+:root[data-theme="dark"] .bottom-nav button.active{color:#FF3D96}
 /* la capsule — position et largeur écrites en JS (placeNavInd), jamais en CSS */
 .nav-ind{position:absolute;z-index:1;left:0;top:9px;width:0;height:44px;border-radius:22px;pointer-events:none;
-  background:rgba(255,255,255,.42);backdrop-filter:blur(2px) saturate(1.6) brightness(1.14);-webkit-backdrop-filter:blur(2px) saturate(1.6) brightness(1.14);
-  border:1px solid rgba(255,255,255,.85);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 14px rgba(0,0,0,.14);
+  /* 🎨 v385 — capsule №9 « Verre + liseré magenta 1 px », tranchée le 04/08 mais jamais posée :
+     le liseré était resté blanc. C'est le seul endroit de la barre où le 105 est permanent. */
+  background:rgba(255,255,255,.55);backdrop-filter:blur(2px) saturate(1.6) brightness(1.10);-webkit-backdrop-filter:blur(2px) saturate(1.6) brightness(1.10);
+  border:1px solid rgba(255,0,110,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 3px 10px rgba(0,0,0,.10);
   transition:left .5s var(--spring),width .5s var(--spring),transform .5s var(--spring)}
 .nav-ind.transit{transform:scale(1.22)}
 /* badge chiffré (onglet Events). z-index 3 > capsule : il reste lisible quand la lentille enfle dessous. */
@@ -781,7 +813,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=fee02279" defer></script>
+<script src="app.js?v=1b158d32" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
