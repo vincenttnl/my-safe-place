@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-05T15:29:34.911Z -->
+<!-- built 2026-08-05T15:58:49.845Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -384,6 +384,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .fcat-row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 /* fond explicite : même leçon que `.mood-card` v347 — sans lui, un <button> sans photo peint le fond
    natif du moteur (bloc blanc sur panneau noir en mode avion). */
+/* 🎀 MAGENTA P3 DES TUILES DE FILTRE — variante n°5 choisie par Vincent le 05/08.
+   Le principe : `#FF006E` est le magenta le plus vif que sait produire le sRGB, mais l'écran de
+   l'iPhone couvre un espace plus large (Display P3). `color(display-p3 1 0 .43)` désigne un rouge
+   plus saturé que TOUT ce que sRGB peut nommer — donc plus intense sur device.
+   Le repli est automatique et sans risque : un navigateur ou un écran qui ne connaît pas P3 garde
+   la première déclaration, `#FF006E`, la charte figée mot pour mot. Rien ne casse, rien ne pâlit.
+   ⚠️ Cette couleur NE SE JUGE PAS sur un écran non-P3 : elle y est visuellement identique à
+   l'ancienne. Ne pas conclure « ça n'a rien changé » depuis une capture headless.
+   ⚠️ Portée VOLONTAIREMENT limitée aux tuiles de filtre : `CC`/`CB` et le reste de la charte ne
+   sont PAS touchés. */
+:root{--pink-p3:#FF006E;--pink-p3-halo:rgba(255,0,110,.28)}
+@supports (color: color(display-p3 1 0 0)){
+  :root{--pink-p3:color(display-p3 1 0 .43);--pink-p3-halo:color(display-p3 1 0 .43 / .34)}
+}
 .fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#151024;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
 .fcat:active{transform:scale(.97)}
 .fcat img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -392,16 +406,18 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* le libellé n'est JAMAIS centré au milieu de la tuile (c'est ce que Vincent corrigeait) : posé en bas à gauche. */
 .fcat .fc-lab{position:absolute;left:7px;bottom:6px;z-index:3;max-width:calc(100% - 14px);color:#fff;text-align:left;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
 /* ⚠️ ZONE MESURÉE — ne pas toucher à la taille du libellé sans relancer
-   `node _explorations/perf/mesure-tuiles-filtre-v387.mjs`. Le français seul ne révèle RIEN
-   (« Restos » = 41 px) : c'est l'ANGLAIS qui contraint, avec « Restaurants » (11 caractères) dans
-   une tuile à 25 % de large.
-   Relevé du 05/08 en Fraunces 900 réellement chargée, écran 390, « Restaurants » :
-     10,5 px / -.01em → 66,3 px · 11 px → 69,5 px · 11,5 px → 72,6 px · 12 px → 75,7 px
-     à -.02em : 11,5 px → 71,3 px · 12 px → 74,4 px
-   Largeur utile : 73,0 px avec l'ancienne grille (gap 6, marge 5) — 75,8 px avec celle-ci (gap 5,
-   marge 4). D'où le réglage retenu : 11,5 px à -.02em = 71,3 px, soit 4,5 px de marge (5,9 %).
-   12 px ne tiendrait qu'avec 1,8 % de marge : trop peu pour absorber l'écart de rendu iOS.
-   ⚠️ Le commentaire précédent citait « Actividade… » comme second mur : PÉRIMÉ, `cat_sortie`
+   `node _explorations/perf/mesure-tuiles-filtre-v387.mjs`. Le français seul ne révèle RIEN :
+   c'est l'ANGLAIS qui contraignait, avec « Restaurants » (11 caractères) dans une tuile à 25 %
+   de large — il plafonnait la police à 11,5 px (71,3 px de rendu pour 75,8 px utiles).
+
+   ✅ 05/08 — VINCENT A TRANCHÉ LE MOT PLUTÔT QUE LA TAILLE : `cat_resto` en anglais passe de
+   « Restaurants » à « Food ». Le mur devient alors « Rooftops », le même en FR et en EN, et il
+   est beaucoup plus court. Nouveau relevé, Fraunces 900 réellement chargée, écran 390 :
+     « Rooftops » à -.02em → 11,5 px : 53,2 px · 12 px : 55,4 px · 13 px : 60,0 px
+   Largeur utile 77,8 px ⇒ à 13 px il reste 17,8 px de marge (23 %), contre 5,9 % avant.
+   D'où le réglage retenu : **13 px** (+24 % vs les 10,5 px d'origine), marge confortable pour
+   absorber l'écart de rendu iOS. Monter au-delà n'a pas été mesuré — remesurer si on essaie.
+   ⚠️ Un ancien commentaire citait « Actividade… » comme second mur : PÉRIMÉ, `cat_sortie`
    s'affiche « Culture »/« Cultura » depuis, et ne contraint plus rien. */
 .fcat-row4 .fc-lab{left:4px;bottom:5px;max-width:calc(100% - 8px)}
 .fcat .fc-n{display:block;font-family:var(--font-display);font-weight:900;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -822,7 +838,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=d1168465" defer></script>
+<script src="app.js?v=619c84db" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
