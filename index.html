@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-04T21:58:23.979Z -->
+<!-- built 2026-08-05T02:14:14.248Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -334,6 +334,38 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mood-card .m-lab .m-n{font-family:var(--font-display);font-weight:900;font-size:17px;letter-spacing:-0.01em;line-height:1}
 /* v10.51 — compteur mood №2 (choix Vincent) : « Rooftops · 7 » sur UNE ligne aérée (l'ancien mono inline s'écrasait contre le nom) */
 .mood-card .m-lab .m-c{font-family:var(--font-body);font-weight:700;font-size:13px;opacity:.92}
+/* 🎛️ v384 — LES 6 CATÉGORIES DU PANNEAU DE FILTRES, EN PHOTO NUE (choix Vincent 04/08).
+   Deux décisions, prises dans cet ordre :
+     1. la DISPOSITION = le témoin « №7 d'avant » de `_explorations/local_filtres-photos-v2-2026-08-04.html` :
+        2 grandes tuiles en haut (Rooftops · Bars, 50/50), les 4 autres en dessous à 25 %.
+        Ce n'est PAS une grille 3 × 2 — Vincent a abandonné lui-même celle qu'il demandait au départ.
+     2. le TRAITEMENT PHOTO = « 0 voile », mot pour mot. Donc AUCUN `.ov`, aucun dégradé, aucune teinte
+        de catégorie : la cover est rendue en entier, non assombrie. C'est justement ce que le témoin №7
+        faisait (noir jusqu'à 84 % + teinte) et que Vincent rejette — ne pas le réintroduire.
+   ⚠️ Conséquence directe : le libellé blanc ne tient plus QUE par son ombre portée. D'où `text-shadow`
+   à trois rayons empilés ci-dessous (proche/moyen/halo) — un seul rayon ne couvre pas les covers claires.
+   Luminances mesurées du tiers bas des 6 covers /255 : Cafés 129 · Activités 94 · Rooftops 75 · Restos 57
+   · Clubs 41 · Bars 23. La pire est donc 57-1 (Cafés). Ne pas descendre l'opacité de ces ombres. */
+.fcat-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.fcat-row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+/* fond explicite : même leçon que `.mood-card` v347 — sans lui, un <button> sans photo peint le fond
+   natif du moteur (bloc blanc sur panneau noir en mode avion). */
+.fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#151024;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
+.fcat:active{transform:scale(.97)}
+.fcat img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.fcat .fc-em{position:absolute;top:5px;left:6px;z-index:3;line-height:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.85))}
+.fcat .fc-ck{position:absolute;top:5px;right:6px;z-index:4;width:18px;height:18px;border-radius:999px;background:#FF006E;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,0,110,.6)}
+/* le libellé n'est JAMAIS centré au milieu de la tuile (c'est ce que Vincent corrigeait) : posé en bas à gauche. */
+.fcat .fc-lab{position:absolute;left:7px;bottom:6px;z-index:3;max-width:calc(100% - 14px);color:#fff;text-align:left;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
+/* Les 4 petites tuiles font 83 px de large sur un écran de 390 : le libellé y est collé au bord.
+   Marges resserrées à 5 px → 70 px utiles. Mesuré en Fraunces 900 (la VRAIE police, vérifiée chargée) :
+   le pire libellé des 3 langues est « Restaurants » (en) — 75,7 px à 12 px, 69,5 px à 11 px, 66,3 px à
+   10,5 px. À 12 px il était coupé en « Restaura… » en anglais ET « Actividade… » en espagnol (mesuré,
+   pas supposé). D'où 10,5 px : 3,7 px de marge, soit 5 %. Ne pas remonter cette taille sans re-mesurer
+   les 3 langues — le français seul ne révèle RIEN, « Restos » ne fait que 41 px. */
+.fcat-row4 .fc-lab{left:5px;bottom:5px;max-width:calc(100% - 10px)}
+.fcat .fc-n{display:block;font-family:var(--font-display);font-weight:900;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcat .fc-c{display:block;font-family:var(--font-body);font-weight:600;opacity:.9}
 /* 🏙️ CityPhotoGrid (v344) — sélecteur de ville EN PHOTOS : vedette en grand pleine largeur + 6 vignettes 2×3.
    Utilisé DEUX fois (onboarding slide 2 · sélecteur « changer de ville » du Profil) via un seul composant.
    🚧 CLASSES DÉDIÉES `cpg-*` VOLONTAIREMENT NEUVES : `.mood-grid` / `.mood-card` sont PARTAGÉES avec la
@@ -749,7 +781,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=03769062" defer></script>
+<script src="app.js?v=fee02279" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
