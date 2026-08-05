@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-05T15:58:49.845Z -->
+<!-- built 2026-08-05T17:29:42.058Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -398,6 +398,31 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @supports (color: color(display-p3 1 0 0)){
   :root{--pink-p3:color(display-p3 1 0 .43);--pink-p3-halo:color(display-p3 1 0 .43 / .34)}
 }
+
+/* 🌙 v388 — LE HÉROS « Décris ta soirée ». Trois choix de Vincent du 05/08, réunis ici :
+   · V2 « l'enseigne » : halo néon permanent, net et large, au lieu de l'ombre diffuse d'avant ;
+   · V3 « la respiration » : le halo pulse lentement, comme un néon qui vit ;
+   · fond n°9 « Magenta frappé » (posé en inline sur le bouton, avec son commentaire).
+   ⚠️ L'animation ne touche QUE box-shadow : ni transform, ni opacity sur le bloc — donc aucun
+   décalage de mise en page et aucun repaint du contenu pendant qu'on lit.
+   ⚠️ `prefers-reduced-motion` la coupe NET (pas ralentie : supprimée), et le halo garde alors sa
+   valeur haute — sans quoi les personnes qui refusent les animations perdraient aussi l'enseigne. */
+.hero-soiree{box-shadow:0 0 26px -2px rgba(255,0,110,.62), 0 0 54px -6px rgba(255,0,110,.30), inset 0 0 34px rgba(255,255,255,.06);animation:heroNeon 3.8s ease-in-out infinite}
+@keyframes heroNeon{
+  0%,100%{box-shadow:0 0 18px -3px rgba(255,0,110,.42), 0 0 40px -8px rgba(255,0,110,.20), inset 0 0 34px rgba(255,255,255,.06)}
+  50%    {box-shadow:0 0 32px -1px rgba(255,0,110,.72), 0 0 66px -4px rgba(255,0,110,.38), inset 0 0 34px rgba(255,255,255,.09)}
+}
+@media (prefers-reduced-motion: reduce){
+  .hero-soiree{animation:none;box-shadow:0 0 26px -2px rgba(255,0,110,.62), 0 0 54px -6px rgba(255,0,110,.30), inset 0 0 34px rgba(255,255,255,.06)}
+}
+/* les 3 pastilles du parcours : en verre sombre sur le fond magenta (elles étaient magenta sur noir) */
+.hero-soiree .hs-step{background:rgba(11,7,20,.55);color:#fff;border:1px solid rgba(255,255,255,.55);box-shadow:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.hero-soiree .hs-arrow{color:rgba(255,255,255,.72)}
+/* le CTA : pilule dégradée + flèche qui glisse (V8) */
+.hero-soiree .hs-cta{background:linear-gradient(90deg,#FF006E,#9500FF);box-shadow:0 6px 18px -4px rgba(0,0,0,.55), 0 0 16px -3px rgba(255,0,110,.8)}
+.hero-soiree .hs-cta i{font-style:normal;display:inline-block;animation:heroArrow 1.9s ease-in-out infinite}
+@keyframes heroArrow{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+@media (prefers-reduced-motion: reduce){.hero-soiree .hs-cta i{animation:none}}
 .fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#151024;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
 .fcat:active{transform:scale(.97)}
 .fcat img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -838,7 +863,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=619c84db" defer></script>
+<script src="app.js?v=5281a40f" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
