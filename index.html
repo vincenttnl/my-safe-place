@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-05T12:42:51.167Z -->
+<!-- built 2026-08-05T15:29:34.911Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -379,7 +379,9 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    Luminances mesurées du tiers bas des 6 covers /255 : Cafés 129 · Activités 94 · Rooftops 75 · Restos 57
    · Clubs 41 · Bars 23. La pire est donc 57-1 (Cafés). Ne pas descendre l'opacité de ces ombres. */
 .fcat-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.fcat-row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+/* v387 (Vincent 05/08 : « grossis-la, allonge-la ») — gap 6→5 : les 5 px rendus vont au LIBELLÉ,
+   c'est ce qui autorise la police 10,5→11,5 sans couper l'anglais. Voir la mesure ci-dessous. */
+.fcat-row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 /* fond explicite : même leçon que `.mood-card` v347 — sans lui, un <button> sans photo peint le fond
    natif du moteur (bloc blanc sur panneau noir en mode avion). */
 .fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#151024;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
@@ -389,14 +391,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .fcat .fc-ck{position:absolute;top:5px;right:6px;z-index:4;width:18px;height:18px;border-radius:999px;background:#FF006E;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,0,110,.6)}
 /* le libellé n'est JAMAIS centré au milieu de la tuile (c'est ce que Vincent corrigeait) : posé en bas à gauche. */
 .fcat .fc-lab{position:absolute;left:7px;bottom:6px;z-index:3;max-width:calc(100% - 14px);color:#fff;text-align:left;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
-/* Les 4 petites tuiles font 83 px de large sur un écran de 390 : le libellé y est collé au bord.
-   Marges resserrées à 5 px → 70 px utiles. Mesuré en Fraunces 900 (la VRAIE police, vérifiée chargée) :
-   le pire libellé des 3 langues est « Restaurants » (en) — 75,7 px à 12 px, 69,5 px à 11 px, 66,3 px à
-   10,5 px. À 12 px il était coupé en « Restaura… » en anglais ET « Actividade… » en espagnol (mesuré,
-   pas supposé). D'où 10,5 px : 3,7 px de marge, soit 5 %. Ne pas remonter cette taille sans re-mesurer
-   les 3 langues — le français seul ne révèle RIEN, « Restos » ne fait que 41 px. */
-.fcat-row4 .fc-lab{left:5px;bottom:5px;max-width:calc(100% - 10px)}
+/* ⚠️ ZONE MESURÉE — ne pas toucher à la taille du libellé sans relancer
+   `node _explorations/perf/mesure-tuiles-filtre-v387.mjs`. Le français seul ne révèle RIEN
+   (« Restos » = 41 px) : c'est l'ANGLAIS qui contraint, avec « Restaurants » (11 caractères) dans
+   une tuile à 25 % de large.
+   Relevé du 05/08 en Fraunces 900 réellement chargée, écran 390, « Restaurants » :
+     10,5 px / -.01em → 66,3 px · 11 px → 69,5 px · 11,5 px → 72,6 px · 12 px → 75,7 px
+     à -.02em : 11,5 px → 71,3 px · 12 px → 74,4 px
+   Largeur utile : 73,0 px avec l'ancienne grille (gap 6, marge 5) — 75,8 px avec celle-ci (gap 5,
+   marge 4). D'où le réglage retenu : 11,5 px à -.02em = 71,3 px, soit 4,5 px de marge (5,9 %).
+   12 px ne tiendrait qu'avec 1,8 % de marge : trop peu pour absorber l'écart de rendu iOS.
+   ⚠️ Le commentaire précédent citait « Actividade… » comme second mur : PÉRIMÉ, `cat_sortie`
+   s'affiche « Culture »/« Cultura » depuis, et ne contraint plus rien. */
+.fcat-row4 .fc-lab{left:4px;bottom:5px;max-width:calc(100% - 8px)}
 .fcat .fc-n{display:block;font-family:var(--font-display);font-weight:900;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fcat-row4 .fc-n{letter-spacing:-.02em}
 .fcat .fc-c{display:block;font-family:var(--font-body);font-weight:600;opacity:.9}
 /* 🏙️ CityPhotoGrid (v344) — sélecteur de ville EN PHOTOS : vedette en grand pleine largeur + 6 vignettes 2×3.
    Utilisé DEUX fois (onboarding slide 2 · sélecteur « changer de ville » du Profil) via un seul composant.
@@ -813,7 +822,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=1b158d32" defer></script>
+<script src="app.js?v=d1168465" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
