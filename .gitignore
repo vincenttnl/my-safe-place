@@ -8,3 +8,4 @@ secrets*.json
 *credentials*
 .DS_Store
 node_modules/
+.claude/
