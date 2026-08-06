@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-06T15:25:01.274Z -->
+<!-- built 2026-08-06T23:00:42.930Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -180,6 +180,37 @@ input,textarea,select{font-size:16px!important}
 :root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
 :root[data-theme="dark"] .msp-totop{background:#2A1633;border-color:rgba(255,0,110,.5)}
 :root[data-theme="dark"] .soft-badge-green{background:rgba(107,255,61,.13)!important;color:#6BFF3D!important}/* v288 : badge « langue auto » theme-aware en Nuit (fini le fond vert pâle) */
+
+/* 🌙 PASTILLES DE CATÉGORIE EN NUIT — deck TCH 06/08, choix de Vincent : №2.2 « teinte 12 % + liseré ».
+   ─────────────────────────────────────────────────────────────────────────────────────────────
+   Le fond des pastilles vient de `const CB` : des teintes PÂLES fixes, identiques dans les deux
+   thèmes. Mesuré en Nuit sur la fiche : #ECDCFF (Clubs) à luminance 0,762, #FFDEDE (Bars) à 0,788 —
+   les dernières taches claires franches de l'app en mode Nuit.
+   Le traitement retenu est celui que porte DÉJÀ `.sd-pill--violet` pour les genres musicaux, à
+   quelques pixels de là sur la même fiche : la couleur vive de la catégorie (`const CC`) en fond
+   à 12 %, en liseré à 55 %, et en texte éclairci. Zéro couleur nouvelle — on ne fait que décliner
+   `CC`. (⚠️ Ce n'est PAS le débat des icônes colorées tranché le 05/08 : il porte sur le FOND des
+   pastilles, pas sur la couleur des glyphes, qui ne bouge pas.)
+   ⚠️ POURQUOI `!important` ET PAS UNE REDÉFINITION DE `CB` : `CatPill` pose ses couleurs en style
+   INLINE, qui bat toute règle de feuille. Toucher `CB` aurait repeint le JOUR — exactement ce que
+   Vincent a refusé. Ici le Jour ne matche pas le sélecteur : il est intact par construction.
+   Ratios mesurés (texte sur la pastille composée) : ≥ 6,50:1 sur --card #181022, ≥ 7,09:1 sur la
+   feuille #0B0714. Le seuil AA est 4,5 — la marge est volontaire, le néon sur OLED pardonne moins. */
+:root[data-theme="dark"] .cat-pill[data-cat="resto"]{background:rgba(22,163,74,.12)!important;border-color:rgba(22,163,74,.55)!important;color:#4CB874!important}
+:root[data-theme="dark"] .cat-pill[data-cat="cafe"]{background:rgba(111,78,55,.12)!important;border-color:rgba(111,78,55,.55)!important;color:#AE9C8F!important}
+:root[data-theme="dark"] .cat-pill[data-cat="rooftop"]{background:rgba(37,99,235,.12)!important;border-color:rgba(37,99,235,.55)!important;color:#7AA0F3!important}
+:root[data-theme="dark"] .cat-pill[data-cat="speakeasy"]{background:rgba(255,46,46,.12)!important;border-color:rgba(255,46,46,.55)!important;color:#FF7979!important}
+:root[data-theme="dark"] .cat-pill[data-cat="club"]{background:rgba(149,0,255,.12)!important;border-color:rgba(149,0,255,.55)!important;color:#CA80FF!important}
+:root[data-theme="dark"] .cat-pill[data-cat="sortie"]{background:rgba(234,88,12,.12)!important;border-color:rgba(234,88,12,.55)!important;color:#F08852!important}
+
+/* 🌙 BOUTON « RETOUR » DE LA FICHE EN NUIT — deck TCH 06/08, choix de Vincent : №3.3 « verre sombre
+   + liseré magenta ». Le bouton est posé en absolu SUR la photo d'en-tête ; il valait
+   `rgba(255,255,255,.9)` (luminance 0,787) dans les DEUX thèmes, soit l'objet le plus lumineux de
+   l'écran la nuit. Il prend la matière « verre » de la nav en Nuit + la signature néon des cartes
+   `.spot-neon`. Le cas de panne à surveiller n'est pas la photo sombre mais la photo CLAIRE : mesuré
+   à 10,20:1 sur une photo blanche (#E8E8E8) et 18,97:1 sur une photo sombre — le verre à 72 %
+   d'opacité tient dans les deux cas. `!important` pour la même raison que ci-dessus : style inline. */
+:root[data-theme="dark"] .sd-back{background:rgba(11,7,20,.72)!important;color:#fff!important;border:1px solid rgba(255,0,110,.55)!important;box-shadow:0 0 14px -4px rgba(255,0,110,.7)!important;backdrop-filter:blur(6px)}
 
 /* 🌞 NÉON JOUR (vague 2 device-test, #6/#7/#8 — Néoniste) : on porte l'identité magenta dans le THÈME CLAIR.
    TOUT ce bloc est scopé :not([data-theme="dark"]) → strictement no-op en Nuit (la Nuit reste pixel-identique). */
@@ -856,6 +887,29 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .toast-info{background:var(--panel-ink);color:#fff}
 .toast-success{background:#16A34A;color:#fff}
 .toast-warn{background:#FFD23F;color:var(--ink-900)}
+/* 🌙 LES TOASTS EN NUIT — déck TCH du 06/08, choix de Vincent : №1.2 et №4.4.
+   ─────────────────────────────────────────────────────────────────────────────
+   HISTORIQUE, parce qu'il explique la forme du correctif. `.toast-warn` posait un fond
+   `#FFD23F` EN DUR (le jaune de la charte, il ne bascule pas) sous un `color:var(--ink-900)`
+   qui, lui, BASCULE : #0A0A0A en Jour → #F4EFFA en Nuit. Mesuré au ratio WCAG sur le toast
+   réellement rendu : 13,71:1 en Jour, **1,28:1 en Nuit**. Le message existait, il était peint
+   invisible. Et ce n'était pas cosmétique : `toast-warn` est le SEUL rendu des 9 messages
+   d'échec du chantier « soirée à plusieurs » (`dec_ko`, `dec_ko_plan`, `dec_partiel`,
+   `dec_step_gone`, `dec_spot_gone`, `dec_hand_ko`, `prop_ko`, `prop_refused`,
+   `prop_withdraw_ko`) ET du « on n'a pas ce genre » de la v395 (`pds_genre_absent`).
+
+   CE QUE VINCENT A TRANCHÉ (deck `_explorations/local_neoniste-nuit-2026-08-06.html`) :
+     · №1.2 — l'avertissement passe en surface SOMBRE + texte jaune (Néon Nuit), au lieu de
+       l'aplat jaune. Le jaune redevient un signal, il ne fait plus un mur de lumière dans
+       une app aubergine.
+     · №4.4 — la réussite pareil, mais **en Nuit SEULEMENT**. Vincent a explicitement refusé
+       de toucher au Jour sur ce point : le vert #16A34A du Jour reste tel quel (3,30:1,
+       sous AA — c'est assumé et daté, ce n'est pas un oubli).
+
+   POURQUOI TOUT EST SCOPÉ `:root[data-theme="dark"]` : en Jour le sélecteur ne matche pas.
+   Le Jour est donc intact par CONSTRUCTION, pas par vérification a posteriori. */
+:root[data-theme="dark"] .toast-warn{background:#241C08;color:#FFD23F;border:1px solid rgba(255,210,63,.45)}
+:root[data-theme="dark"] .toast-success{background:#0C2414;color:#6BFF3D;border:1px solid rgba(107,255,61,.45)}
 .toast-error{background:#E11D48;color:#fff}
 .toast .toast-icon{font-size:18px;line-height:1;flex-shrink:0}
 .toast-out{animation:fadeOut .25s var(--ease) both}
@@ -869,7 +923,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=1c015fb1" defer></script>
+<script src="app.js?v=4403d390" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
