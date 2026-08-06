@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-05T21:07:11.477Z -->
+<!-- built 2026-08-06T02:58:17.654Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -200,6 +200,12 @@ input,textarea,select{font-size:16px!important}
 
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 body{background:var(--bg-primary);color:var(--ink-900);font-family:var(--font-body);font-size:15px;line-height:1.55;min-height:100vh;transition:background .3s,color .3s;padding-bottom:96px;overflow-x:clip;max-width:100vw;touch-action:manipulation}/* v10.85 : 80→96px — la tab bar №7 flotte détachée du bord, il lui faut plus de garde */
+/* 🌙 C3 — la bande « fil de la soirée » se pose entre le contenu et la tab bar. Mesuré : elle occupe
+   722→766 px sur une fenêtre de 844, alors que la garde du corps s'arrête à 748 — les 26 derniers
+   pixels de contenu passaient DESSOUS en fin de scroll. La classe est posée sur <body> par App
+   uniquement quand la bande est dépliée : repliée en pastille, elle ne recouvre plus rien et rendre
+   ces 44 px permanents ajouterait un vide blanc sur tous les autres écrans. */
+body.soiree-bande{padding-bottom:140px}
 textarea,input,select{font-family:var(--font-body);background:var(--input);color:var(--ink-900);border-color:var(--hairline)}
 
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -863,7 +869,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=b899e78b" defer></script>
+<script src="app.js?v=9ef9b7d2" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
