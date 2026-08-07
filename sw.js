@@ -218,6 +218,13 @@ async function staleWhileRevalidate(req, cacheName) {
   return cached || (await network) || Response.error();
 }
 
+// ── ℹ️ Version : le front interroge le SW actif pour afficher le numéro de release (aucun numéro en dur côté app) ──
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'GET_VERSION' && event.ports && event.ports[0]) {
+    event.ports[0].postMessage({ version: CACHE_VERSION });
+  }
+});
+
 // ── 🔔 Push (socle pré-codé v10.31 — inerte tant que rien ne s'abonne, cf _explorations/plan-notifications.md) ──
 self.addEventListener('push', (event) => {
   let data = {};
