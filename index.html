@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-07T03:28:08.764Z -->
+<!-- built 2026-08-07T12:26:16.522Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -286,6 +286,16 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .fade-in{animation:fadeIn .3s ease-out both}
 .slide-up{animation:slideUp .35s var(--ease) both}
 .press{transition:transform .12s ease;cursor:pointer}
+/* 👆 v410 — LA CIBLE TACTILE DES PASTILLES « ? ». Le rond fait 17 px : on le garde tel quel
+   (l'agrandir déséquilibrerait les titres où il se pose) et on étend la ZONE TOUCHABLE avec un
+   ::after transparent. 17 + 2×13 = 43 px, l'ordre de grandeur d'un doigt.
+   ⚠️ MESURÉ le 07/08 : sur 3 pastilles atteignables, UNE a 0 px de marge — celle du segment
+   (`aide_segment`) est posée PAR-DESSUS le bouton du segment, et celle de « Mes listes » vit
+   DANS une ligne cliquable. Les élargir à 43 px leur ferait voler les taps de leur propre parent :
+   on toucherait « ? » en croyant changer d'onglet. D'où `.serre` : élargi, mais pas au point
+   d'avaler le contrôle qui le porte. Une cible confortable qui casse la navigation est une régression. */
+.aide-dot::after{content:"";position:absolute;inset:-13px;border-radius:50%}
+.aide-dot.serre::after{inset:-4px}
 .press:active{transform:scale(.96)}
 /* ♿ Focus clavier visible (Lot 2 a11y) — anneau magenta, uniquement au clavier (:focus-visible), jamais au clic souris. */
 :focus-visible{outline:3px solid var(--pop-pink);outline-offset:2px;border-radius:3px}
@@ -975,7 +985,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=8a0cf2b2" defer></script>
+<script src="app.js?v=036c7476" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
