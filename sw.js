@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v410-2026-08-07';
+const CACHE_VERSION = 'spotane-v411-2026-08-07';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -217,13 +217,6 @@ async function staleWhileRevalidate(req, cacheName) {
   }).catch(() => null);
   return cached || (await network) || Response.error();
 }
-
-// ── ℹ️ Version : le front interroge le SW actif pour afficher le numéro de release (aucun numéro en dur côté app) ──
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'GET_VERSION' && event.ports && event.ports[0]) {
-    event.ports[0].postMessage({ version: CACHE_VERSION });
-  }
-});
 
 // ── 🔔 Push (socle pré-codé v10.31 — inerte tant que rien ne s'abonne, cf _explorations/plan-notifications.md) ──
 self.addEventListener('push', (event) => {
