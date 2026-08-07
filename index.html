@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-06T23:00:42.930Z -->
+<!-- built 2026-08-07T00:37:09.852Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -851,8 +851,19 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 
 .stat-pill{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--bg-cream);border:1px solid var(--hairline);font-size:13px;font-weight:500;font-family:var(--font-body);color:var(--ink-900)}
 
-/* v328 (#device-test bug3) : touch-action:pan-x + overscroll-behavior:contain → même anti-saccade iOS que le rail « Tu aimeras aussi » (v327) sur favoris + events */
-.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
+/* v328 (#device-test bug3) : anti-saccade iOS sur les rails horizontaux — favoris, events, « Tu aimeras aussi ».
+   🔴 v400 — `touch-action:pan-x` RETIRÉ ICI, et c'était le principal coupable. Retour device de
+   Vincent le 07/08 : « dès que j'arrive sur l'image des favoris, ça me bloque ; sur Choisis ton mood
+   c'est pas le cas ». Explication exacte de cet écart : « Choisis ton mood » n'est pas un rail, il ne
+   porte donc pas cette classe — d'où un écran qui défile et un autre qui refuse.
+   `pan-x` ne « laisse pas remonter le vertical au parent » comme le disaient les commentaires : il
+   INTERDIT le geste vertical sur l'élément et ses descendants. Doigt posé sur une vignette = page
+   figée. `pan-x pan-y` autorise les deux axes ; le rail glisse toujours à l'horizontale.
+   ⚠️ C'est bien `overscroll-behavior:contain` qui empêche le chaînage de scroll indésirable — lui
+   reste. L'anti-saccade de la v328 est donc préservée, seul le blocage part.
+   ⚠️ Cette règle CSS avait été manquée par un premier correctif qui ne visait que les styles en
+   ligne : le banc `_test-fiche-v400.mjs` l'a rattrapée en lisant le style CALCULÉ, pas la source. */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
 .h-scroll::-webkit-scrollbar{display:none}
 .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .hide-scroll::-webkit-scrollbar{display:none}
@@ -923,7 +934,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=4403d390" defer></script>
+<script src="app.js?v=25130a57" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
