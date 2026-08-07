@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-07T00:37:09.852Z -->
+<!-- built 2026-08-07T01:03:10.145Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
 /* 🌗 Thème Jour/Nuit — appliqué AVANT le paint pour éviter le flash blanc→sombre.
-   Clé localStorage monparis_theme : 'light' | 'dark' | 'system' | (null = défaut historique clair).
-   ⚠️ Défaut CLAIR tant que null : la migration vers 'system' se fera quand la conversion sera complète + testée device. */
+   Clé localStorage monparis_theme : 'light' | 'dark' | 'system' | (null = pas encore choisi).
+
+   🌙 v401 — LA NUIT DEVIENT LE DÉFAUT. Décision de Vincent du 07/08/2026 : « le thème de base, on va
+   le mettre en nuit. Avant, on avait mis auto aussi. Là, il sera de nuit en défaut, avec possibilité
+   de le mettre en jour. Et tu vas enlever le auto sur le thème, nuit de base et possibilité jour. »
+   Le commentaire d'origine annonçait une migration « quand la conversion sera complète + testée
+   device » : elle l'est. Le mode Nuit a été bouclé le 06/08 (4 verdicts de Vincent, banc
+   `_test-charte-nuit.mjs` à 42/42) et le sujet a été déclaré CLOS.
+   C'est aussi ce que l'app EST : une app de sorties, qu'on ouvre le soir.
+
+   ⚠️ On ne touche PAS aux gens qui ont déjà choisi : une valeur explicite en localStorage
+   ('light' comme 'dark') continue d'être respectée. Seul le cas « jamais choisi » bascule.
+   ⚠️ 'system' n'est plus proposé dans les réglages, mais reste HONORÉ ici : des installs existantes
+   le portent, et le supprimer les renverrait au défaut sans qu'elles aient rien demandé. */
 (function(){
   try{
     var t=localStorage.getItem('monparis_theme'),r;
-    if(t==='dark')r='dark';
+    if(t==='light')r='light';
     else if(t==='system')r=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
-    else r='light';
+    else r='dark';   /* 'dark' explicite OU rien du tout → Nuit */
     document.documentElement.setAttribute('data-theme',r);
-  }catch(e){document.documentElement.setAttribute('data-theme','light');}
+  }catch(e){document.documentElement.setAttribute('data-theme','dark');}
 })();
 </script>
 <title>Spot 105 — Tes meilleurs spots</title>
@@ -865,6 +877,20 @@ a.sd-pill,button.sd-pill{cursor:pointer}
    ligne : le banc `_test-fiche-v400.mjs` l'a rattrapée en lisant le style CALCULÉ, pas la source. */
 .h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}
 .h-scroll::-webkit-scrollbar{display:none}
+/* 📏 v400 — LA RANGÉE QUI TIENT SUR UNE LIGNE. Vincent, 07/08 : « le Insta, le menu et le site
+   réservé […] ça prend deux lignes. On va réduire la police pour que ça soit que sur une ligne et
+   que ce soit la même trame pour tout le monde […] si on n'en a que deux, on n'en a que deux, mais
+   du coup faut que tout rentre quand même sur une ligne. »
+   Deux leviers, dans cet ordre : on réduit d'abord la police et les marges intérieures — c'est ce
+   qui fait rentrer les 3 pastilles dans la largeur d'un iPhone dans l'immense majorité des cas — et
+   le glissement horizontal ne sert que de filet pour les noms très longs. L'inverse (glisser sans
+   réduire) aurait caché le Menu derrière un geste que personne ne devine.
+   ⚠️ `flex-shrink:0` est indispensable : sans lui, un conteneur `nowrap` COMPRIME les pastilles au
+   lieu de les faire déborder, et le texte se retrouve tronqué à l'intérieur de chacune. */
+.sd-row--1l{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior:contain;touch-action:pan-x pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none}
+.sd-row--1l::-webkit-scrollbar{display:none}
+.sd-row--1l>*{flex:0 0 auto}
+.sd-row--1l .sd-pill{font-size:12.5px;padding-left:11px;padding-right:11px;white-space:nowrap}
 .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .hide-scroll::-webkit-scrollbar{display:none}
 .h-scroll>*{scroll-snap-align:start;flex-shrink:0}
@@ -934,7 +960,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=25130a57" defer></script>
+<script src="app.js?v=6b0b56ee" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
