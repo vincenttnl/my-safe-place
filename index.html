@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-08-07T01:54:25.708Z -->
+<!-- built 2026-08-07T02:23:42.230Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -301,6 +301,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .msp-x svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
 .msp-x:active{transform:scale(.82)}
 @media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,0,110,.35)}}
+
+/* 🎛️ v404 — BARRE DE PLAN DE SOIRÉE DE LA CARTE : l'encre de l'onglet FERMÉ.
+   La variante retenue (deck du 07/08, №17 « onglet fantôme ») n'a AUCUN remplissage :
+   ce qu'on lit, c'est un contour et un texte posés directement sur la tuile. Sa
+   lisibilité ne dépend donc plus que de l'encre — et la tuile vient de devenir
+   variable : Vincent a tranché le 07/08 que la carte passe en tuiles SOMBRES en Nuit
+   (dark_all rgb(9,9,9)) alors qu'elle reste claire en Jour (light_all rgb(250,250,248)).
+   ⚠️ On passe par des variables CSS et PAS par un état React : `data-theme` bascule sur
+   <html> hors de React (voir le script de boot en tête de fichier), donc un composant
+   qui lirait le thème au rendu ne repeindrait pas au changement de thème.
+   L'ombre porte la polarité INVERSE de l'encre : halo noir sous une encre claire,
+   halo blanc sous une encre foncée — sans quoi le contour disparaît sur une zone de
+   carte chargée (immeubles, parcs) où la tuile n'a pas sa couleur moyenne. */
+.mapbar-ghost{--mb-ink:#FFFFFF;--mb-line:rgba(255,255,255,.45);--mb-halo:rgba(0,0,0,.95)}
+:root[data-theme="light"] .mapbar-ghost{--mb-ink:#0A0A0A;--mb-line:rgba(10,10,10,.42);--mb-halo:rgba(255,255,255,.95)}
 
 /* Bottom nav - Partiful style */
 /* v10.85 — TAB BAR №7 « lentille qui grossit en transit » (choix Vincent 15/07, maquette
@@ -960,7 +975,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   <p class="msp-splash-sub">L'adresse de tes nuits, les yeux fermés.</p>
 </div>
 <div id="root"></div>
-<script src="app.js?v=828e48b7" defer></script>
+<script src="app.js?v=60fa71b0" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
