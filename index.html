@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-09-21T21:24:43.115Z -->
+<!-- built 2026-09-22T15:26:56.008Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -70,6 +70,19 @@ var SEGMENT_EN_GELULE=true;
        cibles tactiles), et le dernier élément du DOM gagne.
    Vincent a signalé ce « ? » mal placé deux fois de suite (v377 puis v406). */
 var SEGMENT_AIDE_EN_VITRINE=false;
+/* 🏠 22/09/2026 — LOT 1.1 (Vincent 22/09, à rallumer en une ligne) : l'EN-TÊTE de l'Accueil — titre horaire
+   (sl_title_*, 7 variantes), ligne « N spots à explorer · N à toi », boutons ✨ Propositions / 🎲 Surprise —
+   SORT DE LA VITRINE. « Décris ta soirée en une phrase » devient le premier bloc de l'écran. Rien n'est
+   supprimé : le code, les 3 × 7 clés i18n et `pickRandom` restent entiers ; `true` rend l'en-tête de la
+   v482 à l'identique. Assumé par Vincent : 🎲 Surprise devient injoignable tant que c'est `false`. */
+var ACCUEIL_ENTETE=false;
+/* 🏠 LOT 1.2 — la carte « 🔥 Tu voulais tester {name}… » (branche `envie` de homeResume, clés nud_open_*)
+   n'est plus proposée. Les autres reprises (📅 event proche, 💬 réaction, …) restent. `true` la rétablit. */
+var ACCUEIL_NUDGE_OUVERT=false;
+/* 🏠 LOT 1.3 bis — la carte « 📬 Pas encore d'ami » (fe_title / fe_sub / fe_invite) est remplacée par le fil
+   « Quoi de neuf » VIDE (F3 : « 🚀 Ton fil est vide. » + Inviter), qui dit la même chose au même endroit.
+   `true` la rétablit au-dessus du fil. */
+var ACCUEIL_CARTE_SANS_AMI=false;
 </script>
 <title>Spot 105 — Tes meilleurs spots</title>
 <meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
@@ -301,6 +314,31 @@ input,textarea,select{font-size:16px!important}
  .pf-grp{margin-left:16px;margin-right:16px}
  .pf-name{font-size:34px}
 }
+/* ═══ 👤 22/09/2026 — LOT 6 : le Profil (DEMANDES-2026-09-22, LOT 6 ; réponse 14 : plancher validé, pas les 30 % secs). ═══
+   6.1 — PHOTO À GAUCHE (rond 74 px, même bord magenta, crayon conservé), PSEUDO + EMAIL À DROITE, alignés à
+   gauche et centrés sur la hauteur de la photo ; l'email tient sur une ligne et s'ellipse. Le bloc « Ta ville »
+   suit juste dessous : l'en-tête perd ~100 px (mesuré au banc, _explorations/batisseur-lot6-2026-09-22/).
+   6.2 — « Ton 105 » / « Ton activité » : police réduite AVEC PLANCHER À 13 PX (accessibilité), jamais en dessous —
+   deux tailles MONTENT donc (sous-titre 12,5 → 13, étiquette 11,5 → 13) ; l'économie se prend sur la hauteur des
+   rangées (68 → 50 px), les gaps et les marges des titres. Ni le bloc « Ta ville » ni « Change de ville » ne bougent.
+   Les règles du 21/09 restent au-dessus (historique) ; celles-ci passent devant par la spécificité .pf-page … */
+.pf-page .pf-hd{display:flex;flex-direction:column;align-items:stretch;text-align:left}
+.pf-page .pf-hd-row{display:flex;flex-direction:row;align-items:center;gap:14px;min-width:0}
+.pf-page .pf-av{width:74px;height:74px;font-size:32px;border-width:2.5px}
+.pf-page .pf-pen{width:28px;height:28px;right:-3px;bottom:-3px}
+.pf-page .pf-pen svg{width:14px;height:14px}
+.pf-page .pf-id{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.pf-page .pf-name{font-size:28px;line-height:1.05;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal}
+.pf-page .pf-mail{font-size:13.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;word-break:normal}
+.pf-page .pf-gt{font-size:20px;margin:16px 20px 7px}
+.pf-page .pf-row{gap:11px;padding:0 14px;min-height:48px}/* 68 → 48 : mesuré, 50 laissait les deux sections à 75,8 % de l'avant, la cible est ≤ 75 % */
+.pf-page .pf-row+.pf-row::before,.pf-page .pf-fold+.pf-row::before{left:47px}
+.pf-page .pf-ico{width:22px;height:22px;flex-basis:22px}
+.pf-page .pf-lb{font-size:15px;line-height:1.2}
+.pf-page .pf-lb i{font-size:13px;line-height:1.2;margin-top:1px}
+.pf-page .pf-tag{font-size:13px}
+.pf-page .pf-chev{width:17px;height:17px;flex-basis:17px}
+@media (max-width:370px){.pf-page .pf-lb{font-size:14px}.pf-page .pf-lb i,.pf-page .pf-tag{font-size:13px}.pf-page .pf-gt{font-size:19px}.pf-page .pf-name{font-size:24px}}
 body.surface-light-page{background:#FFFFFF}/* onglet Profil ouvert : le fond de page derrière la tab bar est blanc lui aussi (posé/retiré par un effet sur `tab`) */
 /* 🌙 Overrides Nuit ciblés — éléments verre/structure qui ne se pilotent pas par variable seule */
 /* 20/09/2026 — règle `:root[data-theme="dark"] .leaflet-container{background:#090909}` RETIRÉE : les tuiles reviennent en `light_all` (Vincent : « nuit » voulait dire l'habillage, pas le fond de carte) ; le fond Leaflet par défaut (clair) correspond de nouveau aux tuiles. */
@@ -419,6 +457,8 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 @media (prefers-reduced-motion:reduce){.cta-pulse,.nl-ex,.fade-in,.slide-up,.msp-skel{animation:none!important}}
 
 .fade-in{animation:fadeIn .3s ease-out both}
+/* 🫥 P3 (22/09) — pastille de soirée masquée au défilement : aucun tap ne passe, ni sur l'enveloppe ni sur le bouton */
+.soiree-cache,.soiree-cache *{pointer-events:none!important}
 .slide-up{animation:slideUp .35s var(--ease) both}
 .press{transition:transform .12s ease;cursor:pointer}
 /* 👆 v410 — LA CIBLE TACTILE DES PASTILLES « ? ». Le rond fait 17 px : on le garde tel quel
@@ -465,47 +505,50 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
   .sn-g{transition:none}
   .sn-x:active .sn-g{transform:none}
 }
-/* ═══ 🔀 21/09/2026 — § 13.6 GÉLULE DE BASCULE « Toute la ville / Mes spots » ═══
-   Deck C nº 2 « Gélule + compteurs » (choix de Vincent), transposé aux JETONS de l'app et non aux
-   couleurs du deck : l'onglet Spots n'est PAS une `.surface-light`, il vit dans le thème courant —
-   or depuis le 18/09 le thème effectif est la Nuit pour tout le monde (cf. le boot, LIGHT_OFFERED).
-   Écrire les couleurs du deck en dur aurait donc posé une gélule de surface JOUR sur l'aubergine.
-   En jetons, elle est correcte sur les DEUX surfaces, et la question ouverte « l'encre neutre
-   devient-elle claire en Nuit ? » se règle d'elle-même : --ink-900 / --ink-400 le font déjà.
-   ⚠️ AUCUNE couleur ajoutée à la charte : --bg-soft, --card, --hairline, --ink-900, --ink-400,
-   --pink-ink existent tous. Le lime est écarté exprès (1,18:1 sur blanc, inutilisable en contour). */
+/* ═══ 🔀 22/09/2026 — LOT 0 : LA GÉLULE UNIQUE « G2 — contour magenta néon » ═══
+   Choix de Vincent au croquis du 22/09 (_explorations/croquis-2026-09-22/build.py → GELULES[1]) :
+   « On va en définir une qui sera la même pour toutes les gélules. » Elle est posée sur Carte
+   (Tout Paris / Mes spots), Spots (Toute la ville / Mes spots) et Events (Ta ville / Mes collectifs)
+   par UN SEUL composant, `MspGelule` (défini après `AideDot`). Ni Accueil ni Profil (décision Vincent).
+   Historique : née le 21/09 pour Spots seulement (§ 13.6, deck C nº 2 « Gélule + compteurs », en
+   jetons de thème) ; le 22/09 elle prend les VALEURS EXACTES validées à l'œil par Vincent, en dur,
+   identiques en Jour et en Nuit — c'est un objet de marque, pas une surface de thème.
+   RONDE partout (border-radius:999px sur le conteneur ET les segments) : « le carré est écarté ».
+   🔴 RÈGLE DE FORME du 21/09, inchangée : la gélule à curseur PLEIN dit OÙ tu cherches ; les formes
+   CREUSES (pastilles cerclées de Spots, pilule pointillée « Amis · Listes partagées » de la Carte)
+   disent QUOI tu regardes. Forme pleine AU-DESSUS, forme creuse EN DESSOUS — jamais l'inverse.
+   Police GARDÉE (Inter pour le libellé, JetBrains Mono pour le compteur) : consigne explicite. */
 .msp-sw-wrap{padding-left:14px;padding-right:14px}
 /* 320 px : la rangée CERCLÉE du § 11 mesure 298 px de large (mesuré, pas estimé). À 14 px de marge
    la gélule ne ferait que 292 px et la forme creuse deviendrait la plus large de l'écran —
    hiérarchie inversée. À 8 px elle fait 304 px et reste la forme dominante. */
 @media (max-width:360px){.msp-sw-wrap{padding-left:8px;padding-right:8px}}
-.msp-sw{position:relative;display:flex;border-radius:999px;background:var(--bg-soft);
- padding:4px;border:1px solid var(--hairline)}
-/* le CURSEUR : une gélule PLEINE de la couleur des cartes, c'est lui qui dit « tu cherches ICI ».
-   En Nuit --card (#181022) et --bg-soft (#170F26) sont presque identiques : sans anneau il
-   disparaîtrait. L'anneau reprend --hairline (déjà clair en Nuit, déjà noir en Jour, look sticker). */
+.msp-sw{position:relative;display:flex;border-radius:999px;background:#0A0E1E;
+ padding:4px;border:1px solid #1C2338;box-sizing:border-box}
+/* le CURSEUR = le segment actif de G2 : fond #11071A, contour néon magenta 1,5 px, halo externe +
+   lueur interne. Il glisse d'une face à l'autre ; `pointer-events:none`, il ne vole aucun tap. */
 .msp-sw-th{position:absolute;z-index:1;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);
- border-radius:999px;background:var(--card);box-shadow:0 0 0 1px var(--hairline),0 1px 4px rgba(0,0,0,.16);
- transition:transform .22s var(--ease);pointer-events:none}
-:root[data-theme="dark"] .msp-sw-th:not(.surface-light *){box-shadow:0 0 0 1.5px var(--hairline),0 2px 12px rgba(0,0,0,.65)}
+ border-radius:999px;box-sizing:border-box;background:#11071A;border:1.5px solid #FF006E;
+ box-shadow:0 0 14px rgba(255,0,110,.55),inset 0 0 10px rgba(255,0,110,.18);
+ transition:transform .22s var(--ease),opacity .18s var(--ease);pointer-events:none}
 .msp-sw[data-on="1"] .msp-sw-th{transform:translateX(100%)}
+/* Carte, mode « Amis » : aucune des deux faces n'est le lieu où l'on cherche → curseur effacé,
+   c'est la pilule pointillée du dessous qui s'allume (comportement de la v363, conservé). */
+.msp-sw[data-on="-1"] .msp-sw-th{opacity:0}
 @media (prefers-reduced-motion:reduce){.msp-sw-th{transition:none}}
 /* Les deux FACES sont de vraies boîtes qui remplissent leur moitié — pas un ::after étendu.
-   Mesuré : 55 px de haut chacune, soit 44 px tenus avec de la marge, et aucune des deux ne peut
-   voler un pixel à l'autre puisqu'elles se touchent bord à bord sans chevauchement. */
+   Mesuré le 21/09 : 55 px de haut chacune, soit 44 px tenus avec de la marge, et aucune des deux ne
+   peut voler un pixel à l'autre puisqu'elles se touchent bord à bord sans chevauchement. */
 .msp-sw-f{flex:1 1 0;min-width:0;position:relative;z-index:2;background:none;border:0;
  padding:11px 8px;border-radius:999px;cursor:pointer;text-align:center;
- font-family:var(--font-body);font-weight:600;font-size:16px;line-height:1.15;color:var(--ink-400);
+ font-family:var(--font-body);font-weight:600;font-size:16px;line-height:1.15;color:rgba(255,255,255,.62);
  -webkit-tap-highlight-color:transparent}
-.msp-sw-f[aria-selected="true"]{color:var(--ink-900);font-weight:700}/* Inter s'arrête à 700 : pas de 800 ici */
+.msp-sw-f[aria-selected="true"]{color:#fff;font-weight:700}/* Inter s'arrête à 700 : pas de 800 ici */
 .msp-sw-lab{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Le COMPTEUR : une seule couleur, une seule fonte, un seul nœud texte — voir `fmtNb` (lot 0.3). */
 .msp-sw-n{display:block;margin-top:4px;font-family:var(--font-mono);font-weight:500;font-size:12.5px;
- line-height:1;color:var(--ink-400);font-variant-numeric:tabular-nums}/* JetBrains Mono n'est chargée qu'en 400/500 */
-.msp-sw-f[aria-selected="true"] .msp-sw-n{color:var(--pink-ink)}
-/* En Nuit --pink-ink (#D1005B) ne fait que 3,36:1 sur --card #181022 — sous AA à 12,5 px. #FF3D96 est
-   l'encre magenta claire DÉJÀ en prod depuis le 21/09 (la croix et le « ? » du champ de recherche,
-   .sn-x / .sn-q) et vaut 5,5:1 : zéro couleur ajoutée à la charte. */
-:root[data-theme="dark"] .msp-sw-f[aria-selected="true"] .msp-sw-n:not(.surface-light *){color:#FF3D96}
+ line-height:1;color:#6C769A;font-variant-numeric:tabular-nums;white-space:nowrap}/* JetBrains Mono n'est chargée qu'en 400/500 */
+.msp-sw-f[aria-selected="true"] .msp-sw-n{color:#FF4D95}
 @media (max-width:360px){.msp-sw-f{font-size:15px;padding:11px 4px}}
 .press:active{transform:scale(.96)}
 /* ♿ Focus clavier visible (Lot 2 a11y) — anneau magenta, uniquement au clavier (:focus-visible), jamais au clic souris. */
@@ -537,6 +580,53 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    carte chargée (immeubles, parcs) où la tuile n'a pas sa couleur moyenne. */
 .mapbar-ghost{--mb-ink:#FFFFFF;--mb-line:rgba(255,255,255,.45);--mb-halo:rgba(0,0,0,.95)}
 :root[data-theme="light"] .mapbar-ghost{--mb-ink:#0A0A0A;--mb-line:rgba(10,10,10,.42);--mb-halo:rgba(255,255,255,.95)}
+/* ═══ 🎛️ 22/09/2026 — LOT 2 : barre de filtre de la Carte — trame L1 · fond B10 · capsule K1 · attribution ⓘ ═══
+   Valeurs EXACTES du croquis validé par Vincent (_explorations/croquis-2026-09-22/ : _template.html
+   .fb2/.fb2.v1, build.py BARRES[9], build-capsule.py NUIT + CAPSULES[0]). En dur, identiques Jour/Nuit. */
+.msp-fb{pointer-events:auto;box-sizing:border-box;padding:6px 6px 7px;color:#F6EAFF;font-family:var(--font-body);
+ background:linear-gradient(180deg,rgba(26,5,34,.95),rgba(48,0,44,.97));border-top:1px solid rgba(255,0,110,.48)}
+.msp-fb-row{display:flex;align-items:flex-end;gap:2px}
+.msp-fb-slot,.msp-fb-state,.msp-fb-none{display:block;background:transparent;border:0;padding:0;margin:0;cursor:pointer;
+ color:inherit;font-family:inherit;text-align:center;-webkit-tap-highlight-color:transparent;box-sizing:border-box}
+.msp-fb-slot{flex:1 1 0;min-width:0}
+.msp-fb-slot .e{display:block;font-size:19px;line-height:1.08}
+.msp-fb-slot .l{display:block;font-size:7.5px;font-weight:800;margin:1px 0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.03em}
+.msp-fb-slot .u{display:block;height:3px;border-radius:2px}
+/* les 2 états : pastilles de la taille d'un emoji, bord 1 px de LEUR couleur (posée en inline), coin 11 px */
+.msp-fb-state{flex:0 0 33px;border-radius:11px;padding:2px 0 3px;border:1px solid currentColor}
+.msp-fb-state .e{display:block;font-size:15px;line-height:1.1}
+.msp-fb-state .l{display:block;font-size:7.5px;font-weight:900;margin:0;opacity:.95;white-space:nowrap}
+.msp-fb-none{flex:0 0 26px;opacity:.5}
+.msp-fb-none .e{display:block;font-size:14px;line-height:1.08}
+.msp-fb-none .l{display:block;font-size:7.5px;font-weight:800;margin:1px 0 3px;white-space:nowrap;letter-spacing:-.03em}
+/* K1 « Nuit, bord magenta » — capsule Filtres + compteur en petit dessous */
+.msp-cap{position:relative;pointer-events:auto;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
+ min-height:26px;padding:3px 11px 4px;border-radius:999px;cursor:pointer;box-sizing:border-box;
+ background:linear-gradient(180deg,#1A0522,#30002C);color:#F6EAFF;border:1px solid rgba(255,0,110,.55);
+ box-shadow:0 3px 10px rgba(0,0,0,.35);font-family:var(--font-body);font-size:10.5px;font-weight:900;letter-spacing:.01em;
+ white-space:nowrap;line-height:1.2;-webkit-tap-highlight-color:transparent}
+.msp-cap-l{display:inline-flex;align-items:center;gap:4px}
+.msp-cap-cv{color:#FF006E;font-size:12px;font-weight:900;line-height:1}
+.msp-cap-n{display:block;margin-top:1px;font-family:var(--font-mono);font-size:9px;font-weight:500;line-height:1.1;color:#FF4D95;font-variant-numeric:tabular-nums}
+/* cible tactile ≥ 44 px : languette invisible, elle ne peint rien (le bas de −4 px tombe dans le padding de la barre) */
+.msp-cap-tap{position:absolute;left:-6px;right:-6px;top:-12px;bottom:-4px}
+/* ⓘ attribution (A2) — c'est LE contrôle d'attribution Leaflet (un seul), rangé en bas à gauche et habillé
+   en pastille K1 : fermé = un rond de 26 px « ⓘ », ouvert = la bulle « © OpenStreetMap contributors · © CARTO ».
+   Sa hauteur au-dessus de la barre suit l'état replié/déplié via --msp-attr-b (posé sur la racine de l'onglet). */
+.leaflet-container .leaflet-bottom.leaflet-left{bottom:var(--msp-attr-b,0px);transition:bottom .2s var(--ease)}
+.leaflet-container .leaflet-control-attribution.msp-attr{margin:0 0 0 12px;display:flex;align-items:center;justify-content:center;gap:5px;
+ box-sizing:border-box;width:26px;height:26px;padding:0;border-radius:999px;cursor:pointer;user-select:none;
+ font-family:var(--font-body);font-size:0;color:transparent;
+ background:linear-gradient(180deg,#1A0522,#30002C);border:1px solid rgba(255,0,110,.55);box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.leaflet-container .msp-attr::before{content:"\24D8";font-size:14px;line-height:1;color:#F6EAFF;flex:0 0 auto}
+.leaflet-container .msp-attr a{display:none}
+/* ouverte : elle S'ENROULE sur ~150 px (deux lignes) pour rester à GAUCHE de la capsule Filtres, centrée à ~161 px —
+   mesuré le 22/09 : en une ligne (270 px) elle passait sous la capsule et « contributors · © CARTO » était masqué. */
+.leaflet-container .msp-attr.msp-attr-open{display:block;width:auto;height:auto;max-width:150px;border-radius:14px;padding:6px 10px 6px 8px;
+ font-size:11px;font-weight:600;color:#F6EAFF;white-space:normal;text-align:left;line-height:1.3}
+/* ouverte = flux INLINE (pas flex : en flex, chaque lien devenait un item et « contributors » se repliait sous « OpenStreetMap ») */
+.leaflet-container .msp-attr.msp-attr-open::before{display:inline;margin-right:4px;vertical-align:-1px}
+.leaflet-container .msp-attr.msp-attr-open a{display:inline;color:#FF4D95;text-decoration:underline}
 
 /* Bottom nav - Partiful style */
 /* v10.85 — TAB BAR №7 « lentille qui grossit en transit » (choix Vincent 15/07, maquette
@@ -1350,6 +1440,55 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
    magenta assombri (#D1005B), déjà dans la charte depuis la v334 → 5,44:1. Zéro couleur ajoutée. */
 /* 🌙 S2 — CTA soirée : blanc (--card en Nuit), texte encre, contour 2 px magenta + ombre portée magenta décalée (famille №15) */
 .sd-soiree{width:100%;padding:12px 0;border-radius:14px;border:2px solid #FF006E;background:var(--card);color:var(--ink-900);font-family:var(--font-body);font-weight:800;font-size:14.5px;line-height:1.15;cursor:pointer;box-shadow:3px 4px 0 rgba(255,0,110,.85)}
+/* ═══ 🧾 22/09/2026 — LOT 4 : la fiche spot (mobile) — les 10 points, en CSS. Spécificité .sd-sheet … pour
+   passer devant les règles du 18-21/09 sans les réécrire (elles restent, historique). ═══ */
+/* 4.1 — les DEUX pastilles de la photo : même hauteur EXACTE (20,5 px), même rembourrage vertical (4 px),
+   même taille de texte (10,5 px), même coin (999). Largeur libre selon le mot (décision Vincent). */
+.sd-sheet .sd-fam--mini{padding:0!important}
+.sd-sheet .sd-fam--mini .cat-pill{font-size:10.5px!important;padding:4px 9px!important;gap:4px!important;line-height:1;border-width:1px;box-sizing:border-box;height:20.5px}
+.sd-sheet .sd-fam--mini .cat-pill>span:first-child{font-size:10.5px!important;line-height:1}
+.sd-sheet .sd-state{padding:4px 9px;font-size:10.5px;line-height:1;border:1px solid transparent;box-sizing:border-box;height:20.5px;border-radius:999px}
+/* 4.2 — flèches ‹ › plus étroites (34 → 28 px), la place va au titre ; cible de tap conservée à 44 px. */
+.sd-sheet .sd-arrow::after{content:'';position:absolute;inset:-7px -8px;border-radius:999px}
+/* 4.3 — UNE seule taille de police pour les 6 lignes des deux bulles : 11,5 px (adresse 14,4 → 11,5, liens 10 → 11,5). */
+.sd-sheet .sd-tight .sd-li,.sd-sheet .sd-tight .sd-adr,.sd-sheet .sd-links a{font-size:11.5px}
+.sd-sheet .sd-links a{letter-spacing:0}
+/* 4.4 / 4.5 — l'adresse sur UNE ligne, ellipsée « … » + « › » quand elle déborde ; 3 lignes de 19 px à gauche
+   comme à droite, même trame que .sd-li. La bulle ne grandit jamais. */
+.sd-sheet .sd-adr-slot{min-height:19px;padding-top:0;align-items:center;position:relative}
+.sd-sheet .sd-adr{display:flex;align-items:center;gap:4px;min-height:19px;width:100%;line-height:1.2;white-space:nowrap;overflow:hidden;cursor:default}
+.sd-sheet .sd-adr .t{min-width:0;overflow:hidden;text-overflow:ellipsis;-webkit-user-select:text;user-select:text;cursor:text;-webkit-touch-callout:default}
+.sd-sheet .sd-links-slot{position:relative}
+.sd-sheet .sd-links.is-deb a:nth-child(n+3){display:none}/* le 3e lien ne tient pas → il passe dans la bulle « › » avec les autres */
+.sd-deb{background:none;border:0;padding:0 0 0 4px;margin-left:auto;color:var(--pop-pink);font-weight:900;font-size:13px;line-height:1;cursor:pointer;flex-shrink:0;position:relative;font-family:var(--font-body)}
+.sd-deb::after{content:'';position:absolute;inset:-12px -8px}
+.sd-links .sd-deb{align-self:flex-end;padding-bottom:3px}
+.sd-pop{position:absolute;top:calc(100% + 6px);z-index:40;min-width:210px;max-width:calc(100vw - 60px);background:var(--card);border:1px solid var(--hairline);border-radius:12px;box-shadow:0 12px 30px -8px rgba(0,0,0,.35);padding:9px 11px;font-family:var(--font-body);font-size:12.5px;font-weight:600;line-height:1.35;color:var(--ink-900);white-space:normal;overflow-wrap:anywhere;-webkit-user-select:text;user-select:text;cursor:text}
+.sd-pop--left{left:0}.sd-pop--right{right:0}
+.sd-pop-liens{display:flex;flex-direction:column;gap:9px;-webkit-user-select:none;user-select:none}
+.sd-pop-liens a{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-body);font-size:12.5px;font-weight:700;color:var(--ink-900);text-decoration:none;cursor:pointer}
+.sd-pop-liens a .sd-go{color:var(--pop-pink);font-weight:900}
+/* 4.6 — la description devient la plus grosse bulle de la page : 14 → 16 px, rembourrage 12/13 → 14/15,
+   hauteur FIXE conservée pour tous (4 lignes × 23,2 + 2 × 14 = 120,8 → 121 px ; Vincent assume l'air). */
+.sd-sheet .sd-desc{min-height:121px;padding:14px 15px;margin-top:4px}/* 4 et non 10 : dans une colonne flex (4.8) les marges ne fusionnent plus avec les 6 px de .sd-cols */
+.sd-sheet .sd-desc>p{font-size:16px;line-height:23.2px}
+.sd-sheet .sd-desc .sd-more{right:15px;bottom:14px;font-size:13px;line-height:23.2px}
+/* 4.7 — « 👋 Dire à mes amis que j'y vais ce soir » : −30 % (29,4 → 20 px : padding 6 → 3, police 12 → 10,
+   liseré 1,2 → 1). Cible de tap remise à 44 px par ::after, elle ne suit pas la réduction. */
+.sd-sheet .sd-going{padding:3px 0;font-size:10px;line-height:1.2;border-width:1px;position:relative}
+.sd-sheet .sd-going::after{content:'';position:absolute;left:0;right:0;top:-12px;bottom:-12px}
+/* 4.8 — plus de bande blanche sous « Tu aimeras aussi » : le scroller est une colonne, le bloc de contenu
+   la remplit et le carrousel se cale en bas (margin-top:auto, posé en inline). La feuille reste pleine
+   hauteur (décision du 20/09 : la photo passe derrière la barre d'état), c'est l'air qui change de place. */
+.sd-sheet .sd-scroll{display:flex;flex-direction:column}
+.sd-sheet .sd-tight{flex:1 0 auto;display:flex;flex-direction:column}
+/* 4.10 — Retour et ⤢ remontent : inset + 8 px au lieu de + 23 (la poignée de 22 px n'existe plus, 4.9).
+   Rien ne passe sous l'encoche (top ≥ safe-area) ; cible de tap ≥ 44 px par ::after. */
+.sd-sheet .sd-back{position:absolute}
+/* 4.2 — dernier recours, DONNÉE et non rendu : les noms qui ne tiennent pas même à 15 px et −0,06 em (83 sur 5 574
+   au 22/09, listés par le banc) s'ellipsent « … » au lieu d'être rognés net ; le nom entier reste dans `title`. */
+.sd-sheet h1[data-deborde="1"]{text-overflow:ellipsis}
+.sd-sheet .sd-back::after{content:'';position:absolute;inset:-6px -4px;border-radius:999px}
 .sd-row--1l .sd-pill{font-size:12.5px;padding-left:11px;padding-right:11px;white-space:nowrap}
 .hide-scroll{scrollbar-width:none;-ms-overflow-style:none;-webkit-overflow-scrolling:touch}
 .hide-scroll::-webkit-scrollbar{display:none}
@@ -1423,7 +1562,7 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
 <script>/* 🔗 QR Code Generator (Kazuhiko Arase, MIT) — minifié, embarqué pour dessiner le QR du lien de plan sur l'affiche (chantier 5). Expose window.qrcode. Inline = CSP-safe, non transpilé par build.js. */
 var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),v(t,r),e>=7&&d(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},d=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},v=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var d=0;for(g=0;g<r.length;g+=1)d+=r[g].totalCount;var v=new Array(d),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(v[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(v[w]=a[u][g],w+=1);return v}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,d=3,v=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case d:return function(t,r){return(t+r)%3==0};case v:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,d=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var v=String.fromCharCode(o[s]);s+=1,i.contains(d+v)?d+=v:(h.write(i.indexOf(d),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(d+v)),d=v)}return h.write(i.indexOf(d),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():("undefined"!=typeof window?window:this).qrcode=t()}(function(){return qrcode});
 </script>
-<script src="app.js?v=561a09cd" defer></script>
+<script src="app.js?v=0204504a" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
