@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-10-02T18:50:11.883Z -->
+<!-- built 2026-10-03T19:41:33.446Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -92,7 +92,52 @@ var REGLAGES_ANCIEN_PANNEAU=false;
 <title>Spot 105 — Tes meilleurs spots</title>
 <meta name="description" content="Bars, rooftops, sorties, bonnes tables… ton carnet d'adresses privé, à partager qu'avec qui tu veux."/>
 <link rel="manifest" href="manifest.json"/>
-<meta name="theme-color" content="#FF006E"/>
+<meta name="theme-color" content="#000000"/><!-- 03/10 DA : noir des écrans ciel ; App la bascule en #F2F2F7 sur Carte/Profil -->
+<script>
+/* 🍎 03/10/2026 — LE GESTE « TIRER POUR RÉVÉLER » (reprise d'inline-iphone.js, da-v15) : au sommet d'un écran ciel (Accueil · Spots ·
+   Events), tirer vers le bas interpole le ciel Nappe repos → tiré COUCHE À COUCHE (mêmes arrêts, couleurs/alphas/positions mélangés),
+   --rv 0 → 1 sur 180 px de course (course morte 6 px), le contenu descend de 140 px (padding-top de .msp-tabwrap), ressort en 260 ms au
+   relâcher. preventDefault sur le touchmove pris en main = le rebond natif iOS ne se superpose pas au geste ; le scroll normal est intact
+   (le geste ne s'arme que si window.scrollY <= 0). Exposé pour les bancs : window.__mspSkyReveal(t), window.__mspSkyCSS(t). */
+(function(){
+  var R=[{"k":"rad","cx":50,"cy":-10,"rx":160,"ry":28,"st":[["#FF3D96",0,0],["#FF3D96",0,100]]},{"k":"rad","cx":50,"cy":-12,"rx":220,"ry":40,"st":[["#FF006E",0.42,0],["#FF006E",0.2,55],["#FF006E",0,100]]},{"k":"lin","st":[["#560B34",1,0],["#2B061A",1,31],["#000000",1,68]]}],P=[{"k":"rad","cx":50,"cy":-10,"rx":160,"ry":28,"st":[["#FF3D96",0.22,0],["#FF3D96",0,100]]},{"k":"rad","cx":50,"cy":-12,"rx":220,"ry":54,"st":[["#FF006E",0.57,0],["#FF006E",0.3,55],["#FF006E",0,100]]},{"k":"lin","st":[["#6E0E42",1,0],["#370821",1,37],["#000000",1,82]]}];
+  var root=document.documentElement,G=null,RV=0,anim=0;
+  function h2r(h){var n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}
+  function mix(a,b,t){var A=h2r(a),B=h2r(b);return [A[0]+(B[0]-A[0])*t,A[1]+(B[1]-A[1])*t,A[2]+(B[2]-A[2])*t];}
+  function col(c,a){var r=Math.round(c[0]),g=Math.round(c[1]),b=Math.round(c[2]);return a>=1?'rgb('+r+','+g+','+b+')':'rgba('+r+','+g+','+b+','+(+a.toFixed(3))+')';}
+  function css(t){var out=[],stop=100;
+    for(var i=0;i<R.length;i++){var a=R[i],b=P[i],st=[],vis=false;
+      for(var j=0;j<a.st.length;j++){var s=a.st[j],q=b.st[j],al=s[1]+(q[1]-s[1])*t,pos=s[2]+(q[2]-s[2])*t;if(al>0)vis=true;st.push(col(mix(s[0],q[0],t),al)+' '+(+pos.toFixed(2))+'%');
+        if(a.k==='lin'&&s[0]==='#000000')stop=pos;}
+      if(a.k==='lin')out.push('linear-gradient(180deg,'+st.join(',')+')');
+      else if(vis){var cy=a.cy+(b.cy-a.cy)*t,rx=a.rx+(b.rx-a.rx)*t,ry=a.ry+(b.ry-a.ry)*t;out.push('radial-gradient('+(+rx.toFixed(2))+'% '+(+ry.toFixed(2))+'% at '+a.cx+'% '+(+cy.toFixed(2))+'%,'+st.join(',')+')');}}
+    return {sky:out.join(','),mask:'linear-gradient(180deg,#000 0%,#000 '+Math.round(stop*.45)+'%,transparent '+(+stop.toFixed(2))+'%)'};}
+  function clear(){root.style.removeProperty('--rv');root.style.removeProperty('--msp-sky');root.style.removeProperty('--msp-skym');RV=0;}
+  function setRV(t){t=Math.max(0,Math.min(1,t));RV=t;if(t<=0.0005){clear();return;}var c=css(t);root.style.setProperty('--rv',t.toFixed(3));root.style.setProperty('--msp-sky',c.sky);root.style.setProperty('--msp-skym',c.mask);}
+  function spring(){cancelAnimationFrame(anim);var from=RV,t0=performance.now();function step(now){var k=Math.min(1,(now-t0)/260);setRV(from*(1-k)*(1-k));if(k<1)anim=requestAnimationFrame(step);}anim=requestAnimationFrame(step);}
+  function actif(e){return root.getAttribute('data-sky')==='1'&&root.getAttribute('data-theme')==='dark'&&e.target&&e.target.closest&&!!e.target.closest('.msp-tabwrap');}
+  document.addEventListener('touchstart',function(e){if(!actif(e)||window.scrollY>0||e.touches.length!==1)return;G={y:e.touches[0].clientY,on:false};cancelAnimationFrame(anim);},{passive:true});
+  document.addEventListener('touchmove',function(e){if(!G)return;var dy=e.touches[0].clientY-G.y;
+    if(!G.on){if(window.scrollY<=0&&dy>6)G.on=true;else return;}
+    if(window.scrollY>0){G=null;spring();return;}
+    if(e.cancelable)e.preventDefault();setRV((dy-6)/180);},{passive:false});
+  function fin(){if(!G)return;var g=G;G=null;if(g.on)spring();}
+  document.addEventListener('touchend',fin,{passive:true});document.addEventListener('touchcancel',fin,{passive:true});
+  /* rastérisation des tuiles de grain : SVG → PNG (voir le commentaire CSS de --msp-g1). Pas de dépendance au DOM : <html> suffit. */
+  function raster(prop,alpha,cible){cible=cible||prop;try{var v=getComputedStyle(root).getPropertyValue(prop).trim();var m=/^url\(\s*"?([\s\S]*?)"?\s*\)$/.exec(v);if(!m)return;var img=new Image();var d=Math.min(3,window.devicePixelRatio||1);
+    img.onload=function(){try{var N=3,T=Math.round(160*d);var c=document.createElement('canvas');c.width=c.height=T*N;var x=c.getContext('2d');x.globalAlpha=alpha||1;for(var i=0;i<N;i++)for(var j=0;j<N;j++)x.drawImage(img,i*T,j*T,T,T);
+      var fin=function(u){root.style.setProperty(cible,'url("'+u+'")');root.style.setProperty('--msp-gsz',(160*N)+'px');};
+      if(c.toBlob)c.toBlob(function(bl){if(bl)fin(URL.createObjectURL(bl));},'image/png');else fin(c.toDataURL('image/png'));}catch(e){}};
+    img.src=m[1];}catch(e){}}
+  /* la feuille <style> qui porte --msp-g1/--msp-g2 est parsée APRÈS ce script : on rastérise au DOMContentLoaded (et tout de suite si déjà là) */
+  /* g1 : le SVG de repli porte déjà opacity .27 sur son rect ; au raster on repart du bruit PLEIN (--msp-g1-src) et on cuit l'alpha .27 — même résultat, PNG propre */
+  function rasterAll(){raster('--msp-g1-src',0.27,'--msp-g1');raster('--msp-g2');}
+  if(getComputedStyle(root).getPropertyValue('--msp-g1').trim())rasterAll();else document.addEventListener('DOMContentLoaded',rasterAll,{once:true});
+  window.__mspGrainRaster=rasterAll;
+  window.__mspSkyReset=function(){G=null;cancelAnimationFrame(anim);clear();};
+  window.__mspSkyReveal=setRV;window.__mspSkyCSS=css;
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Spot 105"/>
@@ -130,7 +175,7 @@ var REGLAGES_ANCIEN_PANNEAU=false;
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="dns-prefetch" href="https://basemaps.cartocdn.com"/>
 <link rel="dns-prefetch" href="https://gyulgensyqsmpsaxrwcz.supabase.co"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@500&display=swap"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Poppins:wght@500&display=swap"/><!-- 03/10 DA Apple : Fraunces retirée (titres en Inter 700 serré) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" defer></script>
 <!-- ⚡ PERF 28/07 (Gardien perf, mesuré) : `media="print" onload="this.media='all'"` — la feuille
@@ -154,11 +199,11 @@ button{color:inherit}/* v311 (audit chasseur-bugs) : sans ce reset, un <button> 
 /* 📱 Anti-zoom iOS Safari : un champ < 16px déclenche un zoom auto qui décentre toute l'app (bug signalé 22/07). 16px partout = plus de zoom involontaire. */
 input,textarea,select{font-size:16px!important}
 /* 🎴 Carte Profil « Blanc ardent » (v319, TCH contour №2 + jour) : liseré blanc + feu magenta. Theme-aware. */
-.pcard{background:var(--card);border:1.5px solid rgba(255,255,255,.9);border-radius:var(--radius-md);box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)}
-:root[data-theme="dark"] .pcard:not(.surface-light *){background:#0d1120;border-color:rgba(255,255,255,.9);box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)}
+.pcard{background:var(--card);border:1.5px solid rgba(255,255,255,.9);border-radius:var(--radius-md);box-shadow:0 0 10px 24px rgba(0,0,0,.07)}
+:root[data-theme="dark"] .pcard:not(.surface-light *){background:#0d1120;border-color:rgba(255,255,255,.9);box-shadow:none}
 /* ✨ .pglow (v321, Vincent) : MÊME halo « Blanc ardent » mais uniquement liseré blanc + feu magenta — SANS toucher au fond (photo/dégradé/sombre conservés). !important pour gagner sur les border/box-shadow inline des cartes. À poser sur toutes les bulles du Profil. */
-.pglow{border:1.5px solid rgba(255,255,255,.92)!important;box-shadow:0 0 0 1px rgba(255,0,110,.5),0 10px 24px rgba(0,0,0,.07)!important}
-:root[data-theme="dark"] .pglow:not(.surface-light *){box-shadow:0 0 18px rgba(255,0,110,.42),0 0 40px rgba(255,0,110,.22),inset 0 0 14px rgba(255,0,110,.07)!important}
+.pglow{border:1.5px solid rgba(255,255,255,.92)!important;box-shadow:0 0 10px 24px rgba(0,0,0,.07)!important}
+:root[data-theme="dark"] .pglow:not(.surface-light *){box-shadow:none!important}
 /* 🎬 v325 (Vincent) : PROJECTEUR de la visite guidée — l'anneau (couleur --acc) éclaire la zone et PULSE, le box-shadow géant assombrit tout le reste de l'écran (clippé par le cadre en overflow:hidden). */
 .tour-spot{position:absolute;border-radius:12px;border:2.5px solid var(--acc);pointer-events:none;animation:tourPulse 1.9s ease-in-out infinite}
 @keyframes tourPulse{0%,100%{box-shadow:0 0 15px 3px var(--acc)}50%{box-shadow:0 0 30px 9px var(--acc)}}/* 14/09 : plus de voile sombre (2200px) autour de l'anneau — Vincent : « l'écran reste normal, le néon met en avant » */
@@ -171,11 +216,15 @@ input,textarea,select{font-size:16px!important}
 @keyframes tourCaret{0%,100%{opacity:1}50%{opacity:0}}
 
 :root{
-  --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;/* DA A2a (Vincent) : blanc / noir / magenta flashy. Corps + entêtes BLANCS ; le contraste vient du magenta et des contours noirs. */
-  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#5F5F5F;--hairline:#0A0A0A;/* --ink-400 #7A7A7A→#5F5F5F : contraste AA sur blanc (Lot 2 a11y) *//* A2a full : contours NOIRS (look sticker/affiche) */
-  --grape-ink:#9500FF;/* v357 : le Neon Grape en COULEUR DE TEXTE. --pop-violet ne peut pas servir a ca : il vaut #0A0A0A en Jour et #0B0714 en Nuit (aplats des degrades), soit 1,08:1 sur une carte Nuit = invisible. Mesure : #9500FF = 5,64:1 sur blanc. */
-  --pop-pink:#FF006E;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#C6FF3D;--pop-violet:#0A0A0A;--pop-cyan:#3DC8FF;/* A2a : pink→magenta flashy, violet→noir (dégradés magenta→noir) */
-  --font-display:"Fraunces",Georgia,serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;
+  /* 🍎 03/10/2026 — DA « BULLE APPLE 1 » (décision Vincent : « pars sur le numéro 4 et refais la DA de l'appli avec ces nouvelles
+     couleurs »). Source de vérité des valeurs : _explorations/da-v15-2026-10-03/_source/engine-tokens.js (BASE + LIME + MGL).
+     Ce bloc = la palette CLAIRE (écrans Carte et Profil, feuilles .surface-light ; le thème Jour n'est plus offert mais ses jetons
+     servent par SURFACE). Fond #F2F2F7 · cartes blanches · ligne #D1D1D6 · texte #000000 / #6C6C71 · magenta #DB005F · lime #32A339. */
+  --bg-primary:#F2F2F7;--bg-cream:#F2F2F7;--bg-soft:#FFFFFF;
+  --ink-900:#000000;--ink-600:#3A3A3C;--ink-400:#6C6C71;--hairline:#D1D1D6;/* #6C6C71 sur #F2F2F7 = 4,9:1 (AA) ; ligne iOS system gray 4 */
+  --grape-ink:#DB005F;/* 03/10 : plus de Grape dans la charte (il reste la couleur de la CATÉGORIE club via CC) → l'ancien texte « grape » devient magenta */
+  --pop-pink:#DB005F;--pop-magenta:#E91E63;--pop-orange:#FF6B2C;--pop-yellow:#FFD23F;--pop-lime:#32A339;--pop-violet:#000000;--pop-cyan:#3DC8FF;/* 03/10 : magenta des écrans clairs #DB005F (4,5:1 sur #F2F2F7), lime clair #32A339 */
+  --font-display:"Inter",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif;--font-mono:"JetBrains Mono",monospace;/* 03/10 : Fraunces SORT — titres en Inter 700 serré (-.03em, règle plus bas) */
   /* ✍️ § 5.1 (21/09, TRANCHÉ par Vincent sur le deck `_livrables/deck-typo-v3-2026-09-21/`, carte nº 8) :
      la DESCRIPTION de la fiche spot a sa propre police — Poppins 500 (SIL OFL 1.1, usage commercial OK).
      Elle ne sert QUE là : le reste de l'app garde --font-body (Inter). ⚠️ Inter plafonne à 700 dans l'app,
@@ -184,21 +233,21 @@ input,textarea,select{font-size:16px!important}
   /* 🟣 l'HABILLAGE de la description : bulle lavande (nº 10 du 2e tour) + surligneur lime à 75 % (nº 12).
      Mesuré le 21/09 sur la feuille BLANCHE de la fiche : encre #0A0A0A sur #F8EDFF = 17,49:1 ;
      sous le surligneur lime = 16,70:1. Le lime est un FOND, JAMAIS de l'encre (1,18:1 sur blanc). */
-  --sd-desc-bg:#F8EDFF;--sd-desc-hl:rgba(198,255,61,.75);--sd-desc-ink:#0A0A0A;
+  --sd-desc-bg:#FFFFFF;--sd-desc-hl:rgba(50,163,57,.28);--sd-desc-ink:#000000;/* 03/10 DA Apple : bulle blanche sur la feuille #F2F2F7 (plus de lavande = teinte Grape), surligneur = lime clair #32A339 à 28 % (noir dessus ≥ 12:1) */
   /* ⚠️ POINT OUVERT, À NE PAS DEVINER : cet habillage suppose la feuille de fiche BLANCHE
      (`slide-up surface-light sd-sheet`). Le jour où la fiche passera en Nuit, --sd-desc-bg et
      --sd-desc-hl demanderont CHACUN une variante sombre (règle : une redite sous
      `:root[data-theme="dark"] .sd-sheet:not(.surface-light)`). Les valeurs n'existent pas encore —
      elles se décident avec le néoniste, elles ne s'inventent pas ici. */
   --radius-sm:8px;--radius-md:16px;--radius-lg:24px;--radius-pill:999px;
-  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(255,0,110,0.3);
+  --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);--shadow-pop:0 12px 32px rgba(0,0,0,.25);
   --ease:cubic-bezier(0.4,0,0.2,1);
   --spring:cubic-bezier(.34,1.56,.64,1);/* v10.85 : easing à dépassement — moteur de la lentille de la tab bar */
   /* legacy compat */
-  --bg:var(--bg-primary);--card:#fff;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#fff;--radius:var(--radius-md);
+  --bg:var(--bg-primary);--card:#FFFFFF;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);--input:#FFFFFF;--radius:var(--radius-md);
   /* 🌗 Toggle Jour/Nuit (20/07) — tokens sémantiques. En CLAIR ils valent l'actuel (no-op) ; en SOMBRE le bloc [data-theme=dark] les réécrit.
      --accent-ink = FOND des boutons foncés (séparé de --ink-900 qui reste la couleur de TEXTE) ; --on-accent = texte posé dessus. */
-  --accent-ink:#0A0A0A;--on-accent:#fff;
+  --accent-ink:#DB005F;--on-accent:#fff;/* 03/10 DA Apple : les boutons sont MAGENTA à encre blanche sur les surfaces claires aussi (fini le noir) */
   /* 💗 v334 — MAGENTA PORTEUR DE TEXTE (décision Vincent 26/07, deck TCH fiche).
      --pop-pink #FF006E est la couleur de marque et elle NE BOUGE PAS : contours, halos néon, dégradés,
      pastilles décoratives, accents — tout ça reste en #FF006E, la charte figée du 20/07 est intacte.
@@ -207,43 +256,46 @@ input,textarea,select{font-size:16px!important}
      PLEINES qui portent du texte ou un glyphe blanc. Ce n'est pas une nouvelle couleur : c'est déjà
      celle des boutons foncés du mode Nuit (--accent-ink ci-dessous), donc zéro ajout à la charte.
      RÈGLE : fond magenta + texte blanc → --pink-ink. Magenta décoratif (bordure, ombre, trait) → --pop-pink. */
-  --pink-ink:#D1005B;
+  --pink-ink:#DB005F;/* 03/10 : = le magenta des écrans clairs de la DA Apple (5,2:1 avec du blanc) */
   /* --route-ink = le lien « Afficher le trajet … sur Map » (v335, demande Vincent 26/07 : plus de gros
      bouton plein, juste le texte + une flèche). Jour = magenta foncé lisible sur clair ; Nuit = blanc. */
-  --route-ink:#D1005B;
-  /* --open = vert « ouvert / synchronisé / fait ». Jour = vert lisible sur blanc ; Nuit = lime néon (charte). */
-  --open:#00C853;
+  --route-ink:#DB005F;
+  /* --open = vert « ouvert / synchronisé / fait ». Clair = lime clair de la DA (#32A339, accent) ; Nuit = lime #48E952 (2e couleur). */
+  --open:#32A339;
   /* v333 — --open-ink = le MÊME vert, mais en version TEXTE. Mesuré sur la fiche : #00C853 écrit sur
      blanc ne fait que 2,24:1 (seuil AA 4,5) → « Ouvert » était le libellé le moins lisible de la fiche
      en Jour. Le vert vif reste la couleur d'ACCENT (contour, pastille, point) ; le texte prend cette
      déclinaison foncée. En Nuit le lime néon sur aubergine passe largement → --open-ink = --open. */
-  --open-ink:#067647;
+  --open-ink:#1A7A22;/* 03/10 : le lime clair #32A339 ne fait que 2,9:1 sur #F2F2F7 → même teinte assombrie jusqu'à 4,9:1 (méthode ensure() de la DA) */
   /* skeleton loaders (shimmer) */
-  --skel-a:#E9E9EE;--skel-b:#F6F6F8;
+  --skel-a:#E5E5EA;--skel-b:#F2F2F7;
   /* --panel-ink = FONDS de panneaux/chips volontairement foncés (carte stats, barre de sélection, toast, chip vibe).
      Restent sombres en mode Nuit (surface élevée) au lieu de virer magenta comme les boutons d'action. */
-  --panel-ink:#0A0A0A;
+  --panel-ink:#1C1C1E;/* 03/10 : panneaux foncés à texte blanc (toast, barre de sélection) → surface 1 de la DA, lisible sur clair comme sur sombre */
 }
 
-/* 🌙 MODE NUIT — palette Néon Nuit / aubergine #0B0714 (charte Spot 105 figée 20/07).
-   Défaut = CLAIR : ce bloc ne s'active QUE si l'utilisateur bascule le switch (data-theme="dark" sur <html>).
-   Conversion des surfaces en cours (les 97 fonds #fff inline deviennent var(--card) écran par écran). */
+/* 🌙 MODE NUIT — 03/10/2026 : DA « BULLE APPLE 1 » (sombre). Source : engine-tokens.js (BASE). Fond #000000 · surface #1C1C1E ·
+   surface 2 #2C2C2E · ligne #3A3A3C · texte #FFFFFF / #98989F · repères #C7C7CC · magenta #FF006E à encre BLANCHE · lime #48E952.
+   L'aubergine #000000 / Néon Nuit (20/07 → 02/10) est remplacée. Le thème effectif est TOUJOURS dark (boot) : ce bloc est la base de
+   l'app ; les écrans Carte et Profil et les feuilles passent en clair par .surface-light (jetons du bloc :root ci-dessus). */
 :root[data-theme="dark"]{
   color-scheme:dark;/* 18/09 : contrôles natifs et scrollbars suivent la Nuit (la .surface-light remet light) */
-  --bg-primary:#0B0714;--bg-cream:#0B0714;--bg-soft:#170F26;   /* aubergine profond + soft légèrement relevé */
-  --ink-900:#F4EFFA;--ink-600:#BCAFCF;--ink-400:#8C7EA6;       /* textes clairs sur aubergine */
-  --hairline:rgba(255,255,255,.15);                            /* contours clairs discrets (fini le noir) */
-  --route-ink:#FFFFFF;                                         /* v335 : « Afficher le trajet » en blanc sur l'aubergine */
-  --card:#181022;--input:#181022;                              /* surfaces élevées translucides-mates */
-  --accent-ink:#D1005B;--on-accent:#fff;                       /* boutons « foncés » → magenta LÉGÈREMENT foncé (2A, choix Vincent) : blanc lisible (AA ~4,6:1) ; l'accent franc reste --pop-pink #FF006E */
-  --open:#6BFF3D;                                              /* lime néon sur aubergine (charte Nuit) */
-  --open-ink:#6BFF3D;                                          /* en Nuit le lime néon est déjà très lisible : texte = accent */
-  --skel-a:#1D1530;--skel-b:#2A2042;                           /* shimmer sombre */
-  --panel-ink:#1E1533;                                         /* panneaux/chips foncés → aubergine élevé (pas magenta) */
-  --grape-ink:#B266FF;                                         /* v357 : le meme grape eclairci — 5,49:1 sur --card #181022 (le #9500FF de Jour n'y tient que 3,28:1) */
-  --pop-violet:#0B0714;                                        /* dégradés magenta→aubergine (Néon Nuit) */
+  --bg-primary:#000000;--bg-cream:#000000;--bg-soft:#1C1C1E;   /* noir OLED + surface 1 */
+  --ink-900:#FFFFFF;--ink-600:#C7C7CC;--ink-400:#98989F;       /* texte / repères / secondaire (#98989F sur #1C1C1E = 5,9:1) */
+  --hairline:#3A3A3C;                                          /* ligne iOS, séparateurs .5 px */
+  --route-ink:#FFFFFF;                                         /* v335 : « Afficher le trajet » en blanc */
+  --card:#1C1C1E;--input:#1C1C1E;                              /* surface 1 */
+  --accent-ink:#FF006E;--on-accent:#fff;                       /* bouton magenta plein, encre blanche (DA : inkBtn = 3,83:1, assumé) */
+  --pink-ink:#FF006E;                                          /* idem : le magenta porteur de texte EST le magenta de marque en sombre */
+  --pop-pink:#FF006E;--pop-lime:#48E952;                       /* magenta de marque · lime 2e couleur */
+  --open:#48E952;                                              /* lime : point « en ligne », badge « ouvert », pastilles actives */
+  --open-ink:#48E952;                                          /* 10,6:1 sur #1C1C1E : texte = accent */
+  --skel-a:#1C1C1E;--skel-b:#2C2C2E;                           /* shimmer surface 1 → surface 2 */
+  --panel-ink:#2C2C2E;                                         /* panneaux/chips foncés → surface 2 */
+  --grape-ink:#FF3D96;                                         /* 03/10 : plus de Grape → magenta clair de la charte (5,2:1 sur #1C1C1E) */
+  --pop-violet:#000000;                                        /* dégradés magenta→noir */
   /* miroirs legacy (étaient figés #fff / noir) */
-  --bg:var(--bg-primary);--card:#181022;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);
+  --bg:var(--bg-primary);--card:#1C1C1E;--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);
   --shadow-sm:0 1px 2px rgba(0,0,0,0.4);--shadow-md:0 8px 24px rgba(0,0,0,0.5);--shadow-lg:0 24px 48px rgba(0,0,0,0.6);
 }
 /* ☀️ SURFACE CLAIRE PAR CONTENEUR — 18/09/2026, décision Vincent : « sombre = tu explores, blanc = tu es
@@ -257,12 +309,13 @@ input,textarea,select{font-size:16px!important}
    dans ces surfaces portent :not(.surface-light *) — elles cessent simplement de matcher, le rendu Jour
    revient tel quel (styles inline et règles de base intacts). */
 .surface-light{
-  --bg-primary:#FFFFFF;--bg-cream:#FFFFFF;--bg-soft:#F4F4F5;
-  --ink-900:#0A0A0A;--ink-600:#3A3A3A;--ink-400:#5F5F5F;--hairline:#0A0A0A;
-  --grape-ink:#9500FF;--pop-violet:#0A0A0A;
-  --route-ink:#D1005B;--open:#00C853;--open-ink:#067647;
-  --card:#fff;--input:#fff;--accent-ink:#0A0A0A;--on-accent:#fff;
-  --skel-a:#E9E9EE;--skel-b:#F6F6F8;--panel-ink:#0A0A0A;
+  /* 03/10 : valeurs = le bloc :root (palette CLAIRE de la DA Apple), recopiées à l'identique — rien d'inventé ici */
+  --bg-primary:#F2F2F7;--bg-cream:#F2F2F7;--bg-soft:#FFFFFF;
+  --ink-900:#000000;--ink-600:#3A3A3C;--ink-400:#6C6C71;--hairline:#D1D1D6;
+  --grape-ink:#DB005F;--pop-violet:#000000;--pop-pink:#DB005F;--pop-lime:#32A339;--pink-ink:#DB005F;
+  --route-ink:#DB005F;--open:#32A339;--open-ink:#1A7A22;
+  --card:#FFFFFF;--input:#FFFFFF;--accent-ink:#DB005F;--on-accent:#fff;
+  --skel-a:#E5E5EA;--skel-b:#F2F2F7;--panel-ink:#1C1C1E;
   --bg:var(--bg-primary);--text:var(--ink-900);--muted:var(--ink-400);--border:var(--hairline);--soft:var(--bg-soft);
   --shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 8px 24px rgba(0,0,0,0.08);--shadow-lg:0 24px 48px rgba(0,0,0,0.12);
   color-scheme:light;color:var(--ink-900);
@@ -367,7 +420,7 @@ input,textarea,select{font-size:16px!important}
 .pf-sheet .pf-row:disabled{opacity:.55;cursor:default}
 .pf-sheet .pf-note{margin:12px 20px 0;font-family:var(--font-body);font-size:13px;line-height:1.45;color:var(--ink-600)}
 .pf-sheet-ft{flex:0 0 auto;padding:12px 20px calc(14px + env(safe-area-inset-bottom,0px))}
-.pf-sheet-close{width:100%;height:46px;border-radius:999px;border:0;background:#FF006E;color:#fff;font-family:var(--font-body);font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(255,0,110,.7)}
+.pf-sheet-close{width:100%;height:46px;border-radius:999px;border:0;background:#FF006E;color:#fff;font-family:var(--font-body);font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 18px -6px rgba(0,0,0,.25)}
 .pf-sheet .pf-danger{display:block;width:100%;margin:14px auto 0;background:none;border:0;cursor:pointer;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--ink-400);text-decoration:underline;text-underline-offset:3px;padding:6px}
 .pf-sheet .pf-mini{display:block;width:100%;background:none;border:0;cursor:pointer;font-family:var(--font-body);font-size:13px;color:var(--ink-400);text-align:center;margin:8px 0 0;padding:6px;letter-spacing:.3px}
 .pf-sheet .pf-card{margin:10px 20px 0;padding:12px 14px;border:1px solid var(--pf-line);border-radius:16px;background:var(--card);box-shadow:var(--pf-shadow);font-family:var(--font-body);font-size:13px;color:var(--ink-900)}
@@ -386,10 +439,10 @@ input,textarea,select{font-size:16px!important}
 body.surface-light-page{background:#FFFFFF}/* onglet Profil ouvert : le fond de page derrière la tab bar est blanc lui aussi (posé/retiré par un effet sur `tab`) */
 /* 🌙 Overrides Nuit ciblés — éléments verre/structure qui ne se pilotent pas par variable seule */
 /* 20/09/2026 — règle `:root[data-theme="dark"] .leaflet-container{background:#090909}` RETIRÉE : les tuiles reviennent en `light_all` (Vincent : « nuit » voulait dire l'habillage, pas le fond de carte) ; le fond Leaflet par défaut (clair) correspond de nouveau aux tuiles. */
-:root[data-theme="dark"] .nav-inner{background:rgba(20,13,30,.74);border-color:rgba(255,255,255,.10);box-shadow:0 12px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
+:root[data-theme="dark"] .nav-inner{background:rgba(28,28,30,.74);border-color:rgba(255,255,255,.10);box-shadow:0 12px 32px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.06)}
 /* v274 (choix Vincent 21/07) : STYLE CARTE NÉON FIGÉ — bordure MAGENTA unifiée 2px PARTOUT (Jour ET Nuit, choix 1A). Base = Jour (ombre neutre douce, PAS de glow) ; Nuit = override box-shadow (glow doux magenta). Le chip reste couleur catégorie néon (2A, inchangé dans le JSX). Même structure Jour↔Nuit, seule la lumière change. */
 .spot-neon{border:2px solid #FF006E !important;box-shadow:0 6px 18px rgba(20,10,30,.10) !important}
-:root[data-theme="dark"] .spot-neon{background:linear-gradient(160deg,var(--ccol,#FF006E) -60%,#0A0710 45%) !important;box-shadow:0 0 14px -3px rgba(255,0,110,.55),inset 0 0 12px -7px rgba(255,0,110,.6) !important}
+:root[data-theme="dark"] .spot-neon{background:linear-gradient(160deg,var(--ccol,#FF006E) -60%,#0A0710 45%) !important;box-shadow:none !important}
 /* 🌌 v321 « Voûte scintillante » — ÉTOILES RETIRÉES le 02/08 (Vincent).
    Les 13 micro-étoiles blanches en fond des bulles de spot distrayaient l'œil : sur une fiche, ce qui
    compte c'est la photo, le nom et l'info — pas le décor. On garde le souffle magenta à gauche et le
@@ -398,17 +451,17 @@ body.surface-light-page{background:#FFFFFF}/* onglet Profil ouvert : le fond de 
 :root[data-theme="dark"] .voute-nuit{
   background:
     radial-gradient(90% 160% at 6% 50%, rgba(255,0,110,.24) 0%, transparent 55%),
-    radial-gradient(120% 140% at 88% 8%, #141a33 0%, #070A16 68%) !important;
+    radial-gradient(120% 140% at 88% 8%, #141a33 0%, #000000 68%) !important;
 }
 .poster-neon{border:2px solid #FF006E !important;box-shadow:0 6px 18px rgba(20,10,30,.10) !important}
-:root[data-theme="dark"] .poster-neon{box-shadow:0 0 14px -3px rgba(255,0,110,.55),0 8px 20px rgba(0,0,0,.45) !important}
+:root[data-theme="dark"] .poster-neon{box-shadow:0 8px 20px rgba(0,0,0,.45) !important}
 /* v275 (choix Vincent 21/07) : néon en-têtes/boutons. Titre Accueil du SOIR en glow magenta (heroNight → classe hero-neon). Segment actif (Spots) = ring + glow magenta en Nuit. CTA Propositions/Surprise ont déjà leur glow (inline). */
-.hero-neon{text-shadow:0 0 10px rgba(255,0,110,.6),0 0 26px rgba(255,0,110,.32)}
-:root[data-theme="dark"] .seg-neon{border:2.5px solid #FF006E !important;box-shadow:0 0 22px -2px rgba(255,0,110,.7),inset 0 0 12px -8px #FF006E !important}/* S1=4 (Vincent) : outline néon ÉPAIS + glow fort */
+.hero-neon{text-shadow:none}
+:root[data-theme="dark"] .seg-neon{border:2.5px solid #FF006E !important;box-shadow:none !important}/* S1=4 (Vincent) : outline néon ÉPAIS + glow fort */
 :root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.08);border-color:rgba(255,0,110,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 3px 10px rgba(0,0,0,.4)}
-:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3050}
-:root[data-theme="dark"] .msp-totop:not(.surface-light *){background:#2A1633;border-color:rgba(255,0,110,.5)}
-:root[data-theme="dark"] .soft-badge-green:not(.surface-light *){background:rgba(107,255,61,.13)!important;color:#6BFF3D!important}/* v288 : badge « langue auto » theme-aware en Nuit (fini le fond vert pâle) */
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#3A3A3C}
+:root[data-theme="dark"] .msp-totop:not(.surface-light *){background:#2C2C2E;border-color:rgba(255,0,110,.5)}
+:root[data-theme="dark"] .soft-badge-green:not(.surface-light *){background:rgba(72,233,82,.13)!important;color:#48E952!important}/* v288 : badge « langue auto » theme-aware en Nuit (fini le fond vert pâle) */
 
 /* 🌙 PASTILLES DE CATÉGORIE EN NUIT — deck TCH 06/08, choix de Vincent : №2.2 « teinte 12 % + liseré ».
    ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -423,8 +476,8 @@ body.surface-light-page{background:#FFFFFF}/* onglet Profil ouvert : le fond de 
    ⚠️ POURQUOI `!important` ET PAS UNE REDÉFINITION DE `CB` : `CatPill` pose ses couleurs en style
    INLINE, qui bat toute règle de feuille. Toucher `CB` aurait repeint le JOUR — exactement ce que
    Vincent a refusé. Ici le Jour ne matche pas le sélecteur : il est intact par construction.
-   Ratios mesurés (texte sur la pastille composée) : ≥ 6,50:1 sur --card #181022, ≥ 7,09:1 sur la
-   feuille #0B0714. Le seuil AA est 4,5 — la marge est volontaire, le néon sur OLED pardonne moins. */
+   Ratios mesurés (texte sur la pastille composée) : ≥ 6,50:1 sur --card #1C1C1E, ≥ 7,09:1 sur la
+   feuille #000000. Le seuil AA est 4,5 — la marge est volontaire, le néon sur OLED pardonne moins. */
 :root[data-theme="dark"] .cat-pill[data-cat="resto"]:not(.surface-light *){background:rgba(22,163,74,.12)!important;border-color:rgba(22,163,74,.55)!important;color:#4CB874!important}
 :root[data-theme="dark"] .cat-pill[data-cat="cafe"]:not(.surface-light *){background:rgba(111,78,55,.12)!important;border-color:rgba(111,78,55,.55)!important;color:#AE9C8F!important}
 :root[data-theme="dark"] .cat-pill[data-cat="rooftop"]:not(.surface-light *){background:rgba(37,99,235,.12)!important;border-color:rgba(37,99,235,.55)!important;color:#7AA0F3!important}
@@ -439,13 +492,13 @@ body.surface-light-page{background:#FFFFFF}/* onglet Profil ouvert : le fond de 
    `.spot-neon`. Le cas de panne à surveiller n'est pas la photo sombre mais la photo CLAIRE : mesuré
    à 10,20:1 sur une photo blanche (#E8E8E8) et 18,97:1 sur une photo sombre — le verre à 72 %
    d'opacité tient dans les deux cas. `!important` pour la même raison que ci-dessus : style inline. */
-:root[data-theme="dark"] .sd-back:not(.surface-light *){background:rgba(11,7,20,.72)!important;color:#fff!important;border:1px solid rgba(255,0,110,.55)!important;box-shadow:0 0 14px -4px rgba(255,0,110,.7)!important;backdrop-filter:blur(6px)}
+:root[data-theme="dark"] .sd-back:not(.surface-light *){background:rgba(0,0,0,.72)!important;color:#fff!important;border:1px solid rgba(255,0,110,.55)!important;box-shadow:none!important;backdrop-filter:blur(6px)}
 
 /* 🌞 NÉON JOUR (vague 2 device-test, #6/#7/#8 — Néoniste) : on porte l'identité magenta dans le THÈME CLAIR.
    TOUT ce bloc est scopé :not([data-theme="dark"]) → strictement no-op en Nuit (la Nuit reste pixel-identique). */
 /* #7 — néons du haut : toggle actif « Tout Paris / Mes spots » + barre de recherche = contour magenta + glow (fini le « noir fin ») */
-:root:not([data-theme="dark"]) .seg-neon{border:2px solid var(--pop-pink)!important;box-shadow:0 0 0 1px rgba(255,0,110,.30),0 5px 18px -5px rgba(255,0,110,.5),inset 0 0 14px -10px #FF006E!important}
-:root:not([data-theme="dark"]) .search-neon{border-color:var(--pop-pink)!important;box-shadow:0 0 0 1px rgba(255,0,110,.16),0 3px 15px -6px rgba(255,0,110,.42)!important}
+:root:not([data-theme="dark"]) .seg-neon{border:2px solid var(--pop-pink)!important;box-shadow:0 0 5px 18px -5px rgba(0,0,0,.25)!important}
+:root:not([data-theme="dark"]) .search-neon{border-color:var(--pop-pink)!important;box-shadow:0 0 3px 15px -6px rgba(0,0,0,.25)!important}
 /* #8 — souffle magenta à gauche en Jour, SANS les micro-étoiles.
    v378 (test device Vincent) : « les points d'étoile en version Jour, à retirer comme en Nuit ».
    Les 11 sparkles magenta/violet sont supprimés — exactement l'arbitrage déjà rendu pour la Nuit en
@@ -484,15 +537,15 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
 .spot-sel-wrap .spot-sel-halo{position:absolute;top:50%;left:50%;width:44px;height:44px;border-radius:999px;transform:translate(-50%,-50%);filter:blur(5px);opacity:0.4;animation:spotBreath 2.8s ease-in-out infinite}
 @keyframes spotBreath{0%,100%{opacity:0.3;transform:translate(-50%,-50%) scale(0.9)}50%{opacity:0.48;transform:translate(-50%,-50%) scale(1.06)}}
 .spot-sel-wrap .spot-sel-core{position:absolute;top:50%;left:50%;width:15px;height:15px;border-radius:999px;border:3px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,0.12),0 2px 8px rgba(0,0,0,0.4)}
-.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 22px);transform:translateX(-50%);background:#16131A;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}/* v286 (Vincent) : label carte plafonné 160px + ellipsis → ne chevauche plus les pins voisins (nom complet dans la mini-fiche) */
-.spot-sel-wrap .spot-sel-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#16131A}
+.spot-sel-wrap .spot-sel-label{position:absolute;left:50%;bottom:calc(50% + 22px);transform:translateX(-50%);background:#1C1C1E;color:#fff;font-size:12px;font-weight:700;font-family:var(--font-body);padding:5px 10px;border-radius:9px;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 4px 14px rgba(0,0,0,0.32);pointer-events:none}/* v286 (Vincent) : label carte plafonné 160px + ellipsis → ne chevauche plus les pins voisins (nom complet dans la mini-fiche) */
+.spot-sel-wrap .spot-sel-label::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1C1C1E}
 
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes goldGlow{0%,100%{box-shadow:0 0 0 2.5px #E8B93B,0 10px 26px rgba(232,185,59,0.35)}50%{box-shadow:0 0 0 2.5px #F7D262,0 12px 38px rgba(232,185,59,0.62)}}
 @keyframes haloPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.12)}}/* v10.72 : halo néon entête accueil (style №1) */
-@keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,0,110,.45)}70%{box-shadow:0 0 0 10px rgba(255,0,110,0)}100%{box-shadow:0 0 0 0 rgba(255,0,110,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
+@keyframes pulseB{0%{box-shadow:0 0 0 0 rgba(255,0,110,.45)}70%{box-shadow:0 none}100%{box-shadow:0 0 0 0 rgba(255,0,110,0)}} /* v10.63 : CTA collectif A14 « fantôme qui pulse » */
 /* v10.97 : fondu-glissé des exemples de recherche IA. Pas de transform persistant en fin
    d'animation (fill both) — un transform figé ferait de l'élément un containing block, le piège
    qui a coûté le bouton retour en v10.84. Ici l'animation se termine et rend la main. */
@@ -567,13 +620,13 @@ textarea,input,select{font-family:var(--font-body);background:var(--input);color
    la gélule ne ferait que 292 px et la forme creuse deviendrait la plus large de l'écran —
    hiérarchie inversée. À 8 px elle fait 304 px et reste la forme dominante. */
 @media (max-width:360px){.msp-sw-wrap{padding-left:8px;padding-right:8px}}
-.msp-sw{position:relative;display:flex;border-radius:999px;background:#0A0E1E;
- padding:4px;border:1px solid #1C2338;box-sizing:border-box}
-/* le CURSEUR = le segment actif de G2 : fond #11071A, contour néon magenta 1,5 px, halo externe +
+.msp-sw{position:relative;display:flex;border-radius:999px;background:#1C1C1E;
+ padding:4px;border:1px solid #3A3A3C;box-sizing:border-box}
+/* le CURSEUR = le segment actif de G2 : fond #1C1C1E, contour néon magenta 1,5 px, halo externe +
    lueur interne. Il glisse d'une face à l'autre ; `pointer-events:none`, il ne vole aucun tap. */
 .msp-sw-th{position:absolute;z-index:1;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);
- border-radius:999px;box-sizing:border-box;background:#11071A;border:1.5px solid #FF006E;
- box-shadow:0 0 14px rgba(255,0,110,.55),inset 0 0 10px rgba(255,0,110,.18);
+ border-radius:999px;box-sizing:border-box;background:#1C1C1E;border:1.5px solid #FF006E;
+ box-shadow:none;
  transition:transform .22s var(--ease),opacity .18s var(--ease);pointer-events:none}
 .msp-sw[data-on="1"] .msp-sw-th{transform:translateX(100%)}
 /* Carte, mode « Amis » : aucune des deux faces n'est le lieu où l'on cherche → curseur effacé,
@@ -605,10 +658,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* ✕ rouge « Cerise bordée » (choix Vincent 11/07) — croix de fermeture unifiée */
 /* Pastille retour v10.42 (choix Vincent B3 v2 №8) : cercle blanc bordure rose, flèche rose */
-.msp-x{background:#fff;border:2px solid var(--pop-pink);box-shadow:0 4px 12px rgba(255,0,110,.22);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
+.msp-x{background:#fff;border:2px solid var(--pop-pink);box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .18s}
 .msp-x svg{transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
 .msp-x:active{transform:scale(.82)}
-@media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(255,0,110,.35)}}
+@media(hover:hover){.msp-x:hover svg{transform:translateX(-2px)}.msp-x:hover{box-shadow:0 6px 18px rgba(0,0,0,.25)}}
 
 /* 🎛️ v404 — BARRE DE PLAN DE SOIRÉE DE LA CARTE : l'encre de l'onglet FERMÉ.
    La variante retenue (deck du 07/08, №17 « onglet fantôme ») n'a AUCUN remplissage :
@@ -727,7 +780,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* badge chiffré (onglet Events). z-index 3 > capsule : il reste lisible quand la lentille enfle dessous. */
 .nav-badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;border-radius:9px;
   background:var(--pink-ink);color:#fff;font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;
-  border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(255,0,110,.5);z-index:3}
+  border:1.5px solid rgba(255,255,255,.92);box-shadow:0 2px 6px rgba(0,0,0,.25);z-index:3}
 @media(prefers-reduced-motion:reduce){.nav-ind{transition:none}.nav-ind.transit{transform:none}}
 
 /* Section titles - Partiful */
@@ -737,10 +790,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .mono-label{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)}
 .mono-label::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 /* DA v10.39 — en-têtes dynamiques : pastille dégradée (remplace le mono-label gris des heros) + titres 1 ligne */
-.grad-pill{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--pop-pink),#9500FF);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(255,0,110,0.28);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grad-pill{display:inline-flex;align-items:center;gap:6px;background:var(--pop-pink);color:#fff;font-family:var(--font-body);font-size:12px;font-weight:800;letter-spacing:0.02em;padding:5px 12px;border-radius:999px;box-shadow:0 6px 16px rgba(0,0,0,.25);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .grad-lbl{font-family:var(--font-display);font-style:italic;font-weight:700;font-size:14px;letter-spacing:normal;text-transform:none;color:var(--ink-600)}
 /* 🐛 v375 — LE PANNEAU DE FILTRES EST NOIR DANS LES DEUX THÈMES (v359), MAIS SES TEXTES SUIVAIENT
-   LE THÈME. En mode Jour, --ink-600 vaut rgb(58,58,58) : posé sur le fond #070A16 du panneau, ça
+   LE THÈME. En mode Jour, --ink-600 vaut rgb(58,58,58) : posé sur le fond #000000 du panneau, ça
    donne 1,74:1 — illisible (AA exige 4,5:1). J'avais mesuré les contrastes du panneau en v359 et
    conclu qu'il était bon : je n'avais vérifié que les chips de catégorie, pas les LIBELLÉS ni les
    chips d'ambiance et de musique, qui héritent des jetons d'encre du thème.
@@ -751,7 +804,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .grad-lbl::before{content:"✦ ";color:var(--pop-pink);font-style:normal}
 .hero-line{font-family:var(--font-display);font-weight:900;line-height:1;letter-spacing:-0.02em;margin:0;white-space:nowrap;font-size:clamp(20px,7.4vw,31px);text-align:center;width:100%}/* v10.72 : titre centré + pleine largeur sur chaque onglet (retour Vincent) */
 /* v10.52 — bouton ↑ ROSE LÉGER (retour Vincent 13/07 : exit le noir agressif), plus bas, chevron SVG centré */
-.msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(255,0,110,0.25);animation:totopIn .25s var(--ease) both;padding:0}
+.msp-totop{position:fixed;right:16px;bottom:calc(70px + env(safe-area-inset-bottom,0px));z-index:89;width:44px;height:44px;border-radius:999px;border:1.5px solid #FFB8D4;cursor:pointer;background:#FFE4F0;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px rgba(0,0,0,.25);animation:totopIn .25s var(--ease) both;padding:0}
 @keyframes totopIn{from{opacity:0;transform:translateY(14px) scale(.85)}to{opacity:1;transform:none}}
 
 /* Category grid - Partiful */
@@ -819,13 +872,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    décalage de mise en page et aucun repaint du contenu pendant qu'on lit.
    ⚠️ `prefers-reduced-motion` la coupe NET (pas ralentie : supprimée), et le halo garde alors sa
    valeur haute — sans quoi les personnes qui refusent les animations perdraient aussi l'enseigne. */
-.hero-soiree{box-shadow:0 0 26px -2px rgba(255,0,110,.62), 0 0 54px -6px rgba(255,0,110,.30), inset 0 0 34px rgba(255,255,255,.06);animation:heroNeon 3.8s ease-in-out infinite}
+.hero-soiree{box-shadow:inset 0 0 34px rgba(255,255,255,.06);animation:heroNeon 3.8s ease-in-out infinite}
 @keyframes heroNeon{
-  0%,100%{box-shadow:0 0 18px -3px rgba(255,0,110,.42), 0 0 40px -8px rgba(255,0,110,.20), inset 0 0 34px rgba(255,255,255,.06)}
-  50%    {box-shadow:0 0 32px -1px rgba(255,0,110,.72), 0 0 66px -4px rgba(255,0,110,.38), inset 0 0 34px rgba(255,255,255,.09)}
+  0%,100%{box-shadow:inset 0 0 34px rgba(255,255,255,.06)}
+  50%    {box-shadow:inset 0 0 34px rgba(255,255,255,.09)}
 }
 @media (prefers-reduced-motion: reduce){
-  .hero-soiree{animation:none;box-shadow:0 0 26px -2px rgba(255,0,110,.62), 0 0 54px -6px rgba(255,0,110,.30), inset 0 0 34px rgba(255,255,255,.06)}
+  .hero-soiree{animation:none;box-shadow:inset 0 0 34px rgba(255,255,255,.06)}
 }
 /* ═══ 🌙 21/09/2026 — § 7.2 « Décris ta soirée » : nº 1 « L'ENSEIGNE MAGENTA » (choix de Vincent).
    « Tube magenta épais + titre en Fraunces qui brille + bouton rond → lumineux. Le plus proche de
@@ -834,40 +887,40 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    d'entrée du héros « Plan de soirée » et récupère la place. Le halo qui respire (.hero-soiree,
    v388) est CONSERVÉ : il porte la marque, et il est déjà coupé en prefers-reduced-motion. ═══ */
 .ens{position:relative;display:block;width:100%;border-radius:24px;overflow:hidden;padding:18px 16px 16px;
- text-align:left;cursor:pointer;background:#140B22;border:2px solid #FF006E;color:#fff}
+ text-align:left;cursor:pointer;background:#1C1C1E;border:2px solid #FF006E;color:#fff}
 .ens .ens-t{font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1.02;letter-spacing:-.02em;
- color:#fff;margin:0 0 12px;text-shadow:0 0 10px rgba(255,0,110,.95),0 0 26px rgba(255,0,110,.55),0 0 50px rgba(255,0,110,.3)}
-.ens .ens-t em{font-style:italic;font-weight:500;color:#fff;text-shadow:0 0 10px rgba(255,61,150,.9),0 0 22px rgba(255,61,150,.5)}
+ color:#fff;margin:0 0 12px;text-shadow:none}
+.ens .ens-t em{font-style:italic;font-weight:500;color:#fff;text-shadow:none}
 .ens .ens-in{display:flex;align-items:flex-start;gap:8px;min-height:46px;border-radius:14px;padding:12px 13px;
- background:rgba(8,6,16,.55);border:1px solid rgba(255,255,255,.2);
+ background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.2);
  font-family:var(--font-body);font-size:14px;line-height:1.35;color:rgba(255,255,255,.62)}
 .ens .ens-in span{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ens .ens-row{display:flex;align-items:center;gap:10px;margin-top:11px}
 .ens .ens-go{flex-shrink:0;width:46px;height:46px;border-radius:999px;display:flex;align-items:center;justify-content:center;
  background:#FF006E;color:#fff;font-family:var(--font-body);font-weight:800;font-size:20px;line-height:1;
- box-shadow:0 0 16px rgba(255,0,110,.9),0 0 36px rgba(255,0,110,.45)}
+ box-shadow:none}
 /* l'enseigne porte SON propre halo (tube épais) : celui de .hero-soiree ferait double bordure */
-.ens.hero-soiree{box-shadow:0 0 18px rgba(255,0,110,.6),0 0 44px rgba(255,0,110,.3),inset 0 0 26px rgba(255,0,110,.14);animation:ensNeon 3.8s ease-in-out infinite}
+.ens.hero-soiree{box-shadow:none;animation:ensNeon 3.8s ease-in-out infinite}
 @keyframes ensNeon{
-  0%,100%{box-shadow:0 0 14px rgba(255,0,110,.45),0 0 34px rgba(255,0,110,.22),inset 0 0 26px rgba(255,0,110,.12)}
-  50%    {box-shadow:0 0 24px rgba(255,0,110,.75),0 0 58px rgba(255,0,110,.40),inset 0 0 30px rgba(255,0,110,.18)}
+  0%,100%{box-shadow:none}
+  50%    {box-shadow:none}
 }
 @media (prefers-reduced-motion: reduce){
-  .ens.hero-soiree{animation:none;box-shadow:0 0 18px rgba(255,0,110,.6),0 0 44px rgba(255,0,110,.3),inset 0 0 26px rgba(255,0,110,.14)}
+  .ens.hero-soiree{animation:none;box-shadow:none}
 }
 /* les 3 pastilles du parcours : en verre sombre sur le fond magenta (elles étaient magenta sur noir) */
-.hero-soiree .hs-step{background:rgba(11,7,20,.55);color:#fff;border:1px solid rgba(255,255,255,.55);box-shadow:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.hero-soiree .hs-step{background:rgba(0,0,0,.55);color:#fff;border:1px solid rgba(255,255,255,.55);box-shadow:none;text-shadow:0 1px 3px rgba(0,0,0,.5)}
 .hero-soiree .hs-arrow{color:rgba(255,255,255,.72)}
 /* le CTA : pilule dégradée + flèche qui glisse (V8) */
-.hero-soiree .hs-cta{background:linear-gradient(90deg,#FF006E,#9500FF);box-shadow:0 6px 18px -4px rgba(0,0,0,.55), 0 0 16px -3px rgba(255,0,110,.8)}
+.hero-soiree .hs-cta{background:#FF006E;box-shadow:0 6px 18px -4px rgba(0,0,0,.55)}
 .hero-soiree .hs-cta i{font-style:normal;display:inline-block;animation:heroArrow 1.9s ease-in-out infinite}
 @keyframes heroArrow{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
 @media (prefers-reduced-motion: reduce){.hero-soiree .hs-cta i{animation:none}}
-.fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#151024;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
+.fcat{position:relative;display:block;overflow:hidden;padding:0;cursor:pointer;background:#1C1C1E;-webkit-tap-highlight-color:transparent;transition:transform .16s var(--ease)}
 .fcat:active{transform:scale(.97)}
 .fcat img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fcat .fc-em{position:absolute;top:5px;left:6px;z-index:3;line-height:1;filter:drop-shadow(0 1px 4px rgba(0,0,0,.85))}
-.fcat .fc-ck{position:absolute;top:5px;right:6px;z-index:4;width:18px;height:18px;border-radius:999px;background:#FF006E;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(255,0,110,.6)}
+.fcat .fc-ck{position:absolute;top:5px;right:6px;z-index:4;width:18px;height:18px;border-radius:999px;background:#FF006E;color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 /* le libellé n'est JAMAIS centré au milieu de la tuile (c'est ce que Vincent corrigeait) : posé en bas à gauche. */
 .fcat .fc-lab{position:absolute;left:7px;bottom:6px;z-index:3;max-width:calc(100% - 14px);color:#fff;text-align:left;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.95),0 2px 8px rgba(0,0,0,.85),0 0 14px rgba(0,0,0,.6)}
 /* ⚠️ ZONE MESURÉE — ne pas toucher à la taille du libellé sans relancer
@@ -914,8 +967,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .cpg-hero .cpg-c{font-size:13.5px}
 .cpg-card .cpg-c{font-size:11.5px}
 .cpg-badge{position:absolute;top:9px;right:10px;z-index:3;background:var(--pink-ink);color:#fff;font-family:var(--font-body);font-weight:800;font-size:10px;padding:3px 8px;border-radius:999px;text-shadow:none}
-/* peau ONBOARDING : Néon Nuit FIXE (fond #0B0714), cadre clair, halo magenta sur la vedette */
-.cpg-neon .cpg-hero{border:1.5px solid rgba(255,255,255,.22);box-shadow:0 10px 30px -12px rgba(255,0,110,.55)}
+/* peau ONBOARDING : Néon Nuit FIXE (fond #000000), cadre clair, halo magenta sur la vedette */
+.cpg-neon .cpg-hero{border:1.5px solid rgba(255,255,255,.22);box-shadow:0 10px 30px -12px rgba(0,0,0,.25)}
 .cpg-neon .cpg-card{border:1.5px solid rgba(255,255,255,.16)}
 /* peau APP : thème Jour/Nuit, cadre couleur signature de la ville (esprit « Choisis ton mood ») */
 .cpg-app .cpg-hero{border:2px solid var(--pop-pink);box-shadow:var(--shadow-sm)}
@@ -925,7 +978,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
    (`_explorations/local_onboarding-pin-neon-2026-07-29/index.html`) : pin officiel à 80px
    + №1 halo magenta · №4 reflet au sol · №6 étincelles · №9 balayage du liseré.
    ▸ Tracé = celui du logo FIGÉ (`_livrables/logo-spot105/_render-icon-night.html`) : pin magenta #FF006E,
-     liseré blanc 1,6, point #070A16. ⛔ Ne PAS prendre le tracé du composant `Spot105Logo` de ce fichier :
+     liseré blanc 1,6, point #000000. ⛔ Ne PAS prendre le tracé du composant `Spot105Logo` de ce fichier :
      il est hors charte (viewBox 120×120, 2 ellipses parasites, pas de liseré, point blanc). Il est laissé
      STRICTEMENT tel quel — le réparer changerait d'autres écrans, c'est un chantier à part.
    ▸ Valeurs PORTÉES du deck à l'identique. Seuls les noms de classes et de keyframes sont préfixés
@@ -940,7 +993,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
        tout autre écran restent SANS aura et SANS animation du liseré. Ça ne s'étend pas par analogie —
        un besoin similaire ailleurs repasse par Vincent.
      ▸ RESTE STRICTEMENT CONFORME, même ici : géométrie du pin, magenta #FF006E, liseré blanc fin 1,6,
-       point #070A16. №1 (halo), №4 (reflet) et №6 (étincelles) éclairent la SCÈNE, jamais le tracé —
+       point #000000. №1 (halo), №4 (reflet) et №6 (étincelles) éclairent la SCÈNE, jamais le tracé —
        aucun glow n'est posé sur le pin lui-même. Seul №9 touche le liseré, et lui seul est couvert.
    ♿ prefers-reduced-motion : les 2 boucles infinies (№6, №9) s'arrêtent ; le halo et le reflet, qui sont
      immobiles, restent — l'écran tient debout tout seul. */
@@ -959,13 +1012,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .ob-fx-spark.ob-s1{margin-left:-46px;margin-top:6px;animation-delay:0s}
 .ob-fx-spark.ob-s2{margin-left:38px;margin-top:-14px;background:#FF3D96;animation-delay:.6s}
 .ob-fx-spark.ob-s3{margin-left:-28px;margin-top:-30px;width:2px;height:2px;animation-delay:1.2s}
-.ob-fx-spark.ob-s4{margin-left:52px;margin-top:18px;background:#9500FF;animation-delay:1.8s/* piège évité : dans CETTE app --pop-violet vaut #0B0714 (aubergine), pas le grape du deck → étincelle invisible. On écrit le Néon Grape #9500FF en dur, comme la charte. */}
+.ob-fx-spark.ob-s4{margin-left:52px;margin-top:18px;background:#FF3D96;animation-delay:1.8s/* piège évité : dans CETTE app --pop-violet vaut #000000 (aubergine), pas le grape du deck → étincelle invisible. On écrit le Néon Grape #9500FF en dur, comme la charte. */}
 .ob-fx-spark.ob-s5{margin-left:12px;margin-top:34px;background:#FF3D96;animation-delay:2.4s}
-.ob-fx-spark.ob-s6{margin-left:-54px;margin-top:-8px;width:2px;height:2px;background:#9500FF;animation-delay:3s}
+.ob-fx-spark.ob-s6{margin-left:-54px;margin-top:-8px;width:2px;height:2px;background:#FF3D96;animation-delay:3s}
 .ob-fx-spark.ob-s7{margin-left:30px;margin-top:40px;animation-delay:3.6s}
 .ob-fx-spark.ob-s8{margin-left:-18px;margin-top:-42px;background:#FF3D96;animation-delay:4.2s}
 .ob-fx-spark.ob-s9{margin-left:60px;margin-top:-30px;width:2px;height:2px;animation-delay:.9s}
-.ob-fx-spark.ob-s10{margin-left:-40px;margin-top:30px;background:#9500FF;animation-delay:2.1s}
+.ob-fx-spark.ob-s10{margin-left:-40px;margin-top:30px;background:#FF3D96;animation-delay:2.1s}
 /* №9 balayage de lumière sur le liseré (dérogation de charte consignée — voir le bloc ci-dessus).
    ⚡ SON COÛT EST MESURÉ ET IL EST RÉEL — implémentation du deck conservée TELLE QUELLE quand même.
    Relevé le 29/07, slide 0, 6 s à l'arrêt, médiane de 5 runs (CDP Performance.getMetrics) :
@@ -1081,7 +1134,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
   font-family:var(--font-body);font-weight:700;font-size:var(--sd-act-fs,13.5px);line-height:1.15;
   letter-spacing:-.15px;white-space:nowrap;
   background:#FFFFFF;color:#0A0A0A;border:2px solid #0A0A0A;box-shadow:3px 4px 0 rgba(10,10,10,.85)}
-:root[data-theme="dark"] .sd-act:not(.surface-light *){background:#181022;color:#F4EFFA;
+:root[data-theme="dark"] .sd-act:not(.surface-light *){background:#1C1C1E;color:#FFFFFF;
   border-color:rgba(255,255,255,.5);box-shadow:3px 4px 0 rgba(0,0,0,.7)}
 /* la seule pastille pleine : Ajouter. Le contour reste — c'est lui qui fait l'affiche. */
 .sd-act--add,:root[data-theme="dark"] .sd-act--add{background:#FF006E;color:#fff}
@@ -1127,7 +1180,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .rr-ia .rr-ic{flex:0 0 auto;width:34px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(255,0,110,.14);color:var(--pink-ink);font-size:17px}
 .rr-ia b{display:block;font-size:14px;font-weight:800;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rr-ia small{display:block;font-size:11.5px;color:var(--ink-400);margin-top:2px}
-.rr-so{display:block;width:100%;margin-top:10px;padding:12px 16px;border:none;border-radius:18px;background:linear-gradient(100deg,#FF006E,#9500FF);color:#fff;text-align:left;cursor:pointer;font-family:var(--font-body);box-shadow:0 8px 22px -10px rgba(255,0,110,.75)}
+.rr-so{display:block;width:100%;margin-top:10px;padding:12px 16px;border:none;border-radius:18px;background:#FF006E;color:#fff;text-align:left;cursor:pointer;font-family:var(--font-body);box-shadow:0 8px 22px -10px rgba(0,0,0,.25)}
 .rr-so b{display:block;font-size:15.5px;font-weight:900}
 .rr-so small{display:block;font-size:12px;opacity:.88;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-theme="dark"] .rr-l .rr-n mark,:root[data-theme="dark"] .rr-t button{color:#FF3D96}
@@ -1155,7 +1208,7 @@ a.sd-pill,button.sd-pill{cursor:pointer}
    plein écran, un dégradé par question, 6 barres cliquables (cible tactile 21px, pas le trait de 3px),
    « Tout » = groupe VIDE → le compteur monte, il ne chute jamais. + onglet ★ recherches enregistrées. */
 .pq-wrap{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;overflow:hidden;background:var(--bg-cream)}/* v484 : `height:100dvh` retiré — même classe que F4 (sur iOS plein écran, dvh exclut la barre d'état) ; inset:0 suffit */
-.pq-wrap.pq-neon{background:#0B0714}/* v223 : charte Néon Nuit (choix Vincent : couleurs №5 + bandeau №4) — SCOPÉE à l'étape questions */
+.pq-wrap.pq-neon{background:#000000}/* v223 : charte Néon Nuit (choix Vincent : couleurs №5 + bandeau №4) — SCOPÉE à l'étape questions */
 .pq-in{position:relative;flex:1;display:flex;flex-direction:column;width:100%;max-width:600px;margin:0 auto;min-height:0;overflow:hidden}
 .pq-bg{position:absolute;inset:0;z-index:0;transition:background .35s var(--ease)}
 .pq-top{position:relative;z-index:2;flex:0 0 auto;padding:calc(8px + env(safe-area-inset-top,0px)) 18px 8px}
@@ -1259,13 +1312,13 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .pq-sp.on{background:#fff;border-color:#fff}
 /* v223 : pills Néon Nuit (scopées étape questions) — translucide sombre + sélection magenta glow */
 .pq-neon .pq-sp{border:1.5px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
-.pq-neon .pq-sp.on{background:var(--pink-ink);border-color:var(--pop-pink);color:#fff;box-shadow:0 0 20px rgba(255,0,110,.55)}
+.pq-neon .pq-sp.on{background:var(--pink-ink);border-color:var(--pop-pink);color:#fff;box-shadow:none}
 .pq-neon .pq-edit{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.22)}/* v225 : ★ Mes recherches sur le bandeau sombre */
 .pq-neon .pq-card{background:rgba(255,255,255,.05);color:#fff}
 .pq-neon .pq-card .sm{color:rgba(255,255,255,.55)}
 .pq-neon .pq-tabs.ink{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.18)}
 .pq-neon .pq-tabs.ink .pq-tab{color:#fff;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
-.pq-neon .pq-tabs.ink .pq-tab.on{background:#6BFF3D;color:#08150A;border-color:transparent}/* B3 : lime */
+.pq-neon .pq-tabs.ink .pq-tab.on{background:#48E952;color:#0F0F0F;border-color:transparent}/* B3 : lime */
 .pq-sp.off{opacity:.35;cursor:default}
 /* la pilule « Tout » : traitée à part, jamais confondue avec une option */
 .pq-sp.all{border-style:dashed;border-color:rgba(255,255,255,.6)}
@@ -1277,10 +1330,10 @@ a.sd-pill,button.sd-pill{cursor:pointer}
 .pq-brand{font-family:var(--font-mono);font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.7);white-space:nowrap}
 .pq-tabs{display:flex;gap:3px;background:rgba(255,255,255,.18);border-radius:999px;padding:3px;flex:0 0 auto}
 .pq-tab{border:none;background:rgba(255,255,255,.16);color:#fff;font-family:var(--font-body);font-size:11.5px;font-weight:800;padding:6px 12px;border-radius:999px;white-space:nowrap;cursor:pointer}/* v10.99 : l'inactif garde une pastille visible (avant : transparent → invisible) */
-.pq-tab.on{background:#6BFF3D;color:#08150A}/* B3 (Vincent 22/07) : onglet actif = LIME punchy */
+.pq-tab.on{background:#48E952;color:#0F0F0F}/* B3 (Vincent 22/07) : onglet actif = LIME punchy */
 .pq-tabs.ink{background:var(--bg-soft);border:1px solid var(--hairline)}
 .pq-tabs.ink .pq-tab{color:var(--pop-pink);background:rgba(255,0,110,.10);border:1.5px solid rgba(255,0,110,.3)}/* v10.99 (Vincent) : « Mes recherches » = pastille ROSE contrastée, ne se fond plus dans le fond */
-.pq-tabs.ink .pq-tab.on{background:#6BFF3D;color:#08150A;border-color:transparent}/* B3 : lime */
+.pq-tabs.ink .pq-tab.on{background:#48E952;color:#0F0F0F;border-color:transparent}/* B3 : lime */
 /* cartes préréglages (★ mes recherches) */
 .pq-card{display:flex;align-items:center;gap:13px;width:100%;padding:15px;border-radius:20px;border:2px solid var(--hairline);background:var(--bg-primary);color:var(--ink-900);text-align:left;font-family:var(--font-body);cursor:pointer;transition:transform .12s var(--ease)}
 .pq-card:active{transform:scale(.985)}
@@ -1480,7 +1533,7 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
 .sd-going{width:100%;padding:6px 0;border-radius:999px;cursor:pointer;
   font-family:var(--font-body);font-weight:700;font-size:12px;line-height:1.25;
   white-space:nowrap;border:1.2px solid var(--pop-pink);background:transparent;color:var(--pop-pink)}
-.sd-going--on{border:none;background:linear-gradient(135deg,var(--pop-pink),#9500FF);color:#fff}
+.sd-going--on{border:none;background:var(--pop-pink);color:#fff}
 /* § 6.3 / 6.4 — LA FICHE TIENT SUR UN ÉCRAN QUAND RIEN N'EST DÉPLIÉ.
    Mesuré AVANT (v481, encoches simulées) : 856 px de contenu pour 844 de haut → 12 px
    de trop, donc un scroll dès l'ouverture. Les px repris sont listés un par un ici,
@@ -1618,9 +1671,9 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
 }
 
 /* Splash screen — affiché avant que React monte */
-#msp-splash{position:fixed;inset:0;z-index:99999;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Fraunces",Georgia,serif;transition:opacity .35s ease}
+#msp-splash{position:fixed;inset:0;z-index:99999;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"Inter",system-ui,sans-serif;letter-spacing:-.03em;transition:opacity .35s ease}/* 03/10 : Inter 700 serré (Fraunces retirée) */
 #msp-splash.msp-splash-out{opacity:0;pointer-events:none}
-#msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(255,0,110,0.25);animation:mspBob 1.4s ease-in-out infinite}
+#msp-splash .msp-splash-logo{width:96px;height:96px;border-radius:24px;box-shadow:0 16px 40px rgba(0,0,0,.25);animation:mspBob 1.4s ease-in-out infinite}
 #msp-splash .msp-splash-title{font-weight:900;font-size:28px;letter-spacing:-0.015em;color:#0A0A0A;margin:0}
 #msp-splash .msp-splash-sub{font-family:"Inter",system-ui,sans-serif;font-size:13px;color:#7A7A7A;margin-top:-12px}
 @keyframes mspBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
@@ -1635,7 +1688,7 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
    ─────────────────────────────────────────────────────────────────────────────
    HISTORIQUE, parce qu'il explique la forme du correctif. `.toast-warn` posait un fond
    `#FFD23F` EN DUR (le jaune de la charte, il ne bascule pas) sous un `color:var(--ink-900)`
-   qui, lui, BASCULE : #0A0A0A en Jour → #F4EFFA en Nuit. Mesuré au ratio WCAG sur le toast
+   qui, lui, BASCULE : #0A0A0A en Jour → #FFFFFF en Nuit. Mesuré au ratio WCAG sur le toast
    réellement rendu : 13,71:1 en Jour, **1,28:1 en Nuit**. Le message existait, il était peint
    invisible. Et ce n'était pas cosmétique : `toast-warn` est le SEUL rendu des 9 messages
    d'échec du chantier « soirée à plusieurs » (`dec_ko`, `dec_ko_plan`, `dec_partiel`,
@@ -1653,11 +1706,97 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
    POURQUOI TOUT EST SCOPÉ `:root[data-theme="dark"]` : en Jour le sélecteur ne matche pas.
    Le Jour est donc intact par CONSTRUCTION, pas par vérification a posteriori. */
 :root[data-theme="dark"] .toast-warn{background:#241C08;color:#FFD23F;border:1px solid rgba(255,210,63,.45)}
-:root[data-theme="dark"] .toast-success{background:#0C2414;color:#6BFF3D;border:1px solid rgba(107,255,61,.45)}
+:root[data-theme="dark"] .toast-success{background:#0C2414;color:#48E952;border:1px solid rgba(72,233,82,.45)}
 .toast-error{background:#E11D48;color:#fff}
 .toast .toast-icon{font-size:18px;line-height:1;flex-shrink:0}
 .toast-out{animation:fadeOut .25s var(--ease) both}
 @keyframes fadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(8px)}}
+/* ⬇ 03/10 : ce bloc est placé EN FIN de feuille volontairement — ses règles de même spécificité doivent battre les règles de composants écrites plus haut (.ens, .msp-sw, .msp-fb, .grad-lbl…). Ne pas le remonter. */
+/* ═══ MSP-DA-APPLE-CSS — 🍎 03/10/2026 · DA « BULLE APPLE 1 » + CIEL NAPPE + GRAIN №4 (Néoniste) ═══
+   Source : _explorations/da-v15-2026-10-03/_source/ (apple.css, sky.css, engine-sky.js → ciel « nappe », engine-grain.js → grain « f4 »).
+   Jetons : voir :root / :root[data-theme="dark"] / .surface-light plus haut. Ce bloc = les COMPOSANTS (forme iOS, verre, hairlines,
+   plus de néon) et les trois couches fixes du ciel (html::before) + du grain (body::before / body::after) sur les écrans sombres
+   Accueil · Spots · Events (`data-sky="1"` posé par App sur <html>). Carte et Profil (`data-tab`) sont clairs. */
+/* — typographie : Inter 700 serré pour tout ce qui était Fraunces ; plus d'italique ni de « ✦ » devant les labels — */
+[style*="--font-display"],.section-title,.pf-name,.pf-gt,.pf-sheet-t,.ens .ens-t,.msp-splash-title{letter-spacing:-.03em}
+.mono-label,.grad-lbl,.ens .ens-t em{font-style:normal}
+.mono-label::before,.grad-lbl::before{display:none}
+:root[data-theme="dark"] #msp-splash .msp-splash-title{color:#FFFFFF}
+:root[data-theme="dark"] #msp-splash .msp-splash-sub{color:#98989F}
+body.surface-light-page{background:#F2F2F7}
+/* — tab bar : verre sombre (écrans ciel) / verre clair (Carte, Profil) ; capsule neutre, plus de liseré magenta — */
+:root[data-theme="dark"] .nav-inner{background:rgba(28,28,30,.72);border-color:rgba(255,255,255,.08);box-shadow:0 12px 32px rgba(0,0,0,.45);backdrop-filter:blur(26px) saturate(1.8);-webkit-backdrop-filter:blur(26px) saturate(1.8)}
+:root[data-theme="dark"] .nav-ind{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);box-shadow:none}
+:root[data-tab="map"] .nav-inner,:root[data-tab="profile"] .nav-inner{background:rgba(255,255,255,.72);border-color:rgba(0,0,0,.06);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 .5px rgba(0,0,0,.08);backdrop-filter:blur(26px) saturate(1.8);-webkit-backdrop-filter:blur(26px) saturate(1.8)}
+:root[data-tab="map"] .nav-ind,:root[data-tab="profile"] .nav-ind{background:rgba(0,0,0,.05);border-color:rgba(0,0,0,.08);box-shadow:none}
+:root[data-tab="map"] .bottom-nav button,:root[data-tab="profile"] .bottom-nav button{color:#000000}
+:root[data-tab="map"] .bottom-nav button .nav-icon svg path,:root[data-tab="profile"] .bottom-nav button .nav-icon svg path{fill:#000000}
+:root[data-tab="map"] .bottom-nav button.active,:root[data-tab="profile"] .bottom-nav button.active{color:#DB005F}
+:root[data-tab="map"] .bottom-nav button.active .nav-icon svg path,:root[data-tab="profile"] .bottom-nav button.active .nav-icon svg path{fill:url(#navGrad)}
+.nav-badge{box-shadow:none}
+/* — cartes, feuilles, boutons : hairline .5 px, coins 12-14 px, zéro glow — */
+.spot-neon{border:.5px solid var(--hairline)!important;box-shadow:none!important}
+:root[data-theme="dark"] .spot-neon{background:var(--card)!important;box-shadow:none!important}
+.poster-neon{border:.5px solid var(--hairline)!important;box-shadow:none!important}
+:root[data-theme="dark"] .poster-neon{box-shadow:none!important}
+.seg-neon,:root[data-theme="dark"] .seg-neon,:root:not([data-theme="dark"]) .seg-neon{border:1.5px solid var(--pop-pink)!important;box-shadow:none!important}
+:root:not([data-theme="dark"]) .search-neon{box-shadow:none!important}
+.hero-neon{text-shadow:none}
+.hero-soiree,.ens.hero-soiree{animation:none;box-shadow:none}
+.ens{background:var(--card);border:0;border-radius:14px}
+.ens .ens-t,.ens .ens-t em{text-shadow:none}
+.ens .ens-in{background:var(--bg-primary);border-color:var(--hairline);color:var(--ink-400)}
+.ens .ens-go{box-shadow:none}
+.grad-pill{box-shadow:none}
+:root[data-theme="dark"] .voute-nuit{background:var(--card)!important}/* le « souffle magenta » des bulles de spot (v321) = texture → surface pleine */
+:root:not([data-theme="dark"]) .voute-nuit::before{display:none}/* idem pour le souffle Jour (v378) */
+.ens,.ens .ens-t,.ens .ens-t em{color:var(--ink-900)}/* l'enseigne suit l'encre du thème (blanc en sombre ; le blanc en dur rendait le titre invisible sur une carte claire) */
+.pcard{border:.5px solid var(--hairline);box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.pglow{border:.5px solid var(--hairline)!important;box-shadow:0 1px 2px rgba(0,0,0,.06)!important}
+:root[data-theme="dark"] .pcard:not(.surface-light *){background:var(--card);border-color:var(--hairline);box-shadow:none}
+:root[data-theme="dark"] .pglow:not(.surface-light *){box-shadow:none!important}
+:root[data-theme="dark"] .sd-back:not(.surface-light *){background:rgba(28,28,30,.72)!important;border:.5px solid rgba(255,255,255,.14)!important;box-shadow:none!important}
+.msp-totop,:root[data-theme="dark"] .msp-totop:not(.surface-light *){background:var(--card);border:.5px solid var(--hairline);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.pf-page{--pf-line:#D1D1D6;--pf-shadow:0 1px 2px rgba(0,0,0,.06)}
+.msp-fb{background:rgba(255,255,255,.78);backdrop-filter:blur(22px) saturate(1.8);-webkit-backdrop-filter:blur(22px) saturate(1.8);border-top:.5px solid rgba(0,0,0,.08);color:var(--ink-900)}
+/* — gélule « Toute la ville / Mes spots » : surface + curseur magenta plein à encre blanche (DA .swi span.on) ; verre clair sur la Carte — */
+.msp-sw{background:var(--card);border:.5px solid var(--hairline)}
+.msp-sw-th{background:var(--accent-ink);border:0;box-shadow:none}
+.msp-sw-f{color:var(--ink-400)}
+.msp-sw-f[aria-selected="true"]{color:#fff}
+.msp-sw-n{color:var(--ink-400)}
+.msp-sw-f[aria-selected="true"] .msp-sw-n{color:rgba(255,255,255,.85)}
+.surface-light .msp-sw{background:rgba(255,255,255,.74);border:0;backdrop-filter:blur(22px) saturate(1.8);-webkit-backdrop-filter:blur(22px) saturate(1.8);box-shadow:0 1px 2px rgba(0,0,0,.08),0 0 0 .5px rgba(0,0,0,.08)}
+/* — en-têtes sticky sur le ciel : nus au repos, verre sombre quand ils collent ; scrim de barre d'état transparent — */
+:root[data-sky="1"] .msp-sky-hdr[data-stuck="1"]{background:rgba(0,0,0,.62)!important;backdrop-filter:blur(20px) saturate(1.8);-webkit-backdrop-filter:blur(20px) saturate(1.8)}
+:root[data-sky="1"] .msp-scrim{background:transparent!important}
+/* RÈGLE CIEL (03/10) : un texte secondaire posé À NU sur la zone colorée passe en blanc — appliquée aux labels de section du quart haut */
+:root[data-sky="1"] .msp-sky-top{color:var(--ink-900)!important}
+/* ═══ LE CIEL « NAPPE » (v12 №1, état tiré v14) + LE GRAIN №4 « Grain lumineux » (v15) ═══
+   --msp-sky / --msp-skym : état REPOS par défaut (chaînes exactes de engine-sky.js) ; le geste « tirer » les réécrit en inline sur <html>
+   pendant la course (--rv 0 → 1) puis les retire au relâcher. Tout est FIXE au viewport (comme .scr dans la maquette iPhone). */
+/* les deux tuiles de bruit (SVG feTurbulence, recette EXACTE de engine-grain.js → GRAINS.f4). Le script du ciel les RASTÉRISE en PNG au
+   démarrage (canvas 160 × dpr) et réécrit --msp-g1/--msp-g2 : même image au pixel près, mais le moteur ne ré-évalue plus un filtre SVG
+   dans une couche fixe — mesuré le 03/10 : Chrome headless (raster logiciel) se figeait > 60 s sur Events avec l'encoche simulée. */
+:root{--msp-g1-src:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='1' numOctaves='3' stitchTiles='stitch' seed='105'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.6' intercept='-0.8'/><feFuncG type='linear' slope='2.6' intercept='-0.8'/><feFuncB type='linear' slope='2.6' intercept='-0.8'/><feFuncA type='discrete' tableValues='1'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(%23g)'/></svg>");--msp-g1:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='1' numOctaves='3' stitchTiles='stitch' seed='105'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='2.6' intercept='-0.8'/><feFuncG type='linear' slope='2.6' intercept='-0.8'/><feFuncB type='linear' slope='2.6' intercept='-0.8'/><feFuncA type='discrete' tableValues='1'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(%23g)' opacity='0.27'/></svg>");--msp-g2:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='1' numOctaves='3' stitchTiles='stitch' seed='105'/><feColorMatrix type='saturate' values='0'/><feComponentTransfer><feFuncR type='linear' slope='1.0920' intercept='0.0340'/><feFuncG type='linear' slope='1.4040' intercept='-0.0820'/><feFuncB type='linear' slope='1.1440' intercept='0.0180'/><feFuncA type='discrete' tableValues='1'/></feComponentTransfer></filter><rect width='160' height='160' filter='url(%23g)'/></svg>")}
+:root{--msp-sky:radial-gradient(220% 40% at 50% -12%,rgba(255,0,110,0.42) 0%,rgba(255,0,110,0.2) 55%,rgba(255,0,110,0) 100%),linear-gradient(180deg,rgb(86,11,52) 0%,rgb(43,6,26) 31%,rgb(0,0,0) 68%);--msp-skym:linear-gradient(180deg,#000 0%,#000 31%,transparent 68%);--rv:0}
+:root[data-theme="dark"][data-sky="1"]{background:#000}
+:root[data-theme="dark"][data-sky="1"] body{background:transparent;overscroll-behavior-y:none}
+/* ⚠️ 03/10, mesuré en headless : DEUX couches fixes à tuile répétée (body::before + body::after) figeaient le raster logiciel de Chrome
+   (> 60 s sur Events avec l'encoche simulée) ; UNE seule couche tuilée passe. La couche 1 du grain (soft-light, opacité .27) est donc
+   portée par le MÊME élément que le ciel, en background-blend-mode — formule de composition identique (co = α·B(cb,cs) + (1−α)·cb) :
+   l'opacité .27 est cuite dans l'alpha de la tuile (opacity='.27' sur le <rect> du SVG, puis globalAlpha au raster PNG). Pixel pour pixel
+   le même rendu que la maquette, avec une couche composée de moins.
+   ⚠️ Et le NOMBRE de tuiles compte : à 160 px (≈ 15 tuiles/écran × 2 couches) le raster logiciel se fige encore ; à 480 px il passe.
+   Le script cuit donc des tuiles 3 × 3 (480 css px, bruit stitché → strictement le même motif que 160 répété) en Blob URL et pose --msp-gsz. */
+:root[data-theme="dark"][data-sky="1"]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--msp-g1) 0 0/var(--msp-gsz,160px) var(--msp-gsz,160px) repeat,var(--msp-sky);background-blend-mode:soft-light,normal,normal,normal}/* 4 entrées : --msp-sky vaut 2 dégradés au repos, 3 pendant le geste — seule la tuile se mélange */
+/* grain couche 1 : soft-light, bruit gaussien centré (étirement ×2,6), opacité 0.27, tuile 160px — nul sur le noir par construction */
+/* grain couche 2 : le MÊME bruit projeté sur l'axe magenta sombre → rose clair, biais +0,08 vers le clair, soft-light, opacité 0.54, MASQUÉ par le profil du ciel */
+:root[data-theme="dark"][data-sky="1"] body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0.54;mix-blend-mode:soft-light;-webkit-mask:var(--msp-skym);mask:var(--msp-skym);background:var(--msp-g2) 0 0/var(--msp-gsz,160px) var(--msp-gsz,160px) repeat;image-rendering:auto}
+/* le geste : le contenu descend jusqu'à 140 px pendant la course */
+:root[data-sky="1"] .msp-tabwrap{padding-top:calc(140px * var(--rv,0))}
+/* ═══ fin MSP-DA-APPLE-CSS ═══ */
+
 </style>
 </head>
 <body>
@@ -1670,7 +1809,7 @@ a.sd-li,button.sd-li{cursor:pointer;background:none;border:0;padding:0;margin:0;
 <script>/* 🔗 QR Code Generator (Kazuhiko Arase, MIT) — minifié. v497 : l'affiche image est retirée, la lib est GARDÉE (décision de Vincent) pour le futur « QR à montrer à table » qui encodera le lien du plan à l'écran. Historique : embarqué pour dessiner le QR du lien de plan sur l'affiche (chantier 5). Expose window.qrcode. Inline = CSP-safe, non transpilé par build.js. */
 var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),v(t,r),e>=7&&d(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},d=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},v=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var d=0;for(g=0;g<r.length;g+=1)d+=r[g].totalCount;var v=new Array(d),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(v[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(v[w]=a[u][g],w+=1);return v}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,d=3,v=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case d:return function(t,r){return(t+r)%3==0};case v:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,d=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var v=String.fromCharCode(o[s]);s+=1,i.contains(d+v)?d+=v:(h.write(i.indexOf(d),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(d+v)),d=v)}return h.write(i.indexOf(d),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():("undefined"!=typeof window?window:this).qrcode=t()}(function(){return qrcode});
 </script>
-<script src="app.js?v=ccaca28a" defer></script>
+<script src="app.js?v=93843edb" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
@@ -1697,7 +1836,7 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       label.textContent = '✨ Nouvelle version dispo';
       const btn = document.createElement('button');
       btn.textContent = 'Mettre à jour';
-      btn.style.cssText = 'border:none;border-radius:999px;padding:9px 15px;background:linear-gradient(135deg,#FF006E,#0A0A0A);color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;';
+      btn.style.cssText = 'border:none;border-radius:999px;padding:9px 15px;background:#2C2C2E;color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0;';
       btn.onclick = () => { b.remove(); location.reload(); };
       b.appendChild(label); b.appendChild(btn);
       document.body.appendChild(b);
