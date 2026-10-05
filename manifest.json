@@ -5,8 +5,8 @@
   "start_url": "/my-safe-place/",
   "scope": "/my-safe-place/",
   "display": "standalone",
-  "background_color": "#070A16",
-  "theme_color": "#FF006E",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "orientation": "portrait",
   "icons": [
     {
