@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v511-2026-10-07';
+const CACHE_VERSION = 'spotane-v512-2026-10-08';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
