@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v517-2026-10-11';
+const CACHE_VERSION = 'spotane-v518-2026-10-11';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -15,6 +15,26 @@ const STATIC_ASSETS = [
   './favicon-32.png',
   './favicon-48.png',
   './apple-touch-icon.png',
+  /* 📦 v519 (11/10/2026) — vendor/ PRÉCACHÉ : React, Leaflet, polices (copié tel quel par build.js §9bis).
+     Depuis le 10/10 l'app charge React/Leaflet/Inter depuis ./vendor/ (même origine) et plus depuis les CDN :
+     CDN_PREFIXES ne les voit donc plus passer. Le handler `fetch` les met bien en cache (cacheFirst, même origine,
+     non-HTML) — mais seulement à partir de la 2e visite, quand la page est contrôlée. Mesuré en headless : 1re visite,
+     réseau coupé, rechargement → index.html et app.js sortent du cache, `vendor/react.production.min.js` non → page
+     blanche. 13 fichiers, ≈ 400 Ko, dont les 3 polices (fonts.css les référence en `fonts/fX.woff2`) et les 5 images
+     de Leaflet (leaflet.css les référence en `images/`). Chemins relatifs comme le reste de la liste. */
+  './vendor/react.production.min.js',
+  './vendor/react-dom.production.min.js',
+  './vendor/leaflet.js',
+  './vendor/leaflet.css',
+  './vendor/fonts.css',
+  './vendor/fonts/f1.woff2',
+  './vendor/fonts/f2.woff2',
+  './vendor/fonts/f3.woff2',
+  './vendor/images/layers.png',
+  './vendor/images/layers-2x.png',
+  './vendor/images/marker-icon.png',
+  './vendor/images/marker-icon-2x.png',
+  './vendor/images/marker-shadow.png',
   // ⚠️ v333 : les 5 captures de la visite guidée (tour/*.webp, 582 Ko) ont été RETIRÉES du précache.
   // Elles étaient téléchargées à l'installation pour un écran joué UNE SEULE FOIS, juste après
   // l'onboarding — donc quasi toujours en ligne. Le handler `fetch` ci-dessous les met déjà en cache
@@ -114,7 +134,10 @@ self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     try {
       const c = await caches.open(STATIC_CACHE);
-      await c.addAll(STATIC_ASSETS);
+      /* v519 : un fichier par un fichier, et pas `addAll` — `addAll` est ATOMIQUE : un seul 404 (une icône renommée,
+         un fichier de vendor/ absent de deploy/) vidait TOUT le précache, et le try/catch ci-dessous le cachait. Ici,
+         ce qui manque manque, le reste est en cache ; même sémantique qu'`addAll` pour chaque entrée (réponse non-ok = refusée). */
+      await Promise.all(STATIC_ASSETS.map((u) => c.add(u).catch(() => {})));
       // 📴 Renfort offline (№7) : précache app.js (URL hashée extraite de index.html) → le shell est
       // garanti hors-ligne DÈS l'install, sans attendre une 2e visite. Best-effort, jamais bloquant.
       try {
