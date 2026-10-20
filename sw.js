@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v540-2026-10-17';
+const CACHE_VERSION = 'spotane-v541-2026-10-20';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -79,6 +79,20 @@ const PHOTOS_CACHE = 'spotane-photos-v1';   // nom STABLE, volontairement sans C
 const PHOTOS_MAX = 50;
 const PHOTO_STORAGE_MARKERS = ['/storage/v1/object/public/', '/storage/v1/render/image/public/'];
 const isSpotPhoto = (url) => PHOTO_STORAGE_MARKERS.some((m) => url.includes(m));
+/* 🧭 chantier 4 (17/10 soir, mesuré en headless) — le gazetier C1 (Storage public `gazetier/`, ≈ 700 Ko) porte le même
+   marqueur `/storage/v1/object/public/` qu'une photo : il entrait dans le cache photos (cache-first, JAMAIS revalidé,
+   plafonné à 50) et prenait la place d'une photo. Conséquence réelle : un gazetier régénéré n'aurait jamais été rechargé
+   sur un téléphone installé, même après les 7 jours de TTL de l'app. L'app gère son propre cache (`myplace-gazetier-v1`,
+   voir gazetierCharger dans index.html) : le SW laisse passer au réseau. À l'activation, on retire aussi l'entrée déjà
+   présente chez les installés (sonde avant/après : sonde-sw.mjs du chantier 4). */
+const GAZETIER_MARKER = '/storage/v1/object/public/gazetier/';
+const isGazetier = (url) => url.includes(GAZETIER_MARKER);
+async function purgeGazetierDesPhotos() {
+  try {
+    const cache = await caches.open(PHOTOS_CACHE);
+    for (const k of await cache.keys()) if (isGazetier(k.url)) await cache.delete(k);
+  } catch (e) { /* best-effort */ }
+}
 
 async function photoCacheFirst(req) {
   const cache = await caches.open(PHOTOS_CACHE);
@@ -162,7 +176,7 @@ self.addEventListener('activate', (event) => {
         keys.filter((k) => !k.startsWith(CACHE_VERSION) && k !== PHOTOS_CACHE)
           .map((k) => caches.delete(k))
       )
-    ).then(() => self.clients.claim())
+    ).then(purgeGazetierDesPhotos).then(() => self.clients.claim())
   );
 });
 
@@ -176,6 +190,7 @@ self.addEventListener('fetch', (event) => {
   const url = req.url;
 
   if (startsWithAny(url, NEVER_CACHE_PREFIXES)) return;
+  if (isGazetier(url)) return;   // 🧭 chantier 4 : réseau, l'app a son propre cache
 
   if (startsWithAny(url, CDN_PREFIXES)) {
     event.respondWith(cacheFirst(req, RUNTIME_CACHE));
