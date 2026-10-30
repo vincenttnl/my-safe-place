@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v557-2026-10-29';
+const CACHE_VERSION = 'spotane-v558-2026-10-29';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -75,7 +75,12 @@ const PHOTO_PREFIXES = [
    photo change), donc rien a revalider — et ca evite de re-payer une transformation d'image, quota
    deja saturé sur ce projet (2 567 pour 100 inclus, mesure du 30/07).
    Eviction : les plus ANCIENNEMENT ajoutees d'abord (cache.keys() rend l'ordre d'insertion). */
-const PHOTOS_CACHE = 'spotane-photos-v1';   // nom STABLE, volontairement sans CACHE_VERSION
+/* 📷 28/10 (C05, chasse L1) — v1 → v2 : la v1 contient des photos EN ÉCHEC mises en cache comme si elles étaient
+   bonnes (réponse opaque d'une 400 Storage, voir photoCacheFirst). On ne peut pas les distinguer des bonnes :
+   une réponse opaque ne dit pas son statut. Changer le nom suffit à les purger : le ménage d'`activate` supprime
+   tout cache qui n'est ni de la version courante ni PHOTOS_CACHE. Coût : les ≤ 50 vignettes déjà vues se
+   re-téléchargent une fois (≈ 5 Ko chacune, `_200.webp`, aucune transformation d'image). */
+const PHOTOS_CACHE = 'spotane-photos-v2';   // nom STABLE, volontairement sans CACHE_VERSION
 const PHOTOS_MAX = 50;
 const PHOTO_STORAGE_MARKERS = ['/storage/v1/object/public/', '/storage/v1/render/image/public/'];
 const isSpotPhoto = (url) => PHOTO_STORAGE_MARKERS.some((m) => url.includes(m));
@@ -98,26 +103,30 @@ async function photoCacheFirst(req) {
   const cache = await caches.open(PHOTOS_CACHE);
   const hit = await cache.match(req);
   if (hit) return hit;
+  /* 📷 28/10 (C05, chasse L1, mesuré en headless : _explorations/c05-explorer-2026-10-28/chasse/sw-404-mesure.json).
+     AVANT : `fetch(req)` d'un <img> part en `no-cors` → réponse OPAQUE (status 0), qu'on mettait en cache faute de
+     pouvoir lire son statut. Storage répond 400 à un objet absent (variante `_200.webp` pas encore générée…) :
+     cette 400 opaque entrait dans le cache, puis était RESSERVIE en échec à chaque passage, sans jamais revalider.
+     MAINTENANT : on redemande la même URL en `cors` (Storage public envoie `Access-Control-Allow-Origin: *`, vérifié
+     le 28/10 sur une 200 ET sur une 400). La réponse est lisible : on ne garde que `status === 200`. Tout le reste
+     (400, 404, 206…) est rendu à l'<img> sans être mis en cache → le filet `imgFallbackVariante` du front prend le relais,
+     et la photo sera redemandée au prochain affichage.
+     Repli : si la requête cors échoue (réseau coupé, ou CORS retiré un jour côté Storage), on retente l'ancienne requête
+     no-cors pour AFFICHER l'image, mais sans la mettre en cache (on ne peut plus savoir si elle est bonne). */
+  let fresh;
   try {
-    const fresh = await fetch(req);
-    /* ⚠️ CORRIGE APRES MESURE. J'avais ecrit `fresh.ok && fresh.status === 200`, en croyant proteger
-       contre des reponses incompletes. Resultat : le cache restait VIDE, mesure a 0 entree sur 48
-       photos demandees. Une image chargee par <img src> part en mode `no-cors` : la reponse est
-       OPAQUE, donc `status === 0` et `ok === false` — mon garde-fou rejetait absolument tout.
-       Une reponse opaque se met en cache et se ressert parfaitement : c'est le mecanisme NORMAL pour
-       une image tierce. Ce qu'il faut vraiment ecarter, c'est une 206 (contenu partiel), qui rendrait
-       une image tronquee. */
-    const utilisable = fresh && (fresh.status === 200 || fresh.type === 'opaque') && fresh.status !== 206;
-    if (utilisable) {
-      await cache.put(req, fresh.clone());
-      trimPhotos(cache);   // sans await : ne pas retarder l'affichage pour du menage
-    }
-    return fresh;
+    const accept = req.headers.get('Accept');
+    fresh = await fetch(req.url, { mode: 'cors', credentials: 'omit', headers: accept ? { Accept: accept } : {} });
   } catch (e) {
-    // Hors reseau et pas en cache : on laisse l'erreur passer. Le front a son repli (fond de
-    // categorie depuis la v347), il n'affichera plus un bloc blanc.
-    throw e;
+    // Hors réseau et pas en cache : cette seconde tentative échoue aussi et l'erreur passe, comme avant.
+    // Le front a son repli (fond de catégorie depuis la v347), il n'affichera pas un bloc blanc.
+    return fetch(req);
   }
+  if (fresh && fresh.status === 200 && fresh.type !== 'opaque') {
+    await cache.put(req, fresh.clone());
+    trimPhotos(cache);   // sans await : ne pas retarder l'affichage pour du menage
+  }
+  return fresh;
 }
 
 async function trimPhotos(cache) {
