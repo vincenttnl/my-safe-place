@@ -1,7 +1,7 @@
 {
   "name": "Spot 105",
   "short_name": "Spot 105",
-  "description": "Tes meilleurs spots — restos, bars, rooftops, sorties",
+  "description": "Tu sors ce soir ? Lucia prépare ta soirée.",
   "start_url": "/my-safe-place/",
   "scope": "/my-safe-place/",
   "display": "standalone",
