@@ -30,6 +30,6 @@
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;font:16px/1.4 -apple-system,system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box}a{display:inline-block;margin-top:14px;background:#FF006E;color:#fff;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:999px}</style>
 </head>
 <body><div><div style="font-weight:800;font-size:20px">Une soirée t'attend 🌙</div><a id="go" href="../">Ouvrir le plan dans Spot 105</a></div>
-<script>try{document.getElementById("go").href="../"+location.search;}catch(e){}</script>
+<script>try{document.getElementById("go").href="../"+location.search+location.hash;/* R14 : le lien court vit dans le #… */}catch(e){}</script>
 </body>
 </html>
