@@ -1,6 +1,6 @@
 // Spotane — Service Worker
 // Bump CACHE_VERSION à chaque release pour invalider l'ancien cache.
-const CACHE_VERSION = 'spotane-v575-2026-11-07';
+const CACHE_VERSION = 'spotane-v576-2026-11-09';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
@@ -31,6 +31,7 @@ const STATIC_ASSETS = [
   './vendor/fonts/f2.woff2',
   './vendor/fonts/f3.woff2',
   './vendor/fonts/f4.woff2',   /* 🎨 DA4 (07/11) : Bebas Neue (latin, 8,6 Ko, SIL OFL) — le titre de la fiche et ses 3 boutons, hors ligne compris */
+  './vendor/fonts/f5.woff2',   /* 🧭 R16 (08/11) : Big Shoulders Display 700 (latin, 14 Ko, SIL OFL) — les mots-filtres d'Explorer (6f G, Vincent) */
   './vendor/images/layers.png',
   './vendor/images/layers-2x.png',
   './vendor/images/marker-icon.png',

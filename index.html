@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<!-- built 2026-11-07T23:53:32.216Z -->
+<!-- built 2026-11-09T19:18:10.195Z -->
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <script>
@@ -300,6 +300,42 @@ try{document.documentElement.setAttribute('data-r8',(typeof R8_RETOURS!=="undefi
 var R9_PINS=1;
 var R12_ATTENTE=1;/* ✦ R12 · « Livia cherche » (07/11, T3 a + §1 B+A) : bleu nuit étoilé, phrases géantes Bebas qui tournent au-dessus, mini-carte dessinée où les pins tombent puis 3 se rallument 1-2-3. Posé sur R6. 0 = l'écran R6. */
 var R14_PARTAGE=1;/* 🔗 R14 · PARTAGE + PAGES REÇUES (07/11) : détail au bloc « R14 » près de c13Lien ; rapport _explorations/r14-partage-2026-11-07/RAPPORT.md */
+/* 🗺️ R15 · CARTE (08/11/2026 ; décisions de Vincent §A 3 A, 4 C, 5 n° 3 et §D B7 de _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md ;
+   rapport : _explorations/r15-carte-2026-11-08/RAPPORT.md). Posé sur R9 (sans R9_PINS=1, rien ne change).
+   1 · fantômes (3 A) : la carte dessine les spots OUVERTS d'abord ; les fermés (estompés R9_FERME_OP) ne complètent que s'il manque d'ouverts ;
+       le plafond vaut PARTOUT, vue ville comme vue rue (avant : la vue rue montrait tout, jusqu'à EX_MAX_POINTS pins) ; le spot touché et le spot
+       recherché restent toujours dessinés ; les étapes du plan sont une couche à part, jamais coupées ; la liste garde TOUS les spots de la vue ;
+   2 · favoris et nouveaux (4 C, paliers) = r15Quota(F) : jusqu'à R15_FAV_SEUIL favoris dans l'écran → tous, et R15_BASE − min(F, R15_FAV_PART) non-favoris
+       (3 → 3 + 17, 8 → 8 + 16) ; au-delà → moitié-moitié, plafonné R15_FAV_MAX / R15_FAV_MAX (15 → 12 + 12, 30 et plus → 15 + 15) ; total entre 20 et 30 ;
+       les favoris non dessinés reviennent au zoom suivant. R15_RESERVE = places réservées (events de 18 h à 6 h, règle §C 18 à venir) : 0 aujourd'hui ;
+   3 · puce « Ouvert » d'Explorer (5 n° 3) : active = vert plein #2FBF3C (le --open de l'app), texte blanc « ✓ Ouvert » ; inactive = la puce d'avant, point vert ;
+   4 · B7 (moitié carte) : dans le carrousel du tap, les 3 voisins suivants ont leur photo préchargée (new Image) à chaque glissé et à l'ouverture.
+   0 = v575 au comportement près. */
+var R15_CARTE=1;
+try{document.documentElement.setAttribute('data-r15',(typeof R15_CARTE!=="undefined"&&+R15_CARTE===1)?"1":"0");}catch(_){}
+/* 🧭 R16 · EXPLORER (08/11/2026 ; décisions de Vincent 6 C, 7 B, Q6 et B4 de _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md ;
+   rapport : _explorations/r16-explorer-2026-11-08/RAPPORT.md). Posé sur DA5 + R10 : sans eux, rien ne change.
+   1 · 6 C : les puces de filtres deviennent des MOTS en capitales condensées (police --font-chips, Bebas Neue en attendant le choix de Vincent : UNE ligne
+       à changer, grep --font-chips) : inactif gris #8A8A94, actif noir #111114 et ×1,15, le point de couleur de la catégorie reste devant (6 px) ;
+       « Ouvert » reste le 1er mot, en vert quand il est actif ; une seule ligne, qui glisse si besoin ;
+   2 · 7 B : la ligne des mots ET la barre de recherche descendent EN BAS, collées à la barre d'onglets (mots au-dessus, recherche dessous) ; tout ce qui se
+       posait en bas de la carte (plan du soir, photo du tap, autour de moi, crédit, feuille) remonte de --r16-bas ; le haut est libre : « Ce soir, on a une
+       idée » y pop avec une croix (fermée = jusqu'à la prochaine ouverture d'Explorer) ; au clavier, la barre suit le visualViewport (--r16-kb) ;
+   3 · B4 : taper dans la recherche efface le filtre « même esprit » / « Voir tout » d'un rail (mapFilter) : la recherche est prioritaire.
+   0 = v575 au comportement près. */
+var R16_EXPLORER=1;
+try{document.documentElement.setAttribute('data-r16',(typeof R16_EXPLORER!=="undefined"&&+R16_EXPLORER===1)?"1":"0");}catch(_){}
+/* 🧾 R18 · FICHE + LIVIA (08/11/2026 ; décisions de Vincent sur le test v575, _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md §A 1 A · 2 C · 12 + §B · §D B7 B8 ;
+   rapport : _explorations/r18-fiche-2026-11-08/RAPPORT.md). Posé sur DA4 + R13 (fiche), C09 (rail), R12 (Livia), DA5 (tap).
+   1 · la fiche sur le gris de l'écran du plan (#F7F7F7), bulles blanches (texte, adresse, horaires), les 3 actions en bulles blanches à contour fin ; Nuit : fond #000 sous des bulles #1C1C1E ;
+   2 · « Dans le même esprit » : 5 cartes même fermées (fermés estompés, ouverts d'abord), « +5 · Encore » au bout du rail charge 5 de plus EN PLACE (15 max) ; plus jamais Explorer ;
+   3 · « Livia cherche » : les 13 phrases de Vincent (§B), « {ville} la nuit, c'est mon bureau. », 4 s par phrase, l'écho de la demande 6 s ;
+   4 · la photo du tap (DA5) : la petite variante (200) d'abord, la grande (600) se fond par-dessus quand elle est chargée.
+   0 = v575 au comportement près. */
+var R18_FICHE=1;
+try{document.documentElement.setAttribute('data-r18',(typeof R18_FICHE!=="undefined"&&+R18_FICHE===1)?"1":"0");}catch(_){}
+var R17_ACCUEIL=1;/* 🏠 R17 · ACCUEIL + PLAN (08/11, retours v575 : 8 E · 10 A · Q3 · 11 A · B2 · B3) : pastille PARIS cliquable (= sélecteur de ville) à la place du surtitre « Ce soir à », « Bonsoir » sans prénom ; plan validé = « Changer » + swap sur chaque étape ; en bas « C'est parti » (gris) puis « ✓ J'y suis » vert à cocher / décocher (clé neuve myplace_r17_present_v1) + Partager magenta ; widget : la photo prend tout son tiers ; composé entre 1 h et 6 h = la fin de nuit, lieux ouverts seulement, rien après 6 h. Posé sur R11. 0 = v575. Rapport : _explorations/r17-accueil-2026-11-08/RAPPORT.md */
+try{document.documentElement.setAttribute('data-r17',(typeof R17_ACCUEIL!=="undefined"&&+R17_ACCUEIL===1)?"1":"0");}catch(_){}
 try{document.documentElement.setAttribute('data-r9',(typeof R9_PINS!=="undefined"&&+R9_PINS===1)?"1":"0");}catch(_){}
 /* 🎛️ R10 · FILTRES + LISTE · SPOTS (07/11/2026 ; décisions de Vincent T6 a et T11 OK, §6 C' et §16 A de _explorations/retours-v572-2026-11-07/propositions.html ;
    rapport : _explorations/r10-explorer-2026-11-07/RAPPORT.md). Posé sur DA5 + R8 (puces cumulables) : sans eux, rien ne change.
@@ -335,6 +371,99 @@ try{document.documentElement.setAttribute('data-r13',(typeof R13_FICHE!=="undefi
    0 = v574 au comportement près. */
 var R11_ACCUEIL=1;
 try{document.documentElement.setAttribute('data-r11',(typeof R11_ACCUEIL!=="undefined"&&+R11_ACCUEIL===1)?"1":"0");}catch(_){}
+/* 🔗 R19 · PARTAGE v576 (08/11/2026 ; décisions de Vincent §D B1 · B6 · §A 14 A de _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md ;
+   rapport : _explorations/r19-partage-2026-11-08/RAPPORT.md). Posé sur R14 (sans R14_PARTAGE=1, rien ne change).
+   SANS drapeau (bug B1) : le lien court « p/#<code> » transporte aussi une étape EVENT (identifiant source, lieu ou n° de fiche, heure, titre court,
+     position si hors fiche) : plus de repli vers le lien long ?soiree= de 600 caractères pour un plan qui contient une soirée (format : bloc R14, en-tête bit 7).
+     Les liens déjà envoyés (court v0, ?soiree= v1/v2, ?s=) s'ouvrent comme avant.
+   SOUS drapeau : à la réception, l'event est RELU dans le flux des soirées du téléphone (raEvents + cache myplace_ra_events_v2_*) et porte sa carte
+     (titre, heure, lieu, photo) ; la page du plan reçu montre « 🎟️ titre · heure » sous le lieu. À 0 : l'étape est rendue comme une étape du lien long
+     d'avant (nom du lieu + heure, sans carte).
+   Hors index.html (statique, pas de drapeau) : p/og-plan.jpg refait au design A (scripts/partage/gen-og-plan.mjs) ; pages /s/<id>/ avec une og:image
+     recadrée 800 × 420 par la transformation d'image Supabase (scripts/partage/gen-pages.mjs). */
+var R19_PARTAGE=1;
+/* 🎟️ R24 · FICHE EVENT + LISTE (09/11, chantier W5 de la v577 ; décisions v575 §F 19 A / 19b b, §H 4a A, §I 4b B, §K-§L « Fiche event ») :
+   la fiche event passe en BLEU NUIT ÉTOILÉ (#0F1A3A + poussière d'étoiles), même grammaire que la fiche spot : l'affiche ENTIÈRE centrée sur son propre
+   flou bleu nuit (tap = plein écran), surtitre « CE SOIR · 23H → 5H », titre Bebas, « au <Lieu> › » qui ouvre la fiche du spot quand l'event est rattaché
+   (spotId, sinon le rapprochement par le nom d'avant ; Shotgun : spotId seul) et texte simple sinon ; TROIS pastilles BLANCHES Billets · Ma soirée ·
+   Partager (Billets n'est plus magenta, plus de pied pleine largeur) ; bulles blanches : texte, line-up avec en dernière ligne « <Orga> · orga · Suivre »
+   (le suivi des collectifs du Lot 6), genre · prix, adresse. « Ma soirée » d'un event sans fiche = une étape « ra:<id> » hors fiche (comme Livia).
+   Liste Events : la ligne d'infos dit lieu · arrondissement · genre (« Rex Club · 2e · House »). 0 = la fiche C06 et la liste de la v576.
+   Rapport : _explorations/chantiers-v577-2026-11-09/w5/RAPPORT.md */
+var R24_EVENT_FICHE=1;
+try{document.documentElement.setAttribute('data-r24',(typeof R24_EVENT_FICHE!=="undefined"&&+R24_EVENT_FICHE===1)?"1":"0");}catch(_){}
+/* 🌌 R22 · MODE SOMBRE HYBRIDE 3 : EXPLORER + FICHE SPOT (09/11/2026, chantier W3 de la v577 ; décisions de Vincent §K, §L, §G 20s, §H 5a/5b/6c de
+   _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md, choix W3 = a ; rapport : _explorations/chantiers-v577-2026-11-09/w3/RAPPORT.md).
+   1 · Explorer en bleu nuit étoilé (#0F1A3A) TOUT LE TEMPS : tuiles Carto `dark_all` (même clé CARTO_KEY_APP), mots-filtres blancs (police --font-chips
+       inchangée), capsule BLANCHE « CHERCHE UN SPOT » (police des filtres) juste au-dessus des onglets, mots-filtres AU-DESSUS d'elle (R16 7 B gardé),
+       micro rond magenta à droite = dictée dans la recherche (useDictee de Livia, un tap démarre, un tap arrête ; masqué sans Web Speech API) ;
+       barre d'onglets bleu nuit sur Explorer ;
+   2 · fiche spot (partout où elle s'ouvre) : fond bleu nuit étoilé, bulles et actions (Y aller · ♡ Ajouter · Partager) BLANCHES, texte bleu nuit dedans,
+       ♡ magenta quand il est actif ;
+   3 · réglage Profil › Réglages › Apparence : « Explorer et fiches : Sombre / Clair » (clé NEUVE myplace_explorer_clair_v1 = "1" → clair ; absente = sombre).
+       Clair = le rendu v576 exact. L'Accueil, les Events et le Profil ne changent pas.
+   Cohabitation avec le thème global (monparis_theme → <html data-theme>) : R22 ne lit ni n'écrit monparis_theme ; il pose <html data-r22="1|0">
+   et ses règles l'emportent sur data-theme (même bleu nuit en Jour comme en Nuit). 0 = v576 au comportement près. */
+var R22_NUIT=1;
+var R22_CLAIR_K="myplace_explorer_clair_v1";
+function r22Flag(){return typeof R22_NUIT!=="undefined"&&+R22_NUIT===1;}
+function r22Clair(){try{return localStorage.getItem(R22_CLAIR_K)==="1";}catch(_){return false;}}
+function r22On(){return r22Flag()&&!r22Clair();}/* bleu nuit actif (drapeau + réglage « Sombre ») */
+try{document.documentElement.setAttribute('data-r22',r22On()?"1":"0");}catch(_){}
+try{window.mspR22Clair=v=>{try{if(v)localStorage.setItem(R22_CLAIR_K,"1");else localStorage.removeItem(R22_CLAIR_K);}catch(_){}try{document.documentElement.setAttribute('data-r22',r22On()?"1":"0");}catch(_){}};}catch(_){}
+/* 🏠 R21 · ACCUEIL, DA FINALE (W2 de la v577, 09/11/2026 ; validé par Vincent sur _explorations/validation-v577-2026-11-09/ entrée W2, décisions §J · §K · §L · §H 9a / 12a · §F Q3b / Q3c ;
+   rapport : _explorations/chantiers-v577-2026-11-09/w2/RAPPORT.md). Posé sur R17 (sans R17_ACCUEIL=1, rien ne change).
+   Fond BLANC, aucune étoile (la carte Livia perd son ciel) ; ordre Bonsoir + PARIS → Ta soirée → Livia → Mes soirées → rails → « Le 105 de ce soir » ;
+   widget : pastilles bleu nuit écrites en blanc, Partager magenta, « Toutes mes soirées » dans son ⋯ ; Livia A4 adoucie (question 30 px, « Tu me dis • Je trie • Tu sors »
+   sur une ligne, points magenta, champ plus haut) ; Mes soirées = bulle bleu nuit « 🌙 Mes soirées · N à venir › » (chevron magenta) si au moins une soirée rangée ;
+   titres de rails Bebas bleu nuit + point magenta, cartes des rails bleu nuit écriture blanche ; « Le 105 de ce soir » en grand, cerclé de bleu nuit, pin de Livia posé dessus
+   (il remplace la carte « Ton spot du jour » plus haut) ; sans plan : « Ce soir, on a une idée » = 3 tuiles (rooftop · bar · club ouverts) + les trois mots ;
+   cloche grise ; la bulle « Ajoute Spot 105 à ton écran » passe en blanc (pop « autre »). 0 = v576. */
+var R21_ACCUEIL=1;
+try{document.documentElement.setAttribute('data-r21',(typeof R21_ACCUEIL!=="undefined"&&+R21_ACCUEIL===1)?"1":"0");}catch(_){}
+/* 🔗 R20 · PARTAGE FUSIONNÉ + PAGES REÇUES (09/11/2026, chantier W1 de la v577 ; décisions de Vincent §A 13-14, §F 13f · 13p · 16, §H 1a · 1b · 1c · 7a · 7b
+   de _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md ; rapport : _explorations/chantiers-v577-2026-11-09/w1/RAPPORT.md). Posé sur R14.
+   1 · UN SEUL « Partager » pour un plan (Accueil, écran du plan, ⋯) comme pour un spot (fiche) : l'APERÇU plein écran bleu nuit étoilé (R20Apercu) montre
+       l'image + le message + le lien, « Annuler » / « Envoyer » ; Envoyer = navigator.share avec le fichier image + le texte (sans partage de fichier :
+       texte + lien ; sans feuille de partage : copié). Remplace la feuille R14 « Envoyer la photo / Envoyer le lien » et la feuille K1 d'une fiche ;
+   2 · l'image en 4/5 (1080 × 1350) : un plan = « CE SOIR. » géant + une bande photo bord à bord par étape (nom en Bebas + heure), r20PlanBlob ;
+       un spot = sa photo plein cadre, voile sombre, nom en Bebas, catégorie · quartier · horaire, r20SpotBlob ; signature = le pin + « SPOT 105 » ;
+   3 · le message signé du prénom du profil : « Vincenzo t'invite ce soir : A 21h → B 22h30 → C 00h » puis le lien (sans prénom : « Ce soir : … ») ;
+   4 · page d'un spot reçu : plus de bloc « C'est quoi Spot 105 ? », une ligne de pied « SPOT 105 · L'adresse de tes sorties. · Paris · 13 villes › »
+       (compte = CITY_ORDER.length) ; page d'installation arrivée par un lien de plan : le plan reçu d'abord, le bloc « C'est quoi » dessous, puis les gestes.
+   Les listes gardent leur feuille. 0 = v576 au comportement près. */
+var R20_PARTAGE=1;
+/* 🏙️ R26 · SÉLECTEUR DE VILLE (W7 de la v577, 09/11/2026 ; validé par Vincent sur _explorations/validation-v577-2026-11-09/ entrée W7, décisions §A 8 · §H 8a ;
+   rapport : _explorations/chantiers-v577-2026-11-09/w7/RAPPORT.md). Posé sur R17 (la pastille PARIS de l'Accueil).
+   Tap sur la pastille = demi-feuille blanche « Choisis ta ville » : les villes de CITY_ORDER (CITY_SHOWN, la même liste que le Profil) en grille de vignettes
+   avec leur photo (cityPhotoUrl, comme le Profil), la ville active cerclée de magenta ; Stockholm seulement si C22_STOCKHOLM=1 (aucun « déc. » en dur) ;
+   choisir = la même porte que le Profil (setVilleAConfirmer → « Tu changes vraiment de ville ? » → appliquerVille) ; glisser vers le bas ou tap hors de la feuille = fermer.
+   La partie « liens courts » de W7 attend le dépôt racine : hors de ce lot. 0 = la feuille-liste v576 (HpCitySheet). */
+var R26_VILLE=1;
+/* 🌌 R23 · EVENTS SUR LA CARTE (W4 de la v577, 09/11/2026 ; décisions de Vincent §F 17-18, §G 18s/18a/18c, §H 3a/3b/3c/10a de
+   _explorations/retours-v575-2026-11-08/DECISIONS-VINCENT.md ; rapport : _explorations/chantiers-v577-2026-11-09/w4/RAPPORT.md). Posé sur R15 (sans lui, rien ne change).
+   1 · de 18 h à 6 h, s'il y a des soirées ce soir dans la ville : 14 spots (paliers R15 inchangés, R15_BASE − R23_EV_MAX) + jusqu'à R23_EV_MAX events de la nuit
+       dans l'écran (moins d'events = moins de pins) ; les events viennent du flux de l'onglet Events (RA + Shotgun, mêmes caches), chargé aussi sur Explorer ;
+   2 · le pin « nuit étoilée » (dégradé bleu nuit, point blanc, 4 grains, étiquette « 23H ») : un spot du catalogue qui a un event ce soir le prend À LA PLACE
+       de son pin (un seul marqueur) ; un event sans fiche est posé à ses coordonnées ;
+   3 · le mot « events · N » en tête des mots-filtres, dessiné comme le pin étoilé quand il est allumé (allumé par défaut, éteint = 20 spots, pour la session) ;
+   4 · pastille magenta « ♡ N de plus · zoome » en haut à droite (N = favoris de l'écran que le plafond ne dessine pas) : tap = un cran de zoom sur eux ;
+   5 · tap sur un pin event : vignette bleu nuit dans le carrousel (affiche, CE SOIR · heure, nom Bebas, lieu · arr. · genre) ; tap = la fiche event (R24) ;
+   6 · le carrousel ne finit plus : pins dessinés, puis le quartier, puis il boucle sur le premier (3 photos préchargées, en boucle) ;
+   7 · barre d'état : theme-color #0F1A3A quand un écran bleu nuit est affiché (Explorer et fiche spot R22, fiche event R24), #F7F7F7 sinon.
+   0 = v576 + W2/W3/W5 au comportement près. */
+var R23_EVENTS_CARTE=1;
+try{document.documentElement.setAttribute('data-r23',(typeof R23_EVENTS_CARTE!=="undefined"&&+R23_EVENTS_CARTE===1)?"1":"0");}catch(_){}
+/* 🌙 R25 · PAGE MES SOIRÉES (W6 de la v577, 09/11/2026 ; validé par Vincent sur _explorations/validation-v577-2026-11-09/ entrée W6, décisions §H 2a A · 2b C · 2c B, §F Q3b ;
+   rapport : _explorations/chantiers-v577-2026-11-09/w6/RAPPORT.md). Posé sur R21 (sans R21_ACCUEIL=1, rien ne change).
+   1 · une liste chronologique : la date à gauche (jour court, numéro en Bebas, mois), une petite pile de photos des étapes, le titre ; ce soir puis à venir, les passées estompées en bas ;
+   2 · « Mettre ce soir » visible sur chaque ligne à venir (« Ouvrir » sur le plan de ce soir) ; le reste (renommer, inviter / partager, date, supprimer…) dans le ⋯ (le menu existant) ;
+   3 · rien à venir : Livia propose trois soirées datées (vendredi · un bar puis un club, samedi · rooftop puis resto, jeudi · after-work sans se ruiner), composées LOCALEMENT
+       à partir du catalogue de la ville (0 appel proxy), chacune avec « Garder » (= une soirée rangée de plus, limite gratuite respectée) ;
+   4 · accès : la bulle « Mes soirées » et « Toutes mes soirées » du ⋯ du widget (posés par R21) ouvrent cette page.
+   Rétrocompat : `myplace_soirees_v1` est lue telle quelle, aucune clé neuve, aucune renommée. 0 = la page de la v576. */
+var R25_MES_SOIREES=1;
+try{document.documentElement.setAttribute('data-r25',(typeof R25_MES_SOIREES!=="undefined"&&+R25_MES_SOIREES===1)?"1":"0");}catch(_){}
 /* C07 — durée des deux toasts « Gardé » et « Dans une liste ? » (note de Vincent, vague 2 Q1 : 4 s chacun). */
 var C07_TOAST_MS=4000;
 /* 🏠 C02 — rail « Ouvert maintenant » : accepte les lieux qui OUVRENT dans les N minutes (chip « ouvre à 18h30 »). Était 30 (C3d, 17/10) ; 45 = vague 6. */
@@ -351,6 +480,8 @@ var C02_AUJOURDHUI_H=17;
    « Garder » magenta · « + Ma soirée » pilule normale · « Y aller » · partage. false = la fiche des Lots 1-10 intacte. */
 var C09_FICHE=true;
 var C09_SIM_N=5;
+/* 🧾 R18 (08/11, §1 A) — plafond du rail « Dans le même esprit » : 5 au départ, « +5 » deux fois, puis le bouton disparaît. */
+var R18_SIM_MAX=15;
 /* 🏠 C02 — combien de places (sur les 8 cartes visibles, sans position) sont gardées aux lieux qui ouvrent bientôt, s'il y en a du moment. 0 = tri à la note seul. */
 var RAIL_BIENTOT_PLACES=2;
 /* 🏠 C02 — coupes de l’Accueil (ecrans-a/accueil) : « Invite tes potes » sous le 1er rail, pilule « À côté de moi », ↑ remonter, badge rouge de l’onglet. `true` rend chacun. */
@@ -4154,6 +4285,42 @@ body:has(.r12-att) [data-msp-statusbar]{background:#0F1A3A!important}/* la bande
 .r14-ins-fl span{font:400 48px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;margin-right:8px}
 @keyframes r14Fleche{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
 @media (prefers-reduced-motion:reduce){.r14-ins-l li,.r14-ins-l li i,.r14-ins-fl{animation:none!important}.r14-ins-l li:first-child{background:#3A1F5C;box-shadow:inset 0 0 0 1.5px #FF006E}.r14-ins-l li:first-child i{background:#FF006E;color:#FFFFFF}}
+/* 🔗 R20 (09/11, W1) — l'aperçu avant envoi (bleu nuit étoilé, image 4/5, bulle blanche du message, Annuler / Envoyer magenta), la ligne de pied d'un spot reçu,
+   le plan reçu en tête de la page d'installation (blanc, bloc « C'est quoi » bleu nuit). Couleurs de la DA : #0F1A3A, #1B2858, #FF006E, blanc. */
+.r20-ap{position:fixed;inset:0;z-index:4060;background:#0F1A3A;color:#FFFFFF;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);overflow:hidden}
+.r20-ap .da6-ciel{position:absolute;inset:0;pointer-events:none;z-index:0}
+.r20-ap-in{position:relative;z-index:1;width:100%;max-width:420px;max-height:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.r20-ap-img{width:min(100%,360px,calc((100vh - 300px) * .8));width:min(100%,360px,calc((100dvh - 300px) * .8));aspect-ratio:4/5;flex:none;border-radius:16px;overflow:hidden;background:#1B2858;box-shadow:0 14px 34px rgba(0,0,0,.45);display:grid;place-items:center}
+.r20-ap-img img{width:100%;height:100%;object-fit:cover;display:block}
+.r20-ap-att{font:500 14px var(--font-body);color:rgba(255,255,255,.75);animation:r20Att 1.4s ease-in-out infinite}
+@keyframes r20Att{0%,100%{opacity:.45}50%{opacity:1}}
+.r20-ap-msg{align-self:stretch;background:#FFFFFF;color:#111114;border-radius:16px;padding:11px 13px;font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere;max-height:22vh;overflow:auto;text-align:left}
+.r20-ap-msg u{color:#2563EB;text-decoration:underline}
+.r20-ap-b{display:flex;gap:10px;align-self:stretch}
+.r20-ap-b button{flex:1;min-height:50px;border:0;border-radius:999px;font:700 16px/1 var(--font-body);cursor:pointer}
+.r20-ap-x{background:rgba(255,255,255,.14);color:#FFFFFF}
+.r20-ap-go{background:#FF006E;color:#FFFFFF}
+.r20-ap-go:disabled{opacity:.5}
+.r20-ap-pote{min-height:40px;border:0;background:none;color:rgba(255,255,255,.8);font:600 14px var(--font-body);text-decoration:underline;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.r20-ap-att{animation:none}}
+.r20-pied{display:block;width:100%;margin-top:14px;padding:12px 2px 4px;border:0;border-top:1px solid #EEEEEE;background:none;text-align:left;font:500 12.5px/1.45 var(--font-body);color:#6B6B73;cursor:pointer}
+.r20-pied b{font:400 16px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.03em;color:#0F1A3A}
+.r20-ins{position:fixed;inset:0;z-index:4050;background:#FFFFFF;color:#111114;overflow-y:auto;box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 24px) 18px calc(env(safe-area-inset-bottom,0px) + 18px)}
+.r20-ins-in{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:10px;min-height:100%}
+.r20-ins-k{font:700 12px/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:#C4005A}
+.r20-ins-t{margin:0;font:400 40px/.95 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#0F1A3A}
+.r20-ins-l{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.r20-ins-l li{display:flex;gap:12px;align-items:center}
+.r20-ins-l .ph{flex:none;width:64px;height:64px;border-radius:12px;overflow:hidden;background:#F2F2F7;display:grid;place-items:center}
+.r20-ins-l .ph img{width:100%;height:100%;object-fit:cover;display:block}.r20-ins-l .ph i{font-style:normal;font-size:26px}
+.r20-ins-l .tx{min-width:0;display:flex;flex-direction:column}
+.r20-ins-l small{font:700 13px/1.2 var(--font-body);color:#C4005A}
+.r20-ins-l b{font:400 24px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#111114;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r20-ins-blk{margin-top:auto;background:#0F1A3A;color:#FFFFFF;border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.r20-ins-blk b{font:400 26px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase}
+.r20-ins-blk p{margin:0;font:400 14px/1.45 var(--font-body);color:rgba(255,255,255,.88)}
+.r20-ins-blk button{margin-top:8px;min-height:50px;border:0;border-radius:999px;background:#FF006E;color:#FFFFFF;font:700 16px var(--font-body);cursor:pointer}
+.r20-ins-tard{align-self:center;min-height:44px;padding:0 16px;border:0;background:none;color:#6B6B73;font:500 14px var(--font-body);text-decoration:underline;cursor:pointer}
 .r7-ld-bas{position:sticky;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(247,247,247,0),#F7F7F7 26%);max-width:600px;width:100%;box-sizing:border-box;margin:0 auto}
 .r7-ld-add{width:100%;min-height:54px;border:0;border-radius:999px;background:#FF006E;color:#FFFFFF;font:700 16px/1.2 var(--font-body);cursor:pointer}
 .r7-ld-dec{display:block;width:100%;min-height:44px;margin-top:6px;border:0;background:none;color:#C4005A;font:600 15px/1.2 var(--font-body);cursor:pointer}
@@ -4232,6 +4399,20 @@ body:has(.r12-att) [data-msp-statusbar]{background:#0F1A3A!important}/* la bande
 :root[data-da4="1"][data-r13="1"] .sd-sheet.f1.da4 .f1-acts{margin-top:8px}
 :root[data-r13="1"] .sd-sheet.da4 .da4-bulle{margin-top:7px}
 :root[data-r13="1"] .sd-sheet.da4 .da4-bulle+.da4-bulle{margin-top:6px}
+/* 🧾 R18 · FICHE SUR FOND GRIS (08/11 ; décisions v575 §2 C + §1 A). Tout sous :root[data-r18="1"] (posé par R18_FICHE) : à 0, rien.
+   Jour : la feuille (encoche, barre comprises) passe sur le gris de l'écran du plan #F7F7F7 ; les bulles (texte R13, adresse, horaires) deviennent blanches à liseré
+   1 px #E4E4EA (maquette C, .f-bub.w2) ; les 3 actions Y aller · ♡ Ajouter · Partager = bulles blanches à contour fin 1 px #D9D9DE, texte encre (le cœur garde son
+   magenta) ; les puces de la bulle adresse (blanches sur gris en DA4) repassent en gris --surface. Nuit : fond #000, un cran sous les bulles #1C1C1E, contour #3A3A3C.
+   Le rail : fermés estompés (.45), bouton « +5 · Encore » = rond blanc à contour, chiffre en Bebas. */
+:root[data-r18="1"][data-da4="1"]{--da4-surface:#FFFFFF;--da4-puce:#F3F3F6;--r18-fond:#F7F7F7;--r18-liseret:#E4E4EA;--r18-contour:#D9D9DE;--r18-bulle-act:#FFFFFF}
+:root[data-r18="1"][data-da4="1"][data-theme="dark"]{--da4-surface:#1C1C1E;--da4-puce:#2C2C2E;--r18-fond:#000000;--r18-liseret:#2C2C2E;--r18-contour:#3A3A3C;--r18-bulle-act:#1C1C1E}
+:root[data-r18="1"][data-da4="1"] .sd-sheet.da4,:root[data-r18="1"][data-da4="1"] [data-sd=overlay]:has(>.sd-sheet.da4){background:var(--r18-fond)!important}
+:root[data-r18="1"][data-da4="1"] .sd-sheet.f1.da4 .f1-encoche,:root[data-r18="1"][data-da4="1"] .sd-sheet.f1.da4 .f1-barre{background:var(--r18-fond)}
+:root[data-r18="1"][data-da4="1"] .sd-sheet.da4 .da4-bulle,:root[data-r18="1"][data-da4="1"][data-r13="1"] .sd-sheet.f1.c9.da4 .sd-desc.c9-desc.r13-desc{box-shadow:inset 0 0 0 1px var(--r18-liseret)!important}
+:root[data-r18="1"][data-da4="1"][data-r4="1"] .sd-sheet.f1.da4 .f1-acts.r4-acts :is(.r4-act,#r4-sp){background:var(--r18-bulle-act)!important;box-shadow:inset 0 0 0 1px var(--r18-contour)!important;color:var(--da4-ink)!important}
+:root[data-r18="1"] .sd-sheet.f1 .f1-sim-c.r18-ferme{opacity:.45}
+:root[data-r18="1"] .sd-sheet.f1[data-f1] .f1-sim-more.r18-plus .f1-sim-rond{background:var(--r18-bulle-act,#FFFFFF);box-shadow:inset 0 0 0 1px var(--r18-contour,#D9D9DE);color:var(--da4-ink,var(--tx));font:400 24px/1 var(--da4-titre,var(--font-body));letter-spacing:.02em}
+:root[data-r18="1"] .sd-sheet.f1[data-f1] .f1-sim-more.r18-plus>span:last-child{color:var(--da4-ink,var(--tx))}
 .sd-sheet.da4 .da4-note.r13-note{align-self:flex-start;padding:2px 2px 0 6px;white-space:nowrap}/* T9 : la note à droite de l'adresse, sur sa 1re ligne */
 .sd-sheet.f1.da4 .da4-h .f1-week{padding:0 14px 10px 31px}
 .sd-sheet.f1.da4 .da4-h .f1-day{color:var(--da4-ink);font-size:13.5px;line-height:22px}
@@ -4271,6 +4452,9 @@ body:has(.r12-att) [data-msp-statusbar]{background:#0F1A3A!important}/* la bande
 @keyframes da5-glisse{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
 .da5-carte{position:relative;flex:0 0 calc(100% - 14px);height:100%;scroll-snap-align:start;scroll-snap-stop:always;border-radius:12px;overflow:hidden;background:linear-gradient(160deg,#F6F6F9 0%,#F3EEF4 55%,#FCE4EF 100%);color:#111114;box-shadow:0 8px 22px rgba(0,0,0,.3);cursor:pointer;-webkit-user-select:none;user-select:none}
 .da5-carte>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
+/* 🧾 R18 · B7 (08/11) : la petite variante (200) s'affiche d'abord, la grande (600) est posée par-dessus à 0 et se fond quand elle est chargée (r18ImgPrete) */
+:root[data-r18="1"] .da5-carte>img.da5-img-g{opacity:0;transition:opacity .22s ease}
+@media (prefers-reduced-motion:reduce){:root[data-r18="1"] .da5-carte>img.da5-img-g{transition:none}}
 .da5-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding-bottom:40px;z-index:0}
 .da5-vide .da4-mono{width:96px;height:auto;display:block;opacity:.92}
 .da5-voile{position:absolute;z-index:2;left:0;right:0;bottom:0;padding:30px 12px 11px;background:linear-gradient(rgba(0,0,0,0),rgba(0,0,0,.74));color:#FFFFFF;display:flex;flex-direction:column;gap:3px;pointer-events:none}
@@ -4291,6 +4475,103 @@ body:has(.r12-att) [data-msp-statusbar]{background:#0F1A3A!important}/* la bande
 .r10-seg button::after{content:"";position:absolute;left:0;right:0;top:-8px;bottom:-8px}
 .r10-seg.r10-photo{position:absolute;z-index:3;top:10px;left:10px;background:rgba(243,243,246,.94);box-shadow:0 2px 8px rgba(0,0,0,.18)}
 @media (prefers-reduced-motion:reduce){.da5-rail{animation:none}.da5-coeur.da5-bat svg{animation:none}.da5-plan{transition:none}}
+/* 🧭 R16 · EXPLORER (08/11) — 6 C mots-filtres · 7 B barre en bas · idée du soir en haut. Tout vit sous :root[data-r16="1"] / .ex-root.r16 : à 0, rien ne change. */
+:root[data-r16="1"]{--font-chips:"Big Shoulders Display","Bebas Neue",Impact,"Arial Narrow",sans-serif;/* 6f G (Vincent, 08/11) : Big Shoulders Display 700 en minuscules (vendor/fonts/f5.woff2) ; Bebas en repli */
+  --r16-barre:102px/* hauteur de la barre du bas : mots (40) + recherche (44) + marges ; tout ce qui se pose sur la carte remonte d'autant */}
+.ex-root.r16{--r16-bas:calc(var(--r16-barre) + var(--r16-kb,0px))}
+.ex-root.r16 .ex-top{top:auto;bottom:var(--r16-kb,0px);padding:14px 0 8px;display:flex;flex-direction:column;background:linear-gradient(to top,rgba(255,255,255,.97) 0,rgba(255,255,255,.9) 58%,rgba(255,255,255,0) 100%)}
+.ex-root.r16 .ex-chips{order:1;align-items:center;gap:12px;padding:4px 14px 2px;line-height:1;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}/* 6f G : Big Shoulders est plus large que Bebas → une seule ligne qui glisse */
+.ex-root.r16 .ex-chips::-webkit-scrollbar{display:none}
+.ex-root.r16 .ex-field{order:2;margin-top:6px}
+/* le mot : plus de pastille, capitales condensées ; la zone de tap reste ≥ 44 px (::after) ; le point de la catégorie, plus petit, garde sa place */
+:root[data-r16="1"] .ex-root.r16 .ex-chips .ex-chip.r16-mot[data-ex-chip]{height:30px;padding:0 2px;border-radius:0;background:transparent!important;box-shadow:none!important;color:#8A8A94!important;font:700 17px/1 var(--font-chips);letter-spacing:.01em;text-transform:none;gap:6px;text-shadow:0 0 6px #FFFFFF,0 0 2px #FFFFFF;transition:font-size .12s ease,color .12s ease}
+:root[data-r16="1"] .ex-root.r16 .ex-chips .ex-chip.r16-mot[data-ex-chip][aria-pressed="true"]{color:#111114!important;font-size:19.5px}
+:root[data-r16="1"] .ex-root.r16 .ex-chips .ex-chip.r16-mot[data-ex-chip="open"][aria-pressed="true"]{color:#2FBF3C!important}/* Ouvert actif sans R15 : mot vert */
+:root[data-r15="1"][data-r16="1"] .ex-root.r16 .ex-chips .ex-chip.r16-mot[data-ex-chip="open"][aria-pressed="true"]{color:#fff!important;background:#2FBF3C!important;border-radius:999px;padding:0 9px;text-shadow:none}/* Ouvert actif = n° 3 (Vincent) : vert plein --open + coche (libellé R15 « ✓ Ouvert »), texte blanc */
+:root[data-r16="1"] .ex-root.r16 .ex-chip.r16-mot::before{content:none!important}/* plus de liseré tournant R4 */
+:root[data-r16="1"] .ex-root.r16 .ex-chip.r16-mot::after{top:-8px;bottom:-8px;left:-7px;right:-7px}
+.ex-root.r16 .ex-chip.r16-mot .ex-dot{width:6px;height:6px;align-self:center;transform:translateY(-1px)}
+.ex-root.r16 .ex-chip.r16-mot[aria-pressed="true"] .ex-dot{width:7px;height:7px}
+.ex-root.r16 .ex-chips .ex5-reg{width:30px;height:30px;align-self:center;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+@media (prefers-reduced-motion:reduce){.ex-root.r16 .ex-chip.r16-mot{transition:none}}
+/* tout ce qui se posait en bas de la carte remonte au-dessus de la barre */
+.ex-root.r16 .ex-sheet{bottom:var(--r16-bas)}
+.ex-root.r16 .ex-sheet.ex-c2,.ex-c5.r16 .ex-sheet.ex-c2{top:calc(env(safe-area-inset-top,0px) + 8px)}
+:root[data-da5="1"] .ex-c5.r16 .ex-loc.da5-loc{bottom:calc(16px + var(--r16-bas))}
+:root[data-da5="1"] .ex-c5.r16 .ex-loc.da5-loc.ex5-haut{bottom:calc(84px + var(--r16-bas))}
+:root[data-da5="1"][data-r7="1"] .ex-c5.r16 .r7-plan-bulle{bottom:calc(16px + var(--r16-bas))}
+.ex-root.r16 .da5-plan{bottom:calc(12px + var(--r16-bas))}
+.ex-root.r16 .da5-rien{bottom:calc(22px + var(--r16-bas))}
+.ex-root.r16 .da5-tap{bottom:calc(12px + var(--r16-bas))}
+.ex-root.r16 .ex5-plan{bottom:calc(78px + var(--r16-bas))}
+.ex-root.r16 .leaflet-container .leaflet-bottom.leaflet-left{bottom:calc(var(--msp-peek-attr-b,var(--msp-attr-b,0px)) + var(--r16-bas))}
+/* le haut de la carte est libre : une pile (idée du soir, bandeaux ✕) sous l'encoche — « tout ce qui pop pop EN HAUT avec une croix » */
+.r16-haut{position:absolute;z-index:1050;left:0;right:0;top:0;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 0;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.r16-haut>*{pointer-events:auto}
+.ex-c5.r16 .r16-haut .ex-recue,.r16-haut .ex-recue{position:static;left:auto;right:auto;top:auto}
+.r16-idee{display:flex;align-items:center;gap:8px;min-height:56px;box-sizing:border-box;padding:8px 8px 8px 12px;border-radius:16px;background:#FFFFFF;color:#111114;box-shadow:var(--da5-ombre,0 4px 14px rgba(0,0,0,.14))}
+.r16-idee-c{flex:1;min-width:0;display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;text-align:left;color:inherit;cursor:pointer;font:inherit}
+.r16-idee-c>span:first-child{flex:none;font-size:22px;line-height:1}
+.r16-idee-t{flex:1;min-width:0}
+.r16-idee-t b{display:block;font:700 15px/1.2 var(--font-body)}
+.r16-idee-t small{display:block;color:#6B6B73;font:400 13px/1.25 var(--font-body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r16-idee-x{flex:none;position:relative;width:30px;height:30px;border-radius:999px;border:0;background:#F3F3F6;color:#111114;font-size:12px;display:grid;place-items:center;cursor:pointer}
+.r16-idee-x::after{content:"";position:absolute;inset:-8px}
+</style>
+<style id="r22-nuit">/* 🌌 R22 · MODE SOMBRE HYBRIDE 3 — EXPLORER + FICHE SPOT (09/11, W3 de la v577 ; prototype W7 thème h3, maquettes `explorer` / `fiche_spot` de
+   _explorations/validation-v577-2026-11-09/gen.py). Tout sous :root[data-r22="1"] (posé par R22_NUIT ET le réglage « Sombre ») : à 0 / « Clair », rien.
+   Bleu nuit #0F1A3A, carte #1B2858, gris bleuté #A9B0C8, magenta #FF006E ; étoiles = dégradés radiaux répétés (background-size 180 px), aucune image.
+   Les règles portent :root[data-r22="1"] et l'emportent sur data-theme (Jour comme Nuit : même bleu nuit). */
+:root[data-r22="1"]{--r22-nuit:#0F1A3A;--r22-carte:#1B2858;--r22-mut:#A9B0C8;--r22-trait:#24326A;
+  --r22-ciel:radial-gradient(1px 1px at 8% 12%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 22% 64%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(1px 1px at 37% 28%,rgba(255,255,255,.6) 50%,transparent 52%),radial-gradient(1.4px 1.4px at 54% 8%,#fff 50%,transparent 52%),radial-gradient(1px 1px at 66% 44%,rgba(255,255,255,.7) 50%,transparent 52%),radial-gradient(1px 1px at 78% 18%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 91% 58%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(1px 1px at 13% 88%,rgba(255,255,255,.6) 50%,transparent 52%),radial-gradient(1px 1px at 47% 82%,#fff 50%,transparent 52%)}
+/* ── EXPLORER ── fond de carte (avant les tuiles dark_all) bleu nuit */
+:root[data-r22="1"] .ex-root.r22,:root[data-r22="1"] .ex-root.r22 .leaflet-container{background:var(--r22-nuit)}
+/* la barre du bas (mots + capsule) : fondu bleu nuit étoilé au lieu du voile blanc */
+:root[data-r22="1"] .ex-root.r16.r22 .ex-top{background:linear-gradient(to top,var(--r22-nuit) 0,rgba(15,26,58,.94) 55%,rgba(15,26,58,0) 100%)}
+:root[data-r22="1"] .ex-root.r16.r22 .ex-top::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:var(--r22-ciel);background-size:180px 180px;-webkit-mask-image:linear-gradient(to top,#000 45%,transparent);mask-image:linear-gradient(to top,#000 45%,transparent)}
+/* les mots-filtres en blanc : inactif gris bleuté, actif blanc (×1,15 gardé) ; le halo blanc devient un halo bleu nuit */
+:root[data-r22="1"][data-r16="1"] .ex-root.r16.r22 .ex-chips .ex-chip.r16-mot[data-ex-chip]{color:var(--r22-mut)!important;text-shadow:0 0 6px rgba(15,26,58,.9),0 0 2px rgba(15,26,58,.9)}
+:root[data-r22="1"][data-r16="1"] .ex-root.r16.r22 .ex-chips .ex-chip.r16-mot[data-ex-chip][aria-pressed="true"]{color:#FFFFFF!important}
+:root[data-r22="1"][data-r16="1"] .ex-root.r16.r22 .ex-chips .ex-chip.r16-mot[data-ex-chip="open"][aria-pressed="true"]{color:#6EE08A!important}
+:root[data-r22="1"][data-r15="1"][data-r16="1"] .ex-root.r16.r22 .ex-chips .ex-chip.r16-mot[data-ex-chip="open"][aria-pressed="true"]{color:#FFFFFF!important;text-shadow:none}
+/* la capsule BLANCHE « CHERCHE UN SPOT » (police des filtres), le micro rond magenta à droite */
+:root[data-r22="1"] .ex-root.r22 .ex-field{background:#FFFFFF;color:#6B6B73;box-shadow:0 6px 18px rgba(0,0,0,.35);padding-right:6px}
+:root[data-r22="1"] .ex-root.r22 .ex-field input{color:#111114}
+:root[data-r22="1"] .ex-root.r22 .ex-field input::placeholder{color:#6B6B73;font:700 18px/1 var(--font-chips,"Bebas Neue",Impact,sans-serif);letter-spacing:.05em;text-transform:uppercase}
+.r22-mic{flex:none;position:relative;width:32px;height:32px;padding:0;border:0;border-radius:999px;background:#FF006E;display:grid;place-items:center;cursor:pointer;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.r22-mic::after{content:"";position:absolute;inset:-6px}
+.r22-mic.r22-mic-on{box-shadow:0 0 0 4px rgba(255,0,110,.28);animation:r22-ecoute 1.1s ease-in-out infinite}
+@keyframes r22-ecoute{50%{box-shadow:0 0 0 7px rgba(255,0,110,.14)}}
+@media (prefers-reduced-motion:reduce){.r22-mic.r22-mic-on{animation:none}}
+/* « Ce soir, on a une idée » (pop de Livia, maquette `.pop.pl`) : bleu nuit, liseré clair, croix bleu nuit claire */
+:root[data-r22="1"] .ex-root.r22 .r16-idee{background:var(--r22-nuit);color:#FFFFFF;box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.25)}
+:root[data-r22="1"] .ex-root.r22 .r16-idee-t small{color:#C9D0E6}
+:root[data-r22="1"] .ex-root.r22 .r16-idee-x{background:var(--r22-carte);color:#FFFFFF}
+/* la barre d'onglets sur Explorer : bleu nuit (prototype), icônes gris bleuté, l'active en blanc */
+:root:root[data-r22="1"][data-tab="map"] .bottom-nav .nav-inner{background:var(--r22-nuit)!important;border-color:var(--r22-trait)!important;border-top-color:var(--r22-trait)!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+:root:root[data-r22="1"][data-tab="map"] .bottom-nav button{color:var(--r22-mut)!important}
+:root:root[data-r22="1"][data-tab="map"] .bottom-nav button .nav-icon svg path{fill:var(--r22-mut)!important}
+:root:root[data-r22="1"][data-tab="map"] .bottom-nav button.active{color:#FFFFFF!important}
+:root:root[data-r22="1"][data-tab="map"] .bottom-nav button.active .nav-icon svg path{fill:#FFFFFF!important}
+:root:root[data-r22="1"][data-tab="map"] .nav-ind{background:rgba(255,255,255,.10)!important;border-color:rgba(255,255,255,.16)!important}
+/* ── FICHE SPOT (partout où elle s'ouvre) ── fond bleu nuit étoilé ; texte blanc hors bulles ; bulles et actions blanches, texte bleu nuit */
+:root[data-r22="1"][data-da4="1"] .sd-sheet.da4{--da4-ink:#F4F4F6;--da4-muted:var(--r22-mut);--da4-open:#6EE08A;--da4-closed:#FF6B6B;--da4-surface:#FFFFFF;--da4-puce:#EEF0F6;--r18-fond:var(--r22-nuit);--r18-liseret:transparent;--r18-contour:transparent;--r18-bulle-act:#FFFFFF;color:#F4F4F6}
+:root[data-r22="1"][data-da4="1"] .sd-sheet.da4,:root[data-r22="1"][data-da4="1"] [data-sd=overlay]:has(>.sd-sheet.da4){background:var(--r22-ciel),var(--r22-nuit)!important;background-size:180px 180px,auto!important;background-attachment:local,scroll}
+:root[data-r22="1"][data-da4="1"] .sd-sheet.da4 .sd-scroll{background-image:var(--r22-ciel);background-size:180px 180px;background-attachment:local}
+:root[data-r22="1"][data-da4="1"] .sd-sheet.f1.da4 .f1-encoche,:root[data-r22="1"][data-da4="1"] .sd-sheet.f1.da4 .f1-barre{background:var(--r22-nuit)!important}
+/* dans les bulles blanches : l'encre redevient bleu nuit */
+:root[data-r22="1"][data-da4="1"] .sd-sheet.da4 :is(.da4-bulle,.sd-desc.r13-desc,.f1-act,.f1-sim-rond,.f1-itin,.sd-closed){--da4-ink:#0F1A3A;--da4-muted:#5A6380;--da4-open:#1E7D2A;--da4-closed:#D70015;color:#0F1A3A}
+:root[data-r22="1"][data-da4="1"] .sd-sheet.da4 .da4-bulle,:root[data-r22="1"][data-da4="1"][data-r13="1"] .sd-sheet.f1.c9.da4 .sd-desc.c9-desc.r13-desc{background:#FFFFFF!important;box-shadow:0 4px 14px rgba(0,0,0,.22)!important}
+/* les 3 actions : bulles blanches pleines, texte bleu nuit ; ♡ Ajouter magenta quand il est actif */
+:root[data-r22="1"][data-da4="1"][data-r4="1"] .sd-sheet.f1.da4 .f1-acts.r4-acts :is(.r4-act,#r4-sp){background:#FFFFFF!important;box-shadow:0 4px 14px rgba(0,0,0,.22)!important;color:#0F1A3A!important;font-weight:700}
+:root[data-r22="1"][data-da4="1"][data-r4="1"] .sd-sheet.f1.da4 .f1-acts.r4-acts :is(.r4-act,#r4-sp)[data-on="1"]{color:#FF006E!important}
+:root[data-r22="1"][data-da4="1"][data-r4="1"] .sd-sheet.f1.da4 .f1-acts.r4-acts .r4-act[data-on="1"] .r7-coeur-lb{color:#FF006E!important}
+/* « Dans le même esprit » : titre blanc, le rond « +5 » blanc à encre bleu nuit, son libellé gris bleuté */
+:root[data-r22="1"] .sd-sheet.f1.da4 .f1-sim h2{color:#FFFFFF}
+:root[data-r22="1"] .sd-sheet.f1.da4 .f1-sim-c{color:#F4F4F6}
+:root[data-r22="1"] .sd-sheet.f1.da4 .f1-sim-m{color:var(--r22-mut)}
+:root[data-r22="1"] .sd-sheet.f1.da4[data-f1] .f1-sim-more .f1-sim-rond{background:#FFFFFF!important;box-shadow:none!important;color:#0F1A3A!important}
+:root[data-r22="1"] .sd-sheet.f1.da4[data-f1] .f1-sim-more>span:last-child{color:var(--r22-mut)!important}
 </style>
 <style id="da6-accueil">/* 🏠 DA6 · ACCUEIL ET PLAN (07/11, chantier 6 — bible §1-§3, §6 « La carte Livia » et « Le mouvement » ; maquettes ACCUEIL11 / LUCIA11 / PLAN11).
    Tout sous :root[data-da6="1"] (drapeau DA6_ACCUEIL). Rapport : _explorations/da6-accueil-2026-11-07/RAPPORT.md */
@@ -4397,13 +4678,216 @@ button.da6-pas{cursor:pointer}button.da6-pas::after{content:"";position:absolute
 .r11-pt.m{background:#FF006E;color:#FFFFFF;box-shadow:0 8px 24px rgba(255,0,110,.25)}
 .r11-jy{flex:1;min-width:0;height:54px;border:0;border-radius:14px;background:#F3F3F6;color:#111114;font:700 15.5px/1 var(--font-body);cursor:pointer;white-space:nowrap}
 .r11-jy b{color:#22A447}
+/* ── 🏠 R17 (08/11, retours v575) : pastille PARIS (8 E), « Changer » + swap (10 A), « C'est parti » gris → « ✓ J'y suis » vert à cocher (Q3), tuiles photo pleines (11 A) ── */
+.r17-hd{align-items:center;margin-bottom:10px}/* la ligne du surtitre (14 px) + 4 px de marge disparaissent ; 4 px de moins sous l'en-tête : ~18 px gagnés */
+.r17-hdt{display:flex;align-items:center;gap:10px;min-width:0}
+.r17-hdt .c02-h1{margin:0;flex:0 1 auto}
+.r17-ville{position:relative;flex:none;height:28px;padding:0 12px;border:0;border-radius:999px;background:#FF006E;color:#FFFFFF;font:400 17px/28px var(--da6-titre);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.r17-ville::after{content:"";position:absolute;left:-6px;right:-6px;top:-8px;bottom:-8px}/* cible 44 px */
+.r17-chg{display:inline-flex;align-items:center;gap:5px}
+.r17-chg svg{width:12px;height:12px}
+.r17-ab .r17-go{flex:1;min-width:0;height:54px;border:0;border-radius:14px;background:#F3F3F6;color:#111114;font:400 22px/1 var(--da6-titre);letter-spacing:.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+.r17-ab .r17-jy{flex:1;min-width:0;height:54px;border:2px solid #2FBF3C;border-radius:14px;background:#FFFFFF;color:#2FBF3C;font:700 15.5px/1 var(--font-body);cursor:pointer;white-space:nowrap;box-sizing:border-box}
+.r17-ab .r17-jy.on{background:#2FBF3C;border-color:#2FBF3C;color:#FFFFFF}
+.r17-ab .r17-jy b{font-weight:800}
+:root[data-theme="dark"] .r17-ab .r17-jy{background:transparent}
+:root[data-theme="dark"] .r17-ab .r17-jy.on{background:#2FBF3C}
+.r17-wp{gap:8px}
+.r17-wp .da6-sq{max-width:none}
+.da6-wp.defile.r17-wp .da6-sq{flex:0 0 calc((100% - 16px)/3)}
+.r17-wp .da6-sq .im,.r11-wid .r17-wp .da6-sq .im{position:relative;width:100%;height:auto;aspect-ratio:1/1.05;border-radius:12px;background:var(--r11-nuit2)}
+.r17-wp[data-r17-n="2"] .da6-sq .im{aspect-ratio:1.6/1}
+.r17-wp[data-r17-n="1"] .da6-sq .im{aspect-ratio:2.4/1}
+.r17-wp .da6-sq .im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.r17-num{position:absolute;left:6px;top:6px;z-index:2;display:grid;place-items:center;width:20px;height:20px;border-radius:999px;background:#FF006E;color:#FFFFFF;font:700 11px/1 var(--font-body);font-style:normal;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.r17-vl{position:absolute;left:0;right:0;bottom:0;z-index:1;display:flex;flex-direction:column;gap:1px;padding:16px 6px 6px;background:linear-gradient(to top,rgba(10,14,32,.9),rgba(10,14,32,0));color:#FFFFFF;text-align:left;pointer-events:none}
+.r17-vl small{font:600 11px/1.1 var(--font-body);opacity:.92}
+.r17-vl b{margin:0;max-width:100%;font:700 12.5px/1.15 var(--font-body);color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root[data-theme="dark"] .r11-pt:not(.m),:root[data-theme="dark"] .r11-jy{background:var(--sf2,#26262C);color:#F4F4F6}
+/* 🌙 R25 · PAGE MES SOIRÉES (W6 v577, 09/11) — fond blanc comme l'Accueil, titre Bebas bleu nuit + point magenta, lignes blanches au filet gris,
+   date en Bebas, pile de photos, « Mettre ce soir » / « Garder » en pastille bleu nuit écrite en blanc, passées estompées, Livia en bulle bleu nuit. Thème Nuit : surfaces de l'app. */
+.hp-ovl.r25-ovl{background:#FFFFFF}
+:root[data-theme="dark"] .hp-ovl.r25-ovl{background:var(--bg)}
+.r25-h1{display:flex;align-items:center;gap:10px;margin:4px 16px 14px;font:400 40px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase;color:#0F1A3A}
+.r25-h1::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;background:#FF006E}
+:root[data-theme="dark"] .r25-h1{color:#FFFFFF}
+.r25-list{display:flex;flex-direction:column;gap:10px;margin:0 16px}
+.r25-list+.r25-list,.r25-ms .r25-past{margin-top:18px}
+.r25-l{display:flex;align-items:center;gap:12px;min-height:78px;padding:10px 4px 10px 12px;border:1px solid #ECECF1;border-radius:18px;background:#FFFFFF;box-sizing:border-box;cursor:pointer;color:#0F1A3A;-webkit-tap-highlight-color:transparent}
+.r25-l.r25-idee{cursor:default;padding-right:12px}
+.r25-l.past{opacity:.45}
+.r25-d{flex:none;width:40px;display:flex;flex-direction:column;align-items:center;line-height:1}
+.r25-d small{font:700 10.5px/1 var(--font-body);letter-spacing:.05em;color:#6B6B73;text-transform:uppercase;white-space:nowrap}
+.r25-d b{font:400 31px/1 "Bebas Neue",Impact,"Arial Narrow",sans-serif;color:#0F1A3A;margin:3px 0 1px}
+.r25-l.soir .r25-d small:first-child{color:#D6005C}
+.r25-pile{flex:none;display:flex}
+.r25-pile i{width:36px;height:36px;border-radius:11px;background:#F3F3F6 center/cover no-repeat;box-shadow:0 0 0 2px #FFFFFF;display:grid;place-items:center;font-style:normal;font-size:18px}
+.r25-pile i+i{margin-left:-16px}
+.r25-t{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.r25-t b{max-width:100%;font:700 15.5px/1.25 var(--font-body);overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.r25-t small{font:700 11px/1 var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:#D6005C}
+.r25-mc{flex:none;height:32px;padding:0 14px;border:0;border-radius:999px;background:#0F1A3A;color:#FFFFFF;font:700 13.5px/1 var(--font-body);cursor:pointer;white-space:nowrap}
+.r25-more{flex:none;width:40px;height:44px;border:0;background:none;color:#8A8A92;display:grid;place-items:center;cursor:pointer}
+.r25-lv{display:flex;align-items:center;gap:11px;margin:0 16px 12px;padding:14px 16px;border-radius:18px;background:#0F1A3A;color:#FFFFFF;font:500 15px/1.3 var(--font-body)}
+.r25-lv b{font-weight:700}
+.r25-pin{flex:none}
+.r25-ms .ms-vide{margin:18px 16px}
+.r25-arch{margin:0 16px}
+.r25-quota{margin:20px 16px 0;font:500 13px/1.35 var(--font-body);color:#6B6B73}
+.r25-quota button{border:0;background:none;padding:0;color:#D6005C;font:700 13px var(--font-body);cursor:pointer}
+:root[data-theme="dark"] .r25-l{background:var(--sf);border-color:rgba(255,255,255,.12);color:var(--tx)}
+:root[data-theme="dark"] .r25-d b{color:var(--tx)}
+:root[data-theme="dark"] .r25-d small{color:var(--mu)}
+:root[data-theme="dark"] .r25-l.soir .r25-d small:first-child,:root[data-theme="dark"] .r25-t small{color:#FF5C9D}
+:root[data-theme="dark"] .r25-pile i{box-shadow:0 0 0 2px var(--sf);background-color:var(--sf2)}
+:root[data-theme="dark"] .r25-mc{background:#FFFFFF;color:#0F1A3A}
+:root[data-theme="dark"] .r25-lv{background:#1B2858}
+:root[data-theme="dark"] .r25-quota{color:var(--mu)}
+:root[data-theme="dark"] .r25-quota button{color:#FF5C9D}
+/* 🏠 R21 · ACCUEIL, DA FINALE (W2 v577, 09/11) — tout est sous .r21-home (posé sur la racine de l'Accueil seulement si r21On()) ; bleu nuit #0F1A3A, pastilles #1E2C63, magenta #FF006E.
+   Référence : prototype W7 (_explorations/w7-mode-sombre-2026-11-08/gen-prototype.py), configuration finale (blanc · A4 · bas B1). Le thème Nuit n'est pas touché. */
+:root:not([data-theme="dark"]) .da6-home.r21-home{background:#FFFFFF!important}
+:root:not([data-theme="dark"]) body:has(.r21-home){background:#FFFFFF}
+/* la cloche : un rond gris, sans ombre */
+:root:not([data-theme="dark"]) .r21-home .c02-hd .hp-rond[data-hp="cloche"]{background:#F3F3F6;box-shadow:none;color:#6B6B73}
+/* le widget « Ta soirée » : pastilles bleu nuit écrites en blanc, Partager magenta */
+.r21-home .r11-p:not(.m){background:#1E2C63;color:#FFFFFF}
+/* Livia A4 adoucie : la question à 30 px, « Tu me dis • Je trie • Tu sors » sur une ligne (points magenta), champ plus haut */
+:root[data-da6="1"] .r21-home section.hb.lu.c02-lu.da6-lu{padding:18px 16px 16px}
+.r21-home .da6-lu .da6-q{font-size:30px;margin-top:12px}
+.r21-home .da6-lu .da6-123{display:flex;flex-wrap:nowrap;align-items:center;gap:0;margin-top:8px;white-space:nowrap;overflow:hidden}
+.r21-home .da6-lu .da6-123 li{flex:none;display:flex;align-items:center}
+.r21-home .da6-lu .da6-123 li+li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:#FF006E;margin:0 10px}
+.r21-home .da6-lu .da6-pas{width:auto;height:auto;padding:0;background:none;border-radius:0;color:#C9D0E6;font:500 14.5px/1.4 var(--font-body)}
+.r21-home .da6-lu .da6-pas i{display:none}
+.r21-home .da6-lu .da6-pas b{font-weight:500;overflow:visible}
+.r21-home .da6-lu .hb-bar{height:56px;margin-top:14px}
+/* Mes soirées : bulle bleu nuit, écriture blanche, chevron magenta */
+.r21-ms{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;min-height:52px;margin:12px 0 0;padding:14px 16px;border:0;border-radius:18px;background:#0F1A3A;color:#FFFFFF;font:500 15px/1.2 var(--font-body);text-align:left;cursor:pointer}
+.r21-ms-t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r21-ms-t b{font-weight:700}
+.r21-chev{flex:none;color:#FF006E;font:700 22px/1 var(--font-body)}
+/* titres de section : Bebas bleu nuit, un point magenta devant ; plus de surligneur lime */
+:root[data-da6="1"] .r21-home :is(.hp-sech h3,.hp-sech h5,.hp-selh){color:#0F1A3A;display:flex;align-items:center;gap:9px}
+:root[data-theme="dark"][data-da6="1"] .r21-home :is(.hp-sech h3,.hp-sech h5,.hp-selh){color:#FFFFFF}
+:root[data-theme="dark"] .r21-ms,:root[data-theme="dark"] .r21-105{box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+:root[data-theme="dark"][data-da6] .r21-home .hp-rc{box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+:root[data-da6="1"] .r21-home :is(.hp-sech h3,.hp-sech h5,.hp-selh)::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:#FF006E}
+.r21-home .r4-hl,.r21-home .r2-hl{background:none!important;padding:0!important;box-shadow:none!important;color:inherit!important}
+/* cartes des rails : bleu nuit, écriture blanche */
+:root[data-theme] .r21-home .hp-rc{background:#0F1A3A;box-shadow:0 6px 16px rgba(15,26,58,.18)}
+:root[data-theme] .r21-home .hp-rc .hp-rc-t{padding-left:10px;padding-right:8px}
+:root[data-theme] .r21-home .hp-rc .hp-rc-t b{color:#FFFFFF}
+:root[data-theme] .r21-home .hp-rc .hp-rc-t em,:root[data-theme] .r21-home .hp-rc .hp-rc-t em.hp-rc-ouvre{color:#A9B0C8}
+:root[data-theme] .r21-home .hp-rc .hp-rc-t em.hp-rc-ouvre.jq,:root[data-theme] .r21-home .hp-rc .a09-lime{color:#B6F23C}
+/* « Le 105 de ce soir » : en grand, cerclé de bleu nuit, badge bleu nuit, pin de Livia posé dessus */
+.r21-105{position:relative;display:block;width:calc(100% - 32px);height:230px;margin:2px 16px 8px;padding:0;border:0;border-radius:22px;overflow:hidden;background:#1B2858;box-shadow:0 0 0 4px #0F1A3A;cursor:pointer;text-align:left;color:#FFFFFF}
+.r21-105 img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.r21-105-bk{position:absolute;left:14px;top:14px;z-index:1;background:#0F1A3A;color:#FFFFFF;border-radius:999px;padding:5px 11px;font:700 11px/1.2 var(--font-body);letter-spacing:.08em;text-transform:uppercase}
+.r21-105 .r21-pin{position:absolute;right:14px;top:10px;z-index:1;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+.r21-105-lb{position:absolute;left:0;right:0;bottom:0;z-index:1;display:block;padding:44px 16px 14px;background:linear-gradient(to top,rgba(15,26,58,.94),rgba(15,26,58,0))}
+.r21-105-lb b{display:block;font:400 34px/.95 var(--da6-titre);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r21-105-lb small{display:block;margin-top:4px;font:500 13px/1.3 var(--font-body);opacity:.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* sans plan : « Ce soir, on a une idée » (même bulle que le widget) + les trois mots */
+.r21-idee .da6-wt h2{margin:0}
+.r21-idee-v{font-style:normal;font-size:18px;line-height:1}
+.r21-idee .da6-wp{margin-top:10px}
+.r21-idee .da6-sq{cursor:pointer}
+.r21-3m{display:flex;align-items:center;flex-wrap:nowrap;margin:12px 0 0;white-space:nowrap;overflow:hidden;color:#C9D0E6;font:500 14.5px/1.4 var(--font-body)}
+.r21-3m span+span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#FF006E;margin:0 10px;vertical-align:1px}
+/* pops : « Ajoute Spot 105 à ton écran » passe en blanc (un pop « autre ») ; « Alors, … ? » l'est déjà */
+:root:not([data-theme="dark"]) .r21-home .c3-inst{background:#FFFFFF;box-shadow:0 4px 14px rgba(15,26,58,.12);border:1px solid #ECECF1}
+/* 🏙️ R26 · SÉLECTEUR DE VILLE (W7 v577, 09/11) — demi-feuille blanche « Choisis ta ville », vignettes photo 3 par ligne, ville active cerclée de magenta.
+   Entrée par r26In en fill « backwards » (et non .slide-up « both ») : sinon l'animation garderait la main sur transform et la feuille ne suivrait pas le doigt. */
+@keyframes r26In{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.r26-sheet{width:100%;max-width:600px;max-height:82vh;display:flex;flex-direction:column;background:#FFFFFF;color:#0F1A3A;border-radius:24px 24px 0 0;padding:4px 16px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(15,26,58,.22);animation:r26In .3s var(--ease) backwards;will-change:transform;touch-action:pan-y}
+.r26-grab{display:block;width:100%;height:24px;margin:0 0 2px;padding:0;border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.r26-grab i{display:block;width:38px;height:5px;margin:0 auto;border-radius:999px;background:#D5D5DC}
+.r26-t{margin:0 0 12px;font:400 28px/1 var(--da6-titre,"Bebas Neue",Impact,sans-serif);letter-spacing:.02em;color:#0F1A3A}
+.r26-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:3px;margin:-3px}
+.r26-vc{position:relative;display:block;width:100%;aspect-ratio:3/2;padding:0;border:0;border-radius:14px;overflow:hidden;background:#E9EAF0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.r26-vc img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.r26-nm{position:absolute;left:0;right:0;bottom:0;padding:16px 8px 6px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.72));color:#FFFFFF;font:700 13px/1.15 var(--font-body);text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r26-vc.on::after{content:"";position:absolute;inset:0;border-radius:14px;box-shadow:inset 0 0 0 3px #FF006E;pointer-events:none}
+:root[data-theme="dark"] .r26-sheet{background:#0F1A3A;color:#FFFFFF;box-shadow:0 -10px 30px rgba(0,0,0,.5)}
+:root[data-theme="dark"] .r26-t{color:#FFFFFF}
+:root[data-theme="dark"] .r26-grab i{background:rgba(255,255,255,.35)}
+:root[data-theme="dark"] .r26-vc{background:#1B2858}
 /* ── le mouvement : le pin du splash tombe, le ♥ bat une fois (200 ms) ── */
 :root[data-da6="1"] #msp-splash .msp-splash-logo{animation:da6-tombe .2s cubic-bezier(.2,.8,.3,1.15) both}
 @keyframes da6-tombe{from{transform:translateY(-28px);opacity:0}to{transform:none;opacity:1}}
 [data-da6-bat="1"]>svg{animation:da6-bat .2s ease-out}
 @keyframes da6-bat{50%{transform:scale(1.28)}}
 @media (prefers-reduced-motion:reduce){:root[data-da6="1"] #msp-splash .msp-splash-logo{animation:none}[data-da6-bat="1"]>svg{animation:none}}
+</style>
+<style id="r24-event">/* 🎟️ R24 · FICHE EVENT BLEU NUIT ÉTOILÉ (09/11, W5 ; prototype W7 écran Event, configuration finale §L). Classes .r24-* seulement, posées par
+   r24Fiche() quand R24_EVENT_FICHE=1 : à 0, aucune de ces règles ne touche rien. Bleu nuit #0F1A3A, bulles et pastilles blanches (#FFFFFF, encre #0F1A3A),
+   étoiles = dégradés radiaux sur background-size (aucune image), magenta seulement sur « Suivre » et l'état « dans ta soirée ». */
+.ev-ov.c6-fiche.r24-fiche{background:#0F1A3A;color:#FFFFFF;color-scheme:dark}
+.ev-sheet.c6-fs.r24-fs{background:#0F1A3A;color:#FFFFFF}
+.c6-fh.r24-fh{background:#0F1A3A}
+.r24-fh .c6-fh-t{color:#FFFFFF}
+.c6-sc.r24-sc{background-color:#0F1A3A;background-image:radial-gradient(1px 1px at 8% 12%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 22% 64%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(1px 1px at 37% 28%,rgba(255,255,255,.6) 50%,transparent 52%),radial-gradient(1.4px 1.4px at 54% 8%,#fff 50%,transparent 52%),radial-gradient(1px 1px at 66% 44%,rgba(255,255,255,.7) 50%,transparent 52%),radial-gradient(1px 1px at 78% 18%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 91% 58%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(1px 1px at 13% 88%,rgba(255,255,255,.6) 50%,transparent 52%),radial-gradient(1px 1px at 47% 82%,#fff 50%,transparent 52%),radial-gradient(1.3px 1.3px at 84% 86%,rgba(255,255,255,.7) 50%,transparent 52%),radial-gradient(1px 1px at 30% 50%,rgba(255,255,255,.5) 50%,transparent 52%),radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,.6) 50%,transparent 52%);background-size:180px 180px;background-attachment:local}
+.r24-aff{position:relative;display:grid;place-items:center;width:100%;height:300px;margin:0;padding:12px 24px;border:0;overflow:hidden;background:#0F1A3A;cursor:zoom-in;box-sizing:border-box}
+.r24-flou{position:absolute;inset:-28px;background-size:cover;background-position:center;filter:blur(20px) brightness(.5) saturate(1.2);transform:translateZ(0)}
+.r24-flou::after{content:"";position:absolute;inset:0;background:rgba(15,26,58,.45)}
+.r24-aff img{position:relative;display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.5)}
+.r24-bd{display:flex;flex-direction:column;gap:12px;padding:14px 16px calc(24px + env(safe-area-inset-bottom,0px))}
+.r24-kick{font:700 12px/1.2 var(--font-body);letter-spacing:.1em;text-transform:uppercase;color:#FF7AB3}
+:root .ev-ov.r24-fiche .ev-tt.r24-tt{margin:-6px 0 0;font:400 38px/.95 "Bebas Neue",Impact,"Arial Narrow",sans-serif;letter-spacing:.015em;text-transform:uppercase;color:#FFFFFF;overflow-wrap:anywhere;text-wrap:balance}
+.r24-lieu{margin:-4px 0 0;font:500 16px/1.35 var(--font-body);color:#C9D0E6}
+.r24-lieu-lk{display:inline;padding:0;margin:0;border:0;background:none;font:700 16px/1.35 var(--font-body);color:#FFFFFF;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px;cursor:pointer}
+.r24-lieu-lk i{font-style:normal;margin-left:4px;text-decoration:none;display:inline-block}
+.r24-acts{display:flex;gap:8px}
+.r24-act{flex:1 1 0;min-width:0;min-height:46px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 6px;border:0;border-radius:999px;background:#FFFFFF;color:#0F1A3A;font:700 14.5px/1.1 var(--font-body);text-decoration:none;cursor:pointer;box-sizing:border-box;white-space:nowrap}
+.r24-act span{overflow:hidden;text-overflow:ellipsis}
+.r24-act .ev-i{width:17px;height:17px;stroke-width:2}
+.r24-act.ok{color:#C4005A}
+.r24-repli{margin-top:-6px;color:#A9B0C8}
+.r24-bub{display:block;background:#FFFFFF;color:#111114;border-radius:16px;padding:12px 14px;font:400 15px/1.45 var(--font-body);text-decoration:none;box-sizing:border-box}
+.r24-bt{display:block;font:700 15px/1.3 var(--font-body);margin-bottom:2px}
+.r24-lr{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid #E4E4EA}
+.r24-lr b{font-weight:600;min-width:0;overflow-wrap:anywhere}.r24-lr span{flex:none;color:#6B6B73}
+.r24-org{padding-top:8px;color:#6B6B73;font:400 14px/1.4 var(--font-body)}
+.r24-org:first-child{padding-top:0}
+.r24-org-n{display:inline;padding:0;border:0;background:none;font:600 14px/1.4 var(--font-body);color:#111114;cursor:pointer}
+.r24-suivre{display:inline;padding:0;border:0;background:none;font:700 14px/1.4 var(--font-body);color:#C4005A;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.r24-suivre.ok{color:#6B6B73;text-decoration:none}
+.r24-dsc{margin:0;white-space:pre-line}
+.r24-dsc.plie{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.r24-lire{display:inline-block;margin-top:6px;padding:0;border:0;background:none;font:600 14px var(--font-body);color:#2563EB;cursor:pointer}
+.r24-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600}
+.r24-row>span{display:flex;align-items:center;gap:6px;min-width:0}.r24-row .ev-i{color:#6B6B73}
+.r24-row>b{flex:none;font-weight:700}
+.r24-adr{display:flex;align-items:center;gap:10px;color:#111114}
+.r24-adr>span{flex:1;min-width:0;display:flex;flex-direction:column}.r24-adr b{font-weight:600}.r24-adr small{color:#6B6B73;font-size:13px}
+.r24-adr .ev-i{color:#6B6B73}
+.r24-src{margin:0;font:400 11px/1.45 var(--font-body);color:#A9B0C8}
+</style>
+<style id="r23-carte">/* 🌌 R23 · EVENTS SUR LA CARTE (09/11, W4 de la v577 ; maquettes `explorer_events` / `vignette_event` de _explorations/validation-v577-2026-11-09/gen.py,
+   pin `.pin.ev` du prototype W7). Classes .r23-* et le mot [data-ex-chip="r23ev"] seulement : rien ne bouge à R23_EVENTS_CARTE=0. */
+/* le pin « nuit étoilée » : l'étiquette de l'heure collée à droite de la goutte */
+.r23-mk{overflow:visible}
+.r23-mk .r23-pin{display:block;overflow:visible;filter:drop-shadow(0 2px 4px rgba(0,0,0,.45))}
+.r23-mk .r23-h{position:absolute;left:calc(100% - 5px);top:1px;padding:3px 5px 2px;border-radius:6px;background:#0F1A3A;color:#FFFFFF;border:1px solid rgba(255,255,255,.55);font:700 10px/1 var(--font-body);letter-spacing:.02em;white-space:nowrap;pointer-events:none}
+.r23-mk.da5-sel .r23-h{font-size:11.5px;top:3px}
+/* le mot « events · N » : gris comme les autres éteint ; allumé = une pastille au dégradé et aux grains du pin (§H 3a B) */
+:root[data-r23="1"][data-r16="1"] .ex-root.r16 .ex-chips .ex-chip.r16-mot[data-ex-chip="r23ev"][aria-pressed="true"]{color:#FFFFFF!important;font-size:17px;padding:0 10px;border-radius:999px;text-shadow:none;
+  background:radial-gradient(1px 1px at 18% 30%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 82% 26%,rgba(255,255,255,.85) 50%,transparent 52%),radial-gradient(1px 1px at 70% 76%,#fff 50%,transparent 52%),radial-gradient(1px 1px at 30% 80%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(circle at 30% 30%,#2F44A0,#0F1A3A 75%)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)!important}
+/* la pastille magenta « ♡ N de plus · zoome », en haut à droite (§H 3b A) */
+.r23-plus{align-self:flex-end;border:0;margin:0;padding:9px 13px;border-radius:999px;background:#FF006E;color:#FFFFFF;font:700 13px/1 var(--font-body);white-space:nowrap;box-shadow:0 6px 16px rgba(255,0,110,.35);cursor:pointer}
+/* la vignette d'un event dans le carrousel (§H 3c B) : bleu nuit étoilé, l'affiche à gauche, le texte à droite */
+.da5-carte.r23-vig{display:flex;gap:12px;padding:10px;box-sizing:border-box;color:#FFFFFF;border:1px solid rgba(255,255,255,.25);
+  background-color:#0F1A3A;background-image:radial-gradient(1px 1px at 62% 14%,#fff 50%,transparent 52%),radial-gradient(1.2px 1.2px at 88% 40%,rgba(255,255,255,.8) 50%,transparent 52%),radial-gradient(1px 1px at 74% 86%,rgba(255,255,255,.7) 50%,transparent 52%),radial-gradient(1px 1px at 52% 62%,rgba(255,255,255,.6) 50%,transparent 52%)}
+.r23-vig-aff{position:relative;flex:0 0 38%;height:100%;border-radius:10px;overflow:hidden;background:#1B2858}
+.r23-vig-aff img{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;display:block}
+.r23-vig-vide{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.55)}.r23-vig-vide .da4-mono{width:58%;height:auto}
+.r23-vig-t{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.r23-vig-t small{font:700 11px/1.2 var(--font-body);letter-spacing:.07em;color:#FF7AB3}
+.r23-vig-t b{font:400 27px/1 var(--da5-titre,'Bebas Neue',Impact,sans-serif);letter-spacing:.02em;text-transform:uppercase;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.r23-vig-t span{font:500 12.5px/1.35 var(--font-body);color:#A9B0C8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.r23-vig-t i{font:600 12.5px/1 var(--font-body);font-style:normal;color:#FFFFFF;opacity:.92;margin-top:2px}
 </style>
 </head>
 <body>
@@ -4416,7 +4900,7 @@ button.da6-pas{cursor:pointer}button.da6-pas::after{content:"";position:absolute
 <script>/* 🔗 QR Code Generator (Kazuhiko Arase, MIT) — minifié. v497 : l'affiche image est retirée, la lib est GARDÉE (décision de Vincent) pour le futur « QR à montrer à table » qui encodera le lien du plan à l'écran. Historique : embarqué pour dessiner le QR du lien de plan sur l'affiche (chantier 5). Expose window.qrcode. Inline = CSP-safe, non transpilé par build.js. */
 var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),v(t,r),e>=7&&d(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},d=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},v=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var d=0;for(g=0;g<r.length;g+=1)d+=r[g].totalCount;var v=new Array(d),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(v[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(v[w]=a[u][g],w+=1);return v}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"var(--bg)":"var(--tx)",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1})},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(o*r,n*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,d=3,v=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case d:return function(t,r){return(t+r)%3==0};case v:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,d=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var v=String.fromCharCode(o[s]);s+=1,i.contains(d+v)?d+=v:(h.write(i.indexOf(d),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(d+v)),d=v)}return h.write(i.indexOf(d),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?module.exports=t():("undefined"!=typeof window?window:this).qrcode=t()}(function(){return qrcode});
 </script>
-<script src="app.js?v=52ae6b5f" defer></script>
+<script src="app.js?v=037be125" defer></script>
 
 <script>
 // 🔄 SW + mise à jour in-app : le SW fait déjà skipWaiting+claim, donc quand une nouvelle
