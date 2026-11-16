@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="robots" content="noindex"/><title>Spot 105</title>
+<script>/* Repli : un lien /s/<id>/ dont la page n'est pas (encore) générée — spot ajouté depuis la dernière
+   génération — ouvre quand même le spot. Tout autre chemin inconnu renvoie à l'accueil de l'app. */
+(function(){/* chemin normalisé : « //evil.com/s/1/ » ne doit JAMAIS donner une base « //evil.com/ » (URL vers un autre domaine) */
+var p=location.pathname.replace(/^\/+/,"/"),i=p.indexOf("/s/"),base=i>=0?p.slice(0,i+1):"/my-safe-place/";
+var m=p.match(/\/s\/(\d{1,9})\/?$/);var f=new URLSearchParams(location.search).get("from");
+location.replace(base+(m?"?spot="+m[1]+(f?"&from="+encodeURIComponent(f):""):""));})();</script>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0B0714;color:#F4EFFA;font:16px system-ui,sans-serif}a{color:#FF3D96}</style>
+</head><body><a href="/my-safe-place/">Spot 105</a></body></html>
